@@ -173,7 +173,7 @@ TableOperations.prototype.dialogTableProperties = function() {
 		dialog.content.style.width = "400px";
 		dialog.content.innerHTML = " \
 <div class='title'\
- style='background: url(" + dialog.baseURL + dialog.editor.imgURL("table-prop.gif", "TableOperations") + ") #fff 98% 50% no-repeat'>" + i18n["Table Properties"] + "\
+ style='background: url(" + dialog.baseURL + dialog.editor.imgURL("table-prop.gif", "TableOperations") + ") #ddf 98% 50% no-repeat'>" + i18n["Table Properties"] + "\
 </div> \
 <table style='width:100%'> \
   <tr> \
@@ -272,7 +272,7 @@ TableOperations.prototype.dialogTableProperties = function() {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement(dialog.editor._iframe, "c");
-	});
+	}, 410, 540);
 };
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
@@ -326,7 +326,7 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		dialog.content.style.width = "400px";
 		dialog.content.innerHTML = " \
 <div class='title'\
- style='background: url(" + dialog.baseURL + dialog.editor.imgURL(cell ? "cell-prop.gif" : "row-prop.gif", "TableOperations") + ") #fff 98% 50% no-repeat'>" + i18n[cell ? "Cell Properties" : "Row Properties"] + "</div> \
+ style='background: url(" + dialog.baseURL + dialog.editor.imgURL(cell ? "cell-prop.gif" : "row-prop.gif", "TableOperations") + ") #ddf 98% 50% no-repeat'>" + i18n[cell ? "Cell Properties" : "Row Properties"] + "</div> \
 <table style='width:100%'> \
   <tr> \
     <td id='--HA-layout'> \
@@ -373,7 +373,7 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement(dialog.editor._iframe, "c");
-	});
+	}, 410, 265);
 };
 
 // this function gets called when some button from the TableOperations toolbar

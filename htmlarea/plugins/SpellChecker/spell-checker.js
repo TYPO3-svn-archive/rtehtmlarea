@@ -87,12 +87,12 @@ SpellChecker.prototype.buttonPress = function(editor, id) {
 		var win;
 		if (HTMLArea.is_ie) {
 			win = window.open(uiurl, "SC_spell_checker",
-					  "toolbar=no,location=no,directories=no,status=no,menubar=no," +
+					  "toolbar=no,location=no,directories=no,menubar=no," +
 					  "scrollbars=no,resizable=yes,width=650,height=450");
 		} else {
 			win = window.open(uiurl, "SC_spell_checker",
-					  "toolbar=no,menubar=no,personalbar=no,width=650,height=450," +
-					  "scrollbars=no,resizable=yes");
+					  "toolbar=no,menubar=no,personalbar=no,width=650,height=470," +
+					  "scrollbars=no,resizable=yes,dependent=yes");
 		}
 		win.focus();
 		break;

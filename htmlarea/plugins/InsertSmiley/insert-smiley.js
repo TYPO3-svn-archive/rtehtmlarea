@@ -38,7 +38,7 @@ if(param.editor_url == "../") {
 	param.editor_url = document.URL;
 	param.editor_url = param.editor_url.replace(/^(.*\/).*\/.*$/g, "$1");
 }
-  editor._popupDialog("plugin://InsertSmiley/insertsmiley", function(p) { self.setTag(p); }, param);
+  editor._popupDialog("plugin://InsertSmiley/insertsmiley", function(p) { self.setTag(p); }, param, 340, 200);
 };
 
 InsertSmiley.prototype.setTag = function(param) { 

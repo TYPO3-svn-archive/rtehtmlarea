@@ -67,6 +67,5 @@ CharacterMap.prototype.buttonPress = function(editor) {
         
         editor.insertHTML( entity );
                
-    }, null);
-}
-
+    }, null, 485, 320);
+};

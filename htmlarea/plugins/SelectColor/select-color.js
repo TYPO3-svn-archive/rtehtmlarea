@@ -116,7 +116,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				var editor = dialog.editor;
 				var doc = editor._doc;
 				dialog.content.style.width = "330px";
-				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog);
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
 					var targ;
@@ -160,8 +160,8 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				}
 				dialog.modal = true;
 				dialog.showAtElement();
-			}
-		);
+			},
+		340, 200);
 		break;
 	   case "color":
 		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
@@ -173,7 +173,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
 				dialog.content.style.width = "330px";
-				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog);
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
 					var targ;
@@ -201,8 +201,8 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = field.value;
 				dialog.modal = true;
 				dialog.showAtElement();
-			}
-		);
+			},
+		340, 200);
 		break;
 	   case "tag":
 		var dialog = new PopupWin(this.editor, i18n["color_title"], 
@@ -214,7 +214,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
 				dialog.content.style.width = "330px";
-				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog);
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
 					var targ;
@@ -242,8 +242,8 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = "";
 				dialog.modal = true;
 				dialog.showAtElement();
-			}
-		);
+			},
+		340, 200);
 	}
 };
 
@@ -284,7 +284,7 @@ SelectColor.prototype.processStyle = function(dialog, params, element, field) {
 /**
  * Making color selector table
  */
-SelectColor.prototype.renderPopupSelectColor = function(sID,dialog) {
+SelectColor.prototype.renderPopupSelectColor = function(sID,dialog,title) {
 	var editor = this.editor;
 	var cfg = editor.config;
 	var i18n = SelectColor.I18N;
@@ -297,7 +297,8 @@ SelectColor.prototype.renderPopupSelectColor = function(sID,dialog) {
 	var szColor = "";
 	var szColorId = "";
 
-	sz = '<table style="width:100%"><tr><td id="--HA-layout"><fieldset>';
+	sz = '<div class="title">' + title + '</div>';
+	sz += '<table style="width:100%"><tr><td id="--HA-layout"><fieldset>';
 	sz += '<input type="hidden" name="' + sID + '" id="' + sID + '" value="" />';
 	sz += '<table style="width:100%;"><tr><td style="vertical-align: middle;"><span style="margin-left: 5px; height: 1em;" class="dialog buttonColor" \
 				onMouseover="className += \' buttonColor-hilite\';" \

@@ -2,7 +2,7 @@
 // Distributed under the same terms as HTMLArea itself.
 // Version 1.10
 
-function PopupWin(editor, title, handler, initFunction) {
+function PopupWin(editor, title, handler, initFunction, width, height) {
 	this.editor = editor;
 	this.handler = handler;
 
@@ -11,7 +11,7 @@ function PopupWin(editor, title, handler, initFunction) {
 //	var dlg = window.open("", "__ha_dialog",
 //	var dlg = this.editor._iframe.contentWindow.open("", "__ha_dialog",
 	var dlg = this.editor._iframe.contentWindow.open("", "",
-		"toolbar=no,menubar=no,personalbar=no,status=no,width=100,height=100,scrollbars=no,resizable=yes,dependent=yes");
+		"toolbar=no,menubar=no,personalbar=no,width=" + (width?width:100) + ",height=" + (height?height:100) + ",scrollbars=no,resizable=yes,dependent=yes");
 // End change by Stanislas Rolland 2004-11-01
 
 	this.window = dlg;

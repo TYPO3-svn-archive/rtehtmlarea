@@ -36,7 +36,7 @@ var param = new Object();
 param.editor = editor;
 
   if(/\w/.test(sel))
-    editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param);
+    editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param, 390, 100);
   else
     alert(QuickTag.I18N['You have to select some text']);
 };

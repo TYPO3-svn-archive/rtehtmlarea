@@ -103,7 +103,7 @@
 .dialog table { border-collapse: collapse; }
 
 .dialog .title {
-  background: #008;
+  background: #ddf;
   color: #ff8;
   border-bottom: 1px solid #000;
   padding: 1px 0px 2px 5px;
@@ -160,7 +160,7 @@
 .popupwin { padding: 0px; margin: 0px; }
 
 .popupwin .title {
-  background: #fff;
+  background: #ddf;
   color: #000;
   font-weight: bold;
   font-size: 120%;

@@ -145,7 +145,7 @@ InlineCSS._pluginInfo = {
 	developer     : "Stanislas Rolland",
 	developer_url : "http://www.fructifor.com/",
 	c_owner       : "Stanislas Rolland",
-	sponsor       : "Fructifor.com",
+	sponsor       : "Fructifor Inc.",
 	sponsor_url   : "http://www.fructifor.com/",
 	license       : "htmlArea"
 };

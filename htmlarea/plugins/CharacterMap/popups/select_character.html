@@ -32,7 +32,7 @@ select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
 button { width: 70px; }
 table .label { text-align: right; width: 8em; }
 
-.title { background: none; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
+.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
 border-bottom: 1px solid black; letter-spacing: 2px;
 }
 #buttons {
@@ -46,7 +46,7 @@ border-bottom: 1px solid black; letter-spacing: 2px;
 // Original Author - Bernhard Pfeifer novocaine@gmx.net
 
 CharacterMap = window.opener.CharacterMap; // load the CharacterMap plugin and lang file ;-)
-window.resizeTo(480, 300);
+//window.resizeTo(480, 300);
 
 function _CloseOnEsc() {
     if ( event.keyCode == 27 ) {
@@ -87,6 +87,7 @@ function onCancel() {
 </head>
 <body style="background: Buttonface; margin: 0px; padding: 0px" onload="Init();self.focus();">
 <form method="get" style="margin:2px; padding:2px" onSubmit="Set(document.getElementById('showCharacter').value); return false;">
+<div class="title" style="width: 460px;">Insert special character</div>
 <table border="0" cellspacing="0" cellpadding="4" width="100%">
  <tr>
   <td style="background: Buttonface" valign="center"><div style="padding: 1px; white-space: nowrap; font-family: tahoma,arial,sans-serif; font-size: 11px; font-weight: normal;">HTML value:<div id="characterPreview"></div></div></td>

@@ -5,7 +5,7 @@ switch( $HTTP_GET_VARS["popupname"] ) {
 }
 $src = $HTTP_GET_VARS["srcpath"];
 ?>
-<html style="width: 500px; height: 300px;">
+<html style="width: 550px; height: 350px;">
 <head>
 <title><?php echo $title;?></title>
 <script type="text/javascript" src="htmlarea/popups/popup.js"></script>
@@ -49,7 +49,7 @@ if ($HTTP_GET_VARS["popupname"] == "image") {
 </script>
 </head>
 
-<body style="background:ButtonFace; margin:0px; padding:0px; width: 500px; height: 300px; border: none;" onload="Init();">
+<body style="background:ButtonFace; margin:0px; padding:0px; width: 550px; height: 350px; border: none;" onload="Init();">
 <table border="0px" cellspacing="0px" cellpadding="0" width="100%" height="100%">
 <tr><td>
 <?php

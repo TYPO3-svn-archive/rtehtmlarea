@@ -1,3 +1,6 @@
+2004-12-20  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Revision of initial dimensions setting of all popup windows
+
 2004-12-18  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Correction to textarea width
 	* Addition of InlineCSS plugin

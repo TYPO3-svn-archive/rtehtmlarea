@@ -1646,7 +1646,7 @@ HTMLArea.prototype._createLink = function(link) {
 		a.title = param.f_title.trim();
 		editor.selectNodeContents(a);
 		editor.updateToolbar();
-	}, outparam);
+	}, outparam, 400, 145);
 };
 
 // Called when the user clicks on "InsertImage" button.  If an image is already
@@ -1700,7 +1700,7 @@ HTMLArea.prototype._insertImage = function(image) {
 			    case "f_horiz"  : img.hspace = parseInt(value || "0"); break;
 			}
 		}
-	}, outparam);
+	}, outparam, 400, 385);
 };
 
 // Called when the user clicks the Insert Table button
@@ -1754,7 +1754,7 @@ HTMLArea.prototype._insertTable = function() {
 			editor.insertNodeAtSelection(table);
 		}
 		return true;
-	}, null);
+	}, null, 440, 175);
 };
 
 /***************************************************
@@ -1800,7 +1800,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 			if (color) { // selection not canceled
 				editor._doc.execCommand(cmdID, false, "#" + color);
 			}
-		}, HTMLArea._colorToRgb(this._doc.queryCommandValue(cmdID)));
+		}, HTMLArea._colorToRgb(this._doc.queryCommandValue(cmdID)), 200, 182);
 		break;
 	    case "createlink":
 		this._createLink();
@@ -1830,7 +1830,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 		break;
 	    case "inserttable": this._insertTable(); break;
 	    case "insertimage": this._insertImage(); break;
-	    case "about"    : this._popupDialog("about.html", null, this); break;
+	    case "about"    : this._popupDialog("about.html", null, this, 475,350); break;
 	    case "showhelp" : window.open(_editor_url + "reference.html", "ha_help"); break;
 	    case "killword": this._wordClean(); break;
 	    case "cut":
@@ -2535,8 +2535,8 @@ HTMLArea._colorToRgb = function(v) {
 // receives an URL to the popup dialog and a function that receives one value;
 // this function will get called after the dialog is closed, with the return
 // value of the dialog.
-HTMLArea.prototype._popupDialog = function(url, action, init) {
-	Dialog(this.popupURL(url), action, init);
+HTMLArea.prototype._popupDialog = function(url, action, init, width, height) {
+	Dialog(this.popupURL(url), action, init, width, height);
 };
 
 // paths
@@ -2680,7 +2680,7 @@ HTMLArea.prototype.renderPopup_link = function() {
 		}
 	}
 	
-	editor._popupDialog("../../t3_popup.php" + addUrlParams + "&popupname=link&srcpath="+encodeURI(rtePathLinkFile), null, backreturn);
+	editor._popupDialog("../../t3_popup.php" + addUrlParams + "&popupname=link&srcpath="+encodeURI(rtePathLinkFile), null, backreturn, 550, 350);
 	
 	// don't update the toolbar and don't lose focus on the popup (for fix problems with Mozilla)
 	updateToolbarRemove();
@@ -2711,7 +2711,7 @@ HTMLArea.prototype.renderPopup_image = function() {
 		_selectedImage = image;
 	}
 	
-	editor._popupDialog("../../t3_popup.php" + addParams + "&popupname=image&srcpath="+encodeURI(rtePathImageFile), null, backreturn);
+	editor._popupDialog("../../t3_popup.php" + addParams + "&popupname=image&srcpath="+encodeURI(rtePathImageFile), null, backreturn, 550, 350);
 	
 	// don't update the toolbar and don't lose focus on the popup (for fix problems with Mozilla)
 	updateToolbarRemove();
@@ -2923,4 +2923,3 @@ function initEditor(editornumber) {
 		return false;
 	}
 };
-
