@@ -431,7 +431,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			
 			// Setting style: for the div-Tag
 			$RTEWidth = 460+($pObj->docLarge ? 150 : 0);
-			$RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'height:380px; width:'.$RTEWidth.'px;';
+			$RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'position:relative; left:0px; top:0px; height:380px; width:'.$RTEWidth.'px; border:solid 0px;';
 			
 			/* =======================================
 			 * SET THE TOOLBAR AND PLUGINS
@@ -489,7 +489,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				// Register RTE windows:
 			$pObj->RTEwindows[] = $PA['itemFormElName'];
 
-			// Check if we in Fullscreen mode: or check if wizard_rte call this
+			// Check if we are in Fullscreen mode: or check if wizard_rte call this
 			if (basename(PATH_thisScript)=="wizard_rte.php") {
 				// change the size of the RTE to fullscreen: use JS for this
 				$height = "window.innerHeight";
@@ -512,7 +512,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$item = 
 				$this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
-				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden">
+				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $RTEWidth . 'px; height: 380px;">
 				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($RTEdivStyle).'">
 				'.t3lib_div::formatForTextarea($value).'
 				</textarea>
@@ -634,7 +634,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			' . $this->buildJSMainLangArray() . '
 		</script>
 		<script type="text/javascript" src="' . $this->extHttpPath . 'htmlarea/htmlarea.js"></script>
-		<script type="text/javascript" src="' . $this->extHttpPath . 'typo3_rte.js"></script>
 		';
 	}
 	
@@ -693,6 +692,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
 			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
+			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
 			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';
 			RTEarea['.$number.']["plugin"] = new Array();';
 		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
@@ -757,6 +757,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$HTMLAreaColorsIndex = 0;
 			while( list(,$colorName) = each($HTMLAreaColors)) {
 				if($HTMLAreaColorsIndex && $HTMLAreaColorname[$colorName]) { 
+
 					$HTMLAreaJSColors .= ',';
 				}
 				$HTMLAreaJSColors .= $HTMLAreaColorname[$colorName];
