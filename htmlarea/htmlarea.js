@@ -1795,7 +1795,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	var editor = this;	// for nested functions
 	this.focusEditor();
 	cmdID = cmdID.toLowerCase();
-	//if (HTMLArea.is_gecko && !this.config.useCSS) try { this._doc.execCommand('useCSS', false, true); } catch (e) {};
+	if (HTMLArea.is_gecko && !this.config.useCSS) try { this._doc.execCommand('useCSS', false, true); } catch (e) {};
 	switch (cmdID) {
 	    case "htmlmode" : this.setMode(); break;
 	    case "hilitecolor":
