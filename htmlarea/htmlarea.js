@@ -1088,6 +1088,8 @@ HTMLArea.prototype.killWordOnPasteHandler = function (ev) {
 	var target = (ev.target) ? ev.target : ev.srcElement;
 	var owner = (target.ownerDocument) ? target.ownerDocument : target;
 	var editor = RTEarea[owner._editorNo]["editor"];
+		// if we dropped an image dragged from the TYPO3 Browser, let's close the browser window
+	if(typeof browserWin != "undefined") browserWin.close();
 	setTimeout(function() { HTMLArea._wordClean(editor._doc.body); editor.updateToolbar(); }, 250);
 };
 
@@ -2403,7 +2405,6 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 					// avoid certain attributes
 					continue;
 				}
-				if(root.tagName.toLowerCase() == "hr" && name == "style") continue;
 				var value;
 				if (name != "style") {
 					// IE5.5 reports wrong values. For this reason we extract the values directly from the root node.
@@ -2611,9 +2612,10 @@ function setRTEsizeByJS(divId, height, width) {
 	document.getElementById(divId).style.width = width;
 };
 
-/** Hit the Popup */
+/** Hide the Popup */
 function edHidePopup() {
 	Dialog._modal.close();
+	if(typeof browserWin != "undefined") setTimeout(function() {browserWin.focus();},200);
 };
 
 // Load a HTMLarea Plugin, but do not load the language file because we are assigning the TYPO3 generated language array.

@@ -66,7 +66,7 @@ switch( $popupname ) {
 <title><?php echo $title;?></title>
 <script type="text/javascript" src="htmlarea/popups/popup.js"></script>
 <script type="text/javascript">
-	var parent = window.opener;
+	//var parent = window.opener;
 	HTMLArea = window.opener.HTMLArea;
 
 	function Init() {
@@ -75,8 +75,8 @@ switch( $popupname ) {
 		__dlg_init();
   		document.body.onkeypress = __dlg_close_on_esc;
 
-		parent = window.opener;
-		self.parent = window.opener;
+		//parent = window.opener;
+		//self.parent = window.opener;
 		setTimeout("idPopup.focus();",3000);
 	};
 
@@ -86,12 +86,12 @@ if ($popupname == "image") {
 	setTimeout("init_selectedImageRef();",100);
 
 	function init_selectedImageRef() {
-		if (self.parent._selectedImage) {
+		if (window.opener._selectedImage) {
 			if (!idPopup.insertImagePropertiesInForm) {
 				setTimeout("init_selectedImageRef();",100);
 				return;
 			}
-			idPopup.selectedImageRef = self.parent._selectedImage;
+			idPopup.selectedImageRef = window.opener._selectedImage;
 			idPopup.insertImagePropertiesInForm();
 		}
 	}

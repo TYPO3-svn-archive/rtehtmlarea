@@ -549,6 +549,26 @@ class tx_rtehtmlarea_links_localFolderTree extends t3lib_folderTree {
 class tx_rtehtmlarea_links_rteFolderTree extends tx_rtehtmlarea_links_localFolderTree {
 }
 
+class tx_rtehtmlarea_TBE_FolderTree extends tx_rtehtmlarea_links_localFolderTree {
+	var $ext_noTempRecyclerDirs=0;          // If file-drag mode is set, temp and recycler folders are filtered out.
+
+	function ext_isLinkable($v)     {
+		if ($this->ext_noTempRecyclerDirs && (substr($v['path'],-7)=='_temp_/' || substr($v['path'],-11)=='_recycler_/'))       {
+			return 0;
+		} return 1;
+	}
+
+	function wrapTitle($title,$v)   {
+		if ($this->ext_isLinkable($v))  {
+			$aOnClick = 'return jumpToUrl(\'rtehtmlarea_browse_links.php?act='.$GLOBALS['SOBE']->act.'&mode='.$GLOBALS['SOBE']->mode.'&expandFolder='.rawurlencode($v['path']).'\');';
+			return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
+		} else {
+			return '<span class="typo3-dimmed">'.$title.'</span>';
+		}
+	}
+}
+
+
 /**
  * Script class for the Element Browser window.
  *
@@ -799,22 +819,22 @@ class tx_rtehtmlarea_browse_links {
 			$JScode.='
 				function link_typo3Page(id,anchor)	{
 					var theLink = \''.$this->siteURL.'?id=\'+id+(anchor?anchor:"");
-					self.parent.parent.renderPopup_addLink(theLink,cur_target,cur_class);
+					parent.window.opener.renderPopup_addLink(theLink,cur_target,cur_class);
 					return false;
 				}
 				function link_folder(folder)	{	//
 					var theLink = \''.$this->siteURL.'\'+folder;
-					self.parent.parent.renderPopup_addLink(theLink,cur_target,cur_class);
+					parent.window.opener.renderPopup_addLink(theLink,cur_target,cur_class);
 
 					return false;
 				}
 				function link_spec(theLink)	{	//
-					self.parent.parent.renderPopup_addLink(theLink,cur_target,cur_class);
+					parent.window.opener.renderPopup_addLink(theLink,cur_target,cur_class);
 					return false;
 				}
 				function link_current()	{	//
 					if (cur_href!="http://" && cur_href!="mailto:")	{
-						self.parent.parent.renderPopup_addLink(cur_href,cur_target,cur_class);
+						parent.window.opener.renderPopup_addLink(cur_href,cur_target,cur_class);
 					}
 					return false;
 
@@ -916,9 +936,12 @@ class tx_rtehtmlarea_browse_links {
 	 * Main function, detecting the current mode of the element browser and branching out to internal methods.
 	 *
 	 * @return	void
+
+
 	 */
 	function main()	{
 		global $BE_USER;
+
 
 		$modData = $BE_USER->getModuleData('rtehtmlarea_browse_links.php','ses');
 
@@ -1013,6 +1036,7 @@ class tx_rtehtmlarea_browse_links {
 					<td'.($this->act=='mail'?$bgcolorA:$bgcolor).'><a href="#" onclick="jumpToUrl(\'?act=mail\');return false;">'.$GLOBALS['LANG']->getLL('email',1).'</a></td>';
 		if (is_array($this->thisConfig['userLinks.']) && in_array('spec',$allowedItems))	$menu.='
 					<td'.($this->act=='spec'?$bgcolorA:$bgcolor).'><a href="#" onclick="jumpToUrl(\'?act=spec\');return false;">'.$GLOBALS['LANG']->getLL('special',1).'</a></td>';
+
 		$menu.='
 				</tr>
 			</table>';
@@ -1194,6 +1218,7 @@ class tx_rtehtmlarea_browse_links {
 			}
 
 			$selectJS = '
+
 				if (document.ltargetform.popup_width.options[document.ltargetform.popup_width.selectedIndex].value>0 && document.ltargetform.popup_height.options[document.ltargetform.popup_height.selectedIndex].value>0)	{
 					document.ltargetform.ltarget.value = document.ltargetform.popup_width.options[document.ltargetform.popup_width.selectedIndex].value+"x"+document.ltargetform.popup_height.options[document.ltargetform.popup_height.selectedIndex].value;
 					setTarget(document.ltargetform.ltarget.value);
@@ -1499,6 +1524,7 @@ class tx_rtehtmlarea_browse_links {
 						htmlspecialchars(t3lib_div::fixed_lgd($row['header'],$titleLen)).
 						'</a><br />';
 
+
 					// Finding internal anchor points:
 				if (t3lib_div::inList('text,textpic', $row['CType']))	{
 					$split = preg_split('/(<a[^>]+name=[\'"]?([^"\'>[:space:]]+)[\'"]?[^>]*>)/i', $row['bodytext'], -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1581,6 +1607,7 @@ class tx_rtehtmlarea_browse_links {
 
 			$dblist->start($id,t3lib_div::_GP('table'),$pointer,
 				t3lib_div::_GP('search_field'),
+
 				t3lib_div::_GP('search_levels'),
 				t3lib_div::_GP('showLimit')
 			);
@@ -1875,7 +1902,7 @@ class tx_rtehtmlarea_browse_links {
 
 							$lines[]='
 								<tr>
-									<td colspan="2"><img src="'.$iurl.'" width="'.$IW.'" height="'.$IH.'" border="1" alt="" /></td>
+									<td colspan="2"><img src="'.$iurl. '" style="width: ' . $IW . 'px; height: ' . $IH . 'px;" alt="" /></td>
 								</tr>';
 							$lines[]='
 								<tr>
@@ -1941,6 +1968,7 @@ class tx_rtehtmlarea_browse_links {
 	 * @param	string		The string to print in the header. The value is htmlspecialchars()'ed before output.
 	 * @return	string		The header HTML (wrapped in a table)
 	 */
+
 	function barheader($str)	{
 		return '
 

@@ -1,3 +1,12 @@
+2005-04-01  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.64
+	* Move minimal and full default Page TsConfig to external files.
+	* Generate Javascript localization files in typo3temp folder so that they can be cached by the browser.
+	* Generate the Mozilla/Firefox xpi extension file only when necessary.
+	* Method TS_transform_db of class t3lib_parsehtml_proc in order to avoid insertion of superfluous line breaks after tags PRE, UL, OL, H1, H2, H3, H4, H5, H6, HR, TABLE and BLOCKQUOTE. See section Known problems.
+	* Correction to problem with some popup windows in Mozilla 1.4.
+	* Produce xhtml-strict-compliant img tags when editing with Mozilla/Firefox. In editing mode, IE sets all names of style properties to upper case.
+
 2005-03-21  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.60
 	* Further adjustments to width of editor components.

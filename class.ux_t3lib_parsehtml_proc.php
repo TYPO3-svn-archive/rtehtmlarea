@@ -47,11 +47,13 @@ require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
  * @subpackage t3lib
  * Modification by Stanislas Rolland 2004-12-10 to allow style attribute on span tags
  * Modification by Stanislas Rolland 2005-02-10 to include hr in headListTags
+ * Modification by Stanislas Rolland 2005-03-27 to avoid insertion of superfluous linebreaks by transform_db
  */
 class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
+ // <Begin Stanislas Rolland 2005-02-10 to include hr in headListTags>
 	var $headListTags = 'PRE,UL,OL,H1,H2,H3,H4,H5,H6,HR';
-
+ // <End Stanislas Rolland 2005-02-10 to include hr in headListTags>
 
 	/**
 	 * Creates an array of configuration for the HTMLcleaner function based on whether content go TO or FROM the Rich Text Editor ($direction)
@@ -102,7 +104,7 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						// Setting up span tags if they are allowed:
 					if (isset($keepTags['span']))		{
 						$classes=array_merge(array(''),$this->allowedClasses);
- // Modification by Stanislas Rolland 2004-12-10 to allow style attribute on span tags
+ // <Begin Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
 						$keepTags['span']=array(
 							'allowedAttribs'=> 'class,style',
 							'fixAttrib' => Array(
@@ -119,7 +121,7 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						// Setting up font tags if they are allowed:
 					if (isset($keepTags['font']))		{
 						$colors=array_merge(array(''),t3lib_div::trimExplode(',',$this->procOptions['allowedFontColors'],1));
- // Modification by Stanislas Rolland 2005-02-08 to allow style attribute on font tags
+ // <End Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
 						$keepTags['font']=array(
 							'allowedAttribs'=>'face,color,size,style',
 							'fixAttrib' => Array(
@@ -159,6 +161,119 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
 			// Return result:
 		return $this->getKeepTags_cache[$direction];
+	}
+
+	/**
+	 * Transformation handler: 'ts_transform' + 'css_transform' / direction: "db"
+	 * Cleaning (->db) for standard content elements (ts)
+	 *
+	 * @param	string		Content input
+	 * @param	boolean		If true, the transformation was "css_transform", otherwise "ts_transform"
+	 * @return	string		Content output
+	 * @see TS_transform_rte()
+	 */
+	function TS_transform_db($value,$css=FALSE)	{
+
+			// safety... so forever loops are avoided (they should not occur, but an error would potentially do this...)
+		$this->TS_transform_db_safecounter--;
+		if ($this->TS_transform_db_safecounter<0)	return $value;
+
+			// Split the content from RTE by the occurence of these blocks:
+		$blockSplit = $this->splitIntoBlock('TABLE,BLOCKQUOTE,'.$this->headListTags,$value);
+
+		$cc=0;
+		$aC = count($blockSplit);
+
+			// Traverse the blocks
+		foreach($blockSplit as $k => $v)	{
+			$cc++;
+ // <Begin Stanislas Rolland 2005-03-26 to avoid superfluous linebreak>
+			//$lastBR = $cc==$aC ? '' : chr(10);
+			$lastBR = ($css || $cc==$aC) ? '' : chr(10);
+ // <End Stanislas Rolland 2005-03-26 to avoid superfluous linebreak>
+			if ($k%2)	{	// Inside block:
+
+					// Init:
+				$tag=$this->getFirstTag($v);
+				$tagName=strtolower($this->getFirstTagName($v));
+
+					// Process based on the tag:
+				switch($tagName)	{
+					case 'blockquote':	// Keep blockquotes, but clean the inside recursively in the same manner as the main code
+						$blockSplit[$k]='<'.$tagName.'>'.$this->TS_transform_db($this->removeFirstAndLastTag($blockSplit[$k]),$css).'</'.$tagName.'>'.$lastBR;
+					break;
+					case 'ol':
+					case 'ul':	// Transform lists into <typolist>-tags:
+						if (!$css)	{
+							if (!isset($this->procOptions['typolist']) || $this->procOptions['typolist'])	{
+								$parts = $this->getAllParts($this->splitIntoBlock('LI',$this->removeFirstAndLastTag($blockSplit[$k])),1,0);
+								while(list($k2)=each($parts))	{
+									$parts[$k2]=ereg_replace(chr(10).'|'.chr(13),'',$parts[$k2]);	// remove all linesbreaks!
+									$parts[$k2]=$this->defaultTStagMapping($parts[$k2],'db');
+									$parts[$k2]=$this->cleanFontTags($parts[$k2],0,0,0);
+									$parts[$k2] = $this->HTMLcleaner_db($parts[$k2],strtolower($this->procOptions['allowTagsInTypolists']?$this->procOptions['allowTagsInTypolists']:'br,font,b,i,u,a,img,span,strong,em'));
+								}
+								if ($tagName=='ol')	{ $params=' type="1"'; } else { $params=''; }
+								$blockSplit[$k]='<typolist'.$params.'>'.chr(10).implode(chr(10),$parts).chr(10).'</typolist>'.$lastBR;
+							}
+						} else {
+							$blockSplit[$k].=$lastBR;
+						}
+					break;
+					case 'table':	// Tables are NOT allowed in any form (unless preserveTables is set or CSS is the mode)
+						if (!$this->procOptions['preserveTables'] && !$css)	{
+							$blockSplit[$k]=$this->TS_transform_db($this->removeTables($blockSplit[$k]));
+						} else {
+							$blockSplit[$k]=str_replace(chr(10),'',$blockSplit[$k]).$lastBR;
+						}
+					break;
+					case 'h1':
+					case 'h2':
+					case 'h3':
+					case 'h4':
+					case 'h5':
+					case 'h6':
+						if (!$css)	{
+							$attribArray=$this->get_tag_attributes_classic($tag);
+								// Processing inner content here:
+							$innerContent = $this->HTMLcleaner_db($this->removeFirstAndLastTag($blockSplit[$k]));
+
+							if (!isset($this->procOptions['typohead']) || $this->procOptions['typohead'])	{
+								$type = intval(substr($tagName,1));
+								$blockSplit[$k]='<typohead'.
+												($type!=6?' type="'.$type.'"':'').
+												($attribArray['align']?' align="'.$attribArray['align'].'"':'').
+												($attribArray['class']?' class="'.$attribArray['class'].'"':'').
+												'>'.
+												$innerContent.
+												'</typohead>'.
+												$lastBR;
+							} else {
+								$blockSplit[$k]='<'.$tagName.
+												($attribArray['align']?' align="'.htmlspecialchars($attribArray['align']).'"':'').
+												($attribArray['class']?' class="'.htmlspecialchars($attribArray['class']).'"':'').
+												'>'.
+												$innerContent.
+												'</'.$tagName.'>'.
+												$lastBR;
+							}
+						} else {
+							$blockSplit[$k].=$lastBR;
+						}
+					break;
+					default:
+						$blockSplit[$k].=$lastBR;
+					break;
+				}
+			} else {	// NON-block:
+				if (strcmp(trim($blockSplit[$k]),''))	{
+					$blockSplit[$k]=$this->divideIntoLines($blockSplit[$k]).$lastBR;
+				} else unset($blockSplit[$k]);
+			}
+		}
+		$this->TS_transform_db_safecounter++;
+
+		return implode('',$blockSplit);
 	}
 
 }

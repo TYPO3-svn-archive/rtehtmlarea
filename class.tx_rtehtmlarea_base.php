@@ -283,7 +283,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return	string		HTML code for RTE!
 	 */
 	function drawRTE(&$pObj,$table,$field,$row,$PA,$specConf,$thisConfig,$RTEtypeVal,$RTErelPath,$thePidValue)	{
-//		global $BE_USER,$LANG,$HTTP_GET_VARS,$TBE_TEMPLATE,$TCA;
 		global $BE_USER,$LANG;
 
 		$this->TCEform = $pObj;
@@ -308,7 +307,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$this->httpTypo3Path .= "/";
 			}
 				// Get the path to this extension:
-			$this->extHttpPath = $this->httpTypo3Path.t3lib_extMgm::siteRelPath($this->ID);
+			$this->extHttpPath = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($this->ID);
 				// Get the Path to the script for selecting an image
 			$this->rtePathImageFile = $this->extHttpPath . 'rtehtmlarea_select_image.php';
 				// Get the Path to the script for create a link
@@ -637,10 +636,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return	string	buttonname (htmlarea-name)
 	 */
 	 function convertToolBarForHTMLArea($button) {
-	 	//echo "Brauche $button <br>\n";
  		return $this->conf_toolbar_convert[$button];
 	 }
-
 	 
 	/**
 	 * Return the JS-function for setting the RTE size.
@@ -664,6 +661,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	function loadJSfiles() {
 		return '
 		<script type="text/javascript">
+		/*<![CDATA[*/
 			_editor_url = "' . $this->extHttpPath . 'htmlarea";
 			_editor_lang = "' . $this->language . '";
 			_editor_CSS = "' . $this->editorCSS . '";
@@ -673,8 +671,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			_spellChecker_charset = "' . $this->spellCheckerCharset . '";
 			_spellChecker_mode = "' . $this->spellCheckerMode . '";
 			_quickTag_hideTags = "' . $this->quickTagHideTags . '";
-			' . $this->buildJSMainLangArray() . '
+		/*]]>*/
 		</script>
+		<script type="text/javascript" src="' . $this->buildJSMainLangFile() . '"></script>
 		<script type="text/javascript" src="' . $this->extHttpPath . 'htmlarea/htmlarea.js"></script>
 		';
 	}
@@ -689,31 +688,18 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
 		while( list(,$plugin) = each($pluginArray) ) {
 			if ($this->isPluginEnable($plugin)) {
-				$loadPluginCode .= $this->buildJSLangArray($plugin) . chr(10);
-				$loadPluginCode .= 'typo3LoadOnlyPlugin("' . $plugin . '");' . chr(10);
+				$loadPluginCode .= '
+			typo3LoadOnlyPlugin("' . $plugin . '");';
 			}
 		}
 
 		return '
-			var conf_RTEtsConfigParams = "&RTEtsConfigParams='.rawurlencode($this->RTEtsConfigParams()).'";
-					// Save the Configs
-			var RTEarea = new Array(); '
-					/* Save data for each RTE: RTEarea[i][key]:
-					* key are: 
-					* number 		- the number of the RTE
-					* textarea		- the textarea of the editor
-					* inputField	- the hidden input-field with the htmlcode (the object not the name)
-					* editor		- the HTMLarea object
-					* plugin		- an array with enable the plugins
-					* toolbar		- the HTMLarea toolbar-array
-					*/
-			.'
-			var extHttpPath = "'.$this->extHttpPath.'"; // Path to this extension
-			var rtePathImageFile = "'.$this->rtePathImageFile.'"; // Path to the php-file for selection images
-			var rtePathLinkFile = "' . $this->rtePathLinkFile . '"; // Path to the php-file for create a link'
-			// Load the Plugins:
-			. chr(10) . $loadPluginCode
-			.  '
+			var conf_RTEtsConfigParams = "&RTEtsConfigParams=' . rawurlencode($this->RTEtsConfigParams()) . '";
+			var RTEarea = new Array();
+			var extHttpPath = "'.$this->extHttpPath.'";
+			var rtePathImageFile = "'.$this->rtePathImageFile.'";
+			var rtePathLinkFile = "' . $this->rtePathLinkFile . '";'
+			. $loadPluginCode .  '
 			HTMLArea.init();
 			HTMLArea.I18N = HTMLArea_langArray;'
 		;
@@ -752,6 +738,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			reset($this->RTEsetup['properties']['classes.']);
 			while(list($className,$conf)=each($this->RTEsetup['properties']['classes.']))      {
 				$className=substr($className,0,-1);
+
 				$HTMLAreaClassname[$className] = '
 				["' . $conf['name'] . '" , "' . $conf['value'] . '"]';
 			}
@@ -926,7 +913,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	/**
 	 * Return a JS language array for HTMLArea
 	 *
-	 * @return array		JS language array
+	 * @return string		JS language array
 	 */
 	function buildJSMainLangArray() { 
 
@@ -958,9 +945,32 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	}
 
 	/**
+	 * Return a file name containing the main JS language array for HTMLArea
+	 *
+	 * @return string		filename
+	 */
+	function buildJSMainLangFile() { 
+		$contents = $this->buildJSMainLangArray() . chr(10);
+		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
+		while( list(,$plugin) = each($pluginArray) ) {
+			if ($this->isPluginEnable($plugin)) {
+				$contents .= $this->buildJSLangArray($plugin) . chr(10);
+			}
+		}
+		$relFilename = 'typo3temp/' . $this->ID . '_' . $this->language . '_' . md5($contents) . '.js';
+		$outputFilename = PATH_site . $relFilename;
+		if(!file_exists($outputFilename)) {
+			$outputHandle = fopen($outputFilename,'wb');
+			fwrite($outputHandle, $contents);
+			fclose($outputHandle);
+		}
+		return $this->httpTypo3Path . $relFilename;
+	}
+
+	/**
 	 * Return a JS language array for the plugin
 	 *
-	 * @return array		JS language array
+	 * @return string		JS language array
 	 */
 	function buildJSLangArray($plugin) { 
 		include (t3lib_extMgm::extPath($this->ID).'htmlarea/plugins/' . $plugin . '/locallang.php');
@@ -1044,27 +1054,33 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	}
 
 	function makeMozillaExtension() {
-		$archivePath = PATH_site . 'uploads/tx_' . $this->ID;
-		$archiveName = $archivePath . '/typo3_' . $this->ID . '_prefs.xpi';
-		//if(!file_exists($archiveName)) {
+		$archivePath = PATH_site . 'uploads/tx_' . $this->ID . '/';
+		$refArchivePath = PATH_site . 'typo3temp/';
+		$archiveName = $archivePath . 'typo3_' . $this->ID . '_prefs.xpi';
+		$refArchiveName = $refArchivePath . $this->ID . '_' . md5(t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST')) . '_user.js';
+		if(!file_exists($archiveName) || !file_exists($refArchiveName)) {
 			require_once(t3lib_extMgm::extPath('rtehtmlarea').'archive_zip/Zip.php');
-			$extensionFilesPath = t3lib_extMgm::extPath($this->ID).'mozilla';
-			$this->updateMozillaUserFile($archivePath, $extensionFilesPath);
-			$extensionFiles = array($extensionFilesPath . '/install.js', $extensionFilesPath .  '/contents.rdf', $archivePath . '/user.js');
+			$extensionFilesPath = t3lib_extMgm::extPath($this->ID) . 'mozilla/';
+			$this->updateMozillaUserFile($archivePath, $refArchivePath, $extensionFilesPath);
+			$extensionFiles = array($extensionFilesPath . 'install.js', $extensionFilesPath .  'contents.rdf', $archivePath . 'user.js');
 			$params = array('remove_all_path' => true);
 			$zip = new Archive_Zip($archiveName);
 			$archiveInfo = $zip->create($extensionFiles, $params);
-		//}
+		}
 
 	}
 
-	function updateMozillaUserFile($archivePath,$extensionFilesPath) {
-		$inputFilename = $extensionFilesPath . '/user.js';
+	function updateMozillaUserFile($archivePath,$refArchivePath,$extensionFilesPath) {
+		$inputFilename = $extensionFilesPath . 'user.js';
 		$inputHandle = fopen($inputFilename, 'rb');
 		$contents = fread ($inputHandle, filesize ($inputFilename));
 		fclose($inputHandle);
 		$contents = str_replace ( 'http://www.mozilla.org', t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST'), $contents);
-		$outputFilename = $archivePath . '/user.js';
+		$outputFilename = $archivePath . 'user.js';
+		$outputHandle = fopen($outputFilename,'wb');
+		fwrite($outputHandle, $contents);
+		fclose($outputHandle);
+		$outputFilename = $refArchivePath . $this->ID . '_' . md5(t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST')) . '_user.js';
 		$outputHandle = fopen($outputFilename,'wb');
 		fwrite($outputHandle, $contents);
 		fclose($outputHandle);

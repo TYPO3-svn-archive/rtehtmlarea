@@ -3,6 +3,7 @@
 *  Copyright notice
 *  
 *  (c) 1999-2004 Kasper Skaarhoj (kasper@typo3.com)
+*  (c) 2004-2005 Stanislas Rolland (stanislas.rolland@fructifor.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is 
@@ -170,6 +171,7 @@ class tx_rtehtmlarea_image_localFolderTree extends t3lib_folderTree {
 /**
  * Script Class
  * 
+
  * @author	Kasper Skaarhoj <kasper@typo3.com>
  * @package TYPO3
  * @subpackage tx_rte
@@ -223,7 +225,7 @@ class tx_rtehtmlarea_select_image {
 		}
 
 		$RTEtsConfigParts = explode(":",t3lib_div::_GP("RTEtsConfigParams"));
-		if (count($RTEtsConfigParts)<2)	die("Error: The GET parameter 'RTEtsConfigParams' was missing. Close the window.");
+//		if (count($RTEtsConfigParts)<2)	die("Error: The GET parameter 'RTEtsConfigParams' was missing. Close the window.");
 		$RTEsetup = $GLOBALS["BE_USER"]->getTSConfig("RTE",t3lib_BEfunc::getPagesTSconfig($RTEtsConfigParts[5])); 
 		$this->thisConfig = t3lib_BEfunc::RTEsetup($RTEsetup["properties"],$RTEtsConfigParts[0],$RTEtsConfigParts[2],$RTEtsConfigParts[4]);
 		$this->imgPath = $RTEtsConfigParts[6];
@@ -303,13 +305,30 @@ class tx_rtehtmlarea_select_image {
 	<title>Untitled</title>
 </head>
 <script language="javascript" type="text/javascript">
-	function insertImage(file,width,height)	{	//
-		self.parent.parent.renderPopup_insertImage(\'<img src="\'+file+\'" width="\'+width+\'" height="\'+height+\'" border=0>\');
+/*<![CDATA[*/
+	function insertImage(file,width,height)	{
+		var styleWidth, styleHeight;
+		styleWidth = parseInt(width);
+		if (isNaN(styleWidth) || styleWidth == 0) {
+			styleWidth = "auto";
+		} else {
+			styleWidth += "px";
+		}
+		styleHeight = parseInt(height);
+		if (isNaN(styleHeight) || styleHeight == 0) {
+			styleHeight = "auto";
+		} else {
+			styleHeight += "px";
+		}
+		parent.window.opener.renderPopup_insertImage(\'<img src="\'+file+\'" style="width: \'+styleWidth+\'; height: \'+styleHeight+\';" />\');
 	}
+/*]]>*/
 </script>
 <body>
 <script language="javascript" type="text/javascript">
+/*<![CDATA[*/
 	insertImage(\''.$iurl.'\','.$imgI[0].','.$imgI[1].');
+/*]]>*/
 </script>
 </body>
 </html>';
@@ -333,36 +352,48 @@ class tx_rtehtmlarea_select_image {
 		$this->doc->backPath = $BACK_PATH;
 		$this->doc->JScode='
 		<script language="javascript" type="text/javascript">
+		/*<![CDATA[*/
 			function jumpToUrl(URL,anchor)	{	//
 				var add_act = URL.indexOf("act=")==-1 ? "&act='.$this->act.'" : "";
 				var RTEtsConfigParams = "&RTEtsConfigParams='.rawurlencode(t3lib_div::_GP('RTEtsConfigParams')).'";
 		
-				var cur_width = selectedImageRef ? "&cWidth="+selectedImageRef.width : "";
-				var cur_height = selectedImageRef ? "&cHeight="+selectedImageRef.height : "";
+				var cur_width = selectedImageRef ? "&cWidth="+selectedImageRef.style.width : "";
+				var cur_height = selectedImageRef ? "&cHeight="+selectedImageRef.style.height : "";
 		
 				var theLocation = URL+add_act+RTEtsConfigParams+cur_width+cur_height+(anchor?anchor:"");
 				document.location = theLocation;
 				return false;
 			}
-			function insertImage(file,width,height)	{	//
-				self.parent.parent.renderPopup_insertImage(\'<img src="\'+file+\'" width="\'+width+\'" height="\'+height+\'" border=0>\');
+			function insertImage(file,width,height)	{
+				var styleWidth, styleHeight;
+				styleWidth = parseInt(width);
+				if (isNaN(styleWidth) || styleWidth == 0) {
+					styleWidth = "auto";
+				} else {
+					styleWidth += "px";
+				}
+				styleHeight = parseInt(height);
+				if (isNaN(styleHeight) || styleHeight == 0) {
+					styleHeight = "auto";
+				} else {
+					styleHeight += "px";
+				}
+				parent.window.opener.renderPopup_insertImage(\'<img src="\'+file+\'" style="width: \'+styleWidth+\'; height: \'+styleHeight+\';" />\');
 			}
-			function launchView(url)	{	//
+			function launchView(url) {
 				var thePreviewWindow="";
 				thePreviewWindow = window.open("'.$this->siteUrl.TYPO3_mainDir.'show_item.php?table="+url,"ShowItem","height=300,width=410,status=0,menubar=0,resizable=0,location=0,directories=0,scrollbars=1,toolbar=0");	
 				if (thePreviewWindow && thePreviewWindow.focus)	{
 					thePreviewWindow.focus();
 				}
 			}
-			function getCurrentImageRef()	{	//
-				if (self.parent.parent 
-				&& self.parent.parent.document.idPopup 
-				&& self.parent.parent.document.idPopup.document 
-				&& self.parent.parent.document.idPopup.document._selectedImage)	{
+			function getCurrentImageRef() {
+				if (window.document.idPopup && window.document.idPopup.selectedImageRef) {
 		//			self.parent.parent.debugObj(self.parent.parent.document.idPopup.document._selectedImage);
-					return self.parent.parent.document.idPopup.document._selectedImage;
+					return window.document.idPopup.selectedImageRef;
+				} else {
+					return null;
 				}
-				return "";
 			}
 			function printCurrentImageOptions() {
 				var classesImage = ' . ($this->thisConfig['classesImage']?'true':'false') . ';
@@ -388,21 +419,46 @@ class tx_rtehtmlarea_select_image {
 			function setImageProperties() {
 				var classesImage = ' . ($this->thisConfig['classesImage']?'true':'false') . ';
 				if (selectedImageRef)	{
-					if(document.imageData.iWidth.value) {
-						selectedImageRef.width=document.imageData.iWidth.value;
+					if(document.imageData.iWidth.value && document.imageData.iWidth.value != "auto") {
+						selectedImageRef.style.width = document.imageData.iWidth.value + "px";
 					} else {
-						selectedImageRef.removeAttribute("width");
+						selectedImageRef.style.width = "auto";
 					}
-					if(document.imageData.iHeight.value) {
-						selectedImageRef.height=document.imageData.iHeight.value;
+					selectedImageRef.removeAttribute("width");
+					if(document.imageData.iHeight.value && document.imageData.iHeight.value != "auto") {
+						selectedImageRef.style.height=document.imageData.iHeight.value + "px";
 					} else {
-						selectedImageRef.removeAttribute("height");
+						selectedImageRef.style.height = "auto";
 					}
-					selectedImageRef.vspace=document.imageData.iVspace.value;
-					selectedImageRef.hspace=document.imageData.iHspace.value;
+					selectedImageRef.removeAttribute("height");
+
+					selectedImageRef.style.paddingTop = "0px";
+					selectedImageRef.style.paddingBottom = "0px";
+					selectedImageRef.style.paddingRight = "0px";
+					selectedImageRef.style.paddingLeft = "0px";
+					selectedImageRef.style.padding = "";  // this statement ignored by Mozilla 1.3.1
+					if(document.imageData.iVspace.value != "" && !isNaN(parseInt(document.imageData.iVspace.value))) {
+						selectedImageRef.style.paddingTop = parseInt(document.imageData.iVspace.value) + "px";
+						selectedImageRef.style.paddingBottom = selectedImageRef.style.paddingTop;
+					}
+					if(document.imageData.iHspace.value != "" && !isNaN(parseInt(document.imageData.iHspace.value))) {
+						selectedImageRef.style.paddingRight = parseInt(document.imageData.iHspace.value) + "px";
+						selectedImageRef.style.paddingLeft = selectedImageRef.style.paddingRight;
+					}
+					selectedImageRef.removeAttribute("vspace");
+					selectedImageRef.removeAttribute("hspace");
+
 					selectedImageRef.title=document.imageData.iTitle.value;
 					selectedImageRef.alt=document.imageData.iAlt.value;
-					selectedImageRef.border= (document.imageData.iBorder.checked ? 1 : 0);
+
+					selectedImageRef.style.borderStyle = "none";
+					selectedImageRef.style.borderWidth = "0px";
+					selectedImageRef.style.border = "";  // this statement ignored by Mozilla 1.3.1
+					if(document.imageData.iBorder.checked) {
+						selectedImageRef.style.borderStyle = "solid";
+						selectedImageRef.style.borderWidth = "thin";
+					}
+					selectedImageRef.removeAttribute("border");
 
 					var iFloat = document.imageData.iFloat.options[document.imageData.iFloat.selectedIndex].value;
 					if (iFloat || selectedImageRef.style.cssFloat || selectedImageRef.style.styleFloat)	{
@@ -413,7 +469,7 @@ class tx_rtehtmlarea_select_image {
 						}
 					}
 		
-		/*			
+		/*
 					var iAlign = document.imageData.iAlign.options[document.imageData.iAlign.selectedIndex].value;
 					if (iAlign || selectedImageRef.align)	{
 						selectedImageRef.align=iAlign;
@@ -423,30 +479,42 @@ class tx_rtehtmlarea_select_image {
 					if(classesImage) {
 						var iClass = document.imageData.iClass.options[document.imageData.iClass.selectedIndex].value;
 						if (iClass || (selectedImageRef.attributes["class"] && selectedImageRef.attributes["class"].value))	{
-							//selectedImageRef["class"]=iClass;
-							//selectedImageRef.attributes["class"].value=iClass;
 							selectedImageRef.className = iClass;
 						}
 					}
-		
-					//selectedImageRef.style="";
-					self.parent.parent.edHidePopup();
+					parent.window.opener.edHidePopup();
 				}
 				return false;
 			}
 			function insertImagePropertiesInForm()	{
 				var classesImage = ' . ($this->thisConfig['classesImage']?'true':'false') . ';
 				if (selectedImageRef)	{
-					document.imageData.iWidth.value = selectedImageRef.width;
-					document.imageData.iHeight.value = selectedImageRef.height;
-					document.imageData.iVspace.value = selectedImageRef.vspace;
-					document.imageData.iHspace.value = selectedImageRef.hspace;
+					var styleWidth, styleHeight, paddingTop, paddingRight;
+					styleWidth = selectedImageRef.style.width ? selectedImageRef.style.width : selectedImageRef.width;
+					styleWidth = parseInt(styleWidth);
+					if (isNaN(styleWidth) || styleWidth == 0) { styleWidth = "auto"; }
+					document.imageData.iWidth.value = styleWidth;
+					styleHeight = selectedImageRef.style.height ? selectedImageRef.style.height : selectedImageRef.height;
+					styleHeight = parseInt(styleHeight);
+					if (isNaN(styleHeight) || styleHeight == 0) { styleHeight = "auto"; }
+					document.imageData.iHeight.value = styleHeight;
+
+					paddingTop = selectedImageRef.style.paddingTop ? selectedImageRef.style.paddingTop : selectedImageRef.vspace;
+					paddingTop = parseInt(paddingTop);
+					if (isNaN(paddingTop) || paddingTop < 0) { paddingTop = ""; }
+					document.imageData.iVspace.value = paddingTop;
+					paddingRight = selectedImageRef.style.paddingRight ? selectedImageRef.style.paddingRight : selectedImageRef.hspace;
+					paddingRight = parseInt(paddingRight);
+					if (isNaN(paddingRight) || paddingRight < 0) { paddingRight = ""; }
+					document.imageData.iHspace.value = paddingRight;
+
 					document.imageData.iTitle.value = selectedImageRef.title;
 					document.imageData.iAlt.value = selectedImageRef.alt;
-					if (parseInt(selectedImageRef.border))	{
+
+					if((selectedImageRef.style.borderStyle && selectedImageRef.style.borderStyle != "none" && selectedImageRef.style.borderStyle != "none none none none") || selectedImageRef.border) {
 						document.imageData.iBorder.checked = 1;
 					}
-						// Update float
+
 					var fObj=document.imageData.iFloat;
 					var value = (selectedImageRef.style.cssFloat ? selectedImageRef.style.cssFloat : selectedImageRef.style.styleFloat);
 					var l=fObj.length;
@@ -455,6 +523,7 @@ class tx_rtehtmlarea_select_image {
 							fObj.selectedIndex = a;
 						}
 					}
+
 		/*
 						// Update align
 					var fObj=document.imageData.iAlign;
@@ -466,7 +535,7 @@ class tx_rtehtmlarea_select_image {
 						}
 					}
 		*/
-						// Update class
+
 					if(classesImage) {
 						var fObj=document.imageData.iClass;
 						var value=selectedImageRef.className;
@@ -479,15 +548,14 @@ class tx_rtehtmlarea_select_image {
 					}
 					
 				}
-			//	alert(document.imageData);
 				return false;
 			}
 			
-			function openDragDrop()	{	//
-				var url = "'.$this->doc->backPath.'browse_links.php?mode=filedrag&bparams=|||"+escape("gif,jpg,jpeg,png");
-				browserWin = window.open(url,"Typo3WinBrowser","height=350,width=600,status=0,menubar=0,resizable=1,scrollbars=1");
-				browserWin.focus();
-				self.parent.parent.edHidePopup(1);
+			function openDragDrop()	{
+				var url = "rtehtmlarea_browse_links.php?mode=filedrag&bparams=|||"+escape("gif,jpg,jpeg,png");
+				//var url = "' . $BACK_PATH . 'browse_links.php?mode=filedrag&bparams=|||"+escape("gif,jpg,jpeg,png");
+				parent.window.opener.browserWin = window.open(url,"Typo3WinBrowser","height=350,width=600,status=0,menubar=0,resizable=1,scrollbars=1");
+				parent.window.opener.edHidePopup();
 			}
 		
 			var selectedImageRef = getCurrentImageRef();	// Setting this to a reference to the image object.
@@ -495,6 +563,7 @@ class tx_rtehtmlarea_select_image {
 			'.($this->act=="dragdrop"?"openDragDrop();":"").'
 			
 		//	alert(selectedImageRef.href);
+		/*]]>*/
 		</script>
 		';
 		
@@ -558,6 +627,7 @@ class tx_rtehtmlarea_select_image {
 			<BR>'.$thumbNailCheck;
 
 /*
+
 				// Target:
 			if ($this->act!="mail")	{
 				$ltarget='<table border=0 cellpadding=2 cellspacing=1><form name="ltargetform" id="ltargetform"><tr>';
@@ -583,6 +653,7 @@ class tx_rtehtmlarea_select_image {
 			$fileProcessor = t3lib_div::makeInstance("t3lib_basicFileFunctions");
 			$fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS["BE"]["fileExtensions"]);
 			$path=t3lib_div::_GP("expandFolder");
+
 			if (!$path || $path=="/" || !@is_dir($path))	{
 				$path = $fileProcessor->findTempFolder();	// The closest TEMP-path is found
 				if ($path)	$path.="/";
@@ -652,6 +723,7 @@ class tx_rtehtmlarea_select_image {
 		
 				$out.=$this->barheader(sprintf($LANG->getLL("images").' (%s):',count($files)));
 			
+
 				$titleLen=intval($GLOBALS["BE_USER"]->uc["titleLen"]);	
 				$picon='<img src="'.$this->doc->backPath.'gfx/i/_icon_webfolders.gif" width="18" height="16" align=top>';
 				$picon.=htmlspecialchars(t3lib_div::fixed_lgd(basename($expandFolder),$titleLen));
