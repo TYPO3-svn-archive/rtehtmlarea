@@ -98,8 +98,8 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 	var self = this;
 	var i18n = SelectColor.I18N;
 
-		// button_id "color" is not registered but used to interface with the Table Operations plugin (and any other)
-	if( button_id != "color" ) {
+		// button_id's  "color" and "tag" are not registered but used to interface with the Table Operations and QuickTag plugins
+	if( !(button_id == "color" || button_id == "tag") ) {
 		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"],
 			function(dialog, params) {
 				var editor = dialog.editor;
@@ -232,7 +232,8 @@ SelectColor.prototype.processStyle = function(params, element, field) {
 					break;
 			case "color":
 				element.style.backgroundColor = val;
-				field.value = val;
+			case "tag":
+				field.value += '#' + val + '"';
 				break;
 		}
 	}
