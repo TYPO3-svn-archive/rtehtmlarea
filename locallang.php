@@ -7,7 +7,7 @@
 
 $LOCAL_LANG = Array (
 	'default' => Array (
-		'Please wait' => 'The editor is loading. Please wait...',
+		'Please wait' => 'The editor is being loaded. Please wait...',
 		'Normal' => 'Normal',
 		'Heading 1' => 'Heading 1',
 		'Heading 2' => 'Heading 2',
