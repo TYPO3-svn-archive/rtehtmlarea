@@ -17,6 +17,12 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+	  'CO-forecolor' => 'Textfarbe',
+		'CO-hilitecolor' => 'Hintergrundfarbe',
+		'CO-forecolor_title' => 'Wählen Sie die Textfarbe',
+		'CO-hilitecolor_title' => 'Wählen Sie die Hintergrundfarbe',
+		'color_title' => 'Wählen Sie eine Farbe',
+		'no_color' => 'Keine Farbe',
 	),
 	'no' => Array (
 	),
@@ -39,6 +45,12 @@ $LOCAL_LANG = Array (
 		'no_color' => 'Ningún color',
 	),
 	'nl' => Array (
+		'CO-forecolor' => 'Tekstkleur',
+		'CO-hilitecolor' => 'Achtergrond kleur',
+		'CO-forecolor_title' => 'Stel de tekstkleur in',
+		'CO-hilitecolor_title' => 'Stel de achtergrond kleur in',
+		'color_title' => 'Kies een kleur',
+		'no_color' => 'Geen kleur',
 	),
 	'cz' => Array (
 	),

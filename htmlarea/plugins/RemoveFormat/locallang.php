@@ -23,6 +23,18 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+	  'RemoveFormatTooltip' => 'Formatierung entfernen',
+		'Cleaning Area' => 'Bereich',
+		'Selection' => 'Auswahl',
+		'All' => 'Alle',
+		'Remove formatting' => 'Formatierung entfernen',
+		'Cleaning options' => 'Art der Formatierung, die entfernt werden soll',
+		'Formatting:' => 'HTML-Formatierung:',
+		'MS Word Formatting:' => 'MS Word-Formatierung:',
+		'All HTML:' => 'All HTML-Tags:',
+		'Select the type of formatting you wish to remove.' => 'Wählen Sie die Art der Formatierung, die entfernt werden soll.',
+		'OK' => 'OK',
+		'Cancel' => 'Abbrechen',
 	),
 	'no' => Array (
 	),
@@ -45,6 +57,18 @@ $LOCAL_LANG = Array (
 	'es' => Array (
 	),
 	'nl' => Array (
+		'RemoveFormatTooltip' => 'Opmaak verwijderen',
+		'Cleaning Area' => 'Schoonmaak gebied',
+		'Selection' => 'Selectie',
+		'All' => 'Alles',
+		'Remove formatting' => 'Opmaak verwijderen',
+		'Cleaning options' => 'Soort opmaak om te verwijderen',
+		'Formatting:' => 'HTML opmaak:',
+		'MS Word Formatting:' => 'MS Word opmaak:',
+		'All HTML:' => 'Alle HTML tags:',
+		'Select the type of formatting you wish to remove.' => 'Selecteer de soort opmaak om te verwijderen.',
+		'OK' => 'OK',
+		'Cancel' => 'Annuleren',
 	),
 	'cz' => Array (
 	),
@@ -53,6 +77,18 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'RemoveFormatTooltip' => 'Poista muotoilu',
+		'Cleaning Area' => 'Siivousalue',
+		'Selection' => 'Valinta',
+		'All' => 'Kaikki',
+		'Remove formatting' => 'Poista muotoilu',
+		'Cleaning options' => 'Muotoilutyypin poisto',
+		'Formatting:' => 'HTML muotoilu:',
+		'MS Word Formatting:' => 'MS Word muotoilu:',
+		'All HTML:' => 'Kaikki HTML tagit:',
+		'Select the type of formatting you wish to remove.' => 'Valitse muotoilutyyppi joka poistetaan',
+		'OK' => 'OK',
+		'Cancel' => 'Peruuta',
 	),
 	'tr' => Array (
 	),

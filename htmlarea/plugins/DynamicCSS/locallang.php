@@ -14,6 +14,9 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+	  'Default' => 'Standard',
+		'Undefined' => 'Undefiniert',
+		'DynamicCSSStyleTooltip' => 'Style',
 	),
 	'no' => Array (
 	),
@@ -30,6 +33,9 @@ $LOCAL_LANG = Array (
 		'DynamicCSSStyleTooltip' => 'Estilo',
 	),
 	'nl' => Array (
+		'Default' => 'Standaard',
+		'Undefined' => 'Ongedefinieerd',
+		'DynamicCSSStyleTooltip' => 'Stijl',
 	),
 	'cz' => Array (
 	),

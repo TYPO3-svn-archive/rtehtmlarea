@@ -1,3 +1,17 @@
+2004-12-04  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Cleaning up
+	* German translation
+
+2004-12-02  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+
+	* Removing dependency on sr_static_info when spell checker is not enabled
+	* Integrating EnterParagraphs plugin
+	* Streamlining CSS loading
+	* Correcting delete/backspace in Firefox on initial load
+	* Correcting toolbar in Firefox on return from textmode
+	* Correcting RemoveFormat for non-breaking spaces
+	* Correcting SpellChecker for non-breaking spaces
+
 2004-11-28  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 
 	* Changing extension from sr_htmlarea to rtehtmlarea

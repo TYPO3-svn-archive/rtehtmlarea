@@ -13,6 +13,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+	'cancel' => 'Abbrechen',
 	),
 	'no' => Array (
 	),
@@ -27,6 +28,8 @@ $LOCAL_LANG = Array (
 		'cancel' => 'Cancelar',
 	),
 	'nl' => Array (
+		'ok' => 'OK',
+		'cancel' => 'Annuleren',
 	),
 	'cz' => Array (
 	),
@@ -73,6 +76,8 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'ok' => 'OK',
+		'cancel' => 'Cancelar',
 	),
 	'et' => Array (
 	),

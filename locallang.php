@@ -1,7 +1,7 @@
 <?php
 /**
  * Language labels for the main module of htmlArea RTE (extension: sr_htmlarea)
- * 
+ *
  * This file is detected by the translation tool.
  */
 
@@ -20,6 +20,15 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+		'Please wait' => 'Der Editor wird geladen. Bitte warten...',
+		'Normal' => 'Normal',
+		'Heading 1' => 'Überschrift 1',
+		'Heading 2' => 'Überschrift 2',
+		'Heading 3' => 'Überschrift 3',
+		'Heading 4' => 'Überschrift 4',
+		'Heading 5' => 'Überschrift 5',
+		'Heading 6' => 'Überschrift 6',
+		'Preformatted' => 'Vorformatiert',
 	),
 	'no' => Array (
 	),
@@ -56,6 +65,7 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'Please wait' => 'Muokkainta ladataan. Ole hyvä ja odota ....',
 		'Normal' => 'Normaali',
 		'Heading 1' => 'Otsikko 1',
 		'Heading 2' => 'Otsikko 2',
@@ -100,6 +110,15 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'Please wait' => 'O editor está carregando. Por favor seja paciente...',
+		'Normal' => 'Normal',
+		'Heading 1' => 'Cabeçalho 1',
+		'Heading 2' => 'Cabeçalho 2',
+		'Heading 3' => 'Cabeçalho 3',
+		'Heading 4' => 'Cabeçalho 4',
+		'Heading 5' => 'Cabeçalho 5',
+		'Heading 6' => 'Cabeçalho 6',
+		'Preformatted' => 'Preformatado',
 	),
 	'et' => Array (
 	),

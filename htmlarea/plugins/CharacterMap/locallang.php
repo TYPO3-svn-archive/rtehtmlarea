@@ -15,6 +15,10 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+	  'CharacterMapTooltip' => 'Fügen Sie Sondereichen ein',
+		'Insert special character' => 'Fügen Sie Sonderzeichen ein',
+		'HTML value:' => 'HTML-Wert:',
+		'Cancel' => 'Abbrechen',
 	),
 	'no' => Array (
 	),
@@ -33,6 +37,10 @@ $LOCAL_LANG = Array (
 		'Cancel' => 'Anular',
 	),
 	'nl' => Array (
+		'CharacterMapTooltip' => 'Voeg speciaal karakter in',
+		'Insert special character' => 'Voeg speciaal karakter in',
+		'HTML value:' => 'HTML waarde:',
+		'Cancel' => 'Annuleer',
 	),
 	'cz' => Array (
 	),
@@ -41,6 +49,10 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'CharacterMapTooltip' => 'Lisää erikoismerkki',
+		'Insert special character' => 'Lisää erikoismerkki',
+		'HTML value:' => 'HTML arvo:',
+		'Cancel' => 'Peruuta',
 	),
 	'tr' => Array (
 	),

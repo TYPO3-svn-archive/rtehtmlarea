@@ -10,11 +10,15 @@ $LOCAL_LANG = Array (
 		'Path' => 'Path',
 		'TEXT_MODE' => 'You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWYG.',
 		'IE-sucks-full-screen' => 'The full screen mode is known to cause problems with Internet Explorer, due to browser bugs that we weren\'t able to workaround. You might experience garbage display, lack of editor functions and/or random browser crashes. If your system is Windows 9x it\'s very likely that you\'ll get a \'General Protection Fault\' and need to reboot.\\n\\n You have been warned. Please press OK if you still want to try the full screen editor.',
-		'Moz-Clipboard' => 'Unprivileged scripts cannot access Cut/Copy/Paste programatically for security reasons. Click OK to see a technical note at mozilla.org which shows you how to allow a script to access the clipboard.',
+		'Moz-Clipboard' => 'Unprivileged scripts cannot access Cut/Copy/Paste programatically for security reasons. Click OK to see a technical note at mozilla.org which shows you how to allow a script to access the clipboard.',	
 	),
 	'dk' => Array (
 	),
 	'de' => Array (
+		'Path' => 'Pfad',
+		'TEXT_MODE' => 'Sie befinden sich im TEXT-MODUS.  Benutzen Sie den [<>]-Knopf, um zurück in den WYSIWYG-Modus zu wechseln.',
+		'IE-sucks-full-screen' => 'Der Vollbild-Modus verursacht häufig Probleme mit dem Internet Explorer. Schuld daran sind Browser-Fehler, die nicht umgangen werden konnten. Sie haben möglicherweise einen fehlerhaften Bildschirmaufbau, oder es fehlen Editor-Funktionen. Außerdem kann hin und wieder der Browser abstürzen. Wenn Sie Windows 9x einsetzen, ist es sehr wahrscheinlich, dass Sie einen Allgemeinen Schutzfehler erhalten und neu starten müssen. Nun sind Sie gewarnt! Bitte drücken Sie OK, wenn Sie trotzdem in den Vollbild-Modus wechseln möchten.',
+		'Moz-Clipboard' => 'Unprivilegierte Skripte können aus Sicherheitsgründen Ausschneiden/Kopieren/Einfügen nicht nutzen. Klicken Sie auf OK, um  einen technischen Hinweis von mozilla.org (auf englisch) zu lesen , der Ihnen zeigt, wie Sie Skripten den Zugriff  auf die Zwischenablage ermöglichen.',
 	),
 	'no' => Array (
 	),
@@ -30,6 +34,10 @@ $LOCAL_LANG = Array (
 		'TEXT_MODE' => 'Está en MODO TEXTO. Utilice el botón [<>] para volver a WYSIWIG.',
 	),
 	'nl' => Array (
+		'Path' => 'Pad',
+		'TEXT_MODE' => 'U bent in de TEKST MODE. Gebruik de [<>] knop om terug te schakelen naar WYSIWYG.',
+		'IE-sucks-full-screen' => 'De volledige scherm modus in combinatie met Internet Explorer levert problemen op door fouten die wij niet hebben kunnen omzijlen. U ziet mogelijk een verkeerde weetgave, beperkte functies en/of willekeurige vastlopen van de browser. Als u een windows 9x systeem gebruikt, dan is het zeer waarschijnlijk dat u een \'Algemene toepassingsfout\' zult  krijgen en opnieuw zult moeten opstarten.\\n\\n U bent dus gewaarschuwd. Druk op OK als u toch wil proberen in volledige scherm modes te werken.',
+		'Moz-Clipboard' => 'Niet geautoriseerde scripts kunnen vanwege veiligheidsredenen geen geautomatiseerde toegang krijgen tot knippen, kopieren en plakken. Klik OK om een technische beschrijving op mozilla.org te lezen over goe een script toegang gegeven kan worden tot het klembord.',
 	),
 	'cz' => Array (
 	),

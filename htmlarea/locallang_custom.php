@@ -12,6 +12,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+  	'style' => 'Style:',
 	),
 	'no' => Array (
 	),
@@ -24,6 +25,7 @@ $LOCAL_LANG = Array (
 		'style' => 'Estilo:',
 	),
 	'nl' => Array (
+		'style' => 'Stijl:',
 	),
 	'cz' => Array (
 	),
@@ -69,6 +71,7 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'style' => 'Estilo:',
 	),
 	'et' => Array (
 	),
