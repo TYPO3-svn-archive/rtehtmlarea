@@ -252,7 +252,7 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 		'7' =>	'36 pt',
 		);
 
-	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, Indite';
+	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, Indite, CharacterMap';
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:

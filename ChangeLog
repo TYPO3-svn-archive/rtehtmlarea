@@ -1,4 +1,7 @@
+2004-11-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Enabling the CharacterMap plugin (ext_localconf.php and class.tx_rtepbhtmlarea_base.php)
+2004-11-22  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Initial synchronization with latest version
 2004-11-18  Michael Stucki  <michael@typo3.org>
-
 	* Adding a ChangeLog
 	* Initial CVS upload
