@@ -60,7 +60,6 @@ function initEditor(editornumber) {
 
 		if(RTEarea[editornumber]["pageStyle"]) {
 			editor.config.pageStyle = RTEarea[editornumber]["pageStyle"];
-			HTMLArea.loadStyle(editor.config.pageStyle);
 		}
 
 		if(RTEarea[editornumber]["fontname"]) {
