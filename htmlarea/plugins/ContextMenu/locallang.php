@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for plugin ContextMenu of RTE HtmalArea (extension: rte_pb_htmlarea)
+ * Language labels for plugin ContextMenu of htmlArea (extension: sr_htmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -50,6 +50,10 @@ $LOCAL_LANG = Array (
 		'Insert a new column after the current one' => 'Insert a new column after the current one',
 		'Delete the current column' => 'Delete the current column',
 		'Create a link' => 'Create a link',
+		'Insert paragraph before' => 'Insert paragraph before',
+		'Insert a paragraph before the current node' => 'Insert a paragraph before the current node',
+		'Insert paragraph after' => 'Insert paragraph after',
+		'Insert a paragraph after the current node' => 'Insert a paragraph after the current node',
 	),
 	'dk' => Array (
 	),
@@ -103,6 +107,10 @@ $LOCAL_LANG = Array (
 		'Insert a new column after the current one' => 'Insérer une colonne après la colonne courante',
 		'Delete the current column' => 'Supprimer la colonne courante',
 		'Create a link' => 'Insérer un lien',
+		'Insert paragraph before' => 'Insérer un paragraphe avant',
+		'Insert a paragraph before the current node' => 'Insérer un paragraphe avant le noeud courant',
+		'Insert paragraph after' => 'Insérer un paragraphe après',
+		'Insert a paragraph after the current node' => 'Insérer un paragraphe après le noeud courant',
 	),
 	'es' => Array (
 		'Cut' => 'Cortar',
@@ -129,7 +137,7 @@ $LOCAL_LANG = Array (
 		'Remove the' => 'Borrar el elemento ',
 		'Element' => ' ',
 		'Please confirm that you want to remove this element:' => '¿Está seguro que desea borrar este elemento?',
-		'Remove this node from the document' => 'Borra el elemento del documento',
+		'Remove this node from the document' => 'Borra el nudo del documento',
 		'How did you get here? (Please report!)' => '¿Cómo llegó usted aquí­? (Gracia de informarnos!)',
 		'Show the image properties dialog' => 'Abre ventana para ver o editar las propriedades de la imagen',
 		'Modify URL' => 'Cambia el enlace',
@@ -145,9 +153,13 @@ $LOCAL_LANG = Array (
 		'Delete the current row' => 'Borra la fila seleccionada',
 		'Show the Table Properties dialog' => 'Abre una ventana para ver o editar las propriedades de la tabla seleccionada',
 		'Insert a new column before the current one' => 'Inserta una columna delante la columna seleccionada',
-		'Insert a new column after the current one' => 'Inserta una columna detrÃ¡s la columna seleccionada',
+		'Insert a new column after the current one' => 'Inserta una columna detrás la columna seleccionada',
 		'Delete the current column' => 'Borra la columna seleccionada',
 		'Create a link' => 'Inserta un enlace',
+		'Insert paragraph before' => 'Insertar párrafo delante',
+		'Insert a paragraph before the current node' => 'Insertar párrafo delante el nudo corriente',
+		'Insert paragraph after' => 'Insertar párrafo detrás',
+		'Insert a paragraph after the current node' => 'Insertar párrafo detrás el nudo corriente',
 	),
 	'nl' => Array (
 	),
@@ -201,6 +213,10 @@ $LOCAL_LANG = Array (
 		'Insert a new column after the current one' => 'Lisää uusi sarake nykyisen taakse',
 		'Delete the current column' => 'Poista nykyinen sarake',
 		'Create a link' => 'Luo linkki',
+		'Insert paragraph before' => 'Lisää kappale eteen',
+		'Insert a paragraph before the current node' => 'Lisää kappale eteen nykyisellä asetuksella',
+		'Insert paragraph after' => 'Lisää kappale jälkeen',
+		'Insert a paragraph after the current node' => 'Lisää kappale jälkeen nykyisellä asetuksella',
 	),
 	'tr' => Array (
 	),

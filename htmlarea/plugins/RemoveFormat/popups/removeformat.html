@@ -1,0 +1,121 @@
+<html>
+
+<head>
+  <title>Remove formatting</title>
+
+<script type="text/javascript" src="../../../popups/popup.js"></script>
+<script type="text/javascript">
+
+
+	RemoveFormat = window.opener.RemoveFormat; 
+	window.resizeTo(300, 100);
+
+	var x = opener.screenX + (opener.outerWidth - window.outerWidth) / 2;
+	var y = opener.screenY + (opener.outerHeight - window.outerHeight) / 2;
+	window.moveTo(x, y);
+
+	function Init() {
+		var i18n = RemoveFormat.I18N;
+		__dlg_translate(i18n);
+		__dlg_init();
+	};
+
+	function onOK() {
+		
+		var param = new Object();
+		var i18n = RemoveFormat.I18N;
+
+		if (document.getElementById('clean_selection').checked)	{
+			param["cleaning_area"] = "selection";
+		} else {
+			param["cleaning_area"] = "all";
+		}
+
+		var fields = ["formatting", "ms_formatting", "images", "html_all"];
+
+		oneChecked = false;
+		for (var i in fields) {
+			var id = fields[i];
+			var el = document.getElementById(id);
+			if (el.checked) {
+				param[id] = true;
+				oneChecked = true;
+			}
+		}
+
+		if(oneChecked) {
+			__dlg_close(param);
+		} else {
+			alert(i18n["Select the type of formatting you wish to remove."]);
+		}
+		return false;
+	};
+
+	function onCancel() {
+		__dlg_close(null);
+		return false;
+	};
+
+</script>
+
+<style type="text/css">
+html, body { background: ButtonFace; color: ButtonText; font: 11px Tahoma,Verdana,sans-serif; margin: 0px; padding: 0px; }
+body { padding: 5px; }
+table { font: 11px Tahoma,Verdana,sans-serif; }
+form p { margin-top: 5px; margin-bottom: 5px; }
+.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
+.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
+fieldset { margin-top: 10px; padding: 5px 5px 5px 5px; }
+select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
+button { width: 70px; }
+.space { padding: 2px; }
+.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
+border-bottom: 1px solid black; letter-spacing: 2px; }
+form { padding: 0px; margin: 0px; }
+</style>
+
+</head>
+
+<body onload="Init();self.focus();">
+
+<div class="title">Remove formatting</div>
+
+<form action="" method="get">
+	<fieldset>
+		<legend><span>Cleaning Area</span></legend>
+			<span>Selection</span><input type="radio" name="cleaning_area" id="clean_selection" value="selection" />
+			<span>All</span><input type="radio" name="cleaning_area" id="clean_page" value="page" checked="checked" />
+	</fieldset>
+	<fieldset>
+		<legend><span>Cleaning options</span></legend>
+		<table border="0" style="padding: 0px; margin: 0px;">
+			<tbody>
+		
+			<tr>
+				<td style="width: 12em; text-align: right">Formatting:</td>
+				<td><input type="checkbox" id="formatting" value="" /></td>
+			</tr>
+			<tr>
+				<td style="width: 12em; text-align: right">MS Word Formatting:</td>
+				<td><input type="checkbox" id="ms_formatting" value="" checked="checked" /></td>
+			</tr>
+			<tr>
+				<td style="width: 12em; text-align: right">Images:</td>
+				<td><input type="checkbox" id="images" value="" /></td>
+			</tr>
+			<tr>
+				<td style="width: 12em; text-align: right">All HTML:</td>
+				<td><input type="checkbox" id="html_all" value="" /></td>
+			</tr>
+			</tbody>
+		</table>
+	</fieldset>
+	<div style="margin-top: 10px; padding: 2px; text-align: right;">
+		<button type="button" name="ok" onclick="return onOK();">OK</button>
+		<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+	</div>
+
+</form>
+
+</body>
+</html>

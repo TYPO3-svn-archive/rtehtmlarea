@@ -183,3 +183,11 @@ form { margin: 0px; border: none; }
 .currentColor { border-right: black 1px solid; BORDER-TOP: black 1px solid; margin-top: 0pt; margin-right: 15pt; margin-bottom: 0pt; margin-left: 15pt; BORDER-LEFT: black 1px solid; WIDTH: 20px; BORDER-BOTTOM: black 1px solid; HEIGHT: 20px; }
 .colorTable TR { height: 6px; }
 .colorTable TD { width: 6px; cursor: pointer; }
+
+.pleasewait { 
+     text-align: left; 
+     font-size: 8pt; 
+     position: relative; 
+     top: 80; 
+     margin-top: 25px;
+}

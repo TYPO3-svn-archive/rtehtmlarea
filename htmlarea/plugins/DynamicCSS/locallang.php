@@ -9,7 +9,7 @@ $LOCAL_LANG = Array (
 	'default' => Array (
 		'Default' => 'Default',
 		'Undefined' => 'Undefined',
-		'DynamicCSSStyleTooltip' => 'Choose style',
+		'DynamicCSSStyleTooltip' => 'Style',
 	),
 	'dk' => Array (
 	),
@@ -22,12 +22,12 @@ $LOCAL_LANG = Array (
 	'fr' => Array (
 		'Default' => 'Par défaut',
 		'Undefined' => 'Indéfini',
-		'DynamicCSSStyleTooltip' => 'Choisir un style',
+		'DynamicCSSStyleTooltip' => 'Style',
 	),
 	'es' => Array (
 		'Default' => 'Default',
 		'Undefined' => 'Indefinido',
-		'DynamicCSSStyleTooltip' => 'Elegir un estilo',
+		'DynamicCSSStyleTooltip' => 'Estilo',
 	),
 	'nl' => Array (
 	),

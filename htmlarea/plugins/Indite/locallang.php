@@ -1,12 +1,20 @@
 <?php
 /**
- * Language labels for plugin TYPO3Browsers of htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for plugin Indite of htmlArea RTE (extension: sr_htmlarea)
  * 
  * This file is detected by the translation tool.
  */
 
 $LOCAL_LANG = Array (
 	'default' => Array (
+		'At position' => 'At position',
+		'Close to' => 'Close to',
+		'0xC00CE01C' => 'Reference to undeclared element: %1',
+		'0xC00CE014' => 'Node not allowed in this context. Expected: %1',
+		'0xC00CE011' => 'Element cannot be empty according to the DTD or schema.',
+		'0xC00CE015' => 'The attribute \'%1\' on this element is not defined in the DTD or schema.',
+		'0xC00CE020' => 'Required attribute \'%1\' is missing.',
+		'0xC00CE018' => 'Text is not allowed in this element according to DTD or schema. Expected: %1',
 	),
 	'dk' => Array (
 	),

@@ -11,7 +11,7 @@
 // Version 3.0 developed by Mihai Bazon for InteractiveTools.
 //   http://dynarch.com/mishoo
 //
-// $Id: select-color.js,v 1.0 2004/10/31
+// $Id: typo3browsers.js,v 1.0 2004/10/31
 
 TYPO3Browsers.I18N = TYPO3Browsers_langArray;
 
@@ -21,6 +21,9 @@ function TYPO3Browsers(editor, args) {
 	var toolbar = cfg.toolbar;
 	var self = this;
 	var i18n = TYPO3Browsers.I18N;
+	this.editor.config.btnList.insertimage[1] = this.editor.imgURL("ed_image.gif", "TYPO3Browsers");
+	this.editor.config.btnList.createlink[1] = this.editor.imgURL("ed_link.gif", "TYPO3Browsers");
+
 };
 
 TYPO3Browsers._pluginInfo = {
@@ -37,6 +40,7 @@ TYPO3Browsers._pluginInfo = {
 TYPO3Browsers.prototype.onGenerate = function() {
 	var editor = this.editor;
 	editor._insertImage = editor.renderPopup_image;
+
 	editor._createLink = editor.renderPopup_link;
 
 	// IE-Browsers strip URLs to relative URLs. But for the backend need absolut URLs.

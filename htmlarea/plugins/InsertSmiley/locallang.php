@@ -38,6 +38,9 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'Insert Smiley' => 'Lisää kuvake',
+		'Smiley' => 'Kuvake',
+		'Cancel' => 'Peruuta',
 	),
 	'tr' => Array (
 	),

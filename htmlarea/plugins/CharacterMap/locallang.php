@@ -1,12 +1,16 @@
 <?php
 /**
- * Language labels for plugin TYPO3Browsers of htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for plugin CharacterMap of htmlArea RTE (extension: sr_htmlarea)
  * 
  * This file is detected by the translation tool.
  */
 
 $LOCAL_LANG = Array (
 	'default' => Array (
+		'CharacterMapTooltip' => 'Insert special character',
+		'Insert special character' => 'Insert special character',
+		'HTML value:' => 'HTML value:',
+		'Cancel' => 'Cancel',
 	),
 	'dk' => Array (
 	),
@@ -17,8 +21,16 @@ $LOCAL_LANG = Array (
 	'it' => Array (
 	),
 	'fr' => Array (
+		'CharacterMapTooltip' => 'Insérer un caractère spécial',
+		'Insert special character' => 'Insérer un caractère spécial',
+		'HTML value:' => 'Valeur HTML:',
+		'Cancel' => 'Annuler',
 	),
 	'es' => Array (
+		'CharacterMapTooltip' => 'Insertar carácter especial',
+		'Insert special character' => 'Insertar carácter especial',
+		'HTML value:' => 'Valor HTML:',
+		'Cancel' => 'Anular',
 	),
 	'nl' => Array (
 	),

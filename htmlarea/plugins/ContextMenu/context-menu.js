@@ -7,10 +7,11 @@
 // This notice MUST stay intact for use (see license.txt).
 //
 // $Id$
-// Change by Stanislas Rolland 2004-11-02
+// Change by Stanislas Rolland 2004-11-20
 // Test if cut, copy, paste options are enabled
 // Test if the justify options are enabled
 // Test if the createlink and insertimage are enabled
+// Disallow insert paragraph before/after tbody, tr and td elements
 // Assign language array generated from TYPO3 locallang file
 // Patch when window scrolling for Mozilla
 
@@ -23,7 +24,7 @@ function ContextMenu(editor) {
 
 ContextMenu._pluginInfo = {
 	name          : "ContextMenu",
-	version       : "1.4",
+	version       : "1.5",
 	developer     : "Mihai Bazon",
 	developer_url : "http://dynarch.com/mishoo/",
 	c_owner       : "dynarch.com",
@@ -75,6 +76,26 @@ ContextMenu.prototype.getContextMenu = function(target) {
 
 	function tableOperation(opcode) {
 		tbo.buttonPress(editor, opcode);
+	};
+
+	function insertPara(after) {
+		var el = currentTarget;
+		var par = el.parentNode;
+		var p = editor._doc.createElement("p");
+		p.appendChild(editor._doc.createElement("br"));
+		par.insertBefore(p, after ? el.nextSibling : el);
+		var sel = editor._getSelection();
+		var range = editor._createRange(sel);
+		if (!HTMLArea.is_ie) {
+			sel.removeAllRanges();
+			range.selectNodeContents(p);
+			range.collapse(true);
+			sel.addRange(range);
+		} else {
+			range.moveToElementText(p);
+			range.collapse(true);
+			range.select();
+		}
 	};
 
 	for (; target; target = target.parentNode) {
@@ -246,7 +267,18 @@ ContextMenu.prototype.getContextMenu = function(target) {
 				    }
 			    }
 		    },
-		    i18n["Remove this node from the document"] ]);
+		    i18n["Remove this node from the document"] ]
+		);
+	}
+	if (!/html|body|tbody|tr|td/i.test(currentTarget.tagName)) {
+		menu.push(null,
+		  [ i18n["Insert paragraph before"],
+			function() { insertPara(false); },
+			i18n["Insert a paragraph before the current node"] ],
+		  [ i18n["Insert paragraph after"],
+			function() { insertPara(true); },
+			i18n["Insert a paragraph after the current node"] ]
+		);
 	}
 	return menu;
 };

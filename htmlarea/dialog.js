@@ -22,8 +22,8 @@ function Dialog(url, action, init) {
 };
 
 Dialog._parentEvent = function(ev) {
+	setTimeout( function() { if (Dialog._modal && !Dialog._modal.closed) { Dialog._modal.focus() } }, 50);
 	if (Dialog._modal && !Dialog._modal.closed) {
-		Dialog._modal.focus();
 		HTMLArea._stopEvent(ev);
 	}
 };
@@ -42,9 +42,8 @@ Dialog._geckoOpenModal = function(url, action, init) {
 	//  **MODIFIED**  		      "toolbar=no,menubar=no,personalbar=no,width=10,height=10," +
 	//  **MODIFIED**  		      "scrollbars=no,resizable=yes");
 	var dlg = window.open(url, "hadialog", 
-		"toolbar=no,menubar=no,personalbar=no,width=10,height=10," + 
-		"scrollbars=no,resizable=yes,dependent=yes");
-
+		"toolbar=no,menubar=no,personalbar=no,width=100,height=100,status=no," + 
+		"scrollbars=no,resizable=yes,modal=yes,dependent=yes");
 	Dialog._modal = dlg;
 	Dialog._arguments = init;
 
@@ -67,6 +66,7 @@ Dialog._geckoOpenModal = function(url, action, init) {
 	capwin(window);
 	// capture other frames
 	for (var i = 0; i < window.frames.length; capwin(window.frames[i++]));
+
 	// make up a function to be called when the Dialog ends.
 	Dialog._return = function (val) {
 		if (val && action) {

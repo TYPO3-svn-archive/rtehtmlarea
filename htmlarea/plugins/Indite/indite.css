@@ -1,0 +1,6 @@
+body {font-family : verdana; font-size : 85%;}
+p { border : 1px dotted #008000; }
+ol, ul { border : 1px dotted #287ed1; }
+h2 { border : 1px dotted #ffa500; }
+pre { border : 1px dotted #888888; background-color : #eeeeee; }
+ul, ol, h2, p, pre { margin-top : .5em; margin-bottom : .5em; }

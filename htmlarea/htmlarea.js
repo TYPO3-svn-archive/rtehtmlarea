@@ -62,7 +62,10 @@ HTMLArea.onload = function(){};
 HTMLArea._scripts = [];
 HTMLArea.loadScript = function(url, plugin) {
 	if (plugin)
-		url = HTMLArea.getPluginDir(plugin) + '/' + url;
+// Begin change by Stanislas Rolland 2004-11-17
+// Function getPluginDir does not exist!
+		url = _editor_url + "/plugins/" + plugin + '/' + url;
+// End change by Stanislas Rolland 2004-11-17
 	this._scripts.push(url);
 };
 
@@ -93,11 +96,10 @@ HTMLArea.init = function() {
 
 HTMLArea.loadScript(_editor_url + "dialog.js");
 HTMLArea.loadScript(_editor_url + "popupwin.js");
-
-// TYPO3 Change to load language array generated from locallang.php file
-// HTMLArea.loadScript(_editor_url + "lang/" + _editor_lang + ".js");
-HTMLArea.init();
-HTMLArea.I18N = HTMLArea_langArray;
+// Begin change by Stanislas Rolland 2004-11-17
+// We will get the language labels from the arrays generated from the TYPO3 locallang files
+//HTMLArea.loadScript(_editor_url + "lang/" + _editor_lang + ".js");
+// End change by Stanislas Rolland 2004-11-17
 
 // cache some regexps
 HTMLArea.RE_tagName = /(<\/|<)\s*([^ \t\n>]+)/ig;
@@ -466,6 +468,10 @@ HTMLArea.prototype._createToolbar = function () {
 			// a different way to write it in JS is
 			// config["formatblock"].
 			options = editor.config[txt];
+// Begin change by Stanislas Rolland 2004-11-17
+// Adding tooltips on the combos
+			tooltip = HTMLArea.I18N.tooltips[txt];
+// End change by Stanislas Rolland 2004-11-18
 			cmd = txt;
 			break;
 		    default:
@@ -805,20 +811,31 @@ HTMLArea.prototype.generate = function () {
 		}
 		editor._doc = doc;
 		if (!editor.config.fullPage) {
+// Begin change by Stanislas Rolland 2004-11-13
+// Fix the initial loading in multiple frames when DynamicCSS is enabled
 			doc.open();
 			var html = "<html>\n";
 			html += "<head>\n";
-			if (editor.config.baseURL)
-				html += '<base href="' + editor.config.baseURL + '" />';
-			html += "<style>" + editor.config.pageStyle +
-				" html,body { border: 0px; }</style>\n";
 			html += "</head>\n";
-			html += "<body>\n";
-			html += editor._textArea.value;
-			html += "</body>\n";
+			html += "<body>\n </body>\n";
 			html += "</html>";
 			doc.write(html);
 			doc.close();
+			var head = doc.getElementsByTagName("head")[0];
+			if (editor.config.baseURL) {
+				var base = doc.createElement("base");
+				base.href = editor.config.baseURL;
+				head.appendChild(base);
+			}
+			if(editor.config.pageStyle) {
+				var link = doc.createElement("link");
+				link.rel = "stylesheet";
+				link.href = editor.config.pageStyle;
+				head.appendChild(link);
+			}
+			doc.body.innerHTML = editor._textArea.value;
+			doc.body.style.border = "0px";
+// End change by Stanislas Rolland 2004-11-13
 		} else {
 			var html = editor._textArea.value;
 			if (html.match(HTMLArea.RE_doctype)) {
@@ -838,13 +855,6 @@ HTMLArea.prototype.generate = function () {
 		}
 
 		editor.focusEditor();
-		// intercept some events; for updating the toolbar & keyboard handlers
-		HTMLArea._addEvents
-			(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"],
-			 function (event) {
-				 return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
-			 });
-
 		// check if any plugins have registered refresh handlers
 		for (var i in editor.plugins) {
 			var plugin = editor.plugins[i].instance;
@@ -856,12 +866,20 @@ HTMLArea.prototype.generate = function () {
 			}
 		}
 
-		setTimeout(function() {
-			editor.updateToolbar();
-		}, 250);
+		editor.focusEditor();
+		// intercept some events; for updating the toolbar & keyboard handlers
+		HTMLArea._addEvents
+			(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"],
+			 function (event) {
+				 return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
+			 });
 
 		if (typeof editor.onGenerate == "function")
 			editor.onGenerate();
+
+		setTimeout(function() {
+			editor.updateToolbar();
+		}, 250);
 	};
 	setTimeout(initIframe, 100);
 };
@@ -1050,7 +1068,10 @@ HTMLArea.getInnerText = function(el) {
 	return txt;
 };
 
+// Begin change by Stanislas Rolland 2004-11-16
+// Add root parameter
 HTMLArea.prototype._wordClean = function() {
+// End change by Stanislas Rolland 2004-11-16
 	var
 		editor = this,
 		stats = {
@@ -1798,9 +1819,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	    case "insertimage": this._insertImage(); break;
 	    case "about"    : this._popupDialog("about.html", null, this); break;
 	    case "showhelp" : window.open(_editor_url + "reference.html", "ha_help"); break;
-
 	    case "killword": this._wordClean(); break;
-
 	    case "cut":
 	    case "copy":
 	    case "paste":
@@ -1922,8 +1941,9 @@ HTMLArea.prototype._editorEvent = function(ev) {
 		    case 8: // KEY backspace
 		    case 46: // KEY delete
 			if (HTMLArea.is_gecko && !ev.shiftKey) {
-				if (this.dom_checkBackspace())
+				if (this.dom_checkBackspace()) {
 					HTMLArea._stopEvent(ev);
+				}
 			} else if (HTMLArea.is_ie) {
 				if (this.ie_checkBackspace())
 					HTMLArea._stopEvent(ev);
@@ -1998,7 +2018,10 @@ HTMLArea.prototype.dom_checkInsertP = function() {
 	var block = null;
 	var body = this._doc.body;
 	for (var i = 0; i < p.length; ++i)
-		if (HTMLArea.isBlockElement(p[i]) && !/body|html/i.test(p[i].tagName)) {
+// Begin change by Stanislas Rolland 2004-11-20
+// Do not insert <p> tag inside table, tbody or tr block
+		if (HTMLArea.isBlockElement(p[i]) && !/body|html|table|tbody|tr/i.test(p[i].tagName)) {
+// End change by Stanislas Rolland 2004-11-20
 			block = p[i];
 			break;
 		}
@@ -2012,23 +2035,35 @@ HTMLArea.prototype.dom_checkInsertP = function() {
 	var EC = range.endContainer;
 	var EO = range.endOffset;
 	//alert(SC.tagName + ":" + SO + " => " + EC.tagName + ":" + EO);
-	if (SC == EC && SC == body && !SO && !EO) {
+// Begin change by Stanislas Rolland 2004-11-20
+// Treat the cell as a body
+	if (SC == EC && !SO && !EO && (SC == body || /td/i.test(block.tagName)) ) {
 		p = this._doc.createTextNode(" ");
-		body.insertBefore(p, body.firstChild);
+		if(!block) {
+			body.insertBefore(p, body.firstChild);
+		} else {
+			block.insertBefore(p, block.firstChild);
+		}
+// End change by Stanislas Rolland 2004-11-20
 		range.selectNodeContents(p);
 		SC = range.startContainer;
 		SO = range.startOffset;
 		EC = range.endContainer;
 		EO = range.endOffset;
 	}
-	if (!block) {
+// Begin change by Stanislas Rolland 2004-11-20
+// Treat the cell as a body
+	if (!block || /td/i.test(block.tagName)) {
+// End change by Stanislas Rolland 2004-11-20
 		var r2 = range.cloneRange();
 		r2.setStartBefore(SC);
 		r2.setEndAfter(EC);
 		r2.surroundContents(block = this._doc.createElement("p"));
 		range.setEndAfter(block);
 		range.setStart(block.firstChild, SO);
-	} else range.setEndAfter(block);
+	} else {
+		range.setEndAfter(block);
+	}
 	var df = range.extractContents();
 	if (!/\S/.test(block.innerHTML))
 		block.innerHTML = "<br />";

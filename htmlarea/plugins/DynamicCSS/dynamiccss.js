@@ -5,7 +5,7 @@
 // (c) systemconcept.de 2004
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
-// Modified by Stanislas Rolland 2004-10-25
+// Rewritten by Stanislas Rolland 2004-11-08
 // 	Cleaned up to allow multiple instances in the same document
 // 	Added function applyCSSIEImport to recursively import IE CSS
 // 	Get the timeout right
@@ -27,9 +27,12 @@ function DynamicCSS(editor, args) {
 		tooltip	: i18n["DynamicCSSStyleTooltip"],
 		options	: {"":""},
 		action	: function(editor) { self.onSelect(editor, this); },
-		refresh	: function(editor) { self.updateValue(editor, this); },
+		refresh	: function(editor) { self.generate(); },
+		context	: "*",
 		cssArray	: new Array(),
 		parseCount	: 1,
+		loaded	: false,
+		timeout	: null,
 		lastTag	: "",
 		lastClass	: ""
 		};
@@ -159,54 +162,92 @@ DynamicCSS.prototype.onSelect = function(editor, obj) {
     editor.updateToolbar();
 };
 
-/*
 DynamicCSS.prototype.onGenerate = function() {
-	var obj = this.editor.config.customSelects["DynamicCSS-class"];
-	this.updateValue(this.editor,obj);
+	var editor = this.editor;
+	var obj = editor.config.customSelects["DynamicCSS-class"];
+	if(HTMLArea.is_gecko) this.generate();
 };
-*/
+
+DynamicCSS.prototype.onUpdateToolbar = function() {
+	var editor = this.editor;
+	var obj = editor.config.customSelects["DynamicCSS-class"];
+	if(HTMLArea.is_gecko && editor._editMode != "textmode") {
+		if(obj.timeout) {
+			editor._iframe.contentWindow.clearTimeout(obj.timeout);
+			obj.timeout = null;
+		}
+		this.generate();
+	}
+};
+
+DynamicCSS.prototype.generate = function() {
+	var editor = this.editor;
+	var obj = editor.config.customSelects["DynamicCSS-class"];
+	var self = this;
+
+        // Let us load the style sheets
+	function getCSSArray(){
+		var oldLength = 0;
+		for(var x in obj.cssArray) ++oldLength;   //   .length will not work with this object structure
+		obj.cssArray = self.parseStyleSheet(editor);
+		var newLength = 0;
+		for(var y in obj.cssArray) ++newLength;
+		if( (oldLength != newLength) && (obj.parseCount<17) ) {
+			obj.timeout = editor._iframe.contentWindow.setTimeout(getCSSArray,obj.parseCount*500);
+			obj.parseCount = obj.parseCount*2;
+			// now let us wait for the gecko doc and body! 
+		} else {
+			obj.timeout = null;
+			obj.loaded = true;
+			self.updateValue(editor,obj);
+		}
+	};
+	getCSSArray();
+};
 
 DynamicCSS.prototype.onMode = function(mode) {
+	var editor = this.editor;
 	if(mode=='wysiwyg'){
-		var obj = this.editor.config.customSelects["DynamicCSS-class"];
+		var obj = editor.config.customSelects["DynamicCSS-class"];
 		obj.cssArray=null;
 		obj.cssArray=new Array();
 		obj.parseCount = 1;
 		obj.lastTag = "";
 		obj.lastClass = "";
-		this.editor.updateToolbar();
+		obj.loaded = false;
+		if(obj.timeout) {
+			editor._iframe.contentWindow.clearTimeout(obj.timeout);
+			obj.timeout = null;
+		}
+		this.generate();
 	}
 };
 
 DynamicCSS.prototype.updateValue = function(editor,obj) {
-	var self = this;
 
-        // get the style sheets
-	function getCSSArray(){
-		var oldLength = 0;
-		for(var x in obj.cssArray) ++oldLength;
-		obj.cssArray = self.parseStyleSheet(editor);
-		var newLength = 0;
-		for(var x in obj.cssArray) ++newLength;
-		if(oldLength != newLength && obj.parseCount<17) {
-			editor._iframe.contentWindow.setTimeout(getCSSArray,obj.parseCount*500);
-			obj.parseCount = obj.parseCount*2;
-			self.updateValue(editor,obj);
-		} 
+	if(!obj.loaded) {
+		if(obj.timeout) {
+			editor._iframe.contentWindow.clearTimeout(obj.timeout);
+			obj.timeout = null;
+		}
+		this.generate();
 	}
-	if(obj.parseCount == 1) getCSSArray();
 
 	var cssArray = obj.cssArray;
+	var tagName = "";
+	var className = "";
 	var parent = editor.getParentElement();
-	var tagName = parent.tagName.toLowerCase();
-	var className = parent.className;
+	if(parent) {
+		tagName = parent.tagName.toLowerCase();
+		className = parent.className;
+	}
 
-	if(obj.lastTag!=tagName || obj.lastClass!=className){        
+	if( obj.lastTag!=tagName || obj.lastClass!=className ){        
 		obj.lastTag=tagName;
 		obj.lastClass=className;
             var i18n = DynamicCSS.I18N;
             var select = editor._toolbarObjects[obj.id].element;
-		while(select.length>0){
+		while(select.options.length>0){
 			select.options[select.length-1] = null;
 		}
 
@@ -216,13 +257,16 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 			if(tagName!='body' || editor.config.fullPage){
 				if(cssArray[tagName]){
 					for(var cssClass in cssArray[tagName]){
-						if(cssClass=='none') select.options[0]=new Option(cssArray[tagName][cssClass],cssClass);
-						else select.options[select.length]=new Option(cssArray[tagName][cssClass],cssClass);
+						if(cssClass=='none') {
+							select.options[0]=new Option(cssArray[tagName][cssClass],cssClass);
+						} else {
+							select.options[select.options.length]=new Option(cssArray[tagName][cssClass],cssClass);
+						}
 					}
 				}
 				if(cssArray['all']){
 					for(var cssClass in cssArray['all']){
-						select.options[select.length]=new Option(cssArray['all'][cssClass],cssClass);
+						select.options[select.options.length]=new Option(cssArray['all'][cssClass],cssClass);
 					}
 				}
 			}
@@ -232,21 +276,20 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 		select.selectedIndex = 0;
 
 		if (typeof className != "undefined" && /\S/.test(className)) {
-			var options = select.options;
-			for (var i = options.length; --i >= 0;) {
-				var option = options[i];
+			for (var i = select.options.length; --i >= 0;) {
+				var option = select.options[i];
 				if (className == option.value) {
 					select.selectedIndex = i;
 					break;
 				}
 			}
 			if(select.selectedIndex == 0){
-				select.options[select.length]=new Option(i18n["Undefined"],className);
-				select.selectedIndex=select.length-1;
+				select.options[select.options.length]=new Option(i18n["Undefined"],className);
+				select.selectedIndex=select.options.length-1;
 			}
 		}
 
-		if(select.length>1) select.disabled=false;
+		if(select.options.length>1) select.disabled=false;
 		else select.disabled=true;
 	}
 };

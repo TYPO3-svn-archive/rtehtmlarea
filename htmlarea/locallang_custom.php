@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for the custom language subarray of RTE HtmalArea (extension: rte_pb_htmlarea)
+ * Language labels for the custom language subarray of htmlArea RTE(extension: sr_htmlarea)
  * 
  * This file is detected by the translation tool.
  */
