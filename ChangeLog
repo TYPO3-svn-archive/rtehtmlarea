@@ -1,3 +1,7 @@
+2004-12-12  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* New QuickTag plugin and hideTags config property
+	* Documentation of version 0.4.9
+
 2004-12-10  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Correcting color formatting in gecko browsers
 	* New useCSS RTE property
