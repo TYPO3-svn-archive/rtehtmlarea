@@ -2402,11 +2402,15 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 						value = root[a.nodeName];
 					} else {
 						value = a.nodeValue;
-						// IE seems not willing to return the original values - it converts to absolute
-						// links using a.nodeValue, a.value, a.stringValue, root.getAttribute("href")
-						// So we have to strip the baseurl manually :-/
-						if (HTMLArea.is_ie && (name == "href" || name == "src")) {
-							value = editor.stripBaseURL(value);
+// Begin change by Stanislas Rolland 2004-12-10
+							// Ampersands in URIs need to be escaped to get valid XHTML
+						if (name == "href" || name == "src") {
+							value = value.replace(/&/g, "&amp;");
+								// IE seems not willing to return the original values - it converts to absolute
+								// links using a.nodeValue, a.value, a.stringValue, root.getAttribute("href")
+								// So we have to strip the baseurl manually :-/
+							if (HTMLArea.is_ie) value = editor.stripBaseURL(value);
+// End change by Stanislas Rolland 2004-12-10
 						}
 					}
 				} else { // IE fails to put style in attributes list
