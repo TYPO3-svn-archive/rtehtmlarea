@@ -151,7 +151,7 @@ TableOperations.prototype.dialogTableProperties = function() {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement();
-	}, 500, 530);
+	}, 520, 560);
 };
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
@@ -201,7 +201,7 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		dialog.addButtons("ok", "cancel");
 		dialog.modal = true;
 		if(!HTMLArea.is_gecko) dialog.showAtElement();
-	   }, 550, 335);
+	   }, 560, 345);
 	}
 };
 

@@ -49,7 +49,7 @@ SpellChecker.prototype.buttonPress = function(editor, id) {
 		var param = new Object();
 		param.editor = editor;
 		param.HTMLArea = HTMLArea;
-    		editor._popupDialog("plugin://SpellChecker/spell-check-ui", null, param, 660, 500);
+    		editor._popupDialog("plugin://SpellChecker/spell-check-ui", null, param, 670, 500);
 		break;
 	}
 };

@@ -273,14 +273,27 @@
 
 /* Selectors for the InsertImage popup */
 .popupwin div.imagepreview  { text-align: center; }
-.popupwin .imagepreview iframe { border: 1px solid gray; width: 300; height: 200; }
-
+.popupwin .imagepreview iframe { 
+	border: 1px solid gray; 
+	width: 300; 
+	height: 200; 
+}
 /* Selectors for the InsertSmiley plugin */
-.popupwin div.smileytable  { height: 125px; overflow:auto; }
-.popupwin .smileytable td { width: 35px; height: 25px; }
-
+.popupwin div.smileytable  { 
+	height: 125px; 
+	overflow:auto; 
+}
+.popupwin .smileytable td { 
+	width: 35px; 
+	height: 25px; 
+}
 /* Selectors for the FindReplace plugin */
-.popupwin .long-label { text-align: left; width: 16em; }
-
+.popupwin .long-label { 
+	text-align: left; 
+	width: 16em; 
+}
 /* Selectors for the SpellChecker plugin */
-.popupwin button#b_recheck { vertical-align: middle; }
+.popupwin #b_recheck { 
+	vertical-align: middle; 
+	width: 12em;
+}

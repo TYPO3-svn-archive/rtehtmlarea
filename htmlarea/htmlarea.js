@@ -1783,7 +1783,7 @@ HTMLArea.prototype._insertTable = function() {
 		editor.forceRedraw();
 		editor.updateToolbar();
 		return true;
-	}, null, 500, 210);
+	}, null, 520, 230);
 };
 
 /***************************************************

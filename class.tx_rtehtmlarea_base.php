@@ -351,7 +351,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			}
 				// Character set
 			$this->csObj = t3lib_div::makeInstance('t3lib_cs');
-			$this->charset = $this->csObj->$charSetArray[$this->language];
+			$this->charset = $this->csObj->charSetArray[$this->language];
 			$this->charset = $this->charset ? $this->charset : 'iso-8859-1';
 			$this->BECharset = trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) ? trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) : $this->charset;
 
@@ -885,7 +885,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 
 			$index = 0;
 			foreach ( $LOCAL_LANG[$this->language] as $labelKey => $labelValue ) {
-				$JSLanguageArray .=  (($index++)?',':'') . ' "' . $labelKey . '" : "' . $labelValue . '"' . chr(10);
+				$JSLanguageArray .=  (($index++)?',':'') . ' "' . $labelKey . '" : "' . str_replace('"', '\"', $labelValue) . '"' . chr(10);
 			}
 
 			$JSLanguageArray .= ' }' . chr(10);
@@ -912,7 +912,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$JSLanguageArray .= $plugin . '_langArray = { ' . chr(10);
 		$index = 0;
 		foreach ( $LOCAL_LANG[$this->language] as $labelKey => $labelValue ) {
-			$JSLanguageArray .=  (($index++)?',':'') . ' "' . $labelKey . '" : "' . $labelValue . '"' . chr(10);
+			$JSLanguageArray .=  (($index++)?',':'') . ' "' . $labelKey . '" : "' . str_replace('"', '\"', $labelValue) . '"' . chr(10);
 		} 
 		$JSLanguageArray .= ' };' . chr(10);
 		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->BECharset);

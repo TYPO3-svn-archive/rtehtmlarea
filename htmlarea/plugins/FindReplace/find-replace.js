@@ -29,7 +29,7 @@ FindReplace.prototype.buttonPress = function(editor) {
 		sel = sel.replace(/&nbsp;/g,"");
 	}
 	var param = /\w/.test(sel) ? {fr_pattern: sel} : null;
-	editor._popupDialog("plugin://FindReplace/find_replace", null, param, 365, 220);
+	editor._popupDialog("plugin://FindReplace/find_replace", null, param, 420, 220);
 };
 
 FindReplace._pluginInfo = {

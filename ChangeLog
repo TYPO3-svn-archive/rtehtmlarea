@@ -1,3 +1,8 @@
+2005-01-18  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Last row, column, cell deletion in tables.
+	* CGI detection corrected.
+	* Character conversion corrected.
+
 2005-01-14  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Toolbar configuration.
 	* Fullpage plugin deletion.
