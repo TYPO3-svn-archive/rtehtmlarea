@@ -1329,6 +1329,22 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 					btn.element.selectedIndex = 0;
 					break;
 				}
+// Begin change by Stanislas Rolland 2004-11-27
+// IE is very strange: gives the labels as value and seems to translate the headings labels!
+// This will work at least in English and French...
+				if(HTMLArea.is_ie && cmd == "formatblock"  && value != "normal") {
+					var heading = false;
+					var n = 0;
+					while(n<7 && !heading ) { 
+						n++;
+						if(value.indexOf(n) != -1) {
+							value = "h"+n;
+							heading = true;
+						}
+					}
+					value = heading ? value : "pre";
+				}
+// End change by Stanislas Rolland 2004-11-27
 				// HACK -- retrieve the config option for this
 				// combo box.  We rely on the fact that the
 				// variable in config has the same name as
@@ -1338,7 +1354,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 				for (var j in options) {
 					// FIXME: the following line is scary.
 					if ((j.toLowerCase() == value) ||
-					    (options[j].substr(0, value.length).toLowerCase() == value)) {
+						   (options[j].substr(0, value.length).toLowerCase() == value)) {
 						btn.element.selectedIndex = k;
 						throw "ok";
 					}
@@ -1915,7 +1931,6 @@ HTMLArea.prototype._editorEvent = function(ev) {
 		    case 'y': cmd = "redo"; break;
 		    case 'v': if (HTMLArea.is_ie || editor.config.htmlareaPaste) { cmd = "paste"; } break;
 		    case 'n': cmd = "formatblock"; value = HTMLArea.is_ie ? "<p>" : "p"; break;
-
 		    case '0': cmd = "killword"; break;
 
 			// headings
