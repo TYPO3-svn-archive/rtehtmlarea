@@ -27,12 +27,6 @@ function typo3LoadOnlyPlugin(pluginName) {
 	HTMLArea._scripts.push(plugin_file);
 }
 
-	// We initialize the editors when the scripts are loaded
-HTMLArea.is_loaded = false;
-HTMLArea.onload = function(){ 
-	HTMLArea.is_loaded = true;
-};
-
 /** Init each Editor, load the Editor, config the toolbar, setup the plugins, etc.
 */
 function initEditor(editornumber) {
@@ -42,98 +36,100 @@ function initEditor(editornumber) {
 		setTimeout(function() { self.initEditor(editornumber); }, 150);
 	} else {
 
-	var config = new HTMLArea.Config();
+		var config = new HTMLArea.Config();
 
-		// Toolbar: need change -> typo3-Config
-	config.toolbar = RTEarea[editornumber]["toolbar"];
+			// Toolbar: need change -> typo3-Config
+		config.toolbar = RTEarea[editornumber]["toolbar"];
 
-		// create an editor for the textbox
-	RTEarea[editornumber]["editor"] = new HTMLArea(RTEarea[editornumber]["id"], config);
-	var editor = RTEarea[editornumber]["editor"];
+			// create an editor for the textbox
+		RTEarea[editornumber]["editor"] = new HTMLArea(RTEarea[editornumber]["id"], config);
+		var editor = RTEarea[editornumber]["editor"];
 
-		// Save the editornumber and in the Object
-	editor._typo3EditerNumber = editornumber;
+			// Save the editornumber and in the Object
+		editor._typo3EditerNumber = editornumber;
 
-	RTEarea[editornumber]["ruleSet"] = "article";
+		RTEarea[editornumber]["ruleSet"] = "article";
 
-	for (var plugin in RTEarea[editornumber]["plugin"]) {
-		if (RTEarea[editornumber]["plugin"][plugin]) {
-			switch (plugin) {
-				case "Indite":
-					editor.registerPlugin(plugin,RTEarea[editornumber]["ruleSet"]);
-					break;
-				default:
-					editor.registerPlugin(plugin);
-					break;
+		for (var plugin in RTEarea[editornumber]["plugin"]) {
+			if (RTEarea[editornumber]["plugin"][plugin]) {
+				switch (plugin) {
+					case "Indite":
+						editor.registerPlugin(plugin,RTEarea[editornumber]["ruleSet"]);
+						break;
+					default:
+						editor.registerPlugin(plugin);
+						break;
+				}
 			}
 		}
-	}
 
-	if(RTEarea[editornumber]["pageStyle"]) {
-		editor.config.pageStyle = RTEarea[editornumber]["pageStyle"];
-	}
-
-	if(RTEarea[editornumber]["fontname"]) {
-		editor.config.fontname = RTEarea[editornumber]["fontname"];
-	}
-
-	if(RTEarea[editornumber]["fontsize"]) {
-		editor.config.fontsize = RTEarea[editornumber]["fontsize"];
-	}
-
-	if(RTEarea[editornumber]["colors"]) {
-		editor.config.colors = RTEarea[editornumber]["colors"];
-	}
-
-	if(RTEarea[editornumber]["disableColorPicker"]) {
-		editor.config.disableColorPicker = RTEarea[editornumber]["disableColorPicker"];
-	}
-
-	if(RTEarea[editornumber]["paragraphs"]) {
-		editor.config.formatblock = RTEarea[editornumber]["paragraphs"];
-	}
-
-	editor.config.width = "auto";
-	editor.config.height = "auto";
-	editor.config.sizeIncludesToolbar = false;
-	editor.config.fullPage = false;
-
-	editor.config.statusBar = true;
-
-	if(HTMLArea.is_ie && editor.config.statusBar) {
-		editor._customUndo = true;
-	}
-
-	editor.onGenerate = function () {
-			// IE does not like automatic sizing
-		if(HTMLArea.is_ie) {
-			var size = editor._textArea.style.width;
-			editor._toolbar.style.width = size;
-			editor._statusBar.style.width = size;
+		if(RTEarea[editornumber]["pageStyle"]) {
+			editor.config.pageStyle = RTEarea[editornumber]["pageStyle"];
 		}
-			// Set killWordOnPaste and intercept paste , dragdrop and drop events for wordClean
-		if(RTEarea[editornumber]["enableWordClean"]) {
-			editor.config.killWordOnPaste = true;
-			editor.config.htmlareaPaste = true;
-			HTMLArea._addEvents (HTMLArea.is_ie ? editor._doc.body : editor._doc, ["paste","dragdrop","drop"], 
-				function (event) { 
-					if (editor.config.killWordOnPaste) { 
-						setTimeout(function() { 
-							editor._wordClean(editor._doc.body);
-						}, 250);
+
+		if(RTEarea[editornumber]["fontname"]) {
+			editor.config.fontname = RTEarea[editornumber]["fontname"];
+		}
+
+		if(RTEarea[editornumber]["fontsize"]) {
+			editor.config.fontsize = RTEarea[editornumber]["fontsize"];
+		}
+
+		if(RTEarea[editornumber]["colors"]) {
+			editor.config.colors = RTEarea[editornumber]["colors"];
+		}
+
+		if(RTEarea[editornumber]["disableColorPicker"]) {
+			editor.config.disableColorPicker = RTEarea[editornumber]["disableColorPicker"];
+		}
+
+		if(RTEarea[editornumber]["paragraphs"]) {
+			editor.config.formatblock = RTEarea[editornumber]["paragraphs"];
+		}
+
+		editor.config.width = "auto";
+		editor.config.height = "auto";
+		editor.config.sizeIncludesToolbar = false;
+		editor.config.fullPage = false;
+
+		editor.config.statusBar = true;
+
+		if(HTMLArea.is_ie && editor.config.statusBar) {
+			editor._customUndo = true;
+		}
+
+		editor.onGenerate = function () {
+
+				// IE does not like automatic sizing
+			if(HTMLArea.is_ie) {
+				var size = editor._textArea.style.width;
+				editor._toolbar.style.width = size;
+				editor._statusBar.style.width = size;
+			}
+
+				// Set killWordOnPaste and intercept paste , dragdrop and drop events for wordClean
+			if(RTEarea[editornumber]["enableWordClean"]) {
+				editor.config.killWordOnPaste = true;
+				editor.config.htmlareaPaste = true;
+				HTMLArea._addEvents (HTMLArea.is_ie ? editor._doc.body : editor._doc, ["paste","dragdrop","drop"], 
+					function (event) { 
+						if (editor.config.killWordOnPaste) { 
+							setTimeout(function() { 
+								editor._wordClean(editor._doc.body);
+							}, 250);
+						}
 					}
-				}
-			);
-		} else {
-			editor.config.killWordOnPaste = false;
-		}
-		document.getElementById('pleasewait' + editornumber).style.display='none';
-		document.getElementById('editorWrap' + editornumber).style.visibility='visible';
-	};
+				);
+			} else {
+				editor.config.killWordOnPaste = false;
+			}
 
-	editor.generate();
+			document.getElementById('pleasewait' + editornumber).style.display='none';
+			document.getElementById('editorWrap' + editornumber).style.visibility='visible';
+		};
 
-	return false;
+		editor.generate();
+		return false;
 	}
 };
 
