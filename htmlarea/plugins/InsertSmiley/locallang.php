@@ -55,6 +55,9 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'Insert Smiley' => 'Вставить смайлик',
+		'Smiley' => 'Смайлик',
+		'Cancel' => 'Отмена',
 	),
 	'ro' => Array (
 	),

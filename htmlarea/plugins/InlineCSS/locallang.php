@@ -37,6 +37,8 @@ $LOCAL_LANG = Array (
 	'nl' => Array (
 		'Default' => 'Standaard',
 		'Undefined' => 'Ongedefinieerd',
+		'InlineCSSStyleTooltip' => 'Pas stijl toe op de geselecteerde tekst',
+		'You have to select some text' => 'U dient eerst een stuk tekst te selecteren',
 	),
 	'cz' => Array (
 	),
@@ -57,6 +59,10 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'Default' => 'По умолчанию',
+		'Undefined' => 'Неопределено',
+		'InlineCSSStyleTooltip' => 'Введите стиль для выделеного текста',
+		'You have to select some text' => 'Сначала надо выделить текст',
 	),
 	'ro' => Array (
 	),

@@ -97,6 +97,18 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'RemoveFormatTooltip' => 'Удалить форматирование',
+		'Cleaning Area' => 'Очищаю область',
+		'Selection' => 'Выделение',
+		'All' => 'Все',
+		'Remove formatting' => 'Удалить форматирование',
+		'Cleaning options' => 'Какое форматирование удалить',
+		'Formatting:' => 'Форматирование HTML:',
+		'MS Word Formatting:' => 'Форматирование MSWord:',
+		'All HTML:' => 'Все таги HTML:',
+		'Select the type of formatting you wish to remove.' => 'Выберите какое форматирование надо удалить',
+		'OK' => 'ОК',
+		'Cancel' => 'Отмена',
 	),
 	'ro' => Array (
 	),

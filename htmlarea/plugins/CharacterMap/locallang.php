@@ -61,6 +61,10 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'CharacterMapTooltip' => 'Вставить специальный символ',
+		'Insert special character' => 'Вставить специальный символ',
+		'HTML value:' => 'Значение HTML:',
+		'Cancel' => 'Отмена',
 	),
 	'ro' => Array (
 	),

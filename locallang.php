@@ -65,7 +65,7 @@ $LOCAL_LANG = Array (
 		'Heading 4' => 'Kop 4',
 		'Heading 5' => 'Kop 5',
 		'Heading 6' => 'Kop 6',
-		'Preformatted' => 'Vaste breedte',
+		'Preformatted' => 'Preformatted',
 	),
 	'cz' => Array (
 	),
@@ -91,6 +91,15 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'Please wait' => 'Редактор загружается. Подождите, пожалуйста...',
+		'Normal' => 'Нормальный',
+		'Heading 1' => 'Заголовок 1',
+		'Heading 2' => 'Заголовок 2',
+		'Heading 3' => 'Заголовок 3',
+		'Heading 4' => 'Заголовок 4',
+		'Heading 5' => 'Заголовок 5',
+		'Heading 6' => 'Заголовок 6',
+		'Preformatted' => 'Пре-форматированый',
 	),
 	'ro' => Array (
 	),

@@ -336,12 +336,13 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->specConf = $specConf;
 
 				// htmlArea plugins list
-			$this->pluginList = implode(',', array_intersect(t3lib_div::trimExplode(',', $this->pluginList, 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'] , 1)));
-			$this->pluginEnableList = isset($BE_USER->userTS['options.']['HTMLAreaPluginList']) ? $BE_USER->userTS['options.']['HTMLAreaPluginList'] : $this->pluginList;
-			$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginEnableList , 1), t3lib_div::trimExplode(',', $this->pluginList, 1));
+			$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginList , 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'], 1));
 
 				// Toolbar
 			$this->setToolBar();
+
+				// Check if some plugins need to be disabled
+			$this->setPlugins();
 
 				// Language
 			$this->language = $LANG->lang;
@@ -452,13 +453,13 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			if (basename(PATH_thisScript)=="wizard_rte.php") {
 				// change the size of the RTE to fullscreen: use JS for this
 				$height = "window.innerHeight";
-				$wight = "window.innerWidth";
+				$width = "window.innerWidth";
 				
 				if ($CLIENT['BROWSER'] == "msie") {
 					$height = "document.body.offsetHeight";
-					$wight = "document.body.offsetWidth";
+					$width = "document.body.offsetWidth";
 				}
-				$pObj->additionalJS_post[] = $this->setRTEsizeByJS('RTEarea'.$pObj->RTEcounter, $height, $wight);
+				$pObj->additionalJS_post[] = $this->setRTEsizeByJS('RTEarea'.$pObj->RTEcounter, $height, $width);
 			}
 			
 			// Register RTE in JS:
@@ -483,10 +484,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	}
 	
 	/**
-	 * Set the toolbar-config (only in this PHP-Object, not in JS):
-	 * This set $this-toolBar to all allow buttons
+	 * Set the toolbar config (only in this PHP-Object, not in JS):
 	 *
-	 * 
 	 */
 	function setToolBar() {
 		global $BE_USER;
@@ -502,7 +501,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		if ($pList != '*') {	// If not all
 			$show = $this->specConf['richtext']['parameters'];
 			if ($this->thisConfig['showButtons'])	{
-				$show = array_unique(array_merge($show,t3lib_div::trimExplode(',',$this->thisConfig['showButtons'],1)));
+				if($this->thisConfig['showButtons'] != '*') {
+					$show = array_unique(array_merge($show,t3lib_div::trimExplode(',',$this->thisConfig['showButtons'],1)));
+				} else {
+					$show = array_unique(array_merge($show,$toolbarOrder));
+				}
 			}
 		} else {
 			$show = $toolbarOrder;
@@ -512,12 +515,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$RTEkeyList = isset($BE_USER->userTS['options.']['RTEkeyList']) ? $BE_USER->userTS['options.']['RTEkeyList'] : '*';
 		if ($RTEkeyList != '*')	{ 	// If not all
 			$show = array_intersect($show, t3lib_div::trimExplode(',',$RTEkeyList,1));
-		}
-
-			// Renaming buttons of replacement plugins
-		if( $this->isPluginEnable('SelectColor') ) {
-			$this->conf_toolbar_convert['textcolor'] = 'CO-forecolor';
-			$this->conf_toolbar_convert['bgcolor'] = 'CO-hilitecolor';
 		}
 
 			// Hiding buttons of disabled plugins
@@ -547,6 +544,14 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$show = array_intersect($show, $toolbarOrder);
 
 		$this->toolBar = $show;
+	}
+
+	/**
+	 * Disable some plugins
+	 *
+	 */
+	function setPlugins() {
+		global $BE_USER;
 
 			// Disabling the plugins if their buttons are not in the toolbar
 		$hidePlugins = array();
@@ -554,7 +559,22 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		while(list($plugin, $button) = each($this->pluginButton) ) {
 			if(!in_array($button,$this->toolBar)) $hidePlugins[] = $plugin;
 		}
+
+		if($this->thisConfig['disableContextMenu']) $hidePlugins[] = 'ContextMenu';
+		if($this->thisConfig['disableSelectColor']) $hidePlugins[] = 'SelectColor';
+		if($this->thisConfig['disableTYPO3Browsers']) $hidePlugins[] = 'TYPO3Browsers';
+		if($this->thisConfig['disableEnterParagraphs']) $hidePlugins[] = 'EnterParagraphs';
+
+		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
+
 		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
+
+			// Renaming buttons of replacement plugins
+		if( $this->isPluginEnable('SelectColor') ) {
+			$this->conf_toolbar_convert['textcolor'] = 'CO-forecolor';
+			$this->conf_toolbar_convert['bgcolor'] = 'CO-hilitecolor';
+		}
+
 	}
 	
 	/**
@@ -837,13 +857,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return boolean		1 if the plugin can be loaded
 	 */
 	function isPluginEnable($plugin) { 
-		$enabled = in_array($plugin, $this->pluginEnableArray);
-		switch ($plugin) {
-			case 'SpellChecker':
-				$enabled = $enabled && t3lib_extMgm::isLoaded('sr_static_info') && !in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']));
-			default:
-				return $enabled;
-		}	
+		return in_array($plugin, $this->pluginEnableArray);
 	}
 
 	/**
@@ -879,6 +893,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$JSLanguageArray .= ' };' . chr(10);
 		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->BECharset);
 	}
+
+
 
 	/**
 	 * Return a JS language array for the plugin

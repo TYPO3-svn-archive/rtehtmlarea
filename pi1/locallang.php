@@ -43,6 +43,7 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'tx_srspellcheck_pi1.list_type' => 'Проверка правописания для HTMLArea RTE',
 	),
 	'ro' => Array (
 	),

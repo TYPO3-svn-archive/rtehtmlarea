@@ -49,6 +49,8 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'ok' => 'ОК',
+		'cancel' => 'Отмена',
 	),
 	'ro' => Array (
 	),

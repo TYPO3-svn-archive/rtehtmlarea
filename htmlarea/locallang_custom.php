@@ -29,6 +29,8 @@ $LOCAL_LANG = Array (
 		'text_style' => 'Texto:',
 	),
 	'nl' => Array (
+		'style' => 'Alinea:',
+		'text_style' => 'Tekst:',
 	),
 	'cz' => Array (
 	),
@@ -47,6 +49,8 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'style' => 'Параграф:',
+		'text_style' => 'Текст:',
 	),
 	'ro' => Array (
 	),

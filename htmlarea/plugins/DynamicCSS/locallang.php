@@ -34,6 +34,7 @@ $LOCAL_LANG = Array (
 	'nl' => Array (
 		'Default' => 'Standaard',
 		'Undefined' => 'Ongedefinieerd',
+		'DynamicCSSStyleTooltip' => 'Stijl toepassen op de binnenste alinea',
 	),
 	'cz' => Array (
 	),
@@ -53,6 +54,9 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'Default' => 'По умолчанию',
+		'Undefined' => 'Неопределено',
+		'DynamicCSSStyleTooltip' => 'Применить стиль к абзацу',
 	),
 	'ro' => Array (
 	),

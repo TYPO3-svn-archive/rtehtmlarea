@@ -73,6 +73,12 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'CO-forecolor' => 'Цвет текста',
+		'CO-hilitecolor' => 'Цвет фона',
+		'CO-forecolor_title' => 'Установить цвет текста',
+		'CO-hilitecolor_title' => 'Установить цвет фона',
+		'color_title' => 'Выбрать цвет',
+		'no_color' => 'Нет цвета',
 	),
 	'ro' => Array (
 	),

@@ -41,6 +41,7 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'tx_rtepbhtmlarea_pi2.list_type' => 'Front End HTMLArea RTE',
 	),
 	'ro' => Array (
 	),

@@ -12,8 +12,7 @@
 //
 // Changes by Stanislas Rolland <stanislas.rolland@fructifor.com>
 // Toolbar: Toolbar elements are floating in a continuous div rather than cells in a table.
-// Toolbar: Linebreaks create a new such wrapping div extending on possibly more than one line
-// Toolbar: Linebreaks may be used when some select box are of variable width causing buttons to move too often
+// Toolbar: Linebreaks create a new such floating div that may extend on possibly more than one line
 // Toolbar: Add tooltip on select boxes
 // Generate function: re-written to make it almost DOM only and solve many loading problems
 
@@ -2243,7 +2242,7 @@ HTMLArea.checkSupportedBrowser = function() {
 // selection & ranges
 
 // returns the current selection object
-// Rewritten bt Stanislas Rolland 2004-12-07
+// Rewritten by Stanislas Rolland 2004-12-07
 HTMLArea.prototype._getSelection = function() {
 	if (this._iframe.contentWindow.getSelection) {
 		return this._iframe.contentWindow.getSelection();
@@ -2273,7 +2272,6 @@ HTMLArea.prototype._createRange = function(sel) {
 };
 
 // event handling
-
 HTMLArea._addEvent = function(el, evname, func) {
 	if (HTMLArea.is_ie) {
 		el.attachEvent("on" + evname, func);

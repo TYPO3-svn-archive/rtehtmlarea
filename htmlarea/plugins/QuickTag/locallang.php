@@ -97,6 +97,18 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'Quick Tag Editor' => 'Быстрый редактор тагов',
+		'Enter the TAG you want to insert' => 'Введите таг, который Вы хотите вставить',
+		'You have to select some text' => 'Вы должны сначала выделить текст',
+		'There are some unclosed quote' => 'Есть незакрытые кавычки',
+		'This attribute already exists in the TAG' => 'Этот атрибут уже присутствует в таге',
+		'No CSS class avaiable' => 'CSS-классы недоступны',
+		'OPTIONS' => 'ВАРИАНТЫ',
+		'ATTRIBUTES' => 'АТРИБУТЫ',
+		'TAGs' => 'ТАГИ',
+		'Colors' => 'Цвета',
+		'Ok' => 'ОК',
+		'Cancel' => 'Отмена',
 	),
 	'ro' => Array (
 	),

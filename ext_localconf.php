@@ -33,7 +33,6 @@ if ($_EXTCONF["enableAllOptions"])  {
 
 	t3lib_extMgm::addUserTSConfig('
 		setup.default.edit_RTE = 1
-		options.HTMLAreaPluginList = DynamicCSS, TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag, InlineCSS
 		options.HTMLAreaPspellMode = normal
 		options.RTEkeyList = *
 		');
@@ -49,8 +48,12 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.useCSS = 1
 		default.defaultLinkTarget =
 		default.showStatusBar =  1
-		default.showButtons =  blockstylelabel, blockstyle, textstylelabel, textstyle, fontstyle, fontsize, formatblock, bold, italic, underline, strikethrough, subscript, superscript, lefttoright, righttoleft, left, center, right, justifyfull, orderedlist, unorderedlist, outdent, indent, textcolor, bgcolor, textindicator, emoticon, insertcharacter, line, link, image, table, findreplace, spellcheck, chMode, inserttag, removeformat, copy, cut, paste, undo, redo, showhelp, about
+		default.showButtons =  *
 		default.hideButtons =
+		default.disableContextMenu = 0
+		default.disableColorSelect = 0
+		default.disableTYPO3Browsers = 0
+		default.disableEnterParagraphs = 0
 		default.hidePStyleItems =
 		default.hideFontSizes =
 		default.hideTags = font, font (full)
@@ -117,9 +120,8 @@ if ($_EXTCONF["enableAllOptions"])  {
 
 	t3lib_extMgm::addUserTSConfig('
 		setup.default.edit_RTE = 1
-		options.HTMLAreaPluginList = ContextMenu, EnterParagraphs
 		options.HTMLAreaPspellMode = normal
-		options.RTEkeyList = *
+		options.RTEkeyList = bold, italic, underline, textindicator, copy, cut, paste, undo, redo, about
 		');
 
 	// options.HTMLAreaPspellMode may be PSPELL_FAST or PSPELL_NORMAL or PSPELL_BAD_SPELLERS
@@ -134,7 +136,11 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.defaultLinkTarget =
 		default.showStatusBar =  0
 		default.showButtons =  bold,italic,underline,textindicator,copy,cut,paste,undo,redo,about
-		default.hideButtons = blockstylelabel, blockstyle, textstylelabel, textstyle, fontstyle, fontsize, formatblock, strikethrough, subscript, superscript, lefttoright, righttoleft, left, center, right, justifyfull, orderedlist, unorderedlist, outdent, indent, textcolor, bgcolor, emoticon, insertcharacter, line, link, image, table, findreplace, spellcheck, chMode, inserttag, removeformat, showhelp
+		default.hideButtons = 
+		default.disableContextMenu = 0
+		default.disableColorSelect = 0
+		default.disableTYPO3Browsers = 0
+		default.disableEnterParagraphs = 0
 		default.hidePStyleItems =
 		default.hideFontSizes =
 		default.hideTags = 
@@ -191,10 +197,6 @@ if ($_EXTCONF["enableAllOptions"])  {
 				keepNonMatchedTags = 1
 			}
 		}
-
-		## Setting these defaults for the eventual front end RTE:
-		default.HTMLAreaPluginList = SpellChecker, ContextMenu, InsertSmiley, FindReplace
-		default.HTMLAreaPspellMode = normal
 	}
 		');
 }

@@ -36,7 +36,7 @@ $LOCAL_LANG = Array (
 	'nl' => Array (
 		'Path' => 'Pad',
 		'TEXT_MODE' => 'U bent in de TEKST MODE. Gebruik de [<>] knop om terug te schakelen naar WYSIWYG.',
-		'IE-sucks-full-screen' => 'De volledige scherm modus in combinatie met Internet Explorer levert problemen op door fouten die wij niet hebben kunnen omzijlen. U ziet mogelijk een verkeerde weetgave, beperkte functies en/of willekeurige vastlopen van de browser. Als u een windows 9x systeem gebruikt, dan is het zeer waarschijnlijk dat u een \'Algemene toepassingsfout\' zult  krijgen en opnieuw zult moeten opstarten.\\n\\n U bent dus gewaarschuwd. Druk op OK als u toch wil proberen in volledige scherm modes te werken.',
+		'IE-sucks-full-screen' => 'De volledige scherm modus in combinatie met Internet Explorer levert problemen op door fouten die wij niet hebben kunnen omzijlen. U ziet mogelijk een verkeerde weergave, beperkte functies en/of willekeurige vastlopen van de browser. Als u een windows 9x systeem gebruikt, dan is het zeer waarschijnlijk dat u een \'Algemene toepassingsfout\' zult  krijgen en opnieuw zult moeten opstarten.\\n\\n U bent dus gewaarschuwd. Druk op OK als u toch wil proberen in volledige scherm modes te werken.',
 		'Moz-Clipboard' => 'Niet geautoriseerde scripts kunnen vanwege veiligheidsredenen geen geautomatiseerde toegang krijgen tot knippen, kopieren en plakken. Klik OK om een technische beschrijving op mozilla.org te lezen over goe een script toegang gegeven kan worden tot het klembord.',
 	),
 	'cz' => Array (
@@ -58,6 +58,10 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'Path' => 'Путь',
+		'TEXT_MODE' => 'Вы работает в текстовом режиме. Чтобы перейти в визуальный режим, нажмите [<>]',
+		'IE-sucks-full-screen' => 'В полноэкранной режиме могут быть некоторые проблемы с Internet Explorer, которые разработчикам не удалось обойти. Возможные неприятности: "мусор" на экране, отсутствие некоторых функций редактора или "падение" броузера. Если Вы используете Windows 9x, то, вероятнее всего, Вы получе сообщение о критической ошибке в программе, и Вам придётся перезагрузить компьютер.\\n\\nЕсли вышеописаное Вас не пугает, нажмите ОК для перхода в полноэкранный режим.',
+		'Moz-Clipboard' => 'Обычные (непривелигированые) скрипты не могут работать с буфером обмена (выполнять копирование/вырезание/вставку) из-за встроеной системы безопасности броузера. Нажмите ОК, чтобы узнать (на английском языке) как разрешить использование буфера обмена.',
 	),
 	'ro' => Array (
 	),

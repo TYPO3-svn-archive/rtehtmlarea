@@ -42,11 +42,11 @@ function TableOperations(editor) {
 
 TableOperations._pluginInfo = {
 	name          : "TableOperations",
-	version       : "2.0",
-	developer     : "Mihai Bazon",
+	version       : "3.0",
+	developer     : "Mihai Bazon & Stanislas Rolland",
 	developer_url : "http://dynarch.com/mishoo/",
-	c_owner       : "Mihai Bazon",
-	sponsor       : "Zapatec Inc.",
+	c_owner       : "Mihai Bazon & Stanislas Rolland",
+	sponsor       : "Zapatec Inc. & Fructifor Inc.",
 	sponsor_url   : "http://www.bloki.com",
 	license       : "htmlArea"
 };
@@ -285,7 +285,6 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 
 	switch (button_id) {
 		// ROWS
-
 	    case "TO-row-insert-above":
 	    case "TO-row-insert-under":
 		var tr = this.getClosest("tr");
@@ -300,18 +299,21 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		break;
 	    case "TO-row-delete":
 		var tr = this.getClosest("tr");
-		if (!tr) {
-			break;
+		if (!tr) { break; }
+		var rowParent = tr.parentNode;
+		var tableParent = rowParent.parentNode;
+		if(rowParent.rows.length == 1) {  // this the last row, delete the whole table
+			while(rowParent.tagName.toLowerCase() != "table") {
+				rowParent = tableParent;
+				tableParent = rowParent.parentNode;
+			}
+			selectNextNode(rowParent);
+			tableParent.removeChild(rowParent);
+		} else {
+				// set the caret first to a position that doesn't disappear.
+			selectNextNode(tr);
+			rowParent.removeChild(tr);
 		}
-		var par = tr.parentNode;
-		if (par.rows.length == 1) {
-			alert(i18n["not-del-last-row"]);
-			break;
-		}
-		// set the caret first to a position that doesn't
-		// disappear.
-		selectNextNode(tr);
-		par.removeChild(tr);
 		editor.forceRedraw();
 		editor.focusEditor();
 		editor.updateToolbar();
@@ -325,13 +327,10 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		break;
 
 		// COLUMNS
-
 	    case "TO-col-insert-before":
 	    case "TO-col-insert-after":
 		var td = this.getClosest("td");
-		if (!td) {
-			break;
-		}
+		if (!td) { break; }
 		var rows = td.parentNode.parentNode.rows;
 		var index = td.cellIndex;
 		for (var i = rows.length; --i >= 0;) {
@@ -345,27 +344,35 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		break;
 	    case "TO-col-split":
 		var td = this.getClosest("td");
-		if (!td) {
-			break;
-		}
+		if (!td) { break; }
 		splitCol(td);
 		break;
 	    case "TO-col-delete":
-		var td = this.getClosest("td");
-		if (!td) {
-			break;
-		}
-		var index = td.cellIndex;
-		if (td.parentNode.cells.length == 1) {
-			alert(i18n["not-del-last-col"]);
-			break;
-		}
-		// set the caret first to a position that doesn't disappear
-		selectNextNode(td);
-		var rows = td.parentNode.parentNode.rows;
+		var cell = this.getClosest("td");
+		if (!cell) { break; }
+		var index = cell.cellIndex;
+		var rows = cell.parentNode.parentNode.rows;
+		var lastColumn = true;
 		for (var i = rows.length; --i >= 0;) {
-			var tr = rows[i];
-			tr.removeChild(tr.cells[index]);
+			if(rows[i].cells.length > 1) { lastColumn = false; }
+		}
+		if(lastColumn) {   // this is the last column, delete the whole table
+			var row = cell.parentNode;
+			var rowParent = row.parentNode;
+			var tableParent = rowParent.parentNode;
+			while(rowParent.tagName.toLowerCase() != "table") {
+				rowParent = tableParent;
+				tableParent = rowParent.parentNode;
+			}
+				// set the caret first to a position that doesn't disappear
+			selectNextNode(rowParent);
+			tableParent.removeChild(rowParent);
+		} else {
+				// set the caret first to a position that doesn't disappear
+			selectNextNode(cell);
+			for (var i = rows.length; --i >= 0;) {
+				if(rows[i].cells[index]) rows[i].removeChild(rows[i].cells[index]);
+			}
 		}
 		editor.forceRedraw();
 		editor.focusEditor();
@@ -373,20 +380,15 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		break;
 
 		// CELLS
-
 	    case "TO-cell-split":
-		var td = this.getClosest("td");
-		if (!td) {
-			break;
-		}
-		splitCell(td);
+		var cell = this.getClosest("td");
+		if (!cell) { break; }
+		splitCell(cell);
 		break;
 	    case "TO-cell-insert-before":
 	    case "TO-cell-insert-after":
 		var td = this.getClosest("td");
-		if (!td) {
-			break;
-		}
+		if (!td) { break; }
 		var tr = td.parentNode;
 		var otd = editor._doc.createElement("td");
 		otd.innerHTML = mozbr;
@@ -395,22 +397,33 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		editor.focusEditor();
 		break;
 	    case "TO-cell-delete":
-		var td = this.getClosest("td");
-		if (!td) {
-			break;
+		var cell = this.getClosest("td");
+		if (!cell) { break; }
+		var row = cell.parentNode;
+		if(row.cells.length == 1) {  // this is the cell in the row, delete the row
+			var rowParent = row.parentNode;
+			var tableParent = rowParent.parentNode;
+			if(rowParent.rows.length == 1) {  // this the last row, delete the whole table
+				while(rowParent.tagName.toLowerCase() != "table") {
+					rowParent = tableParent;
+					tableParent = rowParent.parentNode;
+				}
+				selectNextNode(rowParent);
+				tableParent.removeChild(rowParent);
+			} else {
+				selectNextNode(row);
+				rowParent.removeChild(row);
+			}
+		} else {
+				// set the caret first to a position that doesn't disappear
+			selectNextNode(cell);
+			row.removeChild(cell);
 		}
-		if (td.parentNode.cells.length == 1) {
-			alert(i18n["not-del-last-cell"]);
-			break;
-		}
-		// set the caret first to a position that doesn't disappear
-		selectNextNode(td);
-		td.parentNode.removeChild(td);
 		editor.forceRedraw();
+		editor.focusEditor();
 		editor.updateToolbar();
 		break;
 	    case "TO-cell-merge":
-		// !! FIXME: Mozilla specific !!
 		var sel = editor._getSelection();
 		var range, i = 0;
 		var rows = [];
@@ -430,7 +443,7 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 			} catch(e) {/* finished walking through selection */}
 			rows.push(cells);
 		} else {
-			// Internet Explorer "browser"
+			// Internet Explorer
 			var td = this.getClosest("td");
 			if (!td) {
 				alert(i18n["Please click into some cell"]);
@@ -438,31 +451,21 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 			}
 			var tr = td.parentElement;
 			var no_cols = prompt(i18n["How many columns would you like to merge?"], 2);
-			if (!no_cols) {
-				// cancelled
-				break;
-			}
+			if (!no_cols) { break; }
 			var no_rows = prompt(i18n["How many rows would you like to merge?"], 2);
-			if (!no_rows) {
-				// cancelled
-				break;
-			}
+			if (!no_rows) { break; }
 			var cell_index = td.cellIndex;
 			while (no_rows-- > 0) {
 				td = tr.cells[cell_index];
 				cells = [td];
 				for (var i = 1; i < no_cols; ++i) {
 					td = td.nextSibling;
-					if (!td) {
-						break;
-					}
+					if (!td) { break; }
 					cells.push(td);
 				}
 				rows.push(cells);
 				tr = tr.nextSibling;
-				if (!tr) {
-					break;
-				}
+				if (!tr) { break; }
 			}
 		}
 		var HTML = "";
@@ -473,7 +476,13 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 				// j && (HTML += "&nbsp;");
 				var cell = cells[j];
 				HTML += cell.innerHTML;
-				(i || j) && (cell.parentNode.removeChild(cell));
+				if(i || j) {
+					if(cell.parentNode.cells.length == 1) {
+						cell.parentNode.parentNode.removeChild(cell.parentNode);
+					} else {
+						cell.parentNode.removeChild(cell);
+					}
+				}
 			}
 		}
 		var td = rows[0][0];
@@ -486,19 +495,15 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		break;
 
 		// PROPERTIES
-
 	    case "TO-table-prop":
 		this.dialogTableProperties();
 		break;
-
 	    case "TO-row-prop":
 		this.dialogRowCellProperties(false);
 		break;
-
 	    case "TO-cell-prop":
 		this.dialogRowCellProperties(true);
 		break;
-
 	    default:
 		alert("Button [" + button_id + "] not yet implemented");
 	}
