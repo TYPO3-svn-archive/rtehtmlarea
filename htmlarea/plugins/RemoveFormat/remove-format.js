@@ -90,7 +90,7 @@ RemoveFormat.prototype.buttonPress = function(editor){
 
 				if (param["ms_formatting"] == true) {
 						// make one line
-					reg3 = new RegExp("(\r\n|\n|\r|\&nbsp\;)", "g"); 
+					reg3 = new RegExp("(\r\n|\n|\r)", "g"); 
 					html = html.replace(reg3, " ");
 						//clean up tags
 					reg4 = new RegExp("<(b[^r]|strong|i|em|p|li|ul) [^>]*>", "gi")
