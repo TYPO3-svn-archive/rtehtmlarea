@@ -205,10 +205,8 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 		);
 		break;
 	   case "tag":
-		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
+		var dialog = new PopupWin(this.editor, i18n["color_title"], 
 			function(dialog,params) {
-				//var value;
-				//self.processStyle(dialog, params, element, value);
 				field._return(params["tag"]);
 				dialog.close();
 			},
@@ -241,7 +239,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 					dialog.callHandler();
 					return false;
 				};
-				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = field.value;
+				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = "";
 				dialog.modal = true;
 				dialog.showAtElement();
 			}
