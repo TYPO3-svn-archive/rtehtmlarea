@@ -1,3 +1,7 @@
+2005-01-14  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Toolbar configuration.
+	* Fullpage plugin deletion.
+
 2005-01-12  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Add float property on images
 	* Correct CharacterMap initialization

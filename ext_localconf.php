@@ -35,7 +35,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		setup.default.edit_RTE = 1
 		options.HTMLAreaPluginList = DynamicCSS, TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag, InlineCSS
 		options.HTMLAreaPspellMode = normal
-		options.RTEkeyList = fontstyle,fontsize,formatblock,bold,italic,underline,strikethrough,superscript,subscript,left,center,right,justifyfull,lefttoright,righttoleft,orderedlist,unorderedlist,outdent,indent,textcolor,bgcolor,textindicator,line,link,image,table,chMode,copy,cut,paste,undo,redo,about
+		options.RTEkeyList = *
 		');
 
 	// options.HTMLAreaPspellMode may be PSPELL_FAST or PSPELL_NORMAL or PSPELL_BAD_SPELLERS
@@ -49,7 +49,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.useCSS = 1
 		default.defaultLinkTarget =
 		default.showStatusBar =  1
-		default.showButtons =  *
+		default.showButtons =  blockstylelabel, blockstyle, textstylelabel, textstyle, fontstyle, fontsize, formatblock, bold, italic, underline, strikethrough, subscript, superscript, lefttoright, righttoleft, left, center, right, justifyfull, orderedlist, unorderedlist, outdent, indent, textcolor, bgcolor, textindicator, emoticon, insertcharacter, line, link, image, table, findreplace, spellcheck, chMode, inserttag, removeformat, copy, cut, paste, undo, redo, showhelp, about
 		default.hideButtons =
 		default.hidePStyleItems =
 		default.hideFontSizes =
@@ -117,9 +117,9 @@ if ($_EXTCONF["enableAllOptions"])  {
 
 	t3lib_extMgm::addUserTSConfig('
 		setup.default.edit_RTE = 1
-		options.HTMLAreaPluginList = ContextMenu, FindReplace, EnterParagraphs
+		options.HTMLAreaPluginList = ContextMenu, EnterParagraphs
 		options.HTMLAreaPspellMode = normal
-		options.RTEkeyList = bold,italic,underline,textindicator,copy,cut,paste,undo,redo,about
+		options.RTEkeyList = *
 		');
 
 	// options.HTMLAreaPspellMode may be PSPELL_FAST or PSPELL_NORMAL or PSPELL_BAD_SPELLERS
@@ -134,7 +134,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.defaultLinkTarget =
 		default.showStatusBar =  0
 		default.showButtons =  bold,italic,underline,textindicator,copy,cut,paste,undo,redo,about
-		default.hideButtons = fontstyle,fontsize,formatblock,strikethrough,superscript,subscript,left,center,right,justifyfull,lefttoright,righttoleft,orderedlist,unorderedlist,outdent,indent,textcolor,bgcolor,line,link,image,table,chMode
+		default.hideButtons = blockstylelabel, blockstyle, textstylelabel, textstyle, fontstyle, fontsize, formatblock, strikethrough, subscript, superscript, lefttoright, righttoleft, left, center, right, justifyfull, orderedlist, unorderedlist, outdent, indent, textcolor, bgcolor, emoticon, insertcharacter, line, link, image, table, findreplace, spellcheck, chMode, inserttag, removeformat, showhelp
 		default.hidePStyleItems =
 		default.hideFontSizes =
 		default.hideTags = 

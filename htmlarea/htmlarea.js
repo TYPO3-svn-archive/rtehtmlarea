@@ -2,6 +2,7 @@
 // This copyright notice MUST stay intact for use (see license.txt).
 //
 // Portions (c) dynarch.com, 2003-2004
+// Portions (c) Stanislas Rolland, 2004-2005
 //
 // A free WYSIWYG editor replacement for <textarea> fields.
 // For full source code and docs, visit http://www.interactivetools.com/
@@ -9,7 +10,12 @@
 // Version 3.0 developed by Mihai Bazon.
 //   http://dynarch.com/mishoo
 //
-// $Id$
+// Changes by Stanislas Rolland <stanislas.rolland@fructifor.com>
+// Toolbar: Toolbar elements are floating in a continuous div rather than cells in a table.
+// Toolbar: Linebreaks create a new such wrapping div extending on possibly more than one line
+// Toolbar: Linebreaks may be used when some select box are of variable width causing buttons to move too often
+// Toolbar: Add tooltip on select boxes
+// Generate function: re-written to make it almost DOM only and solve many loading problems
 
 if (typeof _editor_url == "string") {
 	// Leave exactly one backslash at the end of _editor_url
@@ -409,7 +415,7 @@ HTMLArea.prototype._createToolbar = function () {
 	this._toolbar = toolbar;
 	toolbar.className = "toolbar";
 	toolbar.unselectable = "1";
-	var tb_row = null;
+	var tb_line = null;
 	var tb_objects = new Object();
 	this._toolbarObjects = tb_objects;
 
@@ -425,7 +431,10 @@ HTMLArea.prototype._createToolbar = function () {
 		table.appendChild(tb_body);
 		tb_row = document.createElement("tr");
 		tb_body.appendChild(tb_row);
-	}; // END of function: newLine
+		tb_line = document.createElement("td");
+		tb_line.className = "tb-line";
+		tb_row.appendChild(tb_line);
+	};
 		// init first line
 	newLine();
 
@@ -481,10 +490,7 @@ HTMLArea.prototype._createToolbar = function () {
 			// a different way to write it in JS is
 			// config["formatblock"].
 			options = editor.config[txt];
-// Begin change by Stanislas Rolland 2004-11-17
-// Adding tooltips on the combos
 			tooltip = HTMLArea.I18N.tooltips[txt];
-// End change by Stanislas Rolland 2004-11-18
 			cmd = txt;
 			break;
 		    default:
@@ -541,6 +547,7 @@ HTMLArea.prototype._createToolbar = function () {
 		    case "space":
 			el = document.createElement("div");
 			el.className = "space";
+			el.innerHTML = "&nbsp;";
 			break;
 		    case "linebreak":
 			newLine();
@@ -622,9 +629,14 @@ HTMLArea.prototype._createToolbar = function () {
 			el = createSelect(txt);
 		}
 		if (el) {
-			var tb_cell = document.createElement("td");
-			tb_row.appendChild(tb_cell);
+//			var tb_cell = document.createElement("td");
+//			tb_row.appendChild(tb_cell);
+//			tb_cell.appendChild(el);
+			var tb_cell = document.createElement("div");
+			tb_cell.className = "tb-cell";
 			tb_cell.appendChild(el);
+//			toolbar.appendChild(tb_cell);
+			tb_line.appendChild(tb_cell);
 		} else {
 			alert("FIXME: Unknown toolbar item: " + txt);
 		}
@@ -648,10 +660,16 @@ HTMLArea.prototype._createToolbar = function () {
 				if (l7ed) {
 					label = HTMLArea.I18N.custom[label];
 				}
-				var tb_cell = document.createElement("td");
-				tb_row.appendChild(tb_cell);
-				tb_cell.className = "label";
-				tb_cell.innerHTML = label;
+//				var tb_cell = document.createElement("td");
+//				tb_row.appendChild(tb_cell);
+				var labelElement = document.createElement("div");
+				labelElement.className = "label";
+				labelElement.innerHTML = label;
+				var tb_cell = document.createElement("div");
+				tb_cell.className = "tb-cell";
+				tb_cell.appendChild(labelElement);
+//				toolbar.appendChild(tb_cell);
+				tb_line.appendChild(tb_cell);
 			} else {
 				createButton(code);
 			}

@@ -55,152 +55,86 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			);
 			
 			
-	// Hide this toolbar button always (typo3 button name)
+		// Hide this toolbar button always (typo3 button name)
 	var $conf_toolbar_hide = array (
-				"popupeditor",  //Does not work
-				"showhelp",		// Has no content yet
-				"emoticon", // Not implemant yet
-				"user", 	// Not implemant yet and don't know what it is
-			);	
-	// Show this toolbar buttons always (typo3 button name)
+			'showhelp',		// Has no content yet
+			'user', 	// Not implemant yet and don't know what it is
+		);	
+		// Show this toolbar buttons always (typo3 button name)
 	var $conf_toolbar_show = array (
-				"undo", "redo", // Helpfull
-				"textindicator",// Show a info of the style from the activ text
-				//"popupeditor",	// Fullscreen in a popup
-				//"showhelp",		// Show the Helpbutton
-				"about"
-			);
-	/** The order of the toolbar.
-	 * The name is the typ3-button name
-	 */
-	var $conf_toolbar_order = array (
-				"fontstyle",
-					"bar",
-				"fontsize",
-					"bar",
-				"formatblock",
-					"bar",
-				"bold",
-				"italic",
-				"underline",
-					"bar",
-				"strikethrough",
-				"subscript",
-				"superscript",
-					"bar",
-				"lefttoright",
-				"righttoleft",
-					"bar",
-				"left",
-				"center",
-				"right",
-				"justifyfull",
-					"bar",
-				"orderedlist",
-				"unorderedlist",
-				"outdent",
-				"indent",
-					"bar",
-				"textcolor",
-				"bgcolor",
-				"textindicator",
-					"bar",
-				"line",
-				"link",
-				"image",
-				"table",
-					"bar",
-				"chMode",
-					"bar",
-				"copy",
-				"cut",
-				"paste",
-					"bar",
-				"undo",
-				"redo",
-					"bar",
-				"popupeditor",
-				"showhelp",
-				"about",
-					"bar",
-
-			);// It musst ends with a bar
+			'undo', 'redo',
+			'textindicator',
+			//'showhelp',
+			'about',
+		);
+		// The order of the toolbar.
+		// The name is the TYPO3-button name when it exists
+	var $defaultToolbarOrder = 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, bar, linebreak,
+		fontstyle, space, fontsize, space, formatblock, bar, 
+		bold, italic, underline, bar, strikethrough, subscript, superscript, bar,
+		lefttoright, righttoleft, bar, left, center, right, justifyfull, bar, 
+		orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, 
+		emoticon, insertcharacter, line, link, image, table, bar, findreplace, spellcheck, bar, 
+		chMode, inserttag, removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about';
 			
-	/* The lenght of the button.
-	 * The lenght isn't the real lenght, it is just for greate an JS-array: In one
-	 * level of the toolbar can be for eg. 10 normal-size buttons. But some buttons
-	 * needs more than other (e.g. fontstyle). So the size is just for greate a
-	 * generate a better toolbar.
-	 */
-	var $conf_toolbar_button_size = array (
-			// "button name" => size
-		'std'			=> 22,	// The standard size
-		'space'			=> 5,
-		'fontstyle' 	=> 118,					
-		'fontsize'		=> 73,
-		'formatblock'	=> 81,
-		'textindicator'	=> 28,
-		'bar'			=> 8,
-		'DynamicCSS'		=> 180,
-		'SpellChecker'		=> 30,
-		'SelectColor'		=> 49,
-		'InsertSmiley'		=> 22,
-		'FindReplace'		=> 22,
-		'RemoveFormat'		=> 22,
-		'CharacterMap'		=> 22,
-		'QuickTag'		=> 22,
-		'InlineCSS'		=> 180,
-	);
-			
-	// Config: Convert for the typo3 button name and the HTML-Area button name.
+		// Conversion array: TYPO3 button names to htmlArea button names
 	var $conf_toolbar_convert = array (
-			// "typo3name" 	=> "HTMLAreaName"
- 			"fontstyle" 	=> "fontname",
- 			"fontsize" 		=> "fontsize",
- 			"textcolor" 	=> "forecolor",
- 			"bold" 			=> "bold",
- 			"italic" 		=> "italic",
- 			"underline" 	=> "underline",
- 			"left" 			=> "justifyleft",
- 			"center" 		=> "justifycenter",
- 			"right" 		=> "justifyright",
- 			"orderedlist" 	=> "insertorderedlist",
- 			"unorderedlist"	=> "insertunorderedlist",
- 			"outdent" 		=> "outdent",
-			"indent" 		=> "indent",
-			"link" 			=> "createlink",
-			"table" 		=> "inserttable",
-			"image" 		=> "insertimage",
-			"line" 			=> "inserthorizontalrule",
-			"cut" 			=> "cut",
-			"copy" 			=> "copy",
-			"paste" 		=> "paste",
-			"formatblock" 	=> "formatblock",
-			"chMode" 		=> "htmlmode",
-			"bgcolor" 		=> "hilitecolor",
-			"emoticon"		=> "", /*implemented as a htlmArea plugin*/
-			"user" 			=> "", /*not implement yet*/
+			// 'TYPO3Name' 	=> 'htmlAreaName'
+ 		'fontstyle' 	=> 'fontname',
+ 		'fontsize' 		=> 'fontsize',
+ 		'textcolor' 	=> 'forecolor',
+		'bgcolor' 		=> 'hilitecolor',
+ 		'bold' 		=> 'bold',
+ 		'italic' 		=> 'italic',
+ 		'underline' 	=> 'underline',
+ 		'left' 		=> 'justifyleft',
+ 		'center' 		=> 'justifycenter',
+ 		'right' 		=> 'justifyright',
+ 		'orderedlist' 	=> 'insertorderedlist',
+ 		'unorderedlist'	=> 'insertunorderedlist',
+ 		'outdent' 		=> 'outdent',
+		'indent' 		=> 'indent',
+		'emoticon'		=> 'insertsmiley',
+		'line' 		=> 'inserthorizontalrule',
+		'link' 		=> 'createlink',
+		'table' 		=> 'inserttable',
+		'image' 		=> 'insertimage',
+		'cut' 		=> 'cut',
+		'copy' 		=> 'copy',
+		'paste' 		=> 'paste',
+		'formatblock' 	=> 'formatblock',
+		'chMode' 		=> 'htmlmode',
+		'user' 		=> '', /*not implement yet*/
 			
-			// HTML-Area extra buttons
-			"lefttoright" 	=> "lefttoright",
-			"righttoleft" 	=> "righttoleft",
-			"justifyfull" 	=> "justifyfull",
-			"strikethrough" => "strikethrough",
-			"superscript" 	=> "superscript",
-			"subscript" 	=> "subscript",
-			"showhelp" 		=> "showhelp",
+			// htmlArea extra buttons
+		'lefttoright' 	=> 'lefttoright',
+		'righttoleft' 	=> 'righttoleft',
+		'justifyfull' 	=> 'justifyfull',
+		'strikethrough' 	=> 'strikethrough',
+		'superscript' 	=> 'superscript',
+		'subscript' 	=> 'subscript',
+		'showhelp' 		=> 'showhelp',
+		'insertcharacter'	=> 'insertcharacter',
+		'findreplace'	=> 'findreplace',
+		'spellcheck'	=> 'spellcheck',
+		'removeformat'	=> 'removeformat',
+		'inserttag'		=> 'inserttag',
+		'blockstylelabel'	=> 'I[style]',	
+		'blockstyle'	=> 'DynamicCSS-class',
+		'textstylelabel'	=> 'I[text_style]',
+		'textstyle'		=> 'InlineCSS-class',
 			
 			// Toolbar formating
-			"space" 		=> "space",
-			"bar" 			=> "separator",
+		'space' 		=> 'space',
+		'bar' 		=> 'separator',
+		'linebreak'		=> 'linebreak',
 			
-			// always show
-			"undo" 			=> "undo",
-			"redo" 			=> "redo",
-			"textindicator" => "textindicator",
-			"popupeditor" 	=> "popupeditor",
-			"about" 		=> "about"
-		);
+			// Always show
+		'undo' 		=> 'undo',
+		'redo' 		=> 'redo',
+		'textindicator' 	=> 'textindicator',
+		'about' 		=> 'about',
+	);
 
 	var $defaultParagraphs = array(
 		'p' =>	'Normal',
@@ -224,6 +158,22 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		);
 
 	var $pluginList = 'InlineCSS, DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag';
+	var $pluginButton = array(
+		'InlineCSS' 	=> 'textstyle',
+		'DynamicCSS' 	=> 'blockstyle',
+		'SpellChecker' 	=> 'spellcheck',
+		'InsertSmiley' 	=> 'emoticon',
+		'FindReplace' 	=> 'findreplace',
+		'RemoveFormat' 	=> 'removeformat',
+		'QuickTag' 		=> 'inserttag',
+		'CharacterMap' 	=> 'insertcharacter',
+		'TableOperations'	=> 'table',
+		);
+	var $pluginLabel = array(
+		'InlineCSS' 	=> 'textstylelabel',
+		'DynamicCSS' 	=> 'blockstylelabel',
+		);
+
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:
@@ -256,6 +206,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	var $specConf;
 	var $toolBar = array();			// Save the buttons for the toolbar
 	var $toolbar_level_size;		// The size for each level in the toolbar:
+	var $toolbarOrderArray = array();
+	var $pluginEnableList;
+	var $pluginEnableArray = array();
 
 	/**
 	 * Returns true if the RTE is available. Here you check if the browser requirements are met.
@@ -333,9 +286,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		
 			// Draw form element:
 		if ($this->debugMode)	{	// Draws regular text area (debug mode)
-
-
-
 			$item = parent::drawRTE($pObj,$table,$field,$row,$PA,$specConf,$thisConfig,$RTEtypeVal,$RTErelPath,$thePidValue);
 		} else {	// Draw real RTE
 		
@@ -385,8 +335,13 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				// Special configuration (line) and default extras:
 			$this->specConf = $specConf;
 
-				// HTMLArea plugins list
+				// htmlArea plugins list
 			$this->pluginList = implode(',', array_intersect(t3lib_div::trimExplode(',', $this->pluginList, 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'] , 1)));
+			$this->pluginEnableList = isset($BE_USER->userTS['options.']['HTMLAreaPluginList']) ? $BE_USER->userTS['options.']['HTMLAreaPluginList'] : $this->pluginList;
+			$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginEnableList , 1), t3lib_div::trimExplode(',', $this->pluginList, 1));
+
+				// Toolbar
+			$this->setToolBar();
 
 				// Language
 			$this->language = $LANG->lang;
@@ -444,7 +399,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 * =======================================
 			 */
 			$this->toolbar_level_size = $RTEWidth;
-			$this->setToolBar();
 
 			/* =======================================
 			 * LOAD CSS, JS and more
@@ -524,7 +478,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				</div>
 				';
 		}
-
 			// Return form item:
 		return $item;
 	}
@@ -536,52 +489,72 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * 
 	 */
 	function setToolBar() {
-
 		global $BE_USER;
 
-		//toolBar
+		$toolbarOrder = $this->thisConfig['toolbarOrder'] ? $this->thisConfig['toolbarOrder'] : $this->defaultToolbarOrder;
 
-		/* ===================================
-		 * LOAD THE SHOW-BUTTON
-		 * ===================================
-		 */
-		// Show all 
-		$show = array_values($this->conf_toolbar_order);
+			// Getting rid of undefined buttons
+		$this->toolbarOrderArray = array_intersect(t3lib_div::trimExplode(',', $toolbarOrder, 1), t3lib_div::trimExplode(',', $this->defaultToolbarOrder, 1));
+		$toolbarOrder = array_unique(array_values($this->toolbarOrderArray));
 
-			// specConf for field from backend
+			// Fetching specConf for field from backend
 		$pList = is_array($this->specConf['richtext']['parameters']) ? implode(',',$this->specConf['richtext']['parameters']) : '*';
-		if ($pList!='*')	{	// If not all
+		if ($pList != '*') {	// If not all
 			$show = $this->specConf['richtext']['parameters'];
 			if ($this->thisConfig['showButtons'])	{
 				$show = array_unique(array_merge($show,t3lib_div::trimExplode(',',$this->thisConfig['showButtons'],1)));
 			}
-		}
-		
-			// RTEkeyList for backend user
-		$RTEkeyList = isset($BE_USER->userTS['options.']['RTEkeyList']) ? $BE_USER->userTS['options.']['RTEkeyList'] : '*';
-		if ($RTEkeyList!='*')	{
-			$show = t3lib_div::trimExplode(',',$RTEkeyList,1);
 		} else {
-			$show[] = 'chMode'; // Show the HTML-Mode button
+			$show = $toolbarOrder;
 		}
 
-		/* ===================================
-		 * LOAD THE HIDE-BUTTON
-		 * ===================================
-		 */
-		$hide = array();
+			// Resticting to RTEkeyList for backend user
+		$RTEkeyList = isset($BE_USER->userTS['options.']['RTEkeyList']) ? $BE_USER->userTS['options.']['RTEkeyList'] : '*';
+		if ($RTEkeyList != '*')	{ 	// If not all
+			$show = array_intersect($show, t3lib_div::trimExplode(',',$RTEkeyList,1));
+		}
+
+			// Renaming buttons of replacement plugins
 		if( $this->isPluginEnable('SelectColor') ) {
-			$hide[] = 'textcolor';
-			$hide[] = 'bgcolor';
+			$this->conf_toolbar_convert['textcolor'] = 'CO-forecolor';
+			$this->conf_toolbar_convert['bgcolor'] = 'CO-hilitecolor';
 		}
 
-		// Hide the buttons:
-		$show = array_diff($show, $this->conf_toolbar_hide, $hide, t3lib_div::trimExplode(',',$this->thisConfig['hideButtons'],1));
+			// Hiding buttons of disabled plugins
+		$hideButtons = array('space', 'bar', 'linebreak');
+		reset($this->pluginButton);
+		while(list($plugin, $button) = each($this->pluginButton) ) {
+			if(!$this->isPluginEnable($plugin)) $hideButtons[] = $button;
+		}
 
-		// Load the always show bottons:
-		$show = array_merge($show, $this->conf_toolbar_show);
+			// Hiding labels of disabled plugins
+		reset($this->pluginLabel);
+		while(list($plugin, $label) = each($this->pluginLabel) ) {
+			if(!$this->isPluginEnable($plugin)) $hideButtons[] = $label;
+		}
+
+			// Hiding the buttons
+		$show = array_diff($show, $this->conf_toolbar_hide, $hideButtons, t3lib_div::trimExplode(',',$this->thisConfig['hideButtons'],1));
+
+			// Adding the always show buttons
+		$show = array_unique(array_merge($show, $this->conf_toolbar_show));
+		$toolbarOrder = array_unique(array_merge($toolbarOrder, $this->conf_toolbar_show));
+		while(list(,$button) = each($this->conf_toolbar_show)) {
+			if(!in_array($button, $toolbarOrder)) $this->toolbarOrderArray[] = $button;
+		}
+
+			// Getting rid of the buttons for which we have no position
+		$show = array_intersect($show, $toolbarOrder);
 
 		$this->toolBar = $show;
+
+			// Disabling the plugins if their buttons are not in the toolbar
+		$hidePlugins = array();
+		reset($this->pluginButton);
+		while(list($plugin, $button) = each($this->pluginButton) ) {
+			if(!in_array($button,$this->toolBar)) $hidePlugins[] = $plugin;
+		}
+		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 	}
 	
 	/**
@@ -601,9 +574,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * Return the JS-function for setting the RTE size.
 	 *
 	 * @param	string		DivID-Name
-
-
-
 	 * @param	int			the height for the RTE
 	 * @param	int			the width for the RTE
 	 * @return string		Loader function in JS
@@ -613,11 +583,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			setRTEsizeByJS(\''.$divId.'\','.$height.', '.$width.');
 		';
 	}
-	
-	
+
 	/**
 	 * Return the HTML-Code for loading the Javascript-Files
-
 	 *
 	 * @return string		the html-code for loading the Javascript-Files
 	 */
@@ -637,12 +605,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		<script type="text/javascript" src="' . $this->extHttpPath . 'htmlarea/htmlarea.js"></script>
 		';
 	}
-	
-	
+
 	/**
-	 * Return the JS-Code for init the Editor
+	 * Return the JS-Code to initialize the Editor
 	 *
-	 * @return string		the html-code for loading the Javascript-Files
+	 * @return string	the html-code for loading the Javascript-Files
 	 */
 	function loadJScode() {
 		$loadPluginCode = '';
@@ -678,7 +645,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			HTMLArea.I18N = HTMLArea_langArray;'
 		;
 	}
-
 
 	/**
 	 * Return the JS-Code for Register the RTE in JS
@@ -869,25 +835,16 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * Return ture, if the plugin can loaded
 	 *
 	 * @return boolean		1 if the plugin can be loaded
-
 	 */
 	function isPluginEnable($plugin) { 
-		global $BE_USER;
-		$pluginEnableList = isset($BE_USER->userTS['options.']['HTMLAreaPluginList']) ? $BE_USER->userTS['options.']['HTMLAreaPluginList'] : $this->pluginList;
-		$pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $pluginEnableList , 1), t3lib_div::trimExplode(',', $this->pluginList, 1));
+		$enabled = in_array($plugin, $this->pluginEnableArray);
 		switch ($plugin) {
-			case 'TableOperations':
-				return (in_array($plugin, $pluginEnableArray) && in_array('table', $this->toolBar)) ? true : false;
-				break;
 			case 'SpellChecker':
-				return (in_array($plugin, $pluginEnableArray) && t3lib_extMgm::isLoaded('sr_static_info') && !in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) ? true : false;
-				break;
+				$enabled = $enabled && t3lib_extMgm::isLoaded('sr_static_info') && !in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']));
 			default:
-				return in_array($plugin, $pluginEnableArray);
-				break;
+				return $enabled;
 		}	
 	}
-
 
 	/**
 	 * Return a JS language array for HTMLArea
@@ -903,7 +860,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$subArraysIndex = 0;
 
 		foreach($subArrays as $labels) {
-
 			$JSLanguageArray .= (($subArraysIndex++)?',':'') . $labels . ': {' . chr(10);
 
 			include (t3lib_extMgm::extPath($this->ID).'htmlarea/locallang_' . $labels . '.php');
@@ -921,7 +877,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$JSLanguageArray .= ' }' . chr(10);
 		}
 		$JSLanguageArray .= ' };' . chr(10);
-
 		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->BECharset);
 	}
 
@@ -931,24 +886,19 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return array		JS language array
 	 */
 	function buildJSLangArray($plugin) { 
-
 		include (t3lib_extMgm::extPath($this->ID).'htmlarea/plugins/' . $plugin . '/locallang.php');
 		if(empty($LOCAL_LANG[$this->language])) {
 			$LOCAL_LANG[$this->language] = $LOCAL_LANG['default'];
 		} else {
 			$LOCAL_LANG[$this->language] = t3lib_div::array_merge_recursive_overrule($LOCAL_LANG['default'],$LOCAL_LANG[$this->language]);
 		}
-
-
 		$JSLanguageArray .= 'var ' . $plugin . '_langArray = new Array();' . chr(10);
-
 		$JSLanguageArray .= $plugin . '_langArray = { ' . chr(10);
 		$index = 0;
 		foreach ( $LOCAL_LANG[$this->language] as $labelKey => $labelValue ) {
 			$JSLanguageArray .=  (($index++)?',':'') . ' "' . $labelKey . '" : "' . $labelValue . '"' . chr(10);
 		} 
 		$JSLanguageArray .= ' };' . chr(10);
-
 		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->BECharset);
 	}
 	
@@ -958,92 +908,44 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return string		the JS-Code as an JS-Array
 	 */
 	function getJSToolbarArray() {
-		$toolbar = "";		// The JS-Code for the toolbar
-		$toolbar_size = 0;	// The size of all buttons in one level of the toolbar, at start it's 0
-		$group = "";		// The TS-Code for the groub in the moment, each groub are between "bar"s
-		$group_size = 0;	// same as $toolbar_size, but for the groub.
-		$group_has_button = false; // True if the group has any enable buttons
-		$conf_toolbar_button_size = array();
-		$conf_toolbar_button_size['textindicator'] = $this->conf_toolbar_button_size['textindicator'];
-		$conf_toolbar_button_size['inserthorizontalrule'] = $this->conf_toolbar_button_size['inserthorizontalrule']?$this->conf_toolbar_button_size['inserthorizontalrule']:$this->conf_toolbar_button_size['std'];
+		$toolbar = "";			// The JS-Code for the toolbar
+		$group = "";			// The TS-Code for the group in the moment, each group are between "bar"s
+		$group_has_button = false;	// True if the group has any enabled buttons
 
-
-		if($this->isPluginEnable('DynamicCSS')) {
-			$toolbar_size += $this->conf_toolbar_button_size['DynamicCSS'];	
-		}
-		if($this->isPluginEnable('InlineCSS')) {
-			$toolbar_size += $this->conf_toolbar_button_size['InlineCSS'];	
-		}
-		if($this->isPluginEnable('SpellChecker')) {
-			$toolbar_size += $this->conf_toolbar_button_size['SpellChecker'];	
-		}
-		if($this->isPluginEnable('FindReplace')) {
-			$toolbar_size += $this->conf_toolbar_button_size['FindReplace'];	
-		}
-		if($this->isPluginEnable('SelectColor')) {
-			$conf_toolbar_button_size['textindicator'] += $this->conf_toolbar_button_size['SelectColor'];
-		}
-		if($this->isPluginEnable('InsertSmiley')) {
-			$conf_toolbar_button_size['inserthorizontalrule'] += $this->conf_toolbar_button_size['InsertSmiley'];
-		}
-
-		reset($this->conf_toolbar_order);
-		// each	button in the order list
-		while (list($num, $button) = each($this->conf_toolbar_order) ) {
-			// check if a new groub start:
+			// process each button in the order list
+		reset($this->toolbarOrderArray);
+		while (list(, $button) = each($this->toolbarOrderArray) ) {
+			// check if a new group starts
 			if ($button == "bar" && $group_has_button) {
-				// Yes new group:
-				// Add the "bar" to the group
-				
+					// Yes new group: add the "bar" to the group
 				$convertButton = $this->convertToolBarForHTMLArea($button);
 				if ($convertButton) {
 					$convertButton = '"' . $convertButton . '"';
-					$group = ($group!="") ? ($group . ", " . $convertButton) : $convertButton;
-					$group_size += ($this->conf_toolbar_button_size[$button]) ? ($conf_toolbar_button_size[$button]?$conf_toolbar_button_size[$button]:$this->conf_toolbar_button_size[$button]) : $this->conf_toolbar_button_size["std"];
+					$group = ($group!='') ? ($group . ', ' . $convertButton) : $convertButton;
 				}
-				
-				// check if the group fit in the level, and it is not the first group in the toolbar
-				if (($toolbar_size + $group_size <= $this->toolbar_level_size) && $toolbar!="") {
-					// Yes it fit:
-					$toolbar_size += $group_size;
-					$toolbar = $toolbar . ", " . $group;
-				}
-				// check if it's the first group in the toolbar
-				elseif ($toolbar == "") {
-					$toolbar_size += $group_size;
-					$toolbar = "[\n[" . $group;
-				}
-				else {
-					// No it doesn't fit:
-					$toolbar_size = $group_size;
-					$toolbar = $toolbar . "],\n[" . $group;
-				}
-				
-				$group = "";
-				$group_size = "";
+				$toolbar .= $toolbar ? (', ' . $group) : ('[[' . $group);
+				$group = '';
 				$group_has_button = false;
-				
-			}
-			elseif (in_array($button, $this->toolBar)) {
-				// Add the button to the groub:
+			} elseif ($toolbar && $button == 'linebreak' && !$group_has_button) {
+					// Insert linebreak if no group is opened
+				$group = '';
+				$toolbar .= ', "' . $this->convertToolBarForHTMLArea('linebreak') . '"';
+			} elseif (in_array($button, $this->toolBar)) {
+					// Add the button to the group
 				$convertButton = $this->convertToolBarForHTMLArea($button);
 				if ($convertButton) {
 					$convertButton = '"' . $convertButton . '"';
-					$group = ($group!="") ? ($group . ", " . $convertButton) : $convertButton;
-					$group_size += ($this->conf_toolbar_button_size[$button]) ? ($conf_toolbar_button_size[$button]?$conf_toolbar_button_size[$button]:$this->conf_toolbar_button_size[$button]) : $this->conf_toolbar_button_size["std"];
-					$group_has_button = true;
+					$group .= $group ? (', ' . $convertButton) : $convertButton;
+					if($button != "space") $group_has_button = true;
 				}
 			}
-
 			// else ignore
-			
 		}
-		
-		$toolbar = $toolbar . "]\n]";
-		
+			// add the last group
+		if($group_has_button) $toolbar .= $toolbar ? (', ' . $group) : ('[[' . $group);
+		$toolbar = $toolbar . "]]";
 		return $toolbar;
 	}
-
 	
 	/**
 	 * Return the JS-Code for copy the HTML-Code from the editor in the hidden input field.
@@ -1071,9 +973,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 ***************************/
 	/**
 	 * @return	[type]		...
-	 
-	* @desc 
-	*/
+	 * @desc 
+	 */
 	function RTEtsConfigParams()	{
 		$p = t3lib_BEfunc::getSpecConfParametersFromArray($this->specConf['rte_transform']['parameters']);
 		return $this->elementParts[0].':'.$this->elementParts[1].':'.$this->elementParts[2].':'.$this->thePid.':'.$this->typeVal.':'.$this->tscPID.':'.$p['imgpath'];

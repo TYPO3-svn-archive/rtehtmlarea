@@ -15,72 +15,32 @@ SpellChecker.I18N = SpellChecker_langArray;
 function SpellChecker(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var toolbar = cfg.toolbar;
-	var tt = SpellChecker.I18N;
-	var bl = SpellChecker.btnList;
+	var i18n = SpellChecker.I18N;
 	var self = this;
 
-		// Try to insert after the FindReplace
-	var a, i, j, found = false;
-	for (i = 0; !found && i < toolbar.length; ++i) {
-		a = toolbar[i];
-		for (j = 0; j < a.length; ++j) {
-			if (a[j] == "FR-findreplace") {
-				++j;
-				found = true;
-				break;
-			}
-		}
-	}
-
-	// register the toolbar buttons provided by this plugin
-	var tool = [];
-	for (var i = 0; i < bl.length; ++i) {
-		var btn = bl[i];
-		if (!btn) {
-			tool.push("separator");
-		} else {
-			var id = "SC-" + btn[0];
-			cfg.registerButton(id, tt[id], editor.imgURL(btn[0] + ".gif", "SpellChecker"), false,
-					   function(editor, id) {
-						   // dispatch button press event
-						   self.buttonPress(editor, id);
-					   }, btn[1]);
-			tool.push(id);
-		}
-	}
-	if (found) {
-		for (var i = 0; i < tool.length; ++i) {
-			a.splice(j+i, 0, tool[i]);
-		}
-	} else {
-			// If FindReplace is not found, add at the end o the first line of the toolbar
-		for (var i = 0; i < tool.length; ++i) {
-			cfg.toolbar[0].push(tool[i]);
-			cfg.toolbar[0].push("separator");
-		}
-	}
+	cfg.registerButton("spellcheck", 
+		i18n["SC-spell-check"],
+		editor.imgURL("spell-check.gif", "SpellChecker"),
+		false,
+		function(editor,id) { self.buttonPress(editor, id); }
+	);
 };
 
 SpellChecker._pluginInfo = {
 	name          : "SpellChecker",
 	version       : "1.8",
-	developer     : "Mihai Bazon",
+	developer     : "Mihai Bazon & Stanislas Rolland",
 	developer_url : "http://dynarch.com/mishoo/",
-	c_owner       : "Mihai Bazon",
-	sponsor       : "American Bible Society",
+	c_owner       : "Mihai Bazon & Stanislas Rolland",
+	sponsor       : "American Bible Society & Fructifor Inc.",
 	sponsor_url   : "http://www.americanbible.org",
 	license       : "htmlArea"
 };
 
-SpellChecker.btnList = [
-	["spell-check"]
-	];
-
 SpellChecker.prototype.buttonPress = function(editor, id) {
 	var self = this;
 	switch (id) {
-	    case "SC-spell-check":
+	    case "spellcheck":
 		SpellChecker.editor = editor;
 		SpellChecker.init = true;
 		SpellChecker.f_dictionary = _spellChecker_lang;

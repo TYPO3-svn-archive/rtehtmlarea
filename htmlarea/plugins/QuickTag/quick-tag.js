@@ -14,24 +14,12 @@ function QuickTag(editor) {
 	var i18n = QuickTag.I18N;
 
 	cfg.registerButton({
-		id       : "quickeditor", 
+		id       : "inserttag",
 		tooltip  : i18n["Quick Tag Editor"],
 		image    : editor.imgURL("ed_quicktag.gif", "QuickTag"),
 		textMode : false,
   		action   : function(editor) { self.buttonPress(editor); }
 		});
-
-	for(var i = 0; i < cfg.toolbar.length; i++) {
-		var joincfg = cfg.toolbar[i].join("|"); 
-		if(/htmlmode/.test(joincfg)) {
-			cfg.toolbar[i] = joincfg.replace(/htmlmode/, "htmlmode|quickeditor").split("|");
-			var htmok = true;
-		}
-	}
-	if(!htmok) {
-		var line = cfg.toolbar[1] ? 1 : 0;
-		cfg.toolbar[line].push("separator","quickeditor");
-	}
 };
 
 QuickTag.prototype.buttonPress = function(editor) { 
@@ -56,12 +44,12 @@ QuickTag.prototype.setTag = function(param) {
 };
 
 QuickTag._pluginInfo = {
-name          : "QuickTag",
-version       : "1.0 - beta",
-developer     : "Cau Guanabara",
-developer_url : "mailto:caugb@ibest.com.br",
-c_owner       : "Cau Guanabara",
-sponsor       : "Independent production",
-sponsor_url   : "http://www.netflash.com.br/gb/HA3-rc1/examples/quick-tag.html",
-license       : "htmlArea"
+	name          : "QuickTag",
+	version       : "1.0 - beta",
+	developer     : "Cau Guanabara",
+	developer_url : "mailto:caugb@ibest.com.br",
+	c_owner       : "Cau Guanabara",
+	sponsor       : "Independent production",
+	sponsor_url   : "http://www.netflash.com.br/gb/HA3-rc1/examples/quick-tag.html",
+	license       : "htmlArea"
 };

@@ -33,7 +33,6 @@ function InlineCSS(editor, args) {
 		};
 
 	cfg.registerDropdown(obj);
-	toolbar[0].splice(0, 0, "I[text_style]", "InlineCSS-class", "separator");
 };
 
 InlineCSS.prototype.parseStyleSheet=function(editor){

@@ -11,57 +11,35 @@
 // Version 3.0 developed by Mihai Bazon for InteractiveTools.
 //   http://dynarch.com/mishoo
 //
-// $Id: select-color.js,v 1.1 2004/11/05
 
 SelectColor.I18N = SelectColor_langArray;
 
-// Object that encapsulates color selection
+	// Object that encapsulates color selection
 function SelectColor(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var tt = SelectColor.I18N;
+	var i18n = SelectColor.I18N;
 	var bl = SelectColor.btnList;
 	var self = this;
 
-	// register the toolbar buttons provided by this plugin
-	var toolbar = [];
+		// register the toolbar buttons provided by this plugin
 	for (var i = 0; i < bl.length; ++i) {
 		var btn = bl[i];
-		if (!btn) {
-			toolbar.push("separator");
-		} else {
-			var id = "CO-" + btn[0];
-			cfg.registerButton(id, tt[id], editor.imgURL(id + ".gif", "SelectColor"), false,
-					   function(editor, id) {
-						   // dispatch button press event
-						   self.buttonPress(editor, id);
-					   }, btn[1]);
-			toolbar.push(id);
-		}
-	}
-
-	var a, i, j, found = false;
-	for (i = 0; !found && i < toolbar.length; ++i) {
-		a = cfg.toolbar[i];
-		for (j = 0; j < a.length; ++j) {
-			if (a[j] == "textindicator") {
-				found = true;
-				break;
-			}
-		}
-	}
-	if (found) {
-			a.splice(j, 0, toolbar[0], toolbar[1], "space");
-	} else {
-		for (var i = 0; i < toolbar.length; ++i) {
-			cfg.toolbar[0].push(toolbar[i]);
-		}
+		var id = "CO-" + btn[0];
+		cfg.registerButton(
+			id, 
+			i18n[id],
+			editor.imgURL(id + ".gif", "SelectColor"),
+			false,
+			function(editor, id) { self.buttonPress(editor, id); },
+		 	btn[1]
+		);
 	}
 };
 
 SelectColor._pluginInfo = {
 	name          : "SelectColor",
-	version       : "1.1",
+	version       : "1.2",
 	developer     : "Stanislas Rolland",
 	developer_url : "http://www.fructifor.com/",
 	c_owner       : "Stanislas Rolland",

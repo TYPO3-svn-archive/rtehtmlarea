@@ -12,7 +12,6 @@ RemoveFormat.I18N = RemoveFormat_langArray;
 function RemoveFormat(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var toolbar = cfg.toolbar;
 	var self = this;
 	var i18n = RemoveFormat.I18N;
 
@@ -25,24 +24,6 @@ function RemoveFormat(editor) {
                                 self.buttonPress(editor);
                            }
             });
-
-	 var a, i, j, found = false;
-	 for (i = 0; !found && i < toolbar.length; ++i) {
-		a = toolbar[i];
-		for (j = 0; j < a.length; ++j) {
-			if (a[j] == "bold") {
-				found = true;
-				break;
-			}
-		}
-	 }
-
-	 if (found)
-	    a.splice(j, 0, "removeformat");
-        else {
-           toolbar[1].splice(0, 0, "separator");
-     	 toolbar[1].splice(0, 0, "removeformat");
-        }
 };
 
 RemoveFormat._pluginInfo = {

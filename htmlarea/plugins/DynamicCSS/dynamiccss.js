@@ -37,7 +37,6 @@ function DynamicCSS(editor, args) {
 		lastClass	: ""
 		};
 	cfg.registerDropdown(obj);
-	toolbar[0].splice(0, 0, "I[style]", "DynamicCSS-class", "separator");
 };
 
 DynamicCSS.prototype.parseStyleSheet=function(editor){
@@ -142,10 +141,10 @@ DynamicCSS.prototype.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray)
 DynamicCSS._pluginInfo = {
 	name          : "DynamicCSS",
 	version       : "1.5.2",
-	developer     : "Holger Hees",
+	developer     : "Holger Hees & Stanislas Rolland",
 	developer_url : "http://www.systemconcept.de/",
-	c_owner       : "Holger Hees",
-	sponsor       : "System Concept GmbH",
+	c_owner       : "Holger Hees & Stanislas Rolland",
+	sponsor       : "System Concept GmbH & Fructifor Inc.",
 	sponsor_url   : "http://www.systemconcept.de/",
 	license       : "htmlArea"
 };

@@ -11,8 +11,7 @@ CharacterMap.I18N = CharacterMap_langArray;
 
 function CharacterMap(editor) {
 	this.editor = editor;
-	var cfg = editor.config;
-	var toolbar = cfg.toolbar;
+	var cfg = this.editor.config;
 	var self = this;
 	var i18n = CharacterMap.I18N;
         
@@ -22,30 +21,9 @@ function CharacterMap(editor) {
                 image    : editor.imgURL("ed_charmap.gif", "CharacterMap"),
                 textMode : false,
                 action   : function(editor) {
-                                self.buttonPress(editor);
-                           }
-            })
-
-	var a, i, j, found = false;
-	for (i = 0; !found && i < toolbar.length; ++i) {
-		a = toolbar[i];
-		for (j = 0; j < a.length; ++j) {
-			if (a[j] == "inserthorizontalrule" || a[j] == "insertsmiley" || a[j] == "insertimage" || a[j] == "about" ) {
-				found = true;
-				break;
-			}
-		}
-	}
-	if (found) {
-			// If found, add before inserthorizontalrule or before about
-		a.splice(j, 0, "insertcharacter");
-	} else {
-			// If not found (!!), add at the end of the first line of the toolbar
-		for (var i = 0; i < tool.length; ++i) {
-			cfg.toolbar[0].push(tool[i]);
-			cfg.toolbar[0].push("separator");
-		}
-	}
+					self.buttonPress(editor);
+				   }
+	});
 };
 
 CharacterMap._pluginInfo = {
