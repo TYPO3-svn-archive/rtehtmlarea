@@ -37,8 +37,8 @@ document.body.onkeypress = __dlg_key_press;
 };
 
 function onCancel() {
-  __dlg_close(null);
-  return false;
+	__dlg_close(null);
+	return false;
 };
 
 function quoteTest(val) {
@@ -47,45 +47,49 @@ return er.test(val);
 };
 
 function onOK() {
-var el = document.getElementById('tagopen');
-  if(!el.value) {
-  alert(i18n["Enter the TAG you want to insert"]);
-  el.focus();
-  return false;
-  }
-  if(!quoteTest(el.value)) {
-  alert(i18n["There are some unclosed quote"]);
-  el.focus();
-  el.select();
-  return false;
-  }
-  
-var param = {};
-var cleanTO = document.getElementById('tagopen').value.replace(/(<|>)/g,"");
-param.tagopen = "<"+cleanTO+">";
-param.tagclose = param.tagopen.replace(/^<(\w+) ?.*>/,"</$1>"); 
+	var el = document.getElementById('tagopen');
+	if(!el.value) {
+		alert(i18n["Enter the TAG you want to insert"]);
+		el.focus();
+		return false;
+	}
+	if(!quoteTest(el.value)) {
+		if(!quoteTest(el.value + '"')) {
+			alert(i18n["There are some unclosed quote"]);
+			el.focus();
+			el.select();
+			return false;
+		} else {
+			el.value += '"';
+		}
+	}
 
-var subtag = subTagLib[curTag];
-  if(typeof subtag == 'object') {
-  param.tagopen = param.tagopen+subtag.op;
-  param.tagclose = subtag.cl+param.tagclose;
-  }
+	var param = {};
+	var cleanTO = document.getElementById('tagopen').value.replace(/(<|>)/g,"");
+	param.tagopen = "<"+cleanTO+">";
+	param.tagclose = param.tagopen.replace(/^<(\w+) ?.*>/,"</$1>"); 
 
-__dlg_close(param);
-return false;
+	var subtag = subTagLib[curTag];
+	if(typeof subtag == 'object') {
+		param.tagopen = param.tagopen+subtag.op;
+		param.tagclose = subtag.cl+param.tagclose;
+	}
+
+	__dlg_close(param);
+	return false;
 };
 
 function __dlg_key_press(ev) {
-ev || (ev = window.event);
-  switch(ev.keyCode) {
-    case 13: 
-    document.getElementById('bt_ok').click();
-      break;
-    case 27:
-    __dlg_close();
-    return false;
-  }
-return true;
+	ev || (ev = window.event);
+	switch(ev.keyCode) {
+		case 13: 
+			document.getElementById('bt_ok').click();
+			break;
+		case 27:
+			__dlg_close();
+			return false;
+	}
+	return true;
 };
 
 function selchange() {
@@ -99,59 +103,60 @@ var obj = null;
 curTag = text.replace(/(^\w+) ?.*$/, "$1");
 curTagOpt = (tagLib[curTag] == true);
 
-  if(atrib) {
-  var atrer = eval('/'+atrib+'=/ig');
-    if(atrer.test(oldval) && !(/[^=]\"$/.test(toadd))) {
-    alert(i18n['This attribute already exists in the TAG']);
-    return false;
-    }
+	if(atrib) {
+		var atrer = eval('/'+atrib+'=/ig');
+		if(atrer.test(oldval) && !(/[^=]\"$/.test(toadd))) {
+			alert(i18n['This attribute already exists in the TAG']);
+			return false;
+		}
+		switch(atrib) {
+			case 'style':
+				CSSEdit = true;
+				break;
+			case 'class':
+				if(captureClasses() == 0) noCSSclasses = true;
+				break;
+			case 'color':
+			case 'bgcolor':
+			case 'bordercolor':
+			case 'bordercolorlight':
+			case 'bordercolordark':
+				showcolors = true;
+				break;
+		}
 
-    switch(atrib) {
-    case 'style':
-    CSSEdit = true;
-      break;
-    case 'class':
-      if(captureClasses() == 0) noCSSclasses = true;
-      break;
-    case 'color': case 'bgcolor': case 'bordercolor':
-    case 'bordercolorlight': case 'bordercolordark':
-    showcolors = true;
-      break;
-    }
+		if(curTagOpt == true) {
+			obj = eval('opAtt_'+curTag+'["'+atrib+'"]');
+		} else { 
+			obj = opAtt_all[atrib];
+		} 
+	} else if(!CSSEdit && (/(^\w+$|\"$)/.test(toadd))) {
+		obj = 'all';
+		if(curTagOpt == true) obj = curTag;
+		toadd += ' ';
+	}
+  
+	if(CSSEdit && quoteTest(text)) CSSEdit = false;
 
-    if(curTagOpt == true)
-      obj = eval('opAtt_'+curTag+'["'+atrib+'"]');
-    else 
-      obj = opAtt_all[atrib]; 
-  } 
-  else if(!CSSEdit && (/(^\w+$|\"$)/.test(toadd))) {
-  obj = 'all';
-    if(curTagOpt == true) obj = curTag;
-  toadd += ' ';
-  }
-  
-  if(CSSEdit && quoteTest(text)) 
-    CSSEdit = false;
+	if(showcolors) document.getElementById('bt_colors').style.display = '';
 
-  if(showcolors) 
-    document.getElementById('bt_colors').style.display = '';
-  
-  if(obj)
-    createDropdown(obj);
-  else if(!CSSEdit) 
-      document.getElementById('showselect').style.visibility = 'hidden';
-  
-  if(noCSSclasses) {
-  document.getElementById('showselect').innerHTML = i18n['No CSS class avaiable'];
-  document.getElementById('showselect').style.visibility = 'visible';
-  }
-  
-addchanges();
+	if(obj) {
+		createDropdown(obj);
+	} else if(!CSSEdit) {
+		document.getElementById('showselect').style.visibility = 'hidden';
+	}
 
-  function addchanges() {
-  document.getElementById('tagopen').focus();
-  document.getElementById('tagopen').value += toadd;
-  };
+	if(noCSSclasses) {
+		document.getElementById('showselect').innerHTML = i18n['No CSS class avaiable'];
+		document.getElementById('showselect').style.visibility = 'visible';
+	}
+  
+	addchanges();
+
+	function addchanges() {
+		document.getElementById('tagopen').focus();
+		document.getElementById('tagopen').value += toadd;
+	};
 };
 
 function captureClasses() {
@@ -176,23 +181,23 @@ var cont = 0;
   return cont;
   }
 
-var styleSheet = null;
-var styles = editor._doc.styleSheets;
-
-  for (var i = 0; i < styles.length; i++) {
-  styleSheet = styles[i];
-    if(document.all)
-      var _rules = styleSheet.rules;
-    else
-      var _rules = styleSheet.cssRules;
-    for (var j = 0; j < _rules.length; j++) {
-    rule = _rules[j];
-      if(/^\.\w+$/.test(rule.selectorText)) {
-      var classname = rule.selectorText.replace(/\./,"")+'"';
-      opAtt_all['class'][rule.selectorText] = classname;
-      cont++;
-      }
-    }
+	var styleSheet = null;
+	var styles = editor._doc.styleSheets;
+	for (var i = 0; i < styles.length; i++) {
+		styleSheet = styles[i];
+		if(document.all) {
+			var _rules = styleSheet.rules;
+		} else {
+			var _rules = styleSheet.cssRules;
+		}
+	for (var j = 0; j < _rules.length; j++) {
+		rule = _rules[j];
+		if(/^\.\w+$/.test(rule.selectorText)) {
+			var classname = rule.selectorText.replace(/\./,"")+'"';
+			opAtt_all['class'][rule.selectorText] = classname;
+			cont++;
+		}
+	}
   }
   return cont;
 };
@@ -278,30 +283,44 @@ var topt = eval('opTag_'+type);
 // simulation of Dialog._return - select_color.html needs it.
 var Dialog = new Object();
 Dialog._return = function (val) {
-  if(val != null) {
-    if(CSSEdit) 
-      val += '; ';
-    else 
-      val += '"';
-  document.getElementById('tagopen').focus();
-  document.getElementById('tagopen').value += "#"+val;
-  document.getElementById('bt_colors').style.display = 'none';
-  }
+	if(val && val != null) {
+		if(CSSEdit) {
+			val += '; ';
+		} else {
+			val += '"';
+		}
+		document.getElementById('tagopen').focus();
+		document.getElementById('tagopen').value += "#"+val;
+		document.getElementById('bt_colors').style.display = 'none';
+	}
+};
+
+var SelectColorDialog = new Object();
+SelectColorDialog._return = function (val) {
+	if(val && val != null) {
+		if(CSSEdit) {
+			val += '; ';
+		} else {
+			val += '"';
+		}
+		document.getElementById('tagopen').focus();
+		document.getElementById('tagopen').value += val;
+		document.getElementById('bt_colors').style.display = 'none';
+	}
 };
 
 function colors() {
 // Begin change for TYPO3 ColorSelect by Stanislas Rolland 2004-12-08
-		var selectColorPlugin = editor.plugins.SelectColor;
-		if (selectColorPlugin) selectColorPlugin = selectColorPlugin.instance;
-		if (selectColorPlugin) {
-			selectColorPlugin.dialogSelectColor("tag", "", Dialog);
-
-		} else { 
-			var colloc = window.location.toString().replace(/plugins.+$/,"") +
-             		"popups/select_color.html";
-			window.open(colloc, 'colors', "toolbar=no,location=no,directories=no," +
-           			 "status=no,menubar=no,scrollbars=no,resizable=no,dependent=yes,width=240,height=182");
-		}
+	var selectColorPlugin = editor.plugins.SelectColor;
+	if (selectColorPlugin) selectColorPlugin = selectColorPlugin.instance;
+	if (selectColorPlugin) {
+		selectColorPlugin.dialogSelectColor("tag", "", SelectColorDialog);
+	} else { 
+		var colloc = window.location.toString().replace(/plugins.+$/,"") +
+             	"popups/select_color.html";
+		window.open(colloc, 'colors', "toolbar=no,location=no,directories=no," +
+           		 "status=no,menubar=no,scrollbars=no,resizable=no,dependent=yes,width=240,height=182");
+	}
 // End change for TYPO3 ColorSelect by Stanislas Rolland 2004-12-08
 };
 
