@@ -1,5 +1,6 @@
 2004-11-27  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 
+	* Correcting the behavior of the paragraph (formatblock) drop down list in IE
 	* Deleting Indite plugin
 	* Correcting color chooser styles for IE
 	* Adjusting popup windows
