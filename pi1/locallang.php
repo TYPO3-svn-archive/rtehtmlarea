@@ -17,6 +17,7 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'tx_srspellcheck_pi1.list_type' => 'Controllo Ortografico per HTMLArea',
 	),
 	'fr' => Array (
 		'tx_srspellcheck_pi1.list_type' => 'Vérification orthographique pour l\'éditeur HTMLArea RTE',

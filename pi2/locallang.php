@@ -17,6 +17,7 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'tx_rtepbhtmlarea_pi2.list_type' => 'Rich Text Editor di HTMLArea per il Front End',
 	),
 	'fr' => Array (
 	),

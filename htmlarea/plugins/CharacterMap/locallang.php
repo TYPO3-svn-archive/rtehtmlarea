@@ -23,6 +23,10 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'CharacterMapTooltip' => 'Inserisci carattere speciale',
+		'Insert special character' => 'Inserisci carattere speciale',
+		'HTML value:' => 'Valore HTML:',
+		'Cancel' => 'Annulla',
 	),
 	'fr' => Array (
 		'CharacterMapTooltip' => 'Insérer un caractère spécial',

@@ -21,6 +21,9 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'Default' => 'Predefinito',
+		'Undefined' => 'Non definito',
+		'DynamicCSSStyleTooltip' => 'Applica stile al paragrafo contenitore',
 	),
 	'fr' => Array (
 		'Default' => 'Par défaut',

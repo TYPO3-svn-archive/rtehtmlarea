@@ -338,7 +338,11 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 			var ref = tr.cells[index + (/after/.test(button_id) ? 1 : 0)];
 			var otd = editor._doc.createElement("td");
 			otd.innerHTML = mozbr;
-			tr.insertBefore(otd, ref);
+			if(!ref) {
+				tr.appendChild(otd);
+			} else {
+				tr.insertBefore(otd, ref);
+			}
 		}
 		editor.focusEditor();
 		break;

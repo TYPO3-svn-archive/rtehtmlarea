@@ -21,6 +21,9 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'Insert Smiley' => 'Inserisci Smiley',
+		'Smiley' => 'Smiley',
+		'Cancel' => 'Annulla',
 	),
 	'fr' => Array (
 		'Insert Smiley' => 'Insérer un émoticône',

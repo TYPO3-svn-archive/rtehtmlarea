@@ -19,6 +19,8 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'ok' => 'OK',
+		'cancel' => 'Cancella',
 	),
 	'fr' => Array (
 		'ok' => 'OK',

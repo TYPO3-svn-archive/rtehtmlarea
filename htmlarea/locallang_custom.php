@@ -19,6 +19,8 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'style' => 'Paragrafo:',
+		'text_style' => 'Testo:',
 	),
 	'fr' => Array (
 		'style' => 'Paragraphe:',

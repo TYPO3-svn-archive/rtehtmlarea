@@ -23,6 +23,10 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'Path' => 'Percorso',
+		'TEXT_MODE' => 'Sei in MODALITA\' TESTO',
+		'IE-sucks-full-screen' => 'La modalità a schermo intero può creare problemi in Internet Explorer, a causa di alcuni bug nel browser che non siamo riusciti ad aggirare. Si possono verificare problemi di visualizzazione, riduzione di funzionalità dell\'editor e/o crash del browser. Se il tuo sistema operativo è windows 9x è molto probabile che si verifichi un \'General Protection Fault\' e ci sia la necessità di riavviare il computer.\\n\\n Sei stato messo al corrente di questo problema. Premi OK se vuoi ancora provare l\'editor a schermo intero.',
+		'Moz-Clipboard' => 'Scripts senza l\'autorizzazione non possono utilizzare le funzioni Taglia/Copia/Incolla. Clicca OK per visualizzare una nota tecnica in mozilla.org che ti mostrerà come permettere ad uno script di accedere alla clipboard.',
 	),
 	'fr' => Array (
 		'Path' => 'Chemin',

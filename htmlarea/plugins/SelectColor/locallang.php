@@ -27,6 +27,12 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'CO-forecolor' => 'Colore Testo',
+		'CO-hilitecolor' => 'Colore Background',
+		'CO-forecolor_title' => 'Imposta il colore del testo',
+		'CO-hilitecolor_title' => 'Imposta il colore del background',
+		'color_title' => 'Scegli un colore',
+		'no_color' => 'Nessun colore',
 	),
 	'fr' => Array (
 		'CO-forecolor' => 'Couleur du texte',

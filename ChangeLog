@@ -1,3 +1,7 @@
+2005-01-28  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Insert column after last corrected in IE.
+	* Italian translation.
+
 2005-01-18  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Last row, column, cell deletion in tables.
 	* CGI detection corrected.

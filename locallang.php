@@ -33,6 +33,15 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'Please wait' => 'L\'editor sta per essere caricato. Attendi un attimo...',
+		'Normal' => 'Normale',
+		'Heading 1' => 'Intestazione 1',
+		'Heading 2' => 'Intestazione 2',
+		'Heading 3' => 'Intestazione 3',
+		'Heading 4' => 'Intestazione 4',
+		'Heading 5' => 'Intestazione 5',
+		'Heading 6' => 'Intestazione 6',
+		'Preformatted' => 'Preformattato',
 	),
 	'fr' => Array (
 		'Please wait' => 'L\'éditeur est en cours de chargement. Veuillez patienter...',

@@ -23,6 +23,10 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'Default' => 'Predefinito',
+		'Undefined' => 'Non definito',
+		'InlineCSSStyleTooltip' => 'Applica lo stile al testo selezionato',
+		'You have to select some text' => 'E\' necessario selezionare del testo',
 	),
 	'fr' => Array (
 		'Default' => 'Par défaut',

@@ -39,6 +39,18 @@ $LOCAL_LANG = Array (
 	'no' => Array (
 	),
 	'it' => Array (
+		'Quick Tag Editor' => 'Inserisci tag',
+		'Enter the TAG you want to insert' => 'Scegli il TAG che vuoi inserire',
+		'You have to select some text' => 'Devi selezionare del testo',
+		'There are some unclosed quote' => 'Ci sono virgolette non chiuse',
+		'This attribute already exists in the TAG' => 'Questo attributo esiste già nel TAG',
+		'No CSS class avaiable' => 'Non ci sono classi CSS disponibili',
+		'OPTIONS' => 'OPZIONI',
+		'ATTRIBUTES' => 'ATTRIBUTI',
+		'TAGs' => 'TAG',
+		'Colors' => 'Colori',
+		'Ok' => 'Ok',
+		'Cancel' => 'Annulla',
 	),
 	'fr' => Array (
 		'Quick Tag Editor' => 'Insérer une balise',
