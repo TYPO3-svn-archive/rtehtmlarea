@@ -1,0 +1,2 @@
+  # cat=basic/enable; type=boolean; label=Enable all editor options: If set, all optional features will be enabled in the default User and Page TSConfig. If not set, only minimal features will be enabled.
+enableAllOptions = 0
