@@ -252,7 +252,7 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 		'7' =>	'36 pt',
 		);
 
-	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, Indite, CharacterMap';
+	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap';
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:
@@ -668,12 +668,6 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 				$loadPluginCode .= $this->buildJSLangArray($plugin) . chr(10);
 				$loadPluginCode .= 'typo3LoadOnlyPlugin("' . $plugin . '");' . chr(10);
 			}
-		}
-		if ($this->isPluginEnable('Indite')) {
-				$loadPluginCode .= 'HTMLArea.loadScript("xml/XML_Utility.js","Indite");' . chr(10);
-				$loadPluginCode .= 'HTMLArea.loadScript("xml/XML_Document.js","Indite");' . chr(10);
-				$loadPluginCode .= 'HTMLArea.loadScript("xml/DTD_Document.js","Indite");' . chr(10);
-				$loadPluginCode .= 'HTMLArea.loadScript("rules/article.js","Indite");' . chr(10);
 		}
 
 		return '
