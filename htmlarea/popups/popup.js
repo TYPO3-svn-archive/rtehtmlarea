@@ -73,6 +73,7 @@ function __dlg_init(bottom) {
 		window.moveTo(x, y);
 	}
 	document.body.onkeypress = __dlg_close_on_esc;
+	if (window.focus) { window.focus(); };
 };
 
 function __dlg_translate(i18n) {

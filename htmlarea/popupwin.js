@@ -1,18 +1,18 @@
 // (c) dynarch.com 2003-2004
 // Distributed under the same terms as HTMLArea itself.
+// Version 1.10
 
 function PopupWin(editor, title, handler, initFunction) {
 	this.editor = editor;
 	this.handler = handler;
 
-// Start change for TYPO3 by Stanislas Rolland 2004-11-01
+// Begin change for by Stanislas Rolland 2004-11-01
 	var activEditorNumber = editor._typo3EditerNumber;
 //	var dlg = window.open("", "__ha_dialog",
 //	var dlg = this.editor._iframe.contentWindow.open("", "__ha_dialog",
 	var dlg = this.editor._iframe.contentWindow.open("", "",
-			      "toolbar=no,menubar=no,personalbar=no,width=600,height=600,left=20,top=40" +
-			      "scrollbars=no,resizable=no,dependent=yes");
-// End change for TYPO3 by Stanislas Rolland 2004-11-01
+		"toolbar=no,menubar=no,personalbar=no,status=no,width=100,height=100,scrollbars=no,resizable=yes,dependent=yes");
+// End change by Stanislas Rolland 2004-11-01
 
 	this.window = dlg;
 	var doc = dlg.document;
@@ -23,10 +23,7 @@ function PopupWin(editor, title, handler, initFunction) {
 	if (base && base.match(/(.*)\/([^\/]+)/)) {
 		base = RegExp.$1 + "/";
 	}
-	if (typeof _editor_url != "undefined" && !/^\//.test(_editor_url)) {
-		// _editor_url doesn't start with '/' which means it's relative
-		// FIXME: there's a problem here, it could be http:// which
-		// doesn't start with slash but it's not relative either.
+	if (typeof _editor_url != "undefined" && !/^\//.test(_editor_url) && !/http:\/\//.test(_editor_url)) {
 		base += _editor_url;
 	} else
 		base = _editor_url;
@@ -68,7 +65,7 @@ function PopupWin(editor, title, handler, initFunction) {
 PopupWin.prototype.callHandler = function() {
 	var tags = ["input", "textarea", "select"];
 	var params = new Object();
-	for (var ti in tags) {
+	for (var ti = tags.length; --ti >= 0;) {
 		var tag = tags[ti];
 		var els = this.content.getElementsByTagName(tag);
 		for (var j = 0; j < els.length; ++j) {
@@ -120,13 +117,11 @@ PopupWin.prototype.addButtons = function() {
 
 PopupWin.prototype.showAtElement = function() {
 	var self = this;
+
 	// Mozilla needs some time to realize what's goin' on..
 	setTimeout(function() {
 		var w = self.content.offsetWidth + 4;
 		var h = self.content.offsetHeight + 4;
-		// size to content -- that's fuckin' buggy in all fuckin' browsers!!!
-		// so that we set a larger size for the dialog window and then center
-		// the element inside... phuck!
 
 		// center...
 		var el = self.content;
@@ -136,11 +131,27 @@ PopupWin.prototype.showAtElement = function() {
 		s.position = "absolute";
 		s.left = (w - el.offsetWidth) / 2 + "px";
 		s.top = (h - el.offsetHeight) / 2 + "px";
-		if (HTMLArea.is_gecko) {
-			self.window.innerWidth = w;
-			self.window.innerHeight = h;
+// Begin change for by Stanislas Rolland 2004-11-26
+		var body = self.doc.body;
+		if (!self.doc.all) {
+			self.window.innerWidth = w+14;
+			self.window.innerHeight = h+50;
+			// center on parent
+			var x = self.window.opener.screenX + (self.window.opener.outerWidth - self.window.outerWidth) / 2;
+			var y = self.window.opener.screenY + (self.window.opener.outerHeight - self.window.outerHeight) / 2;
+			self.window.moveTo(x, y);
 		} else {
 			self.window.resizeTo(w + 8, h + 35);
+			var ch = body.clientHeight;
+			var cw = body.clientWidth;
+			window.resizeBy(w - cw, h - ch);
+			var W = body.offsetWidth;
+			var H = 2 * body.offsetHeight - ch;
+			var x = (screen.availWidth - W) / 2;
+			var y = (screen.availHeight - H) / 2;
+			self.window.moveTo(x, y);
 		}
+
+// End change for by Stanislas Rolland 2004-11-26
 	}, 25);
 };
