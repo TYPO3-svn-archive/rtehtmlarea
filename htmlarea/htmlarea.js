@@ -138,6 +138,9 @@ HTMLArea.Config = function () {
 	// <HTML> tag.
 	this.fullPage = false;
 
+	// if the site is secure, create a secure iframe
+	this.useHTTPS = false;
+
 	// style included in the iframe document
 	this.pageStyle = "";
 
@@ -397,7 +400,7 @@ HTMLArea.replace = function(id, config) {
 
 // Creates the toolbar and appends it to the _htmlarea
 HTMLArea.prototype._createToolbar = function () {
-	var editor = this;	// to access this in nested functions
+	var editor = this;
 
 	var toolbar = document.createElement("div");
 	this._toolbar = toolbar;
@@ -407,21 +410,20 @@ HTMLArea.prototype._createToolbar = function () {
 	var tb_objects = new Object();
 	this._toolbarObjects = tb_objects;
 
-	// creates a new line in the toolbar
+		// create a new line in the toolbar
 	function newLine() {
 		var table = document.createElement("table");
 		table.border = "0px";
 		table.cellSpacing = "0px";
 		table.cellPadding = "0px";
 		toolbar.appendChild(table);
-		// TBODY is required for IE, otherwise you don't see anything
-		// in the TABLE.
+			// TBODY is required for IE, otherwise you don't see anything in the TABLE.
 		var tb_body = document.createElement("tbody");
 		table.appendChild(tb_body);
 		tb_row = document.createElement("tr");
 		tb_body.appendChild(tb_row);
 	}; // END of function: newLine
-	// init first line
+		// init first line
 	newLine();
 
 	// updates the state of a toolbar element.  This function is member of
@@ -658,27 +660,24 @@ HTMLArea.prototype._createStatusBar = function() {
 	statusbar.className = "statusBar";
 	this._htmlArea.appendChild(statusbar);
 	this._statusBar = statusbar;
-	// statusbar.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
-	// creates a holder for the path view
-	div = document.createElement("span");
-	div.className = "statusBarTree";
-	div.innerHTML = HTMLArea.I18N.msg["Path"] + ": ";
-	this._statusBarTree = div;
-	this._statusBar.appendChild(div);
-	if (!this.config.statusBar) {
-		// disable it...
-		statusbar.style.display = "none";
-	}
+	var statusBarTree = document.createElement("span");
+	statusBarTree.className = "statusBarTree";
+	statusBarTree.innerHTML = HTMLArea.I18N.msg["Path"] + ": ";
+	this._statusBarTree = statusBarTree;
+	this._statusBar.appendChild(statusBarTree);
+	if (!this.config.statusBar) statusbar.style.display = "none";
 };
 
 // Creates the HTMLArea object and replaces the textarea with it.
+// Substantially rewritten by Stanislas Rolland November-December 2004
 HTMLArea.prototype.generate = function () {
-	var editor = this;	// we'll need "this" in some nested functions
-	// get the textarea
+	var editor = this;
+
+		// get the textarea and hide it
 	var textarea = this._textArea;
 	if (typeof textarea == "string") {
-		// it's not element but ID
-		this._textArea = textarea = HTMLArea.getElementById("textarea", textarea);
+		textarea = HTMLArea.getElementById("textarea", textarea);
+		this._textArea = textarea;
 	}
 	this._ta_size = {
 		w: textarea.style.width,
@@ -686,12 +685,10 @@ HTMLArea.prototype.generate = function () {
 	};
 	textarea.style.display = "none";
 
-	// create the editor framework
+		// create the editor framework and insert the editor before the textarea
 	var htmlarea = document.createElement("div");
 	htmlarea.className = "htmlarea";
 	this._htmlArea = htmlarea;
-
-	// insert the editor before the textarea.
 	textarea.parentNode.insertBefore(htmlarea, textarea);
 
 	if (textarea.form) {
@@ -735,90 +732,60 @@ HTMLArea.prototype.generate = function () {
 		};
 	}
 
-	// add a handler for the "back/forward" case -- on body.unload we save
-	// the HTML content into the original textarea.
-	try {
-		window.onunload = function() {
-			editor._textArea.value = editor.getHTML();
-		};
-	} catch(e) {};
+		// add a handler for the "back/forward" case: on body.unload we save the HTML content into the original textarea.
+	window.onunload = function() { editor._textArea.value = editor.getHTML(); };
 
-	// creates & appends the toolbar
+		// create & append the toolbar
 	this._createToolbar();
 
-	// create the IFRAME
+		// create and append the IFRAME
 	var iframe = document.createElement("iframe");
-	// workaround for the HTTPS problem
-	// iframe.setAttribute("src", "javascript:void(0);");
-	iframe.src = _editor_url + "popups/blank.html";
+	if(this.config.useHTTPS) {
+		iframe.setAttribute("src", _editor_url + "popups/blank.html");
+	} else {
+		iframe.setAttribute("src", "javascript:void(0);");
+	}
+	iframe.style.borderWidth = "0px";
 	htmlarea.appendChild(iframe);
 	this._iframe = iframe;
 
-	// creates & appends the status bar, if the case
+		// create & append the status bar
 	this._createStatusBar();
 
-	// remove the default border as it keeps us from computing correctly
-	// the sizes.  (somebody tell me why doesn't this work in IE)
-	if (!HTMLArea.is_ie) {
-		iframe.style.borderWidth = "1px";
-	}
-
-	// size the IFRAME according to user's prefs or initial textarea
+		// size the IFRAME according to user's prefs or initial textarea
 	var height = (this.config.height == "auto" ? (this._ta_size.h + "px") : this.config.height);
-	height = parseInt(height);
+	height = parseInt(height)-2;
 	var width = (this.config.width == "auto" ? (this._ta_size.w + "px") : this.config.width);
-	width = parseInt(width);
-
-	if (!HTMLArea.is_ie) {
-		height -= 2;
-		width -= 2;
-	}
-
+	width = parseInt(width)-2;
 	iframe.style.width = width + "px";
+	if(this.config.width == "auto") iframe.style.width = "100%";
+
 	if (this.config.sizeIncludesToolbar) {
-		// substract toolbar height
 		height -= this._toolbar.offsetHeight;
 		height -= this._statusBar.offsetHeight;
 	}
-	if (height < 0) {
-		height = 0;
-	}
+	if (height < 0) height = 0;
 	iframe.style.height = height + "px";
 
-	// the editor including the toolbar now have the same size as the
-	// original textarea.. which means that we need to reduce that a bit.
 	textarea.style.width = iframe.style.width;
- 	textarea.style.height = iframe.style.height;
+	textarea.style.margin = "0px";
+	textarea.style.border = "0px";
 
-	// IMPORTANT: we have to allow the browser a short time to recognize the new frame and it's document.
+		// IMPORTANT: we have to allow the browser a short time to recognize the new iframe and it's document.
 	function initIframe() {
-		var doc = editor._iframe.contentWindow.document;
-		if (!doc) {
+		if (!editor._iframe.contentWindow 
+				|| !editor._iframe.contentWindow.document 
+				|| !editor._iframe.contentWindow.document.documentElement) {
 			setTimeout(initIframe, 50);
 			return false;
 		}
+		var doc = editor._iframe.contentWindow.document;
 		editor._doc = doc;
 		if (!editor.config.fullPage) {
-			if(HTMLArea.is_gecko) {
-				var html = doc.documentElement;
-				if(!html) {
-					setTimeout(initIframe, 50);
-					return false;
-				}
-				var head = doc.createElement("head");
-				html.appendChild(head);
-				var body = doc.createElement("body");
-				html.appendChild(body);
-			} else {
-				// FIXME: for some reason the above method does not work completetly with IE
-				doc.open();
-				var html = "<html>\n";
-				html += "<head></head>\n";
-				html += "<body></body>\n";
-				html += "</html>";
-				doc.write(html);
-				doc.close();
-				var head = doc.getElementsByTagName("head")[0];
+			var head = doc.getElementsByTagName("head")[0];
+			if(!head) {
+				doc.createElement("head");
+				doc.documentElement.appendChild(head);
 			}
 			if (editor.config.baseURL) {
 				var base = doc.createElement("base");
@@ -831,8 +798,6 @@ HTMLArea.prototype.generate = function () {
 				link.href = editor.config.pageStyle;
 				head.appendChild(link);
 			}
-			doc.body.innerHTML = editor._textArea.value;
-			doc.body.style.border = "0px";
 		} else {
 			var html = editor._textArea.value;
 			if (html.match(HTMLArea.RE_doctype)) {
@@ -843,7 +808,10 @@ HTMLArea.prototype.generate = function () {
 			doc.write(html);
 			doc.close();
 		}
+
 		function stylesLoaded() {
+
+				// check if the stylesheets have been loaded
 			var stylesAreLoaded = true;
 			var rules;
 			for(var rule=0;rule<doc.styleSheets.length;rule++){
@@ -856,34 +824,41 @@ HTMLArea.prototype.generate = function () {
 				return false;
 			}
 
-			if (HTMLArea.is_gecko) doc.designMode = "on";
-			if (HTMLArea.is_ie) doc.body.contentEditable = true;
-
-			editor.focusEditor();
-			// check if any plugins have registered refresh handlers
-			for (var i in editor.plugins) {
-				var plugin = editor.plugins[i].instance;
-				if (typeof plugin.onGenerate == "function")
-					plugin.onGenerate();
-				if (typeof plugin.onGenerateOnce == "function") {
-					plugin.onGenerateOnce();
-					plugin.onGenerateOnce = null;
-				}
+			if (!editor.config.fullPage) {
+				doc.body.style.border = iframe.style.border;
+				doc.body.style.width = doc.body.clientWidth - 2;
+				doc.body.innerHTML = editor._textArea.value;
 			}
 
-			// intercept some events; for updating the toolbar & keyboard handlers
-			editor.focusEditor();
+				// set contents editable
+			if(HTMLArea.is_gecko) doc.designMode = "on";
+			if(HTMLArea.is_ie) doc.body.contentEditable = true;
+
+				// intercept some events for updating the toolbar & keyboard handlers
 			HTMLArea._addEvents
 				(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"],
 				 function (event) {
 				 	return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
 				 });
 
-			editor.focusEditor();
-			if (typeof editor.onGenerate == "function")
-				editor.onGenerate();
+			setTimeout( function() {
+					// check if any plugins have registered refresh handlers
+				for (var i in editor.plugins) {
+					var plugin = editor.plugins[i].instance;
+					if (typeof plugin.onGenerate == "function")
+						plugin.onGenerate();
+					if (typeof plugin.onGenerateOnce == "function") {
+						plugin.onGenerateOnce();
+						plugin.onGenerateOnce = null;
+					}
+				}
 
-			editor.updateToolbar();
+				if (typeof editor.onGenerate == "function")
+					editor.onGenerate();
+
+				editor.updateToolbar();
+				editor.focusEditor();
+			}, 100);
 		};
 		stylesLoaded();
 	};
@@ -1023,7 +998,6 @@ HTMLArea.loadStyle = function(style, plugin) {
 	link.rel = "stylesheet";
 	link.href = url;
 	head.appendChild(link);
-	//document.write("<style type='text/css'>@import url(" + url + ");</style>");
 };
 HTMLArea.loadStyle(typeof _editor_css == "string" ? _editor_css : "htmlarea.css");
 
@@ -1064,10 +1038,7 @@ HTMLArea.getInnerText = function(el) {
 	return txt;
 };
 
-// Begin change by Stanislas Rolland 2004-11-16
-// Add root parameter
 HTMLArea.prototype._wordClean = function() {
-// End change by Stanislas Rolland 2004-11-16
 	var
 		editor = this,
 		stats = {
@@ -1162,14 +1133,15 @@ HTMLArea.prototype.forceRedraw = function() {
 	// this._doc.body.innerHTML = this.getInnerHTML();
 };
 
-// focuses the iframe window.  returns a reference to the editor document.
+// focuses the iframe window and returns a reference to the editor document.
 HTMLArea.prototype.focusEditor = function() {
 	switch (this._editMode) {
-	    // notice the try { ... } catch block to avoid some rare exceptions in FireFox
-	    // (perhaps also in other Gecko browsers). Manual focus by user is required in
-        // case of an error. Somebody has an idea?
-	    case "wysiwyg" : try { this._iframe.contentWindow.focus() } catch (e) { alert(e) } break;
-	    case "textmode": try { this._textArea.focus() } catch (e) {} break;
+	    case "wysiwyg" :
+		this._iframe.contentWindow.focus();  
+		break;
+	    case "textmode":
+		this._textArea.focus();
+		break;
 	    default	   : alert("ERROR: mode " + this._editMode + " is not defined");
 	}
 	return this._doc;
@@ -1416,6 +1388,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 		this._undoTakeSnapshot();
 		var editor = this;
 		this._timerUndo = setTimeout(function() {
+			clearTimeout(editor._timerUndo);
 			editor._timerUndo = null;
 		}, this.config.undoTimeout);
 	}
@@ -2218,11 +2191,14 @@ HTMLArea.checkSupportedBrowser = function() {
 // selection & ranges
 
 // returns the current selection object
+// Rewritten bt Stanislas Rolland 2004-12-07
 HTMLArea.prototype._getSelection = function() {
-	if (HTMLArea.is_ie) {
-		return this._doc.selection;
-	} else {
+	if (this._iframe.contentWindow.getSelection) {
 		return this._iframe.contentWindow.getSelection();
+	} else if (this._doc.getSelection) {
+		return this._doc.getSelection();
+	} else if (this._doc.selection) {
+		return this._doc.selection;
 	}
 };
 
