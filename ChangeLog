@@ -1,3 +1,8 @@
+2005-01-12  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Add float property on images
+	* Correct CharacterMap initialization
+	* Do not grab focus on generate
+
 2005-01-11  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Revision of table operations popups
 	* Language files from typo3.org

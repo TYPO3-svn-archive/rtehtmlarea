@@ -569,18 +569,14 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		 * LOAD THE HIDE-BUTTON
 		 * ===================================
 		 */
-		$hide = $this->conf_toolbar_hide;
+		$hide = array();
 		if( $this->isPluginEnable('SelectColor') ) {
 			$hide[] = 'textcolor';
 			$hide[] = 'bgcolor';
 		}
 
-		if ($this->thisConfig['hideButtons'])	{
-			$hide = array_unique(array_merge($hide,t3lib_div::trimExplode(',',$this->thisConfig['hideButtons'],1)));
-		}
-
 		// Hide the buttons:
-		$show = array_diff($show, $hide);
+		$show = array_diff($show, $this->conf_toolbar_hide, $hide, t3lib_div::trimExplode(',',$this->thisConfig['hideButtons'],1));
 
 		// Load the always show bottons:
 		$show = array_merge($show, $this->conf_toolbar_show);

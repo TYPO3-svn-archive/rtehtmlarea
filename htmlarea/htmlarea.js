@@ -858,7 +858,6 @@ HTMLArea.prototype.generate = function () {
 					editor.onGenerate();
 
 				editor.updateToolbar();
-				editor.focusEditor();
 			}, 100);
 		};
 		stylesLoaded();
@@ -1698,7 +1697,7 @@ HTMLArea.prototype._insertImage = function(image) {
 				case "f_float"  : if (HTMLArea.is_ie) { img.style.styleFloat = value; }  else { img.style.cssFloat = value;} break; 
 			}
 		}
-	}, outparam, 550, 460);
+	}, outparam, 580, 460);
 };
 
 // Called when the user clicks the Insert Table button
@@ -1757,12 +1756,15 @@ HTMLArea.prototype._insertTable = function() {
 				(HTMLArea.is_gecko) && td.appendChild(doc.createElement("br"));
 			}
 		}
+		editor.focusEditor();
 		if (HTMLArea.is_ie) {
 			range.pasteHTML(table.outerHTML);
 		} else {
 			// insert the table
 			editor.insertNodeAtSelection(table);
 		}
+		editor.forceRedraw();
+		editor.updateToolbar();
 		return true;
 	}, null, 500, 210);
 };
@@ -2626,6 +2628,11 @@ function setRTEsizeByJS(divId, height, width) {
 	}
 };
 
+/** Hit the Popup */
+function edHidePopup() {
+	Dialog._modal.close();
+};
+
 /** Load a HTMLarea Plugin, but do not load the language file
   * because we are assigning the typo3 generated language array.
   */
@@ -2756,10 +2763,12 @@ HTMLArea.prototype.renderPopup_image = function() {
 function renderPopup_insertImage(image) {
 	var editor = RTEarea[activEditerNumber]["editor"];
 	editor.focusEditor();
+
 	editor.insertHTML(image);
 	_selectedImage="";
 	Dialog._modal.close();
 	activEditerNumber = -1; // Unset
+	editor.updateToolbar();
 };
 
 /** Add a link to the selection. This function call from the typo3-link-popup
@@ -2769,7 +2778,6 @@ function renderPopup_insertImage(image) {
 */
 function renderPopup_addLink(theLink,cur_target) {
 	var editor = RTEarea[activEditerNumber]["editor"];
-
 	editor.focusEditor();
 
 	if(!HTMLArea.is_ie) {
@@ -2813,7 +2821,6 @@ function renderPopup_addLink(theLink,cur_target) {
 */
 function renderPopup_unLink() {
 	var editor = RTEarea[activEditerNumber]["editor"];
-
 	editor.focusEditor();
 
 	if(!HTMLArea.is_ie) {

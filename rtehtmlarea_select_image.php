@@ -372,15 +372,17 @@ class tx_rtehtmlarea_select_image {
 			}
 			function printCurrentImageOptions()	{	//
 		//		alert(selectedImageRef.href);
-				var styleSelector=\'<select name="iClass" style="width:140px;"><option value=""></option><option value="TestClass">TestClass</option></select>\';
-				var alignSelector=\'<select name="iAlign" style="width:60px;"><option value=""></option><option value="left">Left</option><option value="right">Right</option></select>\';
+		//		var styleSelector=\'<select name="iClass" style="width:140px;"><option value=""></option><option value="TestClass">TestClass</option></select>\';
+		//		var alignSelector=\'<select name="iAlign" style="width:60px;"><option value=""></option><option value="left">Left</option><option value="right">Right</option></select>\';
+				var floatSelector=\'<select name="iFloat"><option value="">' . $LANG->getLL('notSet') . '</option><option value="none">' . $LANG->getLL('nonFloating') . '</option><option value="left">' . $LANG->getLL('left') . '</option><option value="right">' . $LANG->getLL('right') . '</option></select>\';
 				var bgColor=\' class="bgColor4"\';
 				var sz="";
 				sz+=\'<table border=0 cellpadding=1 cellspacing=1><form action="" name="imageData">\';
-				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("width").': <input type="text" name="iWidth" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).'>&nbsp;&nbsp;'.$LANG->getLL("height").': <input type="text" name="iHeight" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).'>&nbsp;&nbsp;'.$LANG->getLL("border").': <input type="checkbox" name="iBorder" value="1"></td></tr>\';
-				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("margin_lr").': <input type="text" name="iHspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).'>&nbsp;&nbsp;'.$LANG->getLL("margin_tb").': <input type="text" name="iVspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).'></td></tr>\';
+				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("width").': <input type="text" name="iWidth" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).' />&nbsp;&nbsp;'.$LANG->getLL("height").': <input type="text" name="iHeight" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).' />&nbsp;&nbsp;'.$LANG->getLL("border").': <input type="checkbox" name="iBorder" value="1" /></td></tr>\';
+				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("float").': \'+floatSelector+\'</td></tr>\';
+				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("margin_lr").': <input type="text" name="iHspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).'>&nbsp;&nbsp;'.$LANG->getLL("margin_tb").': <input type="text" name="iVspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).' /></td></tr>\';
 		//		sz+=\'<tr><td\'+bgColor+\'>Textwrapping: \'+alignSelector+\'&nbsp;&nbsp;Style: \'+styleSelector+\'</td></tr>\';
-				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("title").': <input type="text" name="iTitle"'.$GLOBALS["TBE_TEMPLATE"]->formWidth(20).'></td></tr>\';
+				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("title").': <input type="text" name="iTitle"'.$GLOBALS["TBE_TEMPLATE"]->formWidth(20).' /></td></tr>\';
 				sz+=\'<tr><td><input type="submit" value="'.$LANG->getLL("update").'" onClick="return setImageProperties();"></td></tr>\';
 				sz+=\'</form></table>\';
 				return sz;
@@ -393,8 +395,17 @@ class tx_rtehtmlarea_select_image {
 					selectedImageRef.hspace=document.imageData.iHspace.value;
 					selectedImageRef.title=document.imageData.iTitle.value;
 					selectedImageRef.alt=document.imageData.iTitle.value;
-		
+
 					selectedImageRef.border= (document.imageData.iBorder.checked ? 1 : 0);
+
+					var iFloat = document.imageData.iFloat.options[document.imageData.iFloat.selectedIndex].value;
+					if (iFloat || selectedImageRef.style.cssFloat || selectedImageRef.style.styleFloat)	{
+						if(document.all) {
+							selectedImageRef.style.styleFloat = iFloat;
+						} else {
+							selectedImageRef.style.cssFloat = iFloat;
+						}
+					}
 		
 		/*			
 					var iAlign = document.imageData.iAlign.options[document.imageData.iAlign.selectedIndex].value;
@@ -424,6 +435,15 @@ class tx_rtehtmlarea_select_image {
 					document.imageData.iTitle.value = selectedImageRef.title;
 					if (parseInt(selectedImageRef.border))	{
 						document.imageData.iBorder.checked = 1;
+					}
+						// Update float
+					var fObj=document.imageData.iFloat;
+					var value = (selectedImageRef.style.cssFloat ? selectedImageRef.style.cssFloat : selectedImageRef.style.styleFloat);
+					var l=fObj.length;
+					for (a=0;a<l;a++)	{
+						if (fObj.options[a].value == value)	{
+							fObj.selectedIndex = a;
+						}
 					}
 		/*
 						// Update align

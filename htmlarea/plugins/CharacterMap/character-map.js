@@ -30,18 +30,22 @@ function CharacterMap(editor) {
 	for (i = 0; !found && i < toolbar.length; ++i) {
 		a = toolbar[i];
 		for (j = 0; j < a.length; ++j) {
-			if (a[j] == "inserthorizontalrule") {
+			if (a[j] == "inserthorizontalrule" || a[j] == "insertsmiley" || a[j] == "insertimage" || a[j] == "about" ) {
 				found = true;
 				break;
 			}
 		}
 	}
-	if (found)
-	    a.splice(j, 0, "insertcharacter");
-        else{                
-            toolbar[1].splice(0, 0, "separator");
-	    toolbar[1].splice(0, 0, "insertcharacter");
-        }
+	if (found) {
+			// If found, add before inserthorizontalrule or before about
+		a.splice(j, 0, "insertcharacter");
+	} else {
+			// If not found (!!), add at the end of the first line of the toolbar
+		for (var i = 0; i < tool.length; ++i) {
+			cfg.toolbar[0].push(tool[i]);
+			cfg.toolbar[0].push("separator");
+		}
+	}
 };
 
 CharacterMap._pluginInfo = {
