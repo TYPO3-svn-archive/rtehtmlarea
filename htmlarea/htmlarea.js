@@ -1096,7 +1096,7 @@ HTMLArea.prototype._wordClean = function() {
 		++stats.mso_xmlel;
 	};
 	function checkEmpty(el) {
-		if (/^(a|span|b|strong|i|em|font)$/i.test(el.tagName) &&
+		if (/^(span|b|strong|i|em|font)$/i.test(el.tagName) &&
 		    !el.firstChild) {
 			el.parentNode.removeChild(el);
 			++stats.empty_tags;
