@@ -4,7 +4,7 @@
 // Portions (c) dynarch.com, 2003
 //
 // A free WYSIWYG editor replacement for <textarea> fields.
-// For full source code and docs, visit http://www.interactivetools.com/
+// For full source code and docs, visit http://www.htmlarea.com/
 //
 // Version 3.0 developed by Mihai Bazon.
 //   http://dynarch.com/mishoo

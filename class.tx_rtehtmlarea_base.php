@@ -67,8 +67,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			//'showhelp',
 			'about',
 		);
-		// The order of the toolbar.
-		// The name is the TYPO3-button name when it exists
+
+		// The order of the toolbar: the name is the TYPO3-button name when it exists
 	var $defaultToolbarOrder = 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, bar, linebreak,
 		fontstyle, space, fontsize, space, formatblock, bar, 
 		bold, italic, underline, bar, strikethrough, subscript, superscript, bar,
@@ -79,61 +79,61 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			
 		// Conversion array: TYPO3 button names to htmlArea button names
 	var $conf_toolbar_convert = array (
-			// 'TYPO3Name' 	=> 'htmlAreaName'
- 		'fontstyle' 	=> 'fontname',
- 		'fontsize' 		=> 'fontsize',
- 		'textcolor' 	=> 'forecolor',
-		'bgcolor' 		=> 'hilitecolor',
- 		'bold' 		=> 'bold',
- 		'italic' 		=> 'italic',
- 		'underline' 	=> 'underline',
- 		'left' 		=> 'justifyleft',
- 		'center' 		=> 'justifycenter',
- 		'right' 		=> 'justifyright',
- 		'orderedlist' 	=> 'insertorderedlist',
- 		'unorderedlist'	=> 'insertunorderedlist',
- 		'outdent' 		=> 'outdent',
-		'indent' 		=> 'indent',
-		'emoticon'		=> 'insertsmiley',
-		'line' 		=> 'inserthorizontalrule',
-		'link' 		=> 'createlink',
-		'table' 		=> 'inserttable',
-		'image' 		=> 'insertimage',
-		'cut' 		=> 'cut',
-		'copy' 		=> 'copy',
-		'paste' 		=> 'paste',
-		'formatblock' 	=> 'formatblock',
-		'chMode' 		=> 'htmlmode',
-		'user' 		=> '', /*not implement yet*/
+			// 'TYPO3 name' => 'htmlArea name'
+		'fontstyle' => 'fontname',
+		'fontsize' => 'fontsize',
+		'textcolor' => 'forecolor',
+		'bgcolor' => 'hilitecolor',
+		'bold' => 'bold',
+		'italic' => 'italic',
+		'underline' => 'underline',
+		'left' => 'justifyleft',
+		'center' => 'justifycenter',
+		'right' => 'justifyright',
+		'orderedlist' => 'insertorderedlist',
+		'unorderedlist' => 'insertunorderedlist',
+		'outdent' => 'outdent',
+		'indent' => 'indent',
+		'emoticon' => 'insertsmiley',
+		'line' => 'inserthorizontalrule',
+		'link' => 'createlink',
+		'table' => 'inserttable',
+		'image' => 'insertimage',
+		'cut' => 'cut',
+		'copy' => 'copy',
+		'paste' => 'paste',
+		'formatblock' => 'formatblock',
+		'chMode' => 'htmlmode',
+		'user' => '', /*not implement yet*/
 			
 			// htmlArea extra buttons
-		'lefttoright' 	=> 'lefttoright',
-		'righttoleft' 	=> 'righttoleft',
-		'justifyfull' 	=> 'justifyfull',
-		'strikethrough' 	=> 'strikethrough',
-		'superscript' 	=> 'superscript',
-		'subscript' 	=> 'subscript',
-		'showhelp' 		=> 'showhelp',
-		'insertcharacter'	=> 'insertcharacter',
-		'findreplace'	=> 'findreplace',
-		'spellcheck'	=> 'spellcheck',
-		'removeformat'	=> 'removeformat',
-		'inserttag'		=> 'inserttag',
-		'blockstylelabel'	=> 'I[style]',	
-		'blockstyle'	=> 'DynamicCSS-class',
-		'textstylelabel'	=> 'I[text_style]',
-		'textstyle'		=> 'InlineCSS-class',
+		'lefttoright' => 'lefttoright',
+		'righttoleft' => 'righttoleft',
+		'justifyfull' => 'justifyfull',
+		'strikethrough' => 'strikethrough',
+		'superscript' => 'superscript',
+		'subscript' => 'subscript',
+		'showhelp' => 'showhelp',
+		'insertcharacter' => 'insertcharacter',
+		'findreplace' => 'findreplace',
+		'spellcheck' => 'spellcheck',
+		'removeformat' => 'removeformat',
+		'inserttag' => 'inserttag',
+		'blockstylelabel' => 'I[style]',	
+		'blockstyle' => 'DynamicCSS-class',
+		'textstylelabel' => 'I[text_style]',
+		'textstyle' => 'InlineCSS-class',
 			
 			// Toolbar formating
-		'space' 		=> 'space',
-		'bar' 		=> 'separator',
-		'linebreak'		=> 'linebreak',
+		'space' => 'space',
+		'bar' => 'separator',
+		'linebreak' => 'linebreak',
 			
 			// Always show
-		'undo' 		=> 'undo',
-		'redo' 		=> 'redo',
-		'textindicator' 	=> 'textindicator',
-		'about' 		=> 'about',
+		'undo' => 'undo',
+		'redo' => 'redo',
+		'textindicator' => 'textindicator',
+		'about' => 'about',
 	);
 
 	var $defaultParagraphs = array(
@@ -337,6 +337,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 
 				// htmlArea plugins list
 			$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginList , 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'], 1));
+			$hidePlugins = array();
+			if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
+			$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 
 				// Toolbar
 			$this->setToolBar();
@@ -565,7 +568,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		if($this->thisConfig['disableTYPO3Browsers']) $hidePlugins[] = 'TYPO3Browsers';
 		if($this->thisConfig['disableEnterParagraphs']) $hidePlugins[] = 'EnterParagraphs';
 
-		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
+		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
 
 		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 
@@ -659,6 +662,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			var rtePathImageFile = "'.$this->rtePathImageFile.'"; // Path to the php-file for selection images
 			var rtePathLinkFile = "'.$this->rtePathLinkFile.'"; // Path to the php-file for create a link'
 			// Load the Plugins:
+
 			. $loadPluginCode
 			.  '
 			HTMLArea.init();

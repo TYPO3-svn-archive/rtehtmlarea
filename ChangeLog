@@ -1,3 +1,9 @@
+2005-02-01  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.32
+	* The editor was not loading in Mozilla/Firefox in some configurations.
+	* Replacement of inline styles.
+	* Resizing of fullscreen editor.
+
 2005-01-28  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Insert column after last corrected in IE.
 	* Italian translation.

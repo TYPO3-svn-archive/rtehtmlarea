@@ -1,8 +1,8 @@
-// htmlArea v3.0 - Copyright (c) 2002-2004 interactivetools.com, inc.
+// htmlArea v3.0 - Copyright (c) 2003-2005 dynarch.com
+//					   2002-2005 interactivetools.com, inc.
+//					   2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
 // This copyright notice MUST stay intact for use (see license.txt).
 //
-// Portions (c) dynarch.com, 2003-2004
-// Portions (c) Stanislas Rolland, 2004-2005
 //
 // A free WYSIWYG editor replacement for <textarea> fields.
 // For full source code and docs, visit http://www.interactivetools.com/
@@ -10,7 +10,7 @@
 // Version 3.0 developed by Mihai Bazon.
 //   http://dynarch.com/mishoo
 //
-// Changes by Stanislas Rolland <stanislas.rolland@fructifor.com>
+// Changes by Stanislas Rolland
 // Toolbar: Toolbar elements are floating in a continuous div rather than cells in a table.
 // Toolbar: Linebreaks create a new such floating div that may extend on possibly more than one line
 // Toolbar: Add tooltip on select boxes
@@ -278,30 +278,7 @@ HTMLArea.Config = function () {
 		lefttoright: [ "Direction left to right", "ed_left_to_right.gif", false, function(e) {e.execCommand("lefttoright");} ],
 		righttoleft: [ "Direction right to left", "ed_right_to_left.gif", false, function(e) {e.execCommand("righttoleft");} ]
 	};
-	/* ADDING CUSTOM BUTTONS
-	 * ---------------------
-	 *
-	 * It is recommended that you add the custom buttons in an external
-	 * file and leave this one unchanged.  That's because when we
-	 * (InteractiveTools.com) release a new official version, it's less
-	 * likely that you will have problems upgrading HTMLArea.
-	 *
-	 * Example on how to add a custom button when you construct the HTMLArea:
-	 *
-	 *   var editor = new HTMLArea("your_text_area_id");
-	 *   var cfg = editor.config; // this is the default configuration
-	 *   cfg.btnList["my-hilite"] =
-	 *	[ function(editor) { editor.surroundHTML('<span style="background:yellow">', '</span>'); }, // action
-	 *	  "Highlight selection", // tooltip
-	 *	  "my_hilite.gif", // image
-	 *	  false // disabled in text mode
-	 *	];
-	 *   cfg.toolbar.push(["linebreak", "my-hilite"]); // add the new button to the toolbar
-	 *
-	 * An alternate (also more convenient and recommended) way to
-	 * accomplish this is to use the registerButton function below.
-	 */
-	// initialize tooltips from the I18N module and generate correct image path
+		// initialize tooltips from the I18N module and generate correct image path
 	for (var i in this.btnList) {
 		var btn = this.btnList[i];
 		btn[1] = _editor_url + this.imgURL + btn[1];
@@ -775,19 +752,24 @@ HTMLArea.prototype.generate = function () {
 	this._createStatusBar();
 
 		// size the IFRAME according to user's prefs or initial textarea
-	var height = (this.config.height == "auto" ? (this._ta_size.h + "px") : this.config.height);
-	height = parseInt(height)-2;
-	var width = (this.config.width == "auto" ? (this._ta_size.w + "px") : this.config.width);
-	width = parseInt(width)-2;
-	iframe.style.width = width + "px";
-	if(this.config.width == "auto") iframe.style.width = "100%";
-
-	if (this.config.sizeIncludesToolbar) {
-		height -= this._toolbar.offsetHeight;
-		height -= this._statusBar.offsetHeight;
+	var height = (this.config.height == "auto" ? (this._ta_size.h) : this.config.height);
+	if(height.indexOf("%") == -1) {
+		height = parseInt(height)-2;
+		if (this.config.sizeIncludesToolbar) {
+			height -= this._toolbar.offsetHeight;
+			height -= this._statusBar.offsetHeight;
+		}
+		if (height < 0) height = 0;
+		height = height + "px";
 	}
-	if (height < 0) height = 0;
-	iframe.style.height = height + "px";
+	var width = (this.config.width == "auto" ? (this._ta_size.w) : this.config.width);
+	if(width.indexOf("%") == -1) {
+		width = parseInt(width)-2;
+		width = width + "px";
+	}
+	iframe.style.width = width;
+	if(this.config.width == "auto") iframe.style.width = "100%";
+	iframe.style.height = height;
 
 	textarea.style.width = iframe.style.width;
 	textarea.style.margin = "0px";
@@ -806,7 +788,7 @@ HTMLArea.prototype.generate = function () {
 		if (!editor.config.fullPage) {
 			var head = doc.getElementsByTagName("head")[0];
 			if(!head) {
-				doc.createElement("head");
+				head = doc.createElement("head");
 				doc.documentElement.appendChild(head);
 			}
 			if (editor.config.baseURL) {
@@ -880,6 +862,7 @@ HTMLArea.prototype.generate = function () {
 		stylesLoaded();
 	};
 	setTimeout(initIframe, 50);
+	return this;
 };
 
 // Switches editor mode; parameter can be "textmode" or "wysiwyg".  If no
@@ -2007,10 +1990,22 @@ HTMLArea.prototype._editorEvent = function(ev) {
 	}, 50);
 };
 
+HTMLArea.prototype.scrollToCaret = function() {
+	var 	e = this.getParentElement(),
+		w = this._iframe.contentWindow,
+		h = w.innerHeight || w.height,
+		d = this._doc,
+  		t = d.documentElement.scrollTop || d.body.scrollTop;
+	if (typeof h == "undefined")	return false;
+	if (e.offsetTop > h + t) w.scrollTo(e.offsetLeft, e.offsetTop - h + e.offsetHeight);
+};
+
 HTMLArea.prototype.convertNode = function(el, newTagName) {
-	var newel = this._doc.createElement(newTagName);
+	var newel = this._doc.createElement(newTagName), p = el.parentNode;
 	while (el.firstChild)
 		newel.appendChild(el.firstChild);
+	p.insertBefore(newel, el);
+	p.removeChild(el);
 	return newel;
 };
 
@@ -2059,71 +2054,78 @@ HTMLArea.prototype.dom_checkBackspace = function() {
 };
 
 HTMLArea.prototype.dom_checkInsertP = function() {
-	var p = this.getAllAncestors();
-	var block = null;
-	var body = this._doc.body;
-	for (var i = 0; i < p.length; ++i)
-// Begin change by Stanislas Rolland 2004-11-20
-// Do not insert <p> tag inside table, tbody or tr block
-		if (HTMLArea.isBlockElement(p[i]) && !/body|html|table|tbody|tr/i.test(p[i].tagName)) {
-// End change by Stanislas Rolland 2004-11-20
+	var i, SC, left, right, r2,
+		sel = this._getSelection(),
+		r = this._createRange(sel),
+		p = this.getAllAncestors(),
+		block = null,
+		doc = this._doc,
+		body = doc.body;
+	for (i = 0; i < p.length; ++i)
+		if (HTMLArea.isBlockElement(p[i]) && !/body|html/i.test(p[i].tagName)) {
 			block = p[i];
 			break;
 		}
-	var sel = this._getSelection();
-	var range = this._createRange(sel);
-	if (!range.collapsed)
-		range.deleteContents();
+	if (!r.collapsed)
+		r.deleteContents();
 	sel.removeAllRanges();
-	var SC = range.startContainer;
-	var SO = range.startOffset;
-	var EC = range.endContainer;
-	var EO = range.endOffset;
-	//alert(SC.tagName + ":" + SO + " => " + EC.tagName + ":" + EO);
-// Begin change by Stanislas Rolland 2004-11-20
-// Treat the cell as a body
-	if (SC == EC && !SO && !EO && (SC == body || /td/i.test(block.tagName)) ) {
-		p = this._doc.createTextNode(" ");
-		if(!block) {
-			body.insertBefore(p, body.firstChild);
+	SC = r.startContainer;
+	if (!block) {
+		left = SC;
+		for (i = SC; i && i != body && !HTMLArea.isBlockElement(i); i = HTMLArea.getPrevNode(i))
+			left = i;
+		right = SC;
+		for (i = SC; i && i != body && !HTMLArea.isBlockElement(i); i = HTMLArea.getNextNode(i))
+			right = i;
+		if (left != body && right != body) {
+			r2 = r.cloneRange();
+			r2.setStartBefore(left);
+			r2.surroundContents(block = doc.createElement("p"));
+			if (!/\S/.test(HTMLArea.getInnerText(block)))
+				block.innerHTML = "<br />";
+			block.normalize();
+			r.setEndAfter(right);
+			r.surroundContents(block = doc.createElement("p"));
+			if (!/\S/.test(HTMLArea.getInnerText(block)))
+				block.innerHTML = "<br />";
+			block.normalize();
 		} else {
-			block.insertBefore(p, block.firstChild);
+			r = doc.createRange();
+			r.setStart(body, 0);
+			r.setEnd(body, 0);
+			r.insertNode(block = doc.createElement("p"));
+			block.innerHTML = "<br />";
 		}
-// End change by Stanislas Rolland 2004-11-20
-		range.selectNodeContents(p);
-		SC = range.startContainer;
-		SO = range.startOffset;
-		EC = range.endContainer;
-		EO = range.endOffset;
-	}
-// Begin change by Stanislas Rolland 2004-11-20
-// Treat the cell as a body
-	if (!block || /td/i.test(block.tagName)) {
-// End change by Stanislas Rolland 2004-11-20
-		var r2 = range.cloneRange();
-		r2.setStartBefore(SC);
-		r2.setEndAfter(EC);
-		r2.surroundContents(block = this._doc.createElement("p"));
-		range.setEndAfter(block);
-		range.setStart(block.firstChild, SO);
+		r.selectNodeContents(block);
 	} else {
-		range.setEndAfter(block);
+		r.setEndAfter(block);
+		var df = r.extractContents(), left_empty = false;
+  		if (!/\S/.test(block.innerHTML)) {
+			block.innerHTML = "<br />";
+  			left_empty = true;
+		}
+		p = df.firstChild;
+		if (p) {
+			if (!/\S/.test(HTMLArea.getInnerText(p))) {
+				if (/^h[1-6]$/i.test(p.tagName))
+					p = this.convertNode(p, "p");
+				p.innerHTML = "<br />";
+			}
+			if (/^li$/i.test(p.tagName) && left_empty && !block.nextSibling) {
+				left = block.parentNode;
+				left.removeChild(block);
+				r.setEndAfter(left);
+				r.collapse(false);
+				p = this.convertNode(p, /^[uo]l$/i.test(left.parentNode.tagName) ? "li" : "p");
+			}
+			r.insertNode(df);
+			r.selectNodeContents(p);
+		}
 	}
-	var df = range.extractContents();
-	if (!/\S/.test(block.innerHTML))
-		block.innerHTML = "<br />";
-	p = df.firstChild;
-	if (!/\S/.test(p.innerHTML))
-		p.innerHTML = "<br />";
-	if (/^\s*<br\s*\/?>\s*$/.test(p.innerHTML) && /^h[1-6]$/i.test(p.tagName)) {
-		df.appendChild(this.convertNode(p, "p"));
-		df.removeChild(p);
-	}
-	block.parentNode.insertBefore(df, block.nextSibling);
-	range.selectNodeContents(block.nextSibling);
-	range.collapse(true);
-	sel.addRange(range);
+	r.collapse(true);
+	sel.addRange(r);
 	this.forceRedraw();
+	this.scrollToCaret();
 };
 
 // retrieve the HTML
@@ -2507,6 +2509,20 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 	return html;
 };
 
+HTMLArea.getPrevNode = function(node) {
+	if (!node)			  return null;
+	if (node.previousSibling) return node.previousSibling;
+	if (node.parentNode)      return node.parentNode;
+	return null;
+};
+  	 
+HTMLArea.getNextNode = function(node) {
+	if (!node)            return null;
+	if (node.nextSibling) return node.nextSibling;
+	if (node.parentNode)  return node.parentNode;
+	return null;
+};
+
 HTMLArea.prototype.stripBaseURL = function(string) {
 	var baseurl = this.config.baseURL;
 
@@ -2625,8 +2641,6 @@ HTMLArea.getElementById = function(tag, id) {
 	return null;
 };
 
-
-
 /*********************************************************************************
  *
  *  TYPO3-FUNCTIONS: HERE ARE FUNCTION FOR TYPO3
@@ -2636,11 +2650,14 @@ HTMLArea.getElementById = function(tag, id) {
 /** Set the size of textarea with the RTE. It's called, if we are in fullscreen-mode.
  */
 function setRTEsizeByJS(divId, height, width) {
+	height = height - 20;
+	if(HTMLArea.is_ie) height = height - 60
+	if(HTMLArea.is_ie) width = width - 40
 	if (height > 0) {
-		document.getElementById(divId).style.height =  (height - 50) + "px";
+		document.getElementById(divId).style.height =  height + "px";
 	}
 	if (width > 0) {
-		document.getElementById(divId).style.width =  (width - 30) + "px";
+		document.getElementById(divId).style.width = width + "px";
 	}
 };
 
@@ -2929,7 +2946,7 @@ function initEditor(editornumber) {
 
 		editor.config.width = "auto";
 		editor.config.height = "auto";
-		editor.config.sizeIncludesToolbar = false;
+		editor.config.sizeIncludesToolbar = true;
 		editor.config.fullPage = false;
 
 		editor.config.useHTTPS = false;

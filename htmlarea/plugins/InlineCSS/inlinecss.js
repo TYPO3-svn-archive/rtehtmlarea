@@ -153,30 +153,36 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 	var tbobj = editor._toolbarObjects[obj.id];
 	var index = tbobj.element.selectedIndex;
 	var className = tbobj.element.value;
+	var selTrimmed;
 
 	editor.focusEditor();
-	var selTrimmed = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
+	var selectedHTML = editor.getSelectedHTML();
+	if(selectedHTML) selTrimmed = selectedHTML.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
+	var parent = editor.getParentElement();
 	if(/\w/.test(selTrimmed)) {
 		var sel = editor._getSelection();
 		var range = editor._createRange(sel);
 		if( className != 'none' ) {
 			obj.lastClass = className;
-			if(HTMLArea.is_gecko) {
-				var rangeClone = range.cloneRange();
-				var span = editor._doc.createElement("span");
-				span.className = className;
-				span.appendChild(range.extractContents());
-				range.insertNode(span);
-				sel.removeRange(range);
-				range.detach();
-				sel.addRange(rangeClone);
+			if(parent && !HTMLArea.isBlockElement(parent) && selectedHTML.replace(/^\s*|\s*$/g,"") == parent.innerHTML.replace(/^\s*|\s*$/g,"") ) {
+				parent.className = className;
 			} else {
-				var tagopen = '<span class="' + className + '">';
-				var tagclose = "</span>";
-				editor.surroundHTML(tagopen,tagclose);
+				if(HTMLArea.is_gecko) {
+					var rangeClone = range.cloneRange();
+					var span = editor._doc.createElement("span");
+					span.className = className;
+					span.appendChild(range.extractContents());
+					range.insertNode(span);
+					sel.removeRange(range);
+					range.detach();
+					sel.addRange(rangeClone);
+				} else {
+					var tagopen = '<span class="' + className + '">';
+					var tagclose = "</span>";
+					editor.surroundHTML(tagopen,tagclose);
+				}
 			}
 		} else {
-    			var parent = editor.getParentElement();
 			if (parent && !HTMLArea.isBlockElement(parent)) {
 				if(HTMLArea.is_gecko) {
 					parent.removeAttribute('class');

@@ -67,6 +67,7 @@ ContextMenu.prototype.getContextMenu = function(target) {
 
 	var currentTarget = target;
 	var elmenus = [];
+	var tmp;
 
 	var link = null;
 	var table = null;
@@ -78,7 +79,7 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		tbo.buttonPress(editor, opcode);
 	};
 
-	function insertPara(after) {
+	function insertPara(currentTarget,after) {
 		var el = currentTarget;
 		var par = el.parentNode;
 		var p = editor._doc.createElement("p");
@@ -147,10 +148,15 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			td = target;
 			if (!tbo) break;
 			elmenus.push(null,
-				     [ i18n["Cell Properties"],
+					[ i18n["Cell Properties"],
 				       function() { tableOperation("TO-cell-prop"); },
 				       i18n["Show the Table Cell Properties dialog"],
-				       config.btnList["TO-cell-prop"][1] ]
+				       config.btnList["TO-cell-prop"][1] ],
+
+					[ i18n["Delete Cell"],
+  						function() { tableOperation("TO-cell-delete"); },
+				       	i18n["Delete the current cell"],
+  						config.btnList["TO-cell-delete"][1] ]
 				);
 			break;
 		    case "tr":
@@ -245,11 +251,12 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		menu.push(elmenus[i]);
 
 	if (!/html|body/i.test(currentTarget.tagName)) {
+		table ? (tmp = table, table = null) : (tmp = currentTarget);
 		menu.push(null,
-		  [ i18n["Remove the"] + " &lt;" + currentTarget.tagName + "&gt; " + i18n["Element"],
+		  [ i18n["Remove the"] + " &lt;" + tmp.tagName + "&gt; " + i18n["Element"],
 		    function() {
-			    if (confirm(i18n["Please confirm that you want to remove this element:"] + " " + currentTarget.tagName)) {
-				    var el = currentTarget;
+			    if (confirm(i18n["Please confirm that you want to remove this element:"] + " " + tmp.tagName)) {
+				    var el = tmp;
 				    var p = el.parentNode;
 				    p.removeChild(el);
 				    if (HTMLArea.is_gecko) {
@@ -267,16 +274,12 @@ ContextMenu.prototype.getContextMenu = function(target) {
 				    }
 			    }
 		    },
-		    i18n["Remove this node from the document"] ]
-		);
-	}
-	if (!/html|body|tbody|tr|td/i.test(currentTarget.tagName)) {
-		menu.push(null,
+		    i18n["Remove this node from the document"] ],
 		  [ i18n["Insert paragraph before"],
-			function() { insertPara(false); },
+			function() { insertPara(tmp,false); },
 			i18n["Insert a paragraph before the current node"] ],
 		  [ i18n["Insert paragraph after"],
-			function() { insertPara(true); },
+			function() { insertPara(tmp,true); },
 			i18n["Insert a paragraph after the current node"] ]
 		);
 	}
