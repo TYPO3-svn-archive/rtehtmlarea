@@ -162,6 +162,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				dialog.showAtElement();
 			}
 		);
+		break;
 	   case "color":
 		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
 			function(dialog,params) {
@@ -202,6 +203,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				dialog.showAtElement();
 			}
 		);
+		break;
 	   case "tag":
 		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
 			function(dialog,params) {
