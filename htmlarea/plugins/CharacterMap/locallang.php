@@ -15,7 +15,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'CharacterMapTooltip' => 'Fügen Sie Sondereichen ein',
+		'CharacterMapTooltip' => 'Fügen Sie Sondereichen ein',
 		'Insert special character' => 'Fügen Sie Sonderzeichen ein',
 		'HTML value:' => 'HTML-Wert:',
 		'Cancel' => 'Abbrechen',

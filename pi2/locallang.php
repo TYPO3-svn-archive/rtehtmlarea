@@ -12,7 +12,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'tx_rtepbhtmlarea_pi2.list_type' => 'Frontend-Editor HTMLArea RTE',
+		'tx_rtepbhtmlarea_pi2.list_type' => 'Frontend-Editor HTMLArea RTE',
 	),
 	'no' => Array (
 	),

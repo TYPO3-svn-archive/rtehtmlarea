@@ -78,7 +78,7 @@
 		};
 		function buildSpacingFieldset(i18n,content) {
 			var fieldset = document.createElement("fieldset");
-			insertLegend(i18n, fieldset, "Spacing");
+			insertLegend(i18n, fieldset, "Spacing and padding");
 			insertSpace(fieldset);
 			buildInput(i18n, fieldset, "f_spacing", ["Cell spacing:"], ["Space between adjacent cells"], "5", "1", "fr", "");
 			insertSpace(fieldset);
@@ -106,21 +106,7 @@
 			select.id = "f_float";
 			select.name =  "f_float";
 			select.title= i18n["Where the table should float"];
-			buildSelect(i18n, select, ["Non-floating", "Left", "Right"], ["none", "left", "right"], new RegExp("none", "i"));
-			fieldset.appendChild(select);
-		};
-		function buildTextAlignField(i18n, fieldset) {
-				// Text Alignment Label
-			var label = document.createElement("div");
-			label.className = "fl";
-			label.innerHTML = i18n["Alignment:"];
-			fieldset.appendChild(label);
-				// Text Alignment Select Box
-			var select = document.createElement("select");
-			select.id = "f_align";
-			select.name =  "f_align";
-			select.title= i18n["Text alignment"];
-			buildSelect(i18n, select, ["Left", "Center", "Right", "Justify"], ["left", "center", "right", "justify"], new RegExp("left", "i"));
+			buildSelect(i18n, select, ["Not set", "Non-floating", "Left", "Right"], ["not set", "none", "left", "right"], new RegExp("not set", "i"));
 			fieldset.appendChild(select);
 		};
 		function insertLegend(i18n, fieldset,legend) {
@@ -151,8 +137,9 @@
 			fieldset.appendChild(input);
 		};
 		function buildSelect(i18n, select,options,values,selected) {
+			var option;
 			for (var i = 0; i < options.length; ++i) {
-				var option = document.createElement("option");
+				option = document.createElement("option");
 				option.value = values[i];
 				option.innerHTML = i18n[options[i]];
 				option.selected = selected.test(option.value);
@@ -164,7 +151,6 @@
 			div.className = "buttons";
 			for (var i = 0; i < buttons.length; ++i) {
 				var button = document.createElement("button");
-				//button.type = "button";
 				button.innerHTML = i18n[labels[i]];
 				switch (buttons[i]) {
 					case "ok":

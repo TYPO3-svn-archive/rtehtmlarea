@@ -49,7 +49,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	'bold' => 'Fett',
+		'bold' => 'Fett',
 		'italic' => 'Kursiv',
 		'underline' => 'Unterstrichen',
 		'strikethrough' => 'Durchgestrichen',

@@ -12,7 +12,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'tx_srspellcheck_pi1.list_type' => 'Rechtschreibprüfung für HTMLArea RTE',
+		'tx_srspellcheck_pi1.list_type' => 'Rechtschreibprüfung für HTMLArea RTE',
 	),
 	'no' => Array (
 	),

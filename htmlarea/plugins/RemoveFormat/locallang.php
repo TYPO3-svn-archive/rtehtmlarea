@@ -23,7 +23,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'RemoveFormatTooltip' => 'Formatierung entfernen',
+		'RemoveFormatTooltip' => 'Formatierung entfernen',
 		'Cleaning Area' => 'Bereich',
 		'Selection' => 'Auswahl',
 		'All' => 'Alle',

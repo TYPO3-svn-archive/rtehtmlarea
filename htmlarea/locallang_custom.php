@@ -13,6 +13,8 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+		'style' => 'Absatz:',
+		'text_style' => 'Text:',
 	),
 	'no' => Array (
 	),
@@ -35,6 +37,8 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'style' => 'Kappale:',
+		'text_style' => 'Teksti:',
 	),
 	'tr' => Array (
 	),

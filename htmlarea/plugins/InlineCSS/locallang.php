@@ -15,8 +15,10 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'Default' => 'Standard',
+		'Default' => 'Standard',
 		'Undefined' => 'Undefiniert',
+		'InlineCSSStyleTooltip' => 'Dem markiertem Text eine Formatierung zuweisen',
+		'You have to select some text' => 'Sie müssen einen Text markieren',
 	),
 	'no' => Array (
 	),
@@ -45,6 +47,8 @@ $LOCAL_LANG = Array (
 	'fi' => Array (
 		'Default' => 'Oletus',
 		'Undefined' => 'Määrittelemätön',
+		'InlineCSSStyleTooltip' => 'Liitä tyyli valittuun tekstiin',
+		'You have to select some text' => 'Sinun on valittava tekstiä',
 	),
 	'tr' => Array (
 	),

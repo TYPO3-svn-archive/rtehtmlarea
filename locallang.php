@@ -57,6 +57,15 @@ $LOCAL_LANG = Array (
 		'Preformatted' => 'Preformateado',
 	),
 	'nl' => Array (
+		'Please wait' => 'De editor wordt geladen. Even geduld AUB...',
+		'Normal' => 'Normaal',
+		'Heading 1' => 'Kop 1',
+		'Heading 2' => 'Kop 2',
+		'Heading 3' => 'Kop 3',
+		'Heading 4' => 'Kop 4',
+		'Heading 5' => 'Kop 5',
+		'Heading 6' => 'Kop 6',
+		'Preformatted' => 'Vaste breedte',
 	),
 	'cz' => Array (
 	),

@@ -1,5 +1,6 @@
 // Table Operations Plugin for HTMLArea-3.0
 // Implementation by Mihai Bazon.  Sponsored by http://www.bloki.com
+// Substantially rewritten by Stanislas Rolland <stanislas.rolland@fructifor.com>
 //
 // htmlArea v3.0 - Copyright (c) 2002 interactivetools.com, inc.
 // This notice MUST stay intact for use (see license.txt).
@@ -7,17 +8,9 @@
 // A free WYSIWYG editor replacement for <textarea> fields.
 // For full source code and docs, visit http://www.interactivetools.com/
 //
-// Version 3.0 developed by Mihai Bazon for InteractiveTools.
-//   http://dynarch.com/mishoo
-//
-// $Id$
-//
-// Chnage log by Stanislas Rolland
-// Change for reference to the TYPO3 ColorSelect plugin when enabled
-// Change for hardcoded label "Frame and borders"
 
-// Object that will encapsulate all the table operations provided by
-// HTMLArea-3.0 (except "insert table" which is included in the main file)
+TableOperations.I18N = TableOperations_langArray;
+
 function TableOperations(editor) {
 	this.editor = editor;
 
@@ -49,7 +42,7 @@ function TableOperations(editor) {
 
 TableOperations._pluginInfo = {
 	name          : "TableOperations",
-	version       : "1.6",
+	version       : "2.0",
 	developer     : "Mihai Bazon",
 	developer_url : "http://dynarch.com/mishoo/",
 	c_owner       : "Mihai Bazon",
@@ -126,154 +119,39 @@ TableOperations.prototype.dialogTableProperties = function() {
 			    case "f_padding":
 				table.cellPadding = val;
 				break;
-			    case "f_borders":
-				table.border = val;
-				break;
 			    case "f_frames":
-				table.frame = val;
+				table.frame = (val != "not set") ? val : "";
 				break;
 			    case "f_rules":
-				table.rules = val;
+				table.rules = (val != "not set") ? val : "";
 				break;
 			}
 		}
-		// various workarounds to refresh the table display (Gecko,
-		// what's going on?! do not disappoint me!)
 		dialog.editor.forceRedraw();
 		dialog.editor.focusEditor();
 		dialog.editor.updateToolbar();
-		var save_collapse = table.style.borderCollapse;
-		table.style.borderCollapse = "collapse";
-		table.style.borderCollapse = "separate";
-		table.style.borderCollapse = save_collapse;
+			// Apparently required to force Mozilla to redraw borders
+		if(HTMLArea.is_gecko) {
+			var save_collapse = table.style.borderCollapse;
+			table.style.borderCollapse = "collapse";
+			table.style.borderCollapse = "separate";
+			table.style.borderCollapse = save_collapse;
+		}
 	},
 
-	// this function gets called when the dialog needs to be initialized
+		// this function gets called when the dialog needs to be initialized
 	function (dialog) {
-
-		var f_caption = "";
-		var capel = table.getElementsByTagName("caption")[0];
-		if (capel) {
-			f_caption = capel.innerHTML;
-		}
-		var f_summary = table.summary;
-		var f_width = parseInt(table.style.width);
-		isNaN(f_width) && (f_width = "");
-		var f_unit = /%/.test(table.style.width) ? 'percent' : 'pixels';
-		var f_align = table.align;
-		var f_spacing = table.cellSpacing;
-		var f_padding = table.cellPadding;
-		var f_borders = table.border;
-		var f_frames = table.frame;
-		var f_rules = table.rules;
-
-		function selected(val) {
-			return val ? " selected" : "";
-		};
-
-		// dialog contents
-		dialog.content.innerHTML = " \
-<div class='title'\
- style='background: url(" + dialog.baseURL + dialog.editor.imgURL("table-prop.gif", "TableOperations") + ") #ddf 98% 50% no-repeat'>" + i18n["Table Properties"] + "\
-</div> \
-<table style='width:100%'> \
-  <tr> \
-    <td> \
-      <fieldset><legend>" + i18n["Description"] + "</legend> \
-       <table style='width:100%'> \
-        <tr> \
-          <td class='label'>" + i18n["Caption"] + ":</td> \
-          <td class='value'><input type='text' name='f_caption' value='" + f_caption + "'/></td> \
-        </tr><tr> \
-          <td class='label'>" + i18n["Summary"] + ":</td> \
-          <td class='value'><input type='text' name='f_summary' value='" + f_summary + "'/></td> \
-        </tr> \
-       </table> \
-      </fieldset> \
-    </td> \
-  </tr> \
-  <tr><td id='--HA-layout'></td></tr> \
-  <tr> \
-    <td> \
-      <fieldset><legend>" + i18n["Spacing and padding"] + "</legend> \
-       <table style='width:100%'> \
-"+//        <tr> \
-//           <td class='label'>" + i18n["Width"] + ":</td> \
-//           <td><input type='text' name='f_width' value='" + f_width + "' size='5' /> \
-//             <select name='f_unit'> \
-//               <option value='%'" + selected(f_unit == "percent") + ">" + i18n["percent"] + "</option> \
-//               <option value='px'" + selected(f_unit == "pixels") + ">" + i18n["pixels"] + "</option> \
-//             </select> &nbsp;&nbsp;" + i18n["Align"] + ": \
-//             <select name='f_align'> \
-//               <option value='left'" + selected(f_align == "left") + ">" + i18n["Left"] + "</option> \
-//               <option value='center'" + selected(f_align == "center") + ">" + i18n["Center"] + "</option> \
-//               <option value='right'" + selected(f_align == "right") + ">" + i18n["Right"] + "</option> \
-//             </select> \
-//           </td> \
-//         </tr> \
-"        <tr> \
-          <td class='label'>" + i18n["Spacing"] + ":</td> \
-          <td><input type='text' name='f_spacing' size='5' value='" + f_spacing + "' /> &nbsp;" + i18n["Padding"] + ":\
-            <input type='text' name='f_padding' size='5' value='" + f_padding + "' /> &nbsp;&nbsp;" + i18n["pixels"] + "\
-          </td> \
-        </tr> \
-       </table> \
-      </fieldset> \
-    </td> \
-  </tr> \
-  <tr> \
-    <td> \
-      <fieldset><legend>" + i18n["Frame and borders"] + "</legend> \
-        <table width='100%'> \
-          <tr> \
-            <td class='label'>" + i18n["Borders"] + ":</td> \
-            <td><input name='f_borders' type='text' size='5' value='" + f_borders + "' /> &nbsp;&nbsp;" + i18n["pixels"] + "</td> \
-          </tr> \
-          <tr> \
-            <td class='label'>" + i18n["Frames"] + ":</td> \
-            <td> \
-              <select name='f_frames'> \
-                <option value='void'" + selected(f_frames == "void") + ">" + i18n["No sides"] + "</option> \
-                <option value='above'" + selected(f_frames == "above") + ">" + i18n["The top side only"] + "</option> \
-                <option value='below'" + selected(f_frames == "below") + ">" + i18n["The bottom side only"] + "</option> \
-                <option value='hsides'" + selected(f_frames == "hsides") + ">" + i18n["The top and bottom sides only"] + "</option> \
-                <option value='vsides'" + selected(f_frames == "vsides") + ">" + i18n["The right and left sides only"] + "</option> \
-                <option value='lhs'" + selected(f_frames == "lhs") + ">" + i18n["The left-hand side only"] + "</option> \
-                <option value='rhs'" + selected(f_frames == "rhs") + ">" + i18n["The right-hand side only"] + "</option> \
-                <option value='box'" + selected(f_frames == "box") + ">" + i18n["All four sides"] + "</option> \
-              </select> \
-            </td> \
-          </tr> \
-          <tr> \
-            <td class='label'>" + i18n["Rules"] + ":</td> \
-            <td> \
-              <select name='f_rules'> \
-                <option value='none'" + selected(f_rules == "none") + ">" + i18n["No rules"] + "</option> \
-                <option value='rows'" + selected(f_rules == "rows") + ">" + i18n["Rules will appear between rows only"] + "</option> \
-                <option value='cols'" + selected(f_rules == "cols") + ">" + i18n["Rules will appear between columns only"] + "</option> \
-                <option value='all'" + selected(f_rules == "all") + ">" + i18n["Rules will appear between all rows and columns"] + "</option> \
-              </select> \
-            </td> \
-          </tr> \
-        </table> \
-      </fieldset> \
-    </td> \
-  </tr> \
-  <tr> \
-    <td id='--HA-style'></td> \
-  </tr> \
-</table> \
-";
-		var st_prop = TableOperations.createStyleFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table);
-		var p = dialog.doc.getElementById("--HA-style");
-		p.appendChild(st_prop);
-		var st_layout = TableOperations.createStyleLayoutFieldset(dialog.doc, dialog.editor, table);
-		p = dialog.doc.getElementById("--HA-layout");
-		p.appendChild(st_layout);
+		TableOperations.buildTitle(dialog.doc, i18n, dialog.content, "Table Properties");
+		TableOperations.buildDescriptionFieldset(dialog.doc, table, i18n, dialog.content);
+		TableOperations.buildLayoutFieldset(dialog.doc, table, i18n, dialog.content);
+		TableOperations.buildAlignmentFieldset(dialog.doc, table, i18n, dialog.content, "floating");
+		TableOperations.buildSpacingFieldset(dialog.doc, table, i18n, dialog.content);
+		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, i18n, dialog.content);
+		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, i18n, dialog.content);
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
-		dialog.showAtElement(dialog.editor._iframe, "c");
-	}, 500, 605);
+		dialog.showAtElement();
+	}, 500, 530);
 };
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
@@ -300,78 +178,30 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 				break;
 			}
 		}
-		// various workarounds to refresh the table display (Gecko,
-		// what's going on?! do not disappoint me!)
 		dialog.editor.forceRedraw();
 		dialog.editor.focusEditor();
 		dialog.editor.updateToolbar();
-		var save_collapse = table.style.borderCollapse;
-		table.style.borderCollapse = "collapse";
-		table.style.borderCollapse = "separate";
-		table.style.borderCollapse = save_collapse;
+			// Apparently required to force Mozilla to redraw borders
+		if(HTMLArea.is_gecko) {
+			var save_collapse = table.style.borderCollapse;
+			table.style.borderCollapse = "collapse";
+			table.style.borderCollapse = "separate";
+			table.style.borderCollapse = save_collapse;
+		}
 	},
 
-	// this function gets called when the dialog needs to be initialized
+		// this function gets called when the dialog needs to be initialized
 	function (dialog) {
-		var f_align = element.align;
-		var f_valign = element.vAlign;
-		var f_char = element.ch;
-
-		function selected(val) {
-			return val ? " selected" : "";
-		};
-
-		// dialog contents
-		dialog.content.innerHTML = " \
-<div class='title'\
- style='background: url(" + dialog.baseURL + dialog.editor.imgURL(cell ? "cell-prop.gif" : "row-prop.gif", "TableOperations") + ") #ddf 98% 50% no-repeat'>" + i18n[cell ? "Cell Properties" : "Row Properties"] + "</div> \
-<table style='width:100%'> \
-  <tr> \
-    <td id='--HA-layout'> \
-"+//      <fieldset><legend>" + i18n["Layout"] + "</legend> \
-//        <table style='width:100%'> \
-//         <tr> \
-//           <td class='label'>" + i18n["Align"] + ":</td> \
-//           <td> \
-//             <select name='f_align'> \
-//               <option value='left'" + selected(f_align == "left") + ">" + i18n["Left"] + "</option> \
-//               <option value='center'" + selected(f_align == "center") + ">" + i18n["Center"] + "</option> \
-//               <option value='right'" + selected(f_align == "right") + ">" + i18n["Right"] + "</option> \
-//               <option value='char'" + selected(f_align == "char") + ">" + i18n["Char"] + "</option> \
-//             </select> \
-//             &nbsp;&nbsp;" + i18n["Char"] + ": \
-//             <input type='text' style='font-family: monospace; text-align: center' name='f_char' size='1' value='" + f_char + "' /> \
-//           </td> \
-//         </tr><tr> \
-//           <td class='label'>" + i18n["Vertical align"] + ":</td> \
-//           <td> \
-//             <select name='f_valign'> \
-//               <option value='top'" + selected(f_valign == "top") + ">" + i18n["Top"] + "</option> \
-//               <option value='middle'" + selected(f_valign == "middle") + ">" + i18n["Middle"] + "</option> \
-//               <option value='bottom'" + selected(f_valign == "bottom") + ">" + i18n["Bottom"] + "</option> \
-//               <option value='baseline'" + selected(f_valign == "baseline") + ">" + i18n["Baseline"] + "</option> \
-//             </select> \
-//           </td> \
-//         </tr> \
-//        </table> \
-//       </fieldset> \
-"    </td> \
-  </tr> \
-  <tr> \
-    <td id='--HA-style'></td> \
-  </tr> \
-</table> \
-";
-		var st_prop = TableOperations.createStyleFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element);
-		var p = dialog.doc.getElementById("--HA-style");
-		p.appendChild(st_prop);
-		var st_layout = TableOperations.createStyleLayoutFieldset(dialog.doc, dialog.editor, element);
-		p = dialog.doc.getElementById("--HA-layout");
-		p.appendChild(st_layout);
-		dialog.modal = true;
+		TableOperations.buildTitle(dialog.doc, i18n, dialog.content, (cell ? "Cell Properties" : "Row Properties"));
+		TableOperations.insertSpace(dialog.doc,dialog.content);
+		TableOperations.buildLayoutFieldset(dialog.doc, element, i18n, dialog.content, "floating");
+		TableOperations.buildAlignmentFieldset(dialog.doc, element, i18n, dialog.content);
+		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, i18n, dialog.content);
+		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, i18n, dialog.content);
 		dialog.addButtons("ok", "cancel");
-		dialog.showAtElement(dialog.editor._iframe, "c");
-	   }, 500, 294);
+		dialog.modal = true;
+		if(!HTMLArea.is_gecko) dialog.showAtElement();
+	   }, 550, 335);
 	}
 };
 
@@ -739,9 +569,10 @@ TableOperations.processStyle = function(params, element) {
 			break;
 		    case "f_st_borderWidth":
 			style.borderWidth = val;
+			if(element.tagName.toLowerCase() == "table") element.border = val;
 			break;
 		    case "f_st_borderStyle":
-			style.borderStyle = val;
+			style.borderStyle = (val != "not set") ? val : "";
 			break;
 		    case "f_st_borderColor":
 			style.borderColor = val;
@@ -764,24 +595,24 @@ TableOperations.processStyle = function(params, element) {
 			}
 			break;
 		    case "f_st_textAlign":
-			if (val == "char") {
+			if (val == "character") {
 				var ch = params["f_st_textAlignChar"];
 				if (ch == '"') {
 					ch = '\\"';
 				}
 				style.textAlign = '"' + ch + '"';
 			} else {
-				style.textAlign = val;
+				style.textAlign = (val != "not set") ? val : "";
 			}
 			break;
 		    case "f_st_verticalAlign":
-			style.verticalAlign = val;
+			style.verticalAlign = (val != "not set") ? val : "";
 			break;
 		    case "f_st_float":
 				if (HTMLArea.is_ie) { 
-					style.styleFloat = val; 
+					style.styleFloat = (val != "not set") ? val : "";
 				} else { 
-					style.cssFloat = val;
+					style.cssFloat = (val != "not set") ? val : "";
 				}
 				break;
 // 		    case "f_st_margin":
@@ -811,13 +642,13 @@ TableOperations.createColorButton = function(w, doc, editor, color, name) {
 	field.type = "hidden";
 	df.appendChild(field);
  	field.name = "f_st_" + name;
+ 	field.id = "f_st_" + name;
 	field.value = color;
 	var button = doc.createElement("span");
 	button.className = "buttonColor";
 	df.appendChild(button);
 	var span = doc.createElement("span");
 	span.className = "chooser";
-	// span.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 	span.style.backgroundColor = color;
 	button.appendChild(span);
 	button.onmouseover = function() { if (!this.disabled) { this.className += " buttonColor-hilite"; }};
@@ -854,326 +685,271 @@ TableOperations.createColorButton = function(w, doc, editor, color, name) {
 	};
 	return df;
 };
-
-TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
-	var i18n = TableOperations.I18N;
-	var fieldset = doc.createElement("fieldset");
-	var legend = doc.createElement("legend");
-	fieldset.appendChild(legend);
-	legend.innerHTML = i18n["Layout"];
-	var table = doc.createElement("table");
-	fieldset.appendChild(table);
-	table.style.width = "100%";
-	var tbody = doc.createElement("tbody");
-	table.appendChild(tbody);
-
-	var tagname = el.tagName.toLowerCase();
-	var tr, td, input, select, option, options, i;
-
-	if (tagname != "td" && tagname != "tr" && tagname != "th") {
-		tr = doc.createElement("tr");
-		tbody.appendChild(tr);
-		td = doc.createElement("td");
-		td.className = "label";
-		tr.appendChild(td);
-		td.innerHTML = i18n["Float"] + ":";
-		td = doc.createElement("td");
-		tr.appendChild(td);
-		select = doc.createElement("select");
-		select.name = "f_st_float";
-		options = ["None", "Left", "Right"];
-		for (var i = 0; i < options.length; ++i) {
-			var Val = options[i];
-			var val = options[i].toLowerCase();
-			option = doc.createElement("option");
-			option.innerHTML = i18n[Val];
-			option.value = val;
-			option.selected = HTMLArea.is_ie ? (("" + el.style.styleFloat).toLowerCase() == val) : (("" + el.style.cssFloat).toLowerCase() == val);
-			select.appendChild(option);
-		}
-		td.appendChild(select);
-	}
-
-	tr = doc.createElement("tr");
-	tbody.appendChild(tr);
-	td = doc.createElement("td");
-	td.className = "label";
-	tr.appendChild(td);
-	td.innerHTML = i18n["Width"] + ":";
-	td = doc.createElement("td");
-	tr.appendChild(td);
-	input = doc.createElement("input");
-	input.type = "text";
-	input.value = TableOperations.getLength(el.style.width);
-	input.size = "5";
-	input.name = "f_st_width";
-	input.style.marginRight = "0.5em";
-	td.appendChild(input);
-	select = doc.createElement("select");
-	select.name = "f_st_widthUnit";
-	option = doc.createElement("option");
-	option.innerHTML = i18n["percent"];
-	option.value = "%";
-	option.selected = /%/.test(el.style.width);
-	select.appendChild(option);
-	option = doc.createElement("option");
-	option.innerHTML = i18n["pixels"];
-	option.value = "px";
-	option.selected = /px/.test(el.style.width);
-	select.appendChild(option);
-	td.appendChild(select);
-
-	select.style.marginRight = "0.5em";
-	td.appendChild(doc.createTextNode(i18n["Text align"] + ":"));
-	select = doc.createElement("select");
-	select.style.marginLeft = select.style.marginRight = "0.5em";
-	td.appendChild(select);
-	select.name = "f_st_textAlign";
-	options = ["Left", "Center", "Right", "Justify"];
-/*	if (tagname == "td") {
-		options.push("Char");
-	}
-	input = doc.createElement("input");
-	input.name = "f_st_textAlignChar";
-	input.size = "1";
-	input.style.fontFamily = "monospace";
-	td.appendChild(input); 
-*/
-	for (var i = 0; i < options.length; ++i) {
-		var Val = options[i];
-		var val = Val.toLowerCase();
-		option = doc.createElement("option");
-		option.value = val;
-		option.innerHTML = i18n[Val];
-		option.selected = (el.style.textAlign.toLowerCase() == val);
-		select.appendChild(option);
-	}
-/*	function setCharVisibility(value) {
-		input.style.visibility = value ? "visible" : "hidden";
-		if (value) {
-			input.focus();
-			input.select();
-		}
-	};
-	select.onchange = function() { setCharVisibility(this.value == "char"); };
-	setCharVisibility(select.value == "char");
-*/
-
-	tr = doc.createElement("tr");
-	tbody.appendChild(tr);
-	td = doc.createElement("td");
-	td.className = "label";
-	tr.appendChild(td);
-	td.innerHTML = i18n["Height"] + ":";
-	td = doc.createElement("td");
-	tr.appendChild(td);
-	input = doc.createElement("input");
-	input.type = "text";
-	input.value = TableOperations.getLength(el.style.height);
-	input.size = "5";
-	input.name = "f_st_height";
-	input.style.marginRight = "0.5em";
-	td.appendChild(input);
-	select = doc.createElement("select");
-	select.name = "f_st_heightUnit";
-	option = doc.createElement("option");
-	option.innerHTML = i18n["percent"];
-	option.value = "%";
-	option.selected = /%/.test(el.style.height);
-	select.appendChild(option);
-	option = doc.createElement("option");
-	option.innerHTML = i18n["pixels"];
-	option.value = "px";
-	option.selected = /px/.test(el.style.height);
-	select.appendChild(option);
-	td.appendChild(select);
-
-	select.style.marginRight = "0.5em";
-	td.appendChild(doc.createTextNode(i18n["Vertical align"] + ":"));
-	select = doc.createElement("select");
-	select.name = "f_st_verticalAlign";
-	select.style.marginLeft = "0.5em";
-	options = ["Top", "Middle", "Bottom", "Baseline"];
-	for (var i = 0; i < options.length; ++i) {
-		var Val = options[i];
-		var val = Val.toLowerCase();
-		option = doc.createElement("option");
-		option.value = val;
-		option.innerHTML = i18n[Val];
-		option.selected = (el.style.verticalAlign.toLowerCase() == val);
-		select.appendChild(option);
-	}
-	td.appendChild(select);
-
-	return fieldset;
+TableOperations.buildTitle = function(doc,i18n,content,title) {
+	var div = doc.createElement("div");
+	div.className = "title";
+	div.innerHTML = i18n[title];
+	content.appendChild(div);
+	doc.title = i18n[title];
 };
-
-// Returns an HTML element containing the style attributes for the given
-// element.  This can be easily embedded into any dialog; the functionality is
-// also provided.
-TableOperations.createStyleFieldset = function(w, doc, editor, el) {
-	var i18n = TableOperations.I18N;
+TableOperations.buildDescriptionFieldset = function(doc,el,i18n,content) {
 	var fieldset = doc.createElement("fieldset");
-	var legend = doc.createElement("legend");
-	fieldset.appendChild(legend);
-	legend.innerHTML = i18n["CSS Style"];
-	var table = doc.createElement("table");
-	fieldset.appendChild(table);
-	table.style.width = "100%";
-	var tbody = doc.createElement("tbody");
-	table.appendChild(tbody);
-
-	var tr, td, input, select, option, options, i;
-
-	tr = doc.createElement("tr");
-	tbody.appendChild(tr);
-	td = doc.createElement("td");
-	tr.appendChild(td);
-	td.className = "label";
-	td.innerHTML = i18n["Background"] + ":";
-	td = doc.createElement("td");
-	tr.appendChild(td);
-	var df = TableOperations.createColorButton(w, doc, editor, el.style.backgroundColor, "backgroundColor");
-	df.firstChild.nextSibling.style.marginRight = "0.5em";
-	td.appendChild(df);
-	td.appendChild(doc.createTextNode(i18n["Image URL"] + ": "));
-	input = doc.createElement("input");
-	input.type = "text";
-	input.name = "f_st_backgroundImage";
-	if (el.style.backgroundImage.match(/url\(\s*(.*?)\s*\)/)) {
-		input.value = RegExp.$1;
+	TableOperations.insertLegend(doc, i18n, fieldset, "Description");
+	TableOperations.insertSpace(doc, fieldset);
+	var f_caption = "";
+	var capel = el.getElementsByTagName("caption")[0];
+	if (capel) {
+		f_caption = capel.innerHTML;
 	}
-	// input.style.width = "100%";
-	td.appendChild(input);
-
-	tr = doc.createElement("tr");
-	tbody.appendChild(tr);
-	td = doc.createElement("td");
-	tr.appendChild(td);
-	td.className = "label";
-	td.innerHTML = i18n["FG Color"] + ":";
-	td = doc.createElement("td");
-	tr.appendChild(td);
-	td.appendChild(TableOperations.createColorButton(w, doc, editor, el.style.color, "color"));
-
-	// for better alignment we include an invisible field.
-	input = doc.createElement("input");
-	input.style.visibility = "hidden";
-	input.type = "text";
-	td.appendChild(input);
-
-	tr = doc.createElement("tr");
-	tbody.appendChild(tr);
-	td = doc.createElement("td");
-	tr.appendChild(td);
-	td.className = "label";
-	td.innerHTML = i18n["Border"] + ":";
-	td = doc.createElement("td");
-	tr.appendChild(td);
-
-	var colorButton = TableOperations.createColorButton(w, doc, editor, el.style.borderColor, "borderColor");
-	var btn = colorButton.firstChild.nextSibling;
-	td.appendChild(colorButton);
-	// borderFields.push(btn);
-	btn.style.marginRight = "0.5em";
-
-	select = doc.createElement("select");
+	TableOperations.buildInput(doc, el, i18n, fieldset, "f_caption", "Caption:", "Description of the nature of the table", "", "", f_caption, "fr", "value", "");
+	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.buildInput(doc, el, i18n, fieldset, "f_summary", "Summary:", "Summary of the table purpose and structure", "", "", el.summary, "fr", "value", "");
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
+};
+TableOperations.buildLayoutFieldset = function(doc,el,i18n,content,fieldsetClass) {
+	var select;
+	var selected;
+	var fieldset = doc.createElement("fieldset");
+	if(fieldsetClass) fieldset.className = fieldsetClass;
+	TableOperations.insertLegend(doc, i18n, fieldset, "Layout");
+	TableOperations.insertSpace(doc, fieldset);
+	var f_st_width = TableOperations.getLength(el.style.width);
+	var f_st_height = TableOperations.getLength(el.style.height);
+	var selectedWidthUnit = /%/.test(el.style.width) ? '%' : (/px/.test(el.style.width) ? 'px' : 'em');
+	var selectedHeightUnit = /%/.test(el.style.height) ? '%' : (/px/.test(el.style.height) ? 'px' : 'em');
+	var tag = el.tagName.toLowerCase();
+	switch(tag) {
+		case "table" :
+			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_width", "Width:", "Table width", "", "5", f_st_width, "fr", "floating", "");
+			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_widthUnit", "", "", "floating", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
+			TableOperations.insertSpace(doc, fieldset);
+			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_height", "Height:", "Table height", "", "5", f_st_height, "fr", "floating", "");
+			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_heightUnit", "", "", "floating", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));
+			selected = (HTMLArea._is_ie) ? el.style.styleFloat : el.style.cssFloat;
+			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_float", "Float:", "fr", "floating", "Specifies where the table should float",["Not set", "Non-floating", "Left", "Right"], ["not set", "none", "left", "right"], new RegExp((selected ? selected : "not set"), "i"));
+			break;
+		case "tr" :
+			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_width", "Width:", "Row width", "", "5", f_st_width, "fr", "floating", "");
+			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_widthUnit", "", "", "floating", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
+			TableOperations.insertSpace(doc, fieldset);
+			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_height", "Height:", "Row height", "", "5", f_st_height, "fr", "floating", "");
+			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_heightUnit", "", "", "floating", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));
+			break;
+		case "td" :
+			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_width", "Width:", "Cell width", "", "5", f_st_width, "fr", "floating", "");
+			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_widthUnit", "", "", "floating", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
+			TableOperations.insertSpace(doc, fieldset);
+			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_height", "Height:", "Cell height", "", "5", f_st_height, "fr", "floating", "");
+			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_heightUnit", "", "", "floating", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));		
+	}
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
+};
+TableOperations.buildAlignmentFieldset = function(doc,el,i18n,content,fieldsetClass) {
+	var select;
+	var tag = el.tagName.toLowerCase();
+	var fieldset = doc.createElement("fieldset");
+	if(fieldsetClass) fieldset.className = fieldsetClass;
+	TableOperations.insertLegend(doc, i18n, fieldset, "Alignment");
+	TableOperations.insertSpace(doc, fieldset);
+	var options = ["Left", "Center", "Right", "Justify"];
+	var values = ["left", "center", "right", "justify"];
+	var f_st_textAlign = el.style.textAlign;
+/*
+	if (tag == "td") {
+		options.push("Character");
+		values.push("character");
+		if(f_st_textAlign.charAt(0) == '"') {
+			var splitArray = f_st_textAlign.split('"');
+			var f_st_textAlignChar = splitArray[0];
+			f_st_textAlign = "character";
+		}
+	}
+*/
+	select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_textAlign", "Text alignment:","fl", "floating", "Horizontal alignment of text within cell", options, values, new RegExp((f_st_textAlign ? f_st_textAlign : "left"), "i"));
+/*
+	if (tag == "td") {
+		var characterFields = [];
+		TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_textAlignChar", "", "Align on this character", "", "1", f_st_textAlignChar, "", "floating", "", characterFields);
+		function setCharVisibility(value) {
+			for (var i = 0; i < characterFields.length; ++i) {
+				var characterFieldElement = characterFields[i];
+				characterFieldElement.style.visibility = value ? "visible" : "hidden";
+				if (value && (characterFieldElement.tagName.toLowerCase() == "input" )) {
+					characterFieldElement.focus();
+					characterFieldElement.select();
+				}
+			}
+		};
+		select.onchange = function() { setCharVisibility(this.value == "character"); };
+		setCharVisibility(select.value == "character");
+	}
+*/
+	TableOperations.insertSpace(doc, fieldset);
+	select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_vertAlign", "Vertical alignment:", "fl", "floating", "Vertical alignment of content within cell", ["Top", "Middle", "Bottom", "Baseline"], ["top", "middle", "bottom", "baseline"], new RegExp((el.style.vertAlign ? el.style.vertAlign : "middle"), "i"));
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
+};
+TableOperations.buildSpacingFieldset = function(doc,el,i18n,content) {
+	var fieldset = doc.createElement("fieldset");
+	TableOperations.insertLegend(doc, i18n, fieldset, "Spacing and padding");
+	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.buildInput(doc, el, i18n, fieldset, "f_spacing", "Cell spacing:", "Space between adjacent cells", "pixels", "5", el.cellSpacing, "fr", "floating", "postlabel");
+	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.buildInput(doc, el, i18n, fieldset, "f_padding", "Cell padding:", "Space between content and border in cell", "pixels", "5", el.cellPadding, "fr", "floating", "postlabel");
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
+};
+TableOperations.buildBordersFieldset = function(w,doc,editor,el,i18n,content,fieldsetClass) {
+	var select;
+	var selected;
 	var borderFields = [];
-	td.appendChild(select);
-	select.name = "f_st_borderStyle";
-	options = ["none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"];
-	var currentBorderStyle = el.style.borderStyle;
-	// Gecko reports "solid solid solid solid" for "border-style: solid".
-	// That is, "top right bottom left" -- we only consider the first
-	// value.
-	(currentBorderStyle.match(/([^\s]*)\s/)) && (currentBorderStyle = RegExp.$1);
-	for (var i = 0; i < options.length; ++i) {
-		var val = options[i];
-		option = doc.createElement("option");
-		option.value = val;
-		option.innerHTML = val;
-		(val == currentBorderStyle) && (option.selected = true);
-		select.appendChild(option);
-	}
-	select.style.marginRight = "0.5em";
-	function setBorderFieldsStatus(value) {
+	function setBorderFieldsVisibility(value) {
 		for (var i = 0; i < borderFields.length; ++i) {
-			var el = borderFields[i];
-			el.style.visibility = value ? "hidden" : "visible";
-			if (!value && (el.tagName.toLowerCase() == "input")) {
-				el.focus();
-				el.select();
+			var borderFieldElement = borderFields[i];
+			borderFieldElement.style.visibility = value ? "hidden" : "visible";
+			if (!value && (borderFieldElement.tagName.toLowerCase() == "input")) {
+				borderFieldElement.focus();
+				borderFieldElement.select();
 			}
 		}
 	};
-	select.onchange = function() { setBorderFieldsStatus(this.value == "none"); };
-
-	input = doc.createElement("input");
-	borderFields.push(input);
-	input.type = "text";
-	input.name = "f_st_borderWidth";
-	input.value = TableOperations.getLength(el.style.borderWidth);
-	input.size = "5";
-	td.appendChild(input);
-	input.style.marginRight = "0.5em";
-	var span = doc.createElement("span");
-	span.innerHTML = i18n["pixels"];
-	td.appendChild(span);
-	borderFields.push(span);
-
-	setBorderFieldsStatus(select.value == "none");
+	var fieldset = doc.createElement("fieldset");
+	fieldset.className = fieldsetClass;
+	TableOperations.insertLegend(doc, i18n, fieldset, "Frame and borders");
+	TableOperations.insertSpace(doc, fieldset);
+		// Gecko reports "solid solid solid solid" for "border-style: solid".
+		// That is, "top right bottom left" -- we only consider the first value.
+	selected = el.style.borderStyle;
+	(selected.match(/([^\s]*)\s/)) && (selected = RegExp.$1);
+	selectBorderStyle = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_borderStyle", "Border style:", "fr", "floating", "Border style", ["Not set", "No border", "Dotted", "Dashed", "Solid", "Double", "Groove", "Ridge", "Inset", "Outset"], ["not set", "none", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"], new RegExp((selected ? selected : "not set"), "i"));
+	selectBorderStyle.onchange = function() { setBorderFieldsVisibility(this.value == "none"); };
+	TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_borderWidth", "Border width:", "Border width", "pixels", "5", TableOperations.getLength(el.style.borderWidth), "fr", "floating", "postlabel", borderFields);
+	TableOperations.insertSpace(doc, fieldset, borderFields);
 
 	if (el.tagName.toLowerCase() == "table") {
-		// the border-collapse style is only for tables
-		tr = doc.createElement("tr");
-		tbody.appendChild(tr);
-		td = doc.createElement("td");
-		td.className = "label";
-		tr.appendChild(td);
-		input = doc.createElement("input");
+		TableOperations.buildColorField(w, doc, editor, el, i18n, fieldset, "", "Color:", "fr", "colorButton", el.style.borderColor, "borderColor", borderFields);
+		var label = doc.createElement("label");
+		label.className = "fl-borderCollapse";
+		label.htmlFor = "f_st_borderCollapse";
+		label.innerHTML = i18n["Collapsed borders"];
+		fieldset.appendChild(label);
+		borderFields.push(label);
+		var input = doc.createElement("input");
+		input.className ="checkbox";
 		input.type = "checkbox";
 		input.name = "f_st_borderCollapse";
 		input.id = "f_st_borderCollapse";
 		var val = (/collapse/i.test(el.style.borderCollapse));
 		input.checked = val ? 1 : 0;
-		td.appendChild(input);
-
-		td = doc.createElement("td");
-		tr.appendChild(td);
-		var label = doc.createElement("label");
-		label.htmlFor = "f_st_borderCollapse";
-		label.innerHTML = i18n["Collapsed borders"];
-		td.appendChild(label);
+		fieldset.appendChild(input);
+		borderFields.push(input);
+		TableOperations.insertSpace(doc, fieldset, borderFields);
+		select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_frames", "Frames:", "fr", "floating", "Specifies which sides should have a border", ["Not set", "No sides", "The top side only", "The bottom side only", "The top and bottom sides only", "The right and left sides only", "The left-hand side only", "The right-hand side only", "All four sides"], ["not set", "void", "above", "below", "hsides", "vsides", "lhs", "rhs", "box"], new RegExp((el.frame ? el.frame : "not set"), "i"), borderFields);
+		TableOperations.insertSpace(doc, fieldset, borderFields);
+		select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_rules", "Rules:", "fr", "floating", "Specifies where rules should be displayed", ["Not set", "No rules", "Rules will appear between rows only", "Rules will appear between columns only", "Rules will appear between all rows and columns"], ["not set", "none", "rows", "cols", "all"], new RegExp((el.rules ? el.rules : "not set"), "i"), borderFields);
+	} else {
+		TableOperations.insertSpace(doc, fieldset, borderFields);
+		TableOperations.buildColorField(w, doc, editor, el, i18n, fieldset, "", "Color:", "fr", "colorButton", el.style.borderColor, "borderColor", borderFields);
 	}
-
-// 	tr = doc.createElement("tr");
-// 	tbody.appendChild(tr);
-// 	td = doc.createElement("td");
-// 	td.className = "label";
-// 	tr.appendChild(td);
-// 	td.innerHTML = i18n["Margin"] + ":";
-// 	td = doc.createElement("td");
-// 	tr.appendChild(td);
-// 	input = doc.createElement("input");
-// 	input.type = "text";
-// 	input.size = "5";
-// 	input.name = "f_st_margin";
-// 	td.appendChild(input);
-// 	input.style.marginRight = "0.5em";
-// 	td.appendChild(doc.createTextNode(i18n["Padding"] + ":"));
-
-// 	input = doc.createElement("input");
-// 	input.type = "text";
-// 	input.size = "5";
-// 	input.name = "f_st_padding";
-// 	td.appendChild(input);
-// 	input.style.marginLeft = "0.5em";
-// 	input.style.marginRight = "0.5em";
-// 	td.appendChild(doc.createTextNode(i18n["pixels"]));
-
-	return fieldset;
+	setBorderFieldsVisibility(selectBorderStyle.value == "none");
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
 };
-
-TableOperations.I18N = TableOperations_langArray;
-
-//// END GENERIC CODE -------------------------------------------------------
+TableOperations.buildColorsFieldset = function(w,doc,editor,el,i18n,content) {
+	var fieldset = doc.createElement("fieldset");
+	TableOperations.insertLegend(doc, i18n, fieldset, "Background and colors");
+	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.buildColorField(w, doc, editor, el, i18n, fieldset, "", "FG Color:", "fr", "colorButton", el.style.color, "color");
+	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.buildColorField(w, doc, editor, el, i18n, fieldset, "", "Background:", "fr", "colorButton", el.style.backgroundColor, "backgroundColor")
+	var url;
+	if (el.style.backgroundImage.match(/url\(\s*(.*?)\s*\)/)) url = RegExp.$1;
+	TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_backgroundImage", "Image URL:", "URL of the background image", "", "", url, "field", "shorter-value", "");
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
+};
+TableOperations.insertLegend = function(doc,i18n, fieldset,legend) {
+	var legendNode = doc.createElement("legend");
+	legendNode.innerHTML = i18n[legend];
+	fieldset.appendChild(legendNode);
+};
+TableOperations.insertSpace =	function(doc,fieldset,fields) {
+	var space = doc.createElement("div");
+	space.className = "space";
+	fieldset.appendChild(space);
+	if(fields) fields.push(space);
+};
+TableOperations.buildInput = function(doc,el,i18n,fieldset,fieldName,fieldLabel,fieldTitle,postLabel,fieldSize,fieldValue,labelClass,inputClass,postClass,fields) {
+	var label;
+		// Field label
+	if(fieldLabel) {
+		label = doc.createElement("div");
+		if(labelClass) label.className = labelClass;
+		label.innerHTML = i18n[fieldLabel];
+		fieldset.appendChild(label);
+		if(fields) fields.push(label);
+	}
+		// Input field
+	var input = doc.createElement("input");
+	input.type = "text";
+	input.id = fieldName;
+	input.name =  fieldName;
+	if(inputClass) input.className = inputClass;
+	if(fieldTitle) input.title = i18n[fieldTitle];
+	if(fieldSize) input.size = fieldSize;
+	if(fieldValue) input.value = fieldValue;
+	fieldset.appendChild(input);
+	if(fields) fields.push(input);
+		// Field post label
+	if(postLabel) {
+		label = doc.createElement("span");
+		if(postClass) label.className = postClass;
+		label.innerHTML = i18n[postLabel];
+		fieldset.appendChild(label);
+		if(fields) fields.push(label);
+	}
+};
+TableOperations.buildSelectField = function(doc,el,i18n,fieldset,fieldName,fieldLabel,labelClass,selectClass,fieldTitle,options,values,selected,fields) {
+		// Field Label
+	if(fieldLabel) {
+		var label = doc.createElement("div");
+		if(labelClass) label.className = labelClass;
+		label.innerHTML = i18n[fieldLabel];
+		fieldset.appendChild(label);
+		if(fields) fields.push(label);
+	}
+		// Text Alignment Select Box
+	var select = doc.createElement("select");
+	if(selectClass) select.className = selectClass;
+	select.id = fieldName;
+	select.name =  fieldName;
+	select.title= i18n[fieldTitle];
+	var option;
+	for (var i = 0; i < options.length; ++i) {
+		option = doc.createElement("option");
+		option.value = values[i];
+		option.innerHTML = i18n[options[i]];
+		option.selected = selected.test(option.value);
+		select.appendChild(option);
+	}
+	fieldset.appendChild(select);
+	if(fields) fields.push(select);
+	return select;
+};
+TableOperations.buildColorField = function(w,doc,editor,el,i18n,fieldset,fieldName,fieldLabel,labelClass, buttonClass, fieldValue,fieldType,fields) {
+		// Field Label
+	if(fieldLabel) {
+		var label = doc.createElement("div");
+		if(labelClass) label.className = labelClass;
+		label.innerHTML = i18n[fieldLabel];
+		fieldset.appendChild(label);
+		if(fields) fields.push(label);
+	}
+	var colorButton = TableOperations.createColorButton(w, doc, editor, fieldValue, fieldType);
+	colorButton.className = buttonClass;
+	fieldset.appendChild(colorButton);
+	if(fields) fields.push(colorButton);
+};

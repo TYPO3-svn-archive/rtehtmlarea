@@ -13,7 +13,8 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	'cancel' => 'Abbrechen',
+		'ok' => 'OK',
+		'cancel' => 'Abbrechen',
 	),
 	'no' => Array (
 	),

@@ -17,7 +17,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'CO-forecolor' => 'Textfarbe',
+		'CO-forecolor' => 'Textfarbe',
 		'CO-hilitecolor' => 'Hintergrundfarbe',
 		'CO-forecolor_title' => 'Wählen Sie die Textfarbe',
 		'CO-hilitecolor_title' => 'Wählen Sie die Hintergrundfarbe',

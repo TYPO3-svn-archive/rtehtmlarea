@@ -1724,16 +1724,19 @@ HTMLArea.prototype._insertTable = function() {
 				case "f_width"   : table.style.width = value + param["f_unit"]; break;
 				case "f_align"   : table.style.textAlign = value; break;
 				case "f_border"  : 
-					table.style.borderWidth	 = parseInt(value);
-					table.style.borderStyle = table.style.borderWidth ? "solid" : "none";
+					table.border = parseInt(value);
+					table.style.borderWidth	 = parseInt(value)+"px";
+					table.style.borderStyle = "";
+					table.frame = "";
+					table.rules = "";
 					break;
 				case "f_spacing" : table.cellSpacing = parseInt(value); break;
 				case "f_padding" : table.cellPadding = parseInt(value); break;
 				case "f_float"   : 
 					if (HTMLArea.is_ie) { 
-						table.style.styleFloat = value; 
+						table.style.styleFloat = (value != "not set") ? value : ""; 
 					} else { 
-						table.style.cssFloat = value;
+						table.style.cssFloat = (value != "not set") ? value : "";
 					} 
 					break; 
 			}

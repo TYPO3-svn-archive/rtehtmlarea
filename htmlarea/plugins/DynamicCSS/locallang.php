@@ -14,8 +14,9 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'Default' => 'Standard',
+		'Default' => 'Standard',
 		'Undefined' => 'Undefiniert',
+		'DynamicCSSStyleTooltip' => 'Dem Paragraphen eine Formatierung zuweisen',
 	),
 	'no' => Array (
 	),
@@ -43,6 +44,7 @@ $LOCAL_LANG = Array (
 	'fi' => Array (
 		'Default' => 'Oletus',
 		'Undefined' => 'Määrittelemätön',
+		'DynamicCSSStyleTooltip' => 'Liitä tyyli sisältyvään kappaleeseen',
 	),
 	'tr' => Array (
 	),

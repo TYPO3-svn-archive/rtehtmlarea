@@ -49,7 +49,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	'Spell Checker' => 'Spell Checker',
+		'Spell Checker' => 'Spell Checker',
 		'CONFIRM_LINK_CLICK' => 'Bitte bestätigen Sie, dass Sie diesem Link folgen möchten',
 		'Cancel' => 'Abbrechen',
 		'Dictionary' => 'Wörterbuch',

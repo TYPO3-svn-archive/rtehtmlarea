@@ -14,7 +14,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-	  'Insert Smiley' => 'Smiley einfügen',
+		'Insert Smiley' => 'Smiley einfügen',
 		'Smiley' => 'Smiley',
 		'Cancel' => 'Abbrechen',
 	),
