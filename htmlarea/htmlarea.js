@@ -825,7 +825,7 @@ HTMLArea.prototype.generate = function () {
 			var html = "<html>\n";
 			html += "<head>\n";
 			html += "</head>\n";
-			html += "<body>\n </body>\n";
+			html += "<body></body>\n";
 			html += "</html>";
 			doc.write(html);
 			doc.close();
@@ -1955,12 +1955,15 @@ HTMLArea.prototype._editorEvent = function(ev) {
 	else if (keyEvent) {
 		// other keys here
 		switch (ev.keyCode) {
-		    case 13: // KEY enter
-			if (HTMLArea.is_gecko && !ev.shiftKey) {
-				this.dom_checkInsertP();
-				HTMLArea._stopEvent(ev);
-			}
-			break;
+// Begin change by Stanislas Rolland 2004-12-01
+// Remove this and use EnterParagraphs plugin instead
+		    //case 13: // KEY enter
+			//if (HTMLArea.is_gecko && !ev.shiftKey) {
+			//	this.dom_checkInsertP();
+			//	HTMLArea._stopEvent(ev);
+			//}
+			//break;
+// End change by Stanislas Rolland 2004-12-01
 		    case 8: // KEY backspace
 		    case 46: // KEY delete
 			if (HTMLArea.is_gecko && !ev.shiftKey) {
@@ -2434,12 +2437,12 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 	    case 3: // Node.TEXT_NODE
 		// If a text node is alone in an element and all spaces, replace it with an non breaking one
 		// This partially undoes the damage done by moz, which translates '&nbsp;'s into spaces in the data element
-// Begin change by Stanislas Rolland 2004-11-24
-// Uncomment the two following lines
+// Begin change by Stanislas Rolland 2004-11-30
+// Add a non breaking space in the empty text node
+// Delete any starting non breaking space in the text node
 		if ( !root.previousSibling && !root.nextSibling && root.data.match(/^\s*$/i) ) html = '&nbsp;';
-		   else
-// End change by Stanislas Rolland 2004-11-24
-		html = /^script|style$/i.test(root.parentNode.tagName) ? root.data : HTMLArea.htmlEncode(root.data);
+			else html = /^script|style$/i.test(root.parentNode.tagName) ? root.data : HTMLArea.htmlEncode(root.data.replace(/^&nbsp;(.*)/gi,"$1"));
+// End change by Stanislas Rolland 2004-11-30
 		break;
 	    case 4: // Node.CDATA_SECTION_NODE
 		// FIXME: it seems we never get here, but I believe we should..
