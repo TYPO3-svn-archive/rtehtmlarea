@@ -4,7 +4,7 @@
 *
 *  (c) 2004 Kasper Skaarhoj (kasper@typo3.com)
 *  (c) 2004 Philipp Borgmann <philipp.borgmann@gmx.de>
-*  (c) 2004 Stanislas Rolland <stanislas.rolland@fructifor.com>
+*  (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -233,6 +233,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	var $rtePathLinkFile;			// Path to the php-file for create a link
 	var $rtePathColorFile;			// Path to the php-file for the color picker
 	var $siteURL;				// TYPO3 site url
+	var $hostURL;				// TYPO3 host url
 
 		// Internal, static:
 	var $ID = 'rtehtmlarea';				// Identifies the RTE as being the one from the "rte" extension if any external code needs to know...
@@ -344,7 +345,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 */
 			// set the path: we need the absolut path:
 			// first get the http-path to typo3:
-			$this->httpTypo3Path = dirname(dirname($_SERVER['SCRIPT_NAME']));
+			$this->httpTypo3Path = dirname(dirname(t3lib_div::getIndpEnv('SCRIPT_NAME')));
 
 			if (strlen($this->httpTypo3Path) == 1) {
 				$this->httpTypo3Path = "/";
@@ -359,6 +360,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->rtePathLinkFile = $this->httpTypo3Path . 'typo3/browse_links.php';
 				// Get the site URL
 			$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
+				// Get the host URL
+			$this->hostURL = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST');
 
 				// Element ID + pid
 			$this->elementId = $PA['itemFormElName']; // Form element name
@@ -628,7 +631,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		<script type="text/javascript">
 			_editor_url = "' . $this->extHttpPath . 'htmlarea";
 			_editor_lang = "' . $this->language . '";
-			_typo3_site_url = "' . $this->siteURL . '";
+			_typo3_host_url = "' . $this->hostURL . '";
 			_spellChecker_lang = "' . $this->spellCheckerLanguage . '";
 			_spellChecker_charset = "' . $this->spellCheckerCharset . '";
 			_spellChecker_mode = "' . $this->spellCheckerMode . '";

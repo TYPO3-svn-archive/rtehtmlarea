@@ -33,7 +33,7 @@ InsertSmiley.prototype.buttonPress = function(editor) {
 	var sel = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,""); 
 	var param = new Object();
 	param.editor = editor;
-	param.editor_url = _typo3_site_url + _editor_url;
+	param.editor_url = _typo3_host_url + _editor_url;
 	if(param.editor_url == "../") {
 		param.editor_url = document.URL;
 		param.editor_url = param.editor_url.replace(/^(.*\/).*\/.*$/g, "$1");

@@ -44,12 +44,9 @@
   height: 16px;
   padding: 0px;
 }
-
 .htmlarea .toolbar .space { width: 5px; }
 .htmlarea .toolbar select { font: 11px Tahoma,Verdana,sans-serif; }
-.htmlarea .toolbar select,
-.htmlarea .toolbar select:hover,
-.htmlarea .toolbar select:active { background: FieldFace; color: ButtonText; }
+.htmlarea .toolbar select, .htmlarea .toolbar select:hover, .htmlarea .toolbar select:active { background: FieldFace; color: ButtonText; }
 .htmlarea .statusBar {
   border: 1px solid;
   border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
@@ -58,17 +55,9 @@
   color: ButtonText;
   font: 11px Tahoma,Verdana,sans-serif;
 }
-.htmlarea .statusBar .statusBarTree a {
-  padding: 2px 5px;
-  color: #00f;
-}
+.htmlarea .statusBar .statusBarTree a { padding: 2px 5px; color: #00f; }
 .htmlarea .statusBar .statusBarTree a:visited { color: #00f; }
-.htmlarea .statusBar .statusBarTree a:hover {
-  background-color: Highlight;
-  color: HighlightText;
-  padding: 1px 4px;
-  border: 1px solid HighlightText;
-}
+.htmlarea .statusBar .statusBarTree a:hover { background-color: Highlight; color: HighlightText; padding: 1px 4px; border: 1px solid HighlightText; }
 
 /* 
 .dialog .title .button { float: right; border: 1px solid #66a; padding: 0px 1px 0px 2px; margin-right: 1px; color: #fff; text-align: center; }
@@ -80,8 +69,10 @@
 .dialog .buttonColor .chooser, .dialog .buttonColor .nocolor { height: 0.6em; border-width: 1px; border-style: solid; padding: 0px 1em; border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow; }
 .dialog .buttonColor .nocolor { padding: 0px; }
 .dialog .buttonColor .nocolor-hilite { background-color: #fff; color: #f00; cursor: pointer}
+/*
 .dialog .label { text-align: right; width: 6em; }
 .dialog .value input { width: 100%; }
+*/
 
 /* Selectors for popup windows */
 .popupwin { background-color: ButtonFace; color: ButtonText; font-size: 11px; font-family: Tahoma,Verdana,sans-serif; }
@@ -99,9 +90,13 @@
 .popupwin .buttons { clear: both; margin-top: 10px; border-top: 1px solid #999; padding: 5px; text-align: right; }
 .popupwin select, input, button, textarea, table { font: 11px Tahoma,Verdana,sans-serif; }
 .popupwin button { width: 8em; padding: 0px; }
+.popupwin button.long-button { width: 10em; }
 .popupwin .fl { width: 12em; float: left; padding: 2px 5px; text-align: right; }
 .popupwin .fr { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-.popupwin .space { padding: 2px; }
+.popupwin .space { clear: left; padding: 2px; }
+.popupwin .label { text-align: right; width: 8em; }
+.popupwin .value input { width: 30em; }
+
 *#--HA-layout { width: 450px; }
 
 .colorTable { border-right: black 1px solid; BORDER-TOP: black 1px solid; BORDER-LEFT: black 1px solid; BORDER-BOTTOM: black 1px solid; }
@@ -111,6 +106,16 @@
 
 .pleasewait { text-align: left; font-size: 8pt; position: relative; top: 80; margin-top: 30px; }
 
+/* Selectors for the InsertImage popup */
+.popupwin div.imagepreview  { text-align: center; }
+.popupwin .imagepreview iframe { border: 1px solid gray; width: 300; height: 200; }
+
 /* Selectors for the InsertSmiley plugin */
-div.smileytable  { height: 125px; overflow:auto; }
-.smileytable td { width: 35px; height: 25px; }
+.popupwin div.smileytable  { height: 125px; overflow:auto; }
+.popupwin .smileytable td { width: 35px; height: 25px; }
+
+/* Selectors for the FindReplace plugin */
+.popupwin .long-label { text-align: left; width: 16em; }
+
+/* Selectors for the SpellChecker plugin */
+.popupwin button#b_recheck { vertical-align: middle; }

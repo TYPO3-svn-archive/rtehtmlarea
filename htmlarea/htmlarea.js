@@ -1663,7 +1663,7 @@ HTMLArea.prototype._insertImage = function(image) {
 		f_align  : image.align,
 		f_vert   : image.vspace,
 		f_horiz  : image.hspace,
- 		f_style  : HTMLArea.is_ie ? image.style.styleFloat : image.style.cssFloat
+ 		f_float  : HTMLArea.is_ie ? image.style.styleFloat : image.style.cssFloat
 	};
 	this._popupDialog("insert_image.html", function(param) {
 		if (!param || typeof param.f_url == "undefined") {	// user must have pressed Cancel
@@ -1695,10 +1695,10 @@ HTMLArea.prototype._insertImage = function(image) {
 				case "f_align"  : img.align	 = value; break;
 				case "f_vert"   : img.vspace = parseInt(value || "0"); break;
 				case "f_horiz"  : img.hspace = parseInt(value || "0"); break;
-				case "f_style"  : if (HTMLArea.is_ie) { img.style.styleFloat = value; }  else { img.style.cssFloat = value;} break; 
+				case "f_float"  : if (HTMLArea.is_ie) { img.style.styleFloat = value; }  else { img.style.cssFloat = value;} break; 
 			}
 		}
-	}, outparam, 530, 385);
+	}, outparam, 550, 460);
 };
 
 // Called when the user clicks the Insert Table button
@@ -1721,11 +1721,21 @@ HTMLArea.prototype._insertTable = function() {
 				continue;
 			}
 			switch (field) {
-			    case "f_width"   : table.style.width = value + param["f_unit"]; break;
-			    case "f_align"   : table.align	 = value; break;
-			    case "f_border"  : table.border	 = parseInt(value); break;
-			    case "f_spacing" : table.cellSpacing = parseInt(value); break;
-			    case "f_padding" : table.cellPadding = parseInt(value); break;
+				case "f_width"   : table.style.width = value + param["f_unit"]; break;
+				case "f_align"   : table.style.textAlign = value; break;
+				case "f_border"  : 
+					table.style.borderWidth	 = parseInt(value);
+					table.style.borderStyle = table.style.borderWidth ? "solid" : "none";
+					break;
+				case "f_spacing" : table.cellSpacing = parseInt(value); break;
+				case "f_padding" : table.cellPadding = parseInt(value); break;
+				case "f_float"   : 
+					if (HTMLArea.is_ie) { 
+						table.style.styleFloat = value; 
+					} else { 
+						table.style.cssFloat = value;
+					} 
+					break; 
 			}
 		}
 		var cellwidth = 0;
@@ -2575,7 +2585,7 @@ HTMLArea.prototype.popupURL = function(file) {
 			popup += ".html";
 		url = _editor_url + "plugins/" + plugin + "/popups/" + popup;
 	} else {
-		url = _typo3_site_url + _editor_url.replace(/^\//, '') + this.config.popupURL + file;
+		url = _typo3_host_url + _editor_url + this.config.popupURL + file;
 	}
 	return url;
 };

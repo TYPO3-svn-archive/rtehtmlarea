@@ -273,7 +273,7 @@ TableOperations.prototype.dialogTableProperties = function() {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement(dialog.editor._iframe, "c");
-	}, 470, 620);
+	}, 500, 605);
 };
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
@@ -371,7 +371,7 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement(dialog.editor._iframe, "c");
-	   }, 440, 298);
+	   }, 500, 294);
 	}
 };
 
@@ -778,8 +778,12 @@ TableOperations.processStyle = function(params, element) {
 			style.verticalAlign = val;
 			break;
 		    case "f_st_float":
-			style.cssFloat = val;
-			break;
+				if (HTMLArea.is_ie) { 
+					style.styleFloat = val; 
+				} else { 
+					style.cssFloat = val;
+				}
+				break;
 // 		    case "f_st_margin":
 // 			style.margin = val + "px";
 // 			break;
@@ -884,7 +888,7 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 			option = doc.createElement("option");
 			option.innerHTML = i18n[Val];
 			option.value = val;
-			option.selected = (("" + el.style.cssFloat).toLowerCase() == val);
+			option.selected = HTMLArea.is_ie ? (("" + el.style.styleFloat).toLowerCase() == val) : (("" + el.style.cssFloat).toLowerCase() == val);
 			select.appendChild(option);
 		}
 		td.appendChild(select);
@@ -926,14 +930,15 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 	td.appendChild(select);
 	select.name = "f_st_textAlign";
 	options = ["Left", "Center", "Right", "Justify"];
-	if (tagname == "td") {
+/*	if (tagname == "td") {
 		options.push("Char");
 	}
 	input = doc.createElement("input");
 	input.name = "f_st_textAlignChar";
 	input.size = "1";
 	input.style.fontFamily = "monospace";
-	td.appendChild(input);
+	td.appendChild(input); 
+*/
 	for (var i = 0; i < options.length; ++i) {
 		var Val = options[i];
 		var val = Val.toLowerCase();
@@ -943,7 +948,7 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 		option.selected = (el.style.textAlign.toLowerCase() == val);
 		select.appendChild(option);
 	}
-	function setCharVisibility(value) {
+/*	function setCharVisibility(value) {
 		input.style.visibility = value ? "visible" : "hidden";
 		if (value) {
 			input.focus();
@@ -952,6 +957,7 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 	};
 	select.onchange = function() { setCharVisibility(this.value == "char"); };
 	setCharVisibility(select.value == "char");
+*/
 
 	tr = doc.createElement("tr");
 	tbody.appendChild(tr);

@@ -84,6 +84,11 @@ function __dlg_translate(i18n) {
 					span.title = txt;
 				}
 			}
+				// resetting the selected option for Mozilla	 
+			if (types[type] == "option" && span.selected ) { 	 
+				span.selected = false;
+				span.selected = true;
+			}
 		}
 	}
 	var txt = i18n[document.title];

@@ -9,11 +9,19 @@
 		var i18n = window.opener.HTMLArea.I18N.dialogs;
 
 		function Init() {
-			__dlg_translate(i18n);
+			var content = document.getElementById("content");
+			buildTitle(i18n, content, "Insert Table");
+			var form = document.createElement("form");
+			form.action = "";
+			form.method = "get";
+			buildDimensionFieldset(i18n,form);
+			buildLayoutFieldset(i18n, form);
+			buildSpacingFieldset(i18n, form);
+			addButtons(i18n, form, ["ok","cancel"], ["OK","Cancel"]);
+			content.appendChild(form);
 			__dlg_init();
 			document.getElementById("f_rows").focus();
 		};
-
 		function onOK() {
 			var required = { "f_rows": "", "f_cols": "" };
 			required["f_rows"] = i18n["You must enter a number of rows"];
@@ -26,78 +34,153 @@
 					return false;
 				}
 			}
-			var fields = ["f_rows", "f_cols", "f_width", "f_unit", "f_align", "f_border", "f_spacing", "f_padding"];
+			var fields = ["f_rows", "f_cols", "f_width", "f_unit", "f_border", "f_spacing", "f_padding", "f_float"];
 			var param = new Object();
 			for (var i in fields) {
 				var id = fields[i];
 				var el = document.getElementById(id);
-				param[id] = el.value;
+				if(el) param[id] = el.value;
 			}
 			__dlg_close(param);
 			return false;
 		};
-
 		function onCancel() {
 			__dlg_close(null);
 			return false;
 		};
+		function buildTitle(i18n,content,title) {
+			var div = document.createElement("div");
+			div.className = "title";
+			div.innerHTML = i18n[title];
+			content.appendChild(div);
+			document.title = i18n[title];
+		};
+		function buildDimensionFieldset(i18n,content) {
+			var fieldset = document.createElement("fieldset");
+			insertLegend(i18n, fieldset, "Dimension");
+			insertSpace(fieldset);
+			buildInput(i18n, fieldset, "f_rows", ["Rows:"], ["Number of rows"], "5", "2", "field", "floating");
+			buildInput(i18n, fieldset, "f_cols", ["Cols:"], ["Number of columns"], "5", "4", "field", "floating");
+			buildInput(i18n, fieldset, "f_width", ["Width:"], ["Width of the table"], "5", "100", "field", "floating");
+			buildUnitField(i18n, fieldset);
+			content.appendChild(fieldset);
+		};
+		function buildLayoutFieldset(i18n,content) {
+			var fieldset = document.createElement("fieldset");
+			fieldset.className = "floating";
+			insertLegend(i18n, fieldset, "Layout");
+			insertSpace(fieldset);
+			buildTableFloatField(i18n, fieldset);
+			insertSpace(fieldset);
+			buildInput(i18n, fieldset, "f_border", ["Border thickness:"], ["Leave empty for no border"], "5", "1", "fl", "");
+			insertSpace(fieldset);
+			content.appendChild(fieldset);
+		};
+		function buildSpacingFieldset(i18n,content) {
+			var fieldset = document.createElement("fieldset");
+			insertLegend(i18n, fieldset, "Spacing");
+			insertSpace(fieldset);
+			buildInput(i18n, fieldset, "f_spacing", ["Cell spacing:"], ["Space between adjacent cells"], "5", "1", "fr", "");
+			insertSpace(fieldset);
+			buildInput(i18n, fieldset, "f_padding", ["Cell padding:"], ["Space between content and border in cell"], "5", "1", "fr", "");
+			insertSpace(fieldset);
+			content.appendChild(fieldset);
+		};
+		function buildUnitField(i18n, fieldset) {
+				// Unit Select Box
+			var select = document.createElement("select");
+			select.id = "f_unit";
+			select.name =  "f_unit";
+			select.title= i18n["Width unit"];
+			buildSelect(i18n, select, ["Percent", "Pixels", "Em"], ["%", "px", "em"], new RegExp("%", "i"));
+			fieldset.appendChild(select);
+		};
+		function buildTableFloatField(i18n, fieldset) {
+				// Table Float Label
+			var label = document.createElement("div");
+			label.className = "fl";
+			label.innerHTML = i18n["Float:"];
+			fieldset.appendChild(label);
+				// Table Float Select Box
+			var select = document.createElement("select");
+			select.id = "f_float";
+			select.name =  "f_float";
+			select.title= i18n["Where the table should float"];
+			buildSelect(i18n, select, ["Non-floating", "Left", "Right"], ["none", "left", "right"], new RegExp("none", "i"));
+			fieldset.appendChild(select);
+		};
+		function buildTextAlignField(i18n, fieldset) {
+				// Text Alignment Label
+			var label = document.createElement("div");
+			label.className = "fl";
+			label.innerHTML = i18n["Alignment:"];
+			fieldset.appendChild(label);
+				// Text Alignment Select Box
+			var select = document.createElement("select");
+			select.id = "f_align";
+			select.name =  "f_align";
+			select.title= i18n["Text alignment"];
+			buildSelect(i18n, select, ["Left", "Center", "Right", "Justify"], ["left", "center", "right", "justify"], new RegExp("left", "i"));
+			fieldset.appendChild(select);
+		};
+		function insertLegend(i18n, fieldset,legend) {
+			var legendNode = document.createElement("legend");
+			legendNode.innerHTML = i18n[legend];
+			fieldset.appendChild(legendNode);
+		};
+		function insertSpace(fieldset) {
+			var space = document.createElement("div");
+			space.className = "space";
+			fieldset.appendChild(space);
+		};
+		function buildInput(i18n, fieldset,fieldName,fieldLabel,fieldTitle, fieldSize, fieldValue, labelClass, inputClass) {
+				// Field label
+			var label = document.createElement("div");
+			if(labelClass) label.className = labelClass;
+			label.innerHTML = i18n[fieldLabel];
+			fieldset.appendChild(label);
+				// Input field
+			var input = document.createElement("input");
+			input.type = "text";
+			input.id = fieldName;
+			input.name =  fieldName;
+			if(inputClass) input.className = inputClass;
+			input.title = i18n[fieldTitle];
+			input.size = fieldSize;
+			input.value = fieldValue;
+			fieldset.appendChild(input);
+		};
+		function buildSelect(i18n, select,options,values,selected) {
+			for (var i = 0; i < options.length; ++i) {
+				var option = document.createElement("option");
+				option.value = values[i];
+				option.innerHTML = i18n[options[i]];
+				option.selected = selected.test(option.value);
+				select.appendChild(option);
+			}
+		};
+		function addButtons(i18n,content,buttons,labels) {
+			var div = document.createElement("div");
+			div.className = "buttons";
+			for (var i = 0; i < buttons.length; ++i) {
+				var button = document.createElement("button");
+				//button.type = "button";
+				button.innerHTML = i18n[labels[i]];
+				switch (buttons[i]) {
+					case "ok":
+						button.onclick = onOK;
+						break;
+					case "cancel":
+						button.onclick = onCancel;
+						break;
+				}
+				div.appendChild(button);
+			}
+			content.appendChild(div);
+		};
 </script>
 </head>
 <body class="popupwin" onload="Init();">
-<div class="title">Insert Table</div>
-<form action="" method="get">
-	<fieldset>
-		<legend>Dimension</legend>
-			<div class="space"></div>
-			<div class="field">Rows:</div>
-			<input class="floating" type="text" name="rows" id="f_rows" size="5" title="Number of rows" value="2" />
-			<div class="field">Cols:</div>
-			<input class="floating" type="text" name="cols" id="f_cols" size="5" title="Number of columns" value="4" />
-			<div class="field">Width:</div>
-			<input class="floating" type="text" name="width" id="f_width" size="5" title="Width of the table" value="100" />
-			<select size="1" name="unit" id="f_unit" title="Width unit" >
-				<option selected="1" value="%" >Percent</option>
-				<option value="px"              >Pixels</option>
-				<option value="em"              >Em</option>
-			</select>
-	</fieldset>
-	<fieldset class="floating">
-		<legend>Layout</legend>
-			<div class="space"></div>
-			<div class="fl">Alignment:</div>
-			<select size="1" name="align" id="f_align" title="Positioning of this table">
-				<option value="" selected="1"                >Alignment not set</option>
-				<option value="left"                         >Left</option>
-				<option value="center"                         >Center</option>
-				<option value="right"                        >Right</option>
-				<!-- <option value="texttop"                      >Texttop</option> -->
-				<!-- <option value="absmiddle"                    >Absmiddle</option> -->
-				<!-- <option value="baseline"                     >Baseline</option> -->
-				<!-- <option value="absbottom"                    >Absbottom</option> -->
-				<!-- <option value="bottom"                       >Bottom</option> -->
-				<!-- <option value="middle"                       >Middle</option> -->
-				<!-- <option value="top"                          >Top</option> -->
-			</select>
-			<div class="space"></div>
-			<div class="fl">Border thickness:</div>
-			<input type="text" name="border" id="f_border" size="5" value="1" title="Leave empty for no border" />
-			<!--<div class="space"></div>
-			<div class="fl">Collapse borders:</div>
-			<input type="checkbox" name="collapse" id="f_collapse" />-->
-	</fieldset>
-	<fieldset>
-		<legend>Spacing</legend>
-			<div class="space"></div>
-			<div class="fr">Cell spacing:</div>
-			<input type="text" name="spacing" id="f_spacing" size="5" value="1" title="Space between adjacent cells" />
-			<div class="space"></div>
-			<div class="fr">Cell padding:</div>
-			<input type="text" name="padding" id="f_padding" size="5" value="1" title="Space between content and border in cell" />
-	</fieldset>
-	<div class="buttons">
-		<button type="button" name="ok" onclick="return onOK();">OK</button>
-		<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
-	</div>
-</form>
+<div id="content"></div>
 </body>
 </html>
