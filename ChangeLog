@@ -1,3 +1,5 @@
+2004-11-26  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* New default RTE processing options in ext_localconf.php
 2004-11-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 
 	* Standardizing popup window positioning (RemoveFormat and CharacterMap plugins)

@@ -36,22 +36,76 @@ t3lib_extMgm::addUserTSConfig('
 // options.HTMLAreaPspellMode may be PSPELL_FAST or PSPELL_NORMAL or PSPELL_BAD_SPELLERS
 // see http://ca3.php.net/manual/en/function.pspell-config-mode.php
 
-
-// Preserving <table>-html tags by default
+//Default RTE configuration
 t3lib_extMgm::addPageTSConfig('
-		RTE.default.proc.preserveTables = 1
-		RTE.default.contentCSS = EXT:' . $_EXTKEY . '/htmlarea/plugins/DynamicCSS/dynamiccss.css
-		RTE.default.enableWordClean = 1
-		RTE.default.showButtons =  *
-		RTE.default.hideButtons =
-		RTE.default.hidePStyleItems =
-		RTE.default.hideFontSizes =
-		RTE.default.proc.overruleMode = ts_css
-		RTE.defaultproc.entryHTMLparser_db.allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
+	RTE {
+		default.contentCSS = EXT:' . $_EXTKEY . '/htmlarea/plugins/DynamicCSS/dynamiccss.css
+		default.enableWordClean = 1
+		default.showButtons =  *
+		default.hideButtons =
+		default.hidePStyleItems =
+		default.hideFontSizes =
+
+		// DEFAULT PROC RULES
+		default.proc {
+
+			// TRANSFORMATION METHOD
+			overruleMode = ts_css
+
+			// LINES CONVERSION
+			dontConvBRtoParagraph = 1
+
+			// SPLIT CONTENT INTO FONT TAG CHUNKS
+			internalizeFontTags = 1
+
+			// TAGS ALLOWED OUTSIDE P & DIV
+			allowTagsOutside = img,hr
+
+			// TAGS ALLOWED IN TYPOLISTS
+			allowTagsInTypolists = br,font,b,i,u,a,img,span
+
+			// TAGS ALLOWED
+			allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
+
+			// TAGS DENIED
+			denyTags >
+
+			// ALLOWED P & DIV ATTRIBUTES
+			keepPDIVattribs = align,class,style
+
+			// ALLOW TABLES
+			preserveTables = 1
+
+			// CONTENT TO RTE
+			entryHTMLparser_rte {
+
+				// TAGS ALLOWED
+				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
+
+				// DO NOT REMOVE UNMATCHED TAGS
+				keepNonMatchedTags = 1
+
+				// ALLOWED SPAN ATTRIBUTES
+           			tags.span.allowedAttribs = style
+			}
+
+			// CONTENT TO DATABASE
+			entryHTMLparser_db {
+
+				// TAGS ALLOWED
+				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
+
+				// DO NOT REMOVE UNMATCHED TAGS
+				keepNonMatchedTags = 1
+
+				// ALLOWED SPAN ATTRIBUTES
+				tags.span.allowedAttribs = style
+			}
+		}
 
 		## Setting these defaults for the eventual front end RTE:
-		RTE.default.HTMLAreaPluginList = SpellChecker, ContextMenu, InsertSmiley, FindReplace
-		RTE.default.HTMLAreaPspellMode = normal
+		default.HTMLAreaPluginList = SpellChecker, ContextMenu, InsertSmiley, FindReplace
+		default.HTMLAreaPspellMode = normal
+	}
 		');
-
 ?>
