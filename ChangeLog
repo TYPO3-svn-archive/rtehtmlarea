@@ -1,3 +1,8 @@
+2004-11-27  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+
+	* Correcting color chooser styles for IE
+	* Adjusting popup windows
+
 2004-11-26  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 
 	* onload function moved from typo3_rte.js to htmlarea.js to correct loading with Firefox/WindowsXP
