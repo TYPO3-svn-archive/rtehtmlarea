@@ -1,3 +1,11 @@
+2005-02-05  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.33
+	* Generation of Mozilla/Firefox extension.
+	* Addition of Archive_Zip package (PEAR).
+	* Fixing the height of the editing area.
+	* Vertical align setting in table rows and cells.
+	* Fixing CGI detection.
+
 2005-02-01  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.32
 	* The editor was not loading in Mozilla/Firefox in some configurations.

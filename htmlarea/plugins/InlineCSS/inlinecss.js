@@ -189,6 +189,12 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 				} else {
 					parent.removeAttribute('className');
 				}
+				if(parent.tagName.toLowerCase() == "span") {
+					p = parent.parentNode;
+					while (parent.firstChild)
+						p.insertBefore(parent.firstChild, parent);
+					p.removeChild(parent);
+				}
 			}
 		}
 		editor.updateToolbar();
@@ -314,7 +320,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
       var select = editor._toolbarObjects[obj.id].element;
 	select.disabled = !(/\w/.test(selTrimmed)) || !(endPointsInSameBlock);
 
-	if( obj.lastTag!=tagName || obj.lastClass!=className ){        
+	if( obj.lastTag!=tagName || obj.lastClass!=className || true ){        
 		obj.lastTag=tagName;
 		obj.lastClass=className;
             var i18n = InlineCSS.I18N;

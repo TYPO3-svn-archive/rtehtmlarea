@@ -11,6 +11,7 @@ $LOCAL_LANG = Array (
 		'TEXT_MODE' => 'You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWYG.',
 		'IE-sucks-full-screen' => 'The full screen mode is known to cause problems with Internet Explorer, due to browser bugs that we weren\'t able to workaround. You might experience garbage display, lack of editor functions and/or random browser crashes. If your system is Windows 9x it\'s very likely that you\'ll get a \'General Protection Fault\' and need to reboot.\\n\\n You have been warned. Please press OK if you still want to try the full screen editor.',
 		'Moz-Clipboard' => 'Unprivileged scripts cannot access Cut/Copy/Paste programatically for security reasons. Click OK to see a technical note at mozilla.org which shows you how to allow a script to access the clipboard.',
+		'Moz-Extension' => 'For security reasons, unprivileged applications cannot access the clipboard. Click OK to install a component that will enable applications from this TYPO3 site to access the clipboard and perform copy, cut and paste operations.',
 	),
 	'dk' => Array (
 	),
@@ -32,6 +33,7 @@ $LOCAL_LANG = Array (
 		'Path' => 'Chemin',
 		'TEXT_MODE' => 'Vous êtes en mode source HTML. Utilisez le bouton [<>] pour revenir au mode WYSIWIG.',
 		'Moz-Clipboard' => 'Pour des raisons de sécurité, les scripts sans privilèges ne peuvent utiliser Couper/Copier/Coller par programmation. Cliquez sur OK pour voir la note technique de mozilla.org qui vous indiquera comment accorder au script l\'accès au presse-papiers.',
+		'Moz-Extension' => 'Pour des raisons de sécurité, les applications sans privilèges ne peuvent accéder au presse-papiers. Cliquez sur OK pour installer une composante qui permettra aux applications de ce site TYPO3 d\'accéder au presse-papiers et de réaliser les opérations couper, copier et coller.',
 	),
 	'es' => Array (
 		'Path' => 'Vía',

@@ -149,6 +149,9 @@ HTMLArea.Config = function () {
 	// for Mozilla
 	this.useCSS = false;
 
+	// for Mozilla
+	this.enableMozillaExtension = true;
+
 	// style included in the iframe document
 	this.pageStyle = "";
 
@@ -739,7 +742,7 @@ HTMLArea.prototype.generate = function () {
 
 		// create and append the IFRAME
 	var iframe = document.createElement("iframe");
-	if(this.config.useHTTPS || HTMLArea.is_ie) {
+	if(this.config.useHTTPS && HTMLArea.is_ie) {
 		iframe.setAttribute("src", _editor_url + "popups/blank.html");
 	} else {
 		iframe.setAttribute("src", "javascript:void(0);");
@@ -1854,15 +1857,28 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 				this._wordClean();
 		} catch (e) {
 			if (HTMLArea.is_gecko) {
-				if (typeof HTMLArea.I18N.msg["Moz-Clipboard"] == "undefined") {
-					HTMLArea.I18N.msg["Moz-Clipboard"] =
-						"Unprivileged scripts cannot access Cut/Copy/Paste programatically " +
-						"for security reasons.  Click OK to see a technical note at mozilla.org " +
-						"which shows you how to allow a script to access the clipboard.\n\n" +
-						"[FIXME: please translate this message in your language definition file.]";
+				if(this.config.enableMozillaExtension) {
+					if (typeof HTMLArea.I18N.msg["Moz-Extension"] == "undefined") {
+						HTMLArea.I18N.msg["Moz-Extension"] =
+							"Unprivileged scripts cannot access the clipboard programatically " +
+							"for security reasons.  Click OK to install a component that will " +
+							"enable scripts from this TYPO3 site to access the clipboard.\n\n";
+					}
+					if (confirm(HTMLArea.I18N.msg["Moz-Extension"])) {
+						var xpi={'TYPO3 htmlArea RTE Preferences':'../uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi'};
+  						InstallTrigger.install(xpi);
+					}
+				} else {
+					if (typeof HTMLArea.I18N.msg["Moz-Clipboard"] == "undefined") {
+						HTMLArea.I18N.msg["Moz-Clipboard"] =
+							"Unprivileged scripts cannot access Cut/Copy/Paste programatically " +
+							"for security reasons.  Click OK to see a technical note at mozilla.org " +
+							"which shows you how to allow a script to access the clipboard.\n\n";
+					}
+					if (confirm(HTMLArea.I18N.msg["Moz-Clipboard"])) {
+						window.open("http://mozilla.org/editor/midasdemo/securityprefs.html");
+					}
 				}
-				if (confirm(HTMLArea.I18N.msg["Moz-Clipboard"]))
-					window.open("http://mozilla.org/editor/midasdemo/securityprefs.html");
 			}
 		}
 		break;
@@ -2957,6 +2973,11 @@ function initEditor(editornumber) {
 		editor.config.useCSS = false;
 		if(RTEarea[editornumber]["useCSS"]) {
 			editor.config.useCSS = RTEarea[editornumber]["useCSS"];
+		}
+
+		editor.config.enableMozillaExtension = false;
+		if(RTEarea[editornumber]["enableMozillaExtension"]) {
+			editor.config.enableMozillaExtension = RTEarea[editornumber]["enableMozillaExtension"];
 		}
 
 		editor.config.statusBar = false;

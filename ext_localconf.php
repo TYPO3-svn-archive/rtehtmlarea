@@ -17,6 +17,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 		'AspellDirectory' => '/usr/bin/aspell',
 		'forceCommandMode' => 0,
 		'HTMLAreaPluginList' => 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,EnterParagraphs,QuickTag,InlineCSS',
+		'enableMozillaExtension' => 1,
 	);
 } else {
 	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList'] = 'en';
@@ -25,6 +26,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory'] = '/usr/bin/aspell';
 	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode'] = 0;
 	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,EnterParagraphs,QuickTag,InlineCSS';
+	if(!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'])) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'] = 1;
 }
 
 $_EXTCONF = unserialize($_EXTCONF);    // unserializing the configuration so we can use it here:
@@ -40,9 +42,9 @@ if ($_EXTCONF["enableAllOptions"])  {
 	// options.HTMLAreaPspellMode may be PSPELL_FAST or PSPELL_NORMAL or PSPELL_BAD_SPELLERS
 	// see http://ca3.php.net/manual/en/function.pspell-config-mode.php
 
-	//Default RTE configuration
 	t3lib_extMgm::addPageTSConfig('
 	RTE {
+			## Default RTE configuration
 		default.contentCSS = EXT:' . $_EXTKEY . '/htmlarea/plugins/DynamicCSS/dynamiccss.css
 		default.enableWordClean = 1
 		default.useCSS = 1
@@ -60,7 +62,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.disableColorPicker = 0
 		default.classesCharacter = quote, highlight, deprecated
 
-		// DEFAULT PROC RULES
+			## Default proc rules
 		default.proc {
 
 			// TRANSFORMATION METHOD
@@ -111,7 +113,10 @@ if ($_EXTCONF["enableAllOptions"])  {
 			}
 		}
 
-		## Setting these defaults for the eventual front end RTE:
+			## tt_content RTE configuration
+		config.tt_content.bodytext.showButtons  = *
+
+			## Setting these defaults for the eventual front end RTE:
 		default.HTMLAreaPluginList = SpellChecker, ContextMenu, InsertSmiley, FindReplace
 		default.HTMLAreaPspellMode = normal
 	}

@@ -614,7 +614,7 @@ TableOperations.processStyle = function(params, element) {
 				style.textAlign = (val != "not set") ? val : "";
 			}
 			break;
-		    case "f_st_verticalAlign":
+		    case "f_st_vertAlign":
 			style.verticalAlign = (val != "not set") ? val : "";
 			break;
 		    case "f_st_float":

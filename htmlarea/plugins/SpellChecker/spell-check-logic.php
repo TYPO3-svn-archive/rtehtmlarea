@@ -28,7 +28,7 @@
 	*
 	*/
 
-		define('PATH_thisScript',str_replace('//','/', str_replace('\\','/', php_sapi_name()=='xcgi'||php_sapi_name()=='isapi'||php_sapi_name()=='cgi-fcgi' ? $HTTP_SERVER_VARS['PATH_TRANSLATED']:$HTTP_SERVER_VARS['SCRIPT_FILENAME'])));
+		define('PATH_thisScript',str_replace('//','/', str_replace('\\','/', (php_sapi_name()=='cgi'||php_sapi_name()=='xcgi'||php_sapi_name()=='isapi' ||php_sapi_name()=='cgi-fcgi')&&($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED'])? ($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED']):($_SERVER['ORIG_SCRIPT_FILENAME']?$_SERVER['ORIG_SCRIPT_FILENAME']:$_SERVER['SCRIPT_FILENAME']))));
 		define('PATH_typo3', dirname(dirname(dirname(dirname(dirname(dirname(dirname(PATH_thisScript))))))).'/typo3/');
 		define('PATH_site', dirname(PATH_typo3).'/');
 		define('PATH_tslib', PATH_site.'tslib/');

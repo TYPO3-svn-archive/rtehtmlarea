@@ -264,7 +264,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	}
 
 	/**
-	 * Draws the RTE as an iframe for MSIE 5+
+	 * Draws the RTE as an iframe
 	 *
 	 * @param	object		Reference to parent object, which is an instance of the TCEforms.
 	 * @param	string		The table name
@@ -312,6 +312,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 				// Get the host URL
 			$this->hostURL = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST');
+
+			if($CLIENT['BROWSER'] == 'net' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension']) {
+				$this->makeMozillaExtension();
+			}
 
 				// Element ID + pid
 			$this->elementId = $PA['itemFormElName']; // Form element name
@@ -395,7 +399,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			
 			// Setting style: for the div-Tag
 			$RTEWidth = 460+($pObj->docLarge ? 150 : 0);
-			$RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'position:relative; left:0px; top:0px; height:380px; width:'.$RTEWidth.'px; border:solid 0px;';
+			$RTEHeight = 380;
+			$editorWrapWidth = $RTEWidth . 'px';
+			$editorWrapHeight = $RTEHeight . 'px';
+			$this->RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'position:relative; left:0px; top:0px; height:' . $RTEHeight . 'px; width:'.$RTEWidth.'px; border:solid 0px;';
 			
 			/* =======================================
 			 * SET THE TOOLBAR AND PLUGINS
@@ -439,29 +446,29 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 */
 				// Transform value:
 			$value = $this->transformContent('rte',$PA['itemFormElValue'],$table,$field,$row,$specConf,$thisConfig,$RTErelPath,$thePidValue);
-			if ($CLIENT['BROWSER'] == "net") {
+			if ($CLIENT['BROWSER'] == 'net') {
 				// need to change some tags:
 				// change <strong> to <b>
 				$value = preg_replace("/<(\/?)strong>/i", "<$1b>", $value);
 				// change <em> to <i>
 				$value = preg_replace("/<(\/?)em>/i", "<$1i>", $value);
-				
-				// the change-back to em and strong make the backend
 			}
 
 				// Register RTE windows:
 			$pObj->RTEwindows[] = $PA['itemFormElName'];
 
-			// Check if we are in Fullscreen mode: or check if wizard_rte call this
-			if (basename(PATH_thisScript)=="wizard_rte.php") {
-				// change the size of the RTE to fullscreen: use JS for this
-				$height = "window.innerHeight";
-				$width = "window.innerWidth";
+				// Check if wizard_rte called this for fullscreen edtition; if so, change the size of the RTE to fullscreen using JS
+			if (basename(PATH_thisScript) == 'wizard_rte.php') {
+				$height = 'window.innerHeight';
+				$width = 'window.innerWidth';
 				
-				if ($CLIENT['BROWSER'] == "msie") {
-					$height = "document.body.offsetHeight";
-					$width = "document.body.offsetWidth";
+				if ($CLIENT['BROWSER'] == 'msie') {
+					$height = 'document.body.offsetHeight';
+					$width = 'document.body.offsetWidth';
 				}
+				$editorWrapWidth = '100%';
+				$editorWrapHeight = '100%';
+				$this->RTEdivStyle = 'position:relative; left:0px; top:0px; height:100%; width:100%; border:solid 0px;';
 				$pObj->additionalJS_post[] = $this->setRTEsizeByJS('RTEarea'.$pObj->RTEcounter, $height, $width);
 			}
 			
@@ -475,13 +482,14 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$item = 
 				$this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
-				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $RTEWidth . 'px;">
-				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($RTEdivStyle).'">
+				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
+				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($this->RTEdivStyle).'">
 				'.t3lib_div::formatForTextarea($value).'
 				</textarea>
 				</div>
 				';
 		}
+
 			// Return form item:
 		return $item;
 	}
@@ -676,7 +684,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return string		the JS-Code for Register the RTE in JS
 	 */
 	function registerRTEinJS($number) {
-		global $LANG;
+		global $LANG, $CLIENT;
 		$registerRTEinJSString = '
 			RTEarea['.$number.'] = new Array();
 			RTEarea['.$number.']["number"] = '.$number.';
@@ -685,6 +693,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
 			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';
+			RTEarea['.$number.']["enableMozillaExtension"] = ' . (($CLIENT['BROWSER'] == 'net' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension'])?'true':'false') . ';
 			RTEarea['.$number.']["plugin"] = new Array();';
 		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
 		while( list(,$plugin) = each($pluginArray) ) {
@@ -985,7 +994,72 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		}
 		';
 	}
-	
+
+	function makeMozillaExtension() {
+		$archivePath = PATH_site . 'uploads/tx_' . $this->ID;
+		$archiveName = $archivePath . '/typo3_' . $this->ID . '_prefs.xpi';
+		if(!file_exists($archiveName)) {
+			require_once(t3lib_extMgm::extPath('rtehtmlarea').'archive_zip/Zip.php');
+			$extensionFilesPath = t3lib_extMgm::extPath($this->ID).'mozilla';
+			$this->updateMozillaUserFile($archivePath, $extensionFilesPath);
+			$extensionFiles = array($extensionFilesPath . '/install.js', $extensionFilesPath .  '/contents.rdf', $archivePath . '/user.js');
+			$params = array('remove_all_path' => true);
+			$zip = new Archive_Zip($archiveName);
+			$archiveInfo = $zip->create($extensionFiles, $params);
+		}
+	}
+
+	function updateMozillaUserFile($archivePath,$extensionFilesPath) {
+		$inputFilename = $extensionFilesPath . '/user.js';
+		$inputHandle = fopen($inputFilename, 'rb');
+		$contents = fread ($inputHandle, filesize ($inputFilename));
+		fclose($inputHandle);
+		$contents = str_replace ( 'http://www.mozilla.org', ereg_replace('.*\/$', substr($this->siteURL, 0, strlen($this->siteURL)-1), $this->siteURL), $contents);
+		$outputFilename = $archivePath . '/user.js';
+		$outputHandle = fopen($outputFilename,'wb');
+		fwrite($outputHandle, $contents);
+		fclose($outputHandle);
+	}
+
+	/**
+	 * Copy a file, or recursively copy a folder and its contents
+	 *
+	 * @author      Aidan Lister <aidan@php.net>
+	 * @version     1.0.1
+	 * @param       string   $source    Source path
+	 * @param       string   $dest      Destination path
+	 * @return      bool     Returns TRUE on success, FALSE on failure
+	 */
+	function copyr($source, $dest) {
+			// Simple copy for a file
+		if (is_file($source)) {
+			return copy($source, $dest);
+		}
+
+			// Make destination directory
+		if (!is_dir($dest)) {
+			mkdir($dest);
+		}
+
+			// Loop through the folder
+		$dir = dir($source);
+		while (false !== $entry = $dir->read()) {
+				// Skip pointers
+			if ($entry == '.' || $entry == '..') {
+				continue;
+			}
+
+				// Deep copy directories
+			if ($dest !== "$source/$entry") {
+				$this->copyr("$source/$entry", "$dest/$entry");
+			}
+		}
+ 
+			// Clean up
+		$dir->close();
+		return true;
+	}
+
 	/***************************
 	 *
 	 * OTHER FUNCTIONS:	(from the orginal RTE)
