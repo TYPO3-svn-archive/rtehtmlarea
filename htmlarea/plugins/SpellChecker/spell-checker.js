@@ -3,6 +3,8 @@
 // Implementation by Mihai Bazon, http://dynarch.com/mishoo/
 //
 // (c) dynarch.com 2003.
+// (c) 2004-2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
+// Modified to use the standard dialog API
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 //
@@ -76,6 +78,7 @@ SpellChecker.btnList = [
 	];
 
 SpellChecker.prototype.buttonPress = function(editor, id) {
+	var self = this;
 	switch (id) {
 	    case "SC-spell-check":
 		SpellChecker.editor = editor;
@@ -83,23 +86,13 @@ SpellChecker.prototype.buttonPress = function(editor, id) {
 		SpellChecker.f_dictionary = _spellChecker_lang;
 		SpellChecker.f_charset = _spellChecker_charset;
 		SpellChecker.f_pspell_mode = _spellChecker_mode;
-		var uiurl = _editor_url + "plugins/SpellChecker/spell-check-ui.html";
-		var win;
-		if (HTMLArea.is_ie) {
-			win = window.open(uiurl, "SC_spell_checker",
-					  "toolbar=no,location=no,directories=no,menubar=no," +
-					  "scrollbars=no,resizable=yes,width=650,height=450");
-		} else {
-			win = window.open(uiurl, "SC_spell_checker",
-					  "toolbar=no,menubar=no,personalbar=no,width=650,height=470," +
-					  "scrollbars=no,resizable=yes,dependent=yes");
-		}
-		win.focus();
+		var param = new Object();
+		param.editor = editor;
+		param.HTMLArea = HTMLArea;
+    		editor._popupDialog("plugin://SpellChecker/spell-check-ui", null, param, 660, 500);
 		break;
 	}
 };
 
 // this needs to be global, it's accessed from spell-check-ui.html
 SpellChecker.editor = null;
-
-

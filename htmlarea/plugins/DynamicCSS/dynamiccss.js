@@ -155,6 +155,7 @@ DynamicCSS.prototype.onSelect = function(editor, obj) {
 	var index = tbobj.element.selectedIndex;
 	var className = tbobj.element.value;
 
+	editor.focusEditor();
     	var parent = editor.getParentElement();
 	while (parent && !HTMLArea.isBlockElement(parent)) {
 		parent = parent.parentNode;

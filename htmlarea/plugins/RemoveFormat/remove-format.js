@@ -58,6 +58,9 @@ RemoveFormat._pluginInfo = {
 RemoveFormat.prototype.buttonPress = function(editor){
 
 	editor._popupDialog( "plugin://RemoveFormat/removeformat", function( param){
+
+		editor.focusEditor();
+
 		if (param) {
 
 			if (param["cleaning_area"] == "all") {
@@ -134,5 +137,5 @@ RemoveFormat.prototype.buttonPress = function(editor){
 		} else {
 			return false;
 		}
-	}, null, 225, 250);
+	}, null, 225, 255);
 };

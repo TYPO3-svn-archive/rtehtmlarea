@@ -1,101 +1,57 @@
-<html>
+<html class="popupwin">
 <head>
-<title>Insert special character</title>
-<style type="text/css">
-@import url(../../../htmlarea.css);
-td.character {
-    font-family: Verdana,Arial,Helvetica,sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-    text-align: center;
-    background: #FFF;
-    padding: 4px;
-}
+	<title>Insert special character</title>
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" href="../../../htmlarea.css" />
+	<script type="text/javascript" src="../../../popups/popup.js"></script>
+	<script type="text/javascript">
+			// HTMLSource based on HTMLArea XTD 1.5 (http://mosforge.net/projects/htmlarea3xtd/) modified by Holger Hees
+			// Original Author - Bernhard Pfeifer novocaine@gmx.net
+		HTMLArea = window.opener.HTMLArea;
+		CharacterMap = window.opener.CharacterMap;
 
-td.character-hilite {
-    background: Highlight;
-    color: HighlightText;
-}
+		function Init() {
+			__dlg_translate(CharacterMap.I18N);
+			__dlg_init();
+			document.body.onkeypress = __dlg_close_on_esc;
+			var character = '';
+			View( null, character );
+		};
 
-html, body {
-  background: ButtonFace;
-  color: ButtonText;
-  font: 11px Tahoma,Verdana,sans-serif;
-  margin: 0px;
-  padding: 0px;
-}
-body { padding: 5px; }
-table {
-  font: 11px Tahoma,Verdana,sans-serif;
-}
-select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
-button { width: 70px; }
-table .label { text-align: right; width: 8em; }
+		var oldView = null;
+		function View(td, character) {
+			if (oldView) oldView.className = oldView.className.replace(/\s+character-hilite/, '');
+			document.getElementById( 'characterPreview' ).value = character;
+			document.getElementById( 'showCharacter' ).value = character;
+			if (td)
+			(oldView = td).className += " character-hilite";
+		};
 
-.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
-border-bottom: 1px solid black; letter-spacing: 2px;
-}
-#buttons {
-      margin-top: 1em; border-top: 1px solid #999;
-      padding: 2px; text-align: right;
-}
-</style>
-<script type="text/javascript" src="../../../popups/popup.js"></script>
-<script type="text/javascript">
-// HTMLSource based on HTMLArea XTD 1.5 (http://mosforge.net/projects/htmlarea3xtd/) modified by Holger Hees
-// Original Author - Bernhard Pfeifer novocaine@gmx.net
+		function Set(string) {
+			var character = string;
+			__dlg_close(character);
+		};
 
-CharacterMap = window.opener.CharacterMap; // load the CharacterMap plugin and lang file ;-)
-//window.resizeTo(480, 300);
-
-function _CloseOnEsc() {
-    if ( event.keyCode == 27 ) {
-        window.close();
-        return;
-    }
-}
-
-function Init() {
-   __dlg_translate(CharacterMap.I18N);
-   __dlg_init();
-    document.body.onkeypress = _CloseOnEsc;
-    var character = '';
-    View( null, character );
-}
-
-var oldView = null;
-function View(td, character) {
-    if (oldView)
-        oldView.className = oldView.className.replace(/\s+character-hilite/, '');
-    document.getElementById( 'characterPreview' ).value = character;
-    document.getElementById( 'showCharacter' ).value = character;
-    if (td)
-        (oldView = td).className += " character-hilite";
-}
-
-function Set(string) {
-    var character = string;
-    __dlg_close(character);
-}
-
-function onCancel() {
-    __dlg_close(null);
-    return false;
-};
-
-</script>
+		function onCancel() {
+			__dlg_close(null);
+			return false;
+		};
+	</script>
+	<style>
+		td.character { font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 14px; font-weight: bold; text-align: center; background: #FFF; padding: 4px; }
+		td.character-hilite { background: Highlight; color: HighlightText; }
+	</style>
 </head>
-<body style="background: Buttonface; margin: 0px; padding: 0px" onload="Init();self.focus();">
+<body class="popupwin" onload="Init();">
+<div class="title">Insert special character</div>
 <form method="get" style="margin:2px; padding:2px" onSubmit="Set(document.getElementById('showCharacter').value); return false;">
-<div class="title" style="width: 460px;">Insert special character</div>
 <table border="0" cellspacing="0" cellpadding="4" width="100%">
- <tr>
-  <td style="background: Buttonface" valign="center"><div style="padding: 1px; white-space: nowrap; font-family: tahoma,arial,sans-serif; font-size: 11px; font-weight: normal;">HTML value:<div id="characterPreview"></div></div></td>
-  <td style="background: Buttonface" valign="center"><input type="text" name="showcharacter" id="showCharacter" value="" size="15" style="background: #fff; font-size: 11px;" /></td>
-  <td style="background: Buttonface" width="100%"></td>
- </tr>
+	<tr>
+		<td style="background: Buttonface" valign="center"><div style="padding: 1px; white-space: nowrap; font-family: tahoma,arial,sans-serif; font-size: 11px; font-weight: normal;">HTML value:<div id="characterPreview"></div></div></td>
+		<td style="background: Buttonface" valign="center"><input type="text" name="showcharacter" id="showCharacter" value="" size="15" style="background: #fff; font-size: 11px;" /></td>
+		<td style="background: Buttonface" width="100%"></td>
+	</tr>
 </table>
-</form>
 <table border="0" cellspacing="1" cellpadding="0" width="100%" style="cursor: pointer; background: #ADAD9C; border: 1px inset;">
 <tr>
 <td class="character" onMouseOver="View(this,'&amp;Yuml;')" onClick="Set('&Yuml;')">&Yuml;</td>
@@ -233,7 +189,11 @@ function onCancel() {
 <td class="character">&nbsp;</td>
 <td class="character">&nbsp;</td>
 <td class="character">&nbsp;</td>
-</table><br />
-<form style="text-align: center;"><button type="button" name="cancel" onclick="return onCancel();" class="submitInsertTable">Cancel</button></form>
+</table>
+	<div class="space"></div>
+	<div class="buttons">
+		<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+	</div>
+</form>
 </body>
 </html>

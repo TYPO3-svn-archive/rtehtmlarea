@@ -10,9 +10,8 @@
 CharacterMap.I18N = CharacterMap_langArray;
 
 function CharacterMap(editor) {
-        this.editor = editor;
-	        
-        var cfg = editor.config;
+	this.editor = editor;
+	var cfg = editor.config;
 	var toolbar = cfg.toolbar;
 	var self = this;
 	var i18n = CharacterMap.I18N;
@@ -57,15 +56,15 @@ CharacterMap._pluginInfo = {
 };
 
 CharacterMap.prototype.buttonPress = function(editor) {
-    editor._popupDialog( "plugin://CharacterMap/select_character", function( entity ) 
-    {
-        if ( !entity ) 
-        {  
-            //user must have pressed Cancel
-            return false;
-        }
-        
-        editor.insertHTML( entity );
-               
-    }, null, 485, 320);
+	var self = this;
+	var param = new Object();
+	param.editor = editor;
+	editor._popupDialog( "plugin://CharacterMap/select_character", function(entity) { self.insertChar(entity); }, param, 485, 320);
+};
+
+CharacterMap.prototype.insertChar = function(entity) { 
+	if (typeof entity != "undefined") {
+		this.editor.focusEditor();
+		this.editor.insertHTML(entity);
+	}
 };

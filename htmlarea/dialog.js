@@ -14,18 +14,11 @@
 // Though "Dialog" looks like an object, it isn't really an object.  Instead
 // it's just namespace for protecting global symbols.
 
-function Dialog(url, action, init, width, height) {
+function Dialog(url, action, init, width, height, _opener, editor) {
 	if (typeof init == "undefined") {
 		init = window;	// pass this window object by default
 	}
-	Dialog._geckoOpenModal(url, action, init, width, height);
-};
-
-Dialog._parentEvent = function(ev) {
-	setTimeout( function() { if (Dialog._modal && !Dialog._modal.closed) { Dialog._modal.focus() } }, 50);
-	if (Dialog._modal && !Dialog._modal.closed) {
-		HTMLArea._stopEvent(ev);
-	}
+	Dialog._geckoOpenModal(url, action, init, (width?width:100) , (height?height:100), _opener, editor);
 };
 
 // should be a function, the return handler of the currently opened dialog.
@@ -33,48 +26,68 @@ Dialog._return = null;
 
 // constant, the currently opened dialog
 Dialog._modal = null;
+Dialog._dialog = null;
 
 // the dialog will read it's args from this variable
 Dialog._arguments = null;
 
-Dialog._geckoOpenModal = function(url, action, init, width, height) {
-	//  **MODIFIED**  var dlg = window.open(url, "hadialog",
-	//  **MODIFIED**  		      "toolbar=no,menubar=no,personalbar=no,width=10,height=10," +
-	//  **MODIFIED**  		      "scrollbars=no,resizable=yes");
-	var dlg = window.open(url, "hadialog", 
-		"toolbar=no,menubar=no,personalbar=no,width=" + (width?width:100) + ",height=" + (height?height:100) + "," + 
-		"scrollbars=no,resizable=yes,modal=yes,dependent=yes");
+Dialog._geckoOpenModal = function(url, action, init, width, height, _opener, editor) {
+
+	var dlg = window.open(url, 'hadialog', "toolbar=no,location=no,directories=no,menubar=no,width=" + width + ",height=" + height + ",scrollbars=no,resizable=yes,modal=yes,dependent=yes");
+	if(Dialog._modal && !Dialog._modal.closed) {
+		var obj = new Object();
+		obj.dialogWindow = dlg;
+		Dialog._dialog = obj;
+	}
 	Dialog._modal = dlg;
 	Dialog._arguments = init;
 
-	// capture some window's events
-	function capwin(w) {
-		HTMLArea._addEvent(w, "click", Dialog._parentEvent);
-		HTMLArea._addEvent(w, "mousedown", Dialog._parentEvent);
-		if(HTMLArea.is_ie) 
-			HTMLArea._addEvent(w, "focus", Dialog._parentEvent);
-		//  **MODIFIED**  HTMLArea._addEvent(w, "focus", Dialog._parentEvent);
+	Dialog._parentEvent = function(ev) {
+		if (Dialog._modal && !Dialog._modal.closed) {
+			if(!ev) var ev = Dialog._modal.opener.event;
+			HTMLArea._stopEvent(ev);
+			Dialog._modal.focus();
+		}
+		return false;
 	};
-	// release the captured events
-	function relwin(w) {
-		HTMLArea._removeEvent(w, "click", Dialog._parentEvent);
-		HTMLArea._removeEvent(w, "mousedown", Dialog._parentEvent);
-		if(HTMLArea.is_ie) 
-			HTMLArea._removeEvent(w, "focus", Dialog._parentEvent); 
-		//  **MODIFIED**  HTMLArea._removeEvent(w, "focus", Dialog._parentEvent);
+
+		// suspend editor events
+	if(_opener == editor._iframe.contentWindow) { 
+		editor.editorEventSuspend();
+	}
+
+		// capture focus events
+	function capwin(w) {
+		if(HTMLArea.is_gecko) {
+			w.addEventListener("focus", function(ev) { Dialog._parentEvent(ev); }, false);
+		} else {
+			HTMLArea._addEvent(w, "focus", function(ev) { Dialog._parentEvent(ev); });
+		}
+		for (var i = 0; i < w.frames.length; i++) { capwin(w.frames[i]); }
 	};
 	capwin(window);
-	// capture other frames
-	for (var i = 0; i < window.frames.length; capwin(window.frames[i++]));
 
-	// make up a function to be called when the Dialog ends.
+		// make up a function to be called when the Dialog ends.
 	Dialog._return = function (val) {
 		if (val && action) {
 			action(val);
 		}
+
+			// release the captured events
+		function relwin(w) {
+			HTMLArea._removeEvent(w, "focus", function(ev) { Dialog._parentEvent(ev); });
+			try { for (var i = 0; i < w.frames.length; i++) { relwin(w.frames[i]); }; } catch(e) { };
+		};
 		relwin(window);
-		// capture other frames
-		for (var i = 0; i < window.frames.length; relwin(window.frames[i++]));
-		Dialog._modal = null;
+
+			// resume editor events
+		if(_opener == editor._iframe.contentWindow) { editor.editorEventResume(); }
+
+		HTMLArea._removeEvent(window, "unload", function() { if(Dialog._dialog && Dialog._dialog.dialogWindow) { Dialog._dialog.dialogWindow.close(); Dialog._dialog = null; };  dlg.close(); return false; });
+		Dialog._dialog = null;
 	};
+
+		// capture unload events
+	HTMLArea._addEvent(dlg, "unload", function() { if(typeof Dialog != "undefined") Dialog._return(null); return false; });
+	HTMLArea._addEvent(window, "unload", function() { if(Dialog._dialog && Dialog._dialog.dialogWindow) { Dialog._dialog.dialogWindow.close(); Dialog._dialog = null; };  dlg.close(); return false; });
 };

@@ -92,11 +92,13 @@ SelectColor.prototype.buttonPress = function(editor, button_id) {
 	}
 };
 
-// this function requires the file PopupDiv/PopupWin to be loaded from browser
-SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
+// this function requires the file PopupWin
+SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opener) {
 	var editor = this.editor;
 	var self = this;
 	var i18n = SelectColor.I18N;
+	var windowWidth = 348;
+	var windowHeight = 220;
 
 		// button_id's  "color" and "tag" are not registered but used to interface with the Table Operations and QuickTag plugins	switch (button_id) {
 	switch (button_id) {
@@ -106,6 +108,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 			function(dialog, params) {
 				var editor = dialog.editor;
 				self.processStyle(dialog, params, "", "");
+				dialog.releaseEvents();
 				editor.focusEditor();
 				editor.updateToolbar();
 				dialog.close();
@@ -115,13 +118,12 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 			function (dialog) {
 				var editor = dialog.editor;
 				var doc = editor._doc;
-				dialog.content.style.width = "330px";
 				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
 					var targ;
 					if(!e) {
-						var e = dialog.window.event;
+						var e = dialog.dialogWindow.event;
 					}
 					if (e.target) {
 						targ = e.target;
@@ -158,27 +160,26 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				}} catch (e) {
 					// alert(e + "\n\n" );
 				}
-				dialog.modal = true;
 				dialog.showAtElement();
 			},
-		340, 200);
+		windowWidth, windowHeight, editor._iframe.contentWindow);
 		break;
 	   case "color":
 		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
 			function(dialog,params) {
 				self.processStyle(dialog, params, element, field);
+				dialog.releaseEvents();
 				dialog.close();
 			},
 
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
-				dialog.content.style.width = "330px";
 				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
 					var targ;
 					if(!e) {
-						var e = dialog.window.event;
+						var e = dialog.dialogWindow.event;
 					}
 					if (e.target) {
 						targ = e.target;
@@ -199,27 +200,28 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 					return false;
 				};
 				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = field.value;
-				dialog.modal = true;
 				dialog.showAtElement();
 			},
-		340, 200);
+		windowWidth, windowHeight, opener);
 		break;
 	   case "tag":
 		var dialog = new PopupWin(this.editor, i18n["color_title"], 
 			function(dialog,params) {
+				dialog.releaseEvents();
 				field._return(params["tag"]);
 				dialog.close();
+				field.dialog = null;
 			},
 
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
-				dialog.content.style.width = "330px";
+				self.dialog = dialog;
 				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n["color_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
 					var targ;
 					if(!e) {
-						var e = dialog.window.event;
+						var e = dialog.dialogWindow.event;
 					}
 					if (e.target) {
 						targ = e.target;
@@ -240,10 +242,9 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 					return false;
 				};
 				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = "";
-				dialog.modal = true;
 				dialog.showAtElement();
 			},
-		340, 200);
+		windowWidth, windowHeight, opener);
 	}
 };
 

@@ -21,7 +21,7 @@ function QuickTag(editor) {
   		action   : function(editor) { self.buttonPress(editor); }
 		});
 
-	for(i = 0; i < cfg.toolbar.length; i++) {
+	for(var i = 0; i < cfg.toolbar.length; i++) {
 		var joincfg = cfg.toolbar[i].join("|"); 
 		if(/htmlmode/.test(joincfg)) {
 			cfg.toolbar[i] = joincfg.replace(/htmlmode/, "htmlmode|quickeditor").split("|");
@@ -42,14 +42,17 @@ QuickTag.prototype.buttonPress = function(editor) {
 	param.editor = editor;
 
   	if(/\w/.test(sel)) {
-    		editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param, 390, 105);
+    		editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param, 450, 108);
   	} else {
 		alert(i18n['You have to select some text']);
 	}
 };
 
 QuickTag.prototype.setTag = function(param) { 
-	this.editor.surroundHTML(param.tagopen,param.tagclose);
+	if(param && typeof param.tagopen != "undefined") {
+		this.editor.focusEditor();
+		this.editor.surroundHTML(param.tagopen,param.tagclose);
+	}
 };
 
 QuickTag._pluginInfo = {

@@ -30,50 +30,40 @@ function comboSelectValue(c, val) {
 	c.value = val;
 };
 
-function __dlg_onclose() {
-	opener.Dialog._return(null);
-};
-
-function __dlg_init(bottom) {
+function __dlg_init(bottom,noResize) {
 	var body = document.body;
-	var body_height = 0;
-	if (typeof bottom == "undefined") {
-		var div = document.createElement("div");
-		body.appendChild(div);
-		var pos = getAbsolutePos(div);
-		body_height = pos.y;
-	} else {
-		var pos = getAbsolutePos(bottom);
-		body_height = pos.y + bottom.offsetHeight;
-	}
+	window.focus();
 	window.dialogArguments = window.opener.Dialog._arguments;
 	if (!document.all) {
-		window.sizeToContent();
-		window.sizeToContent();	// for reasons beyond understanding,
-					// only if we call it twice we get the
-					// correct size.
-		window.addEventListener("unload", __dlg_onclose, true);
-		window.innerWidth = body.offsetWidth + 5;
-		window.innerHeight = body_height + 2;
-		// center on parent
-		var x = window.opener.screenX + (window.opener.outerWidth - window.outerWidth) / 2;
-		var y = window.opener.screenY + (window.opener.outerHeight - window.outerHeight) / 2;
-		window.moveTo(x, y);
+			// resize to contents if allowed
+		if(!noResize) {
+			setTimeout( function() {
+					// resize if allowed
+				try {
+					window.sizeToContent();
+				} catch(e) { };
+					// center on parent if allowed
+				var x = window.opener.screenX + (window.opener.outerWidth - window.outerWidth) / 2;
+				var y = window.opener.screenY + (window.opener.outerHeight - window.outerHeight) / 2;
+				try {
+					window.moveTo(x, y);
+				} catch(e) { };
+			}, 25);
+		}
 	} else {
-		// window.dialogHeight = body.offsetHeight + 50 + "px";
-		// window.dialogWidth = body.offsetWidth + "px";
-		window.resizeTo(body.offsetWidth, body_height);
-		var ch = body.clientHeight;
-		var cw = body.clientWidth;
-		window.resizeBy(body.offsetWidth - cw, body_height - ch);
+			// resize if allowed
+		var w = body.scrollWidth + 4;
+		var h = body.scrollHeight + 4;
+		window.resizeTo(w + 8, h + 25);
+			// center on parent if allowed
 		var W = body.offsetWidth;
-		var H = 2 * body_height - ch;
+		var H = body.offsetHeight;
 		var x = (screen.availWidth - W) / 2;
 		var y = (screen.availHeight - H) / 2;
 		window.moveTo(x, y);
 	}
-	document.body.onkeypress = __dlg_close_on_esc;
-	if (window.focus) { window.focus(); };
+		// capture escape events
+	HTMLArea._addEvent(document, "keypress", __dlg_close_on_esc);
 };
 
 function __dlg_translate(i18n) {
@@ -94,11 +84,6 @@ function __dlg_translate(i18n) {
 					span.title = txt;
 				}
 			}
-				// resetting the selected option for Mozilla 1.5
-			if (types[type] == "option" && span.selected ) {
-					span.selected = false;
-					span.selected = true;
-			}
 		}
 	}
 	var txt = i18n[document.title];
@@ -108,13 +93,14 @@ function __dlg_translate(i18n) {
 
 // closes the dialog and passes the return info upper.
 function __dlg_close(val) {
-	opener.Dialog._return(val);
+	if(window.opener && window.opener.Dialog) window.opener.Dialog._return(val);
 	window.close();
 };
 
 function __dlg_close_on_esc(ev) {
-	ev || (ev = window.event);
+	if(!ev) var ev = window.event;
 	if (ev.keyCode == 27) {
+		if(window.opener && window.opener.Dialog) window.opener.Dialog._return(null);
 		window.close();
 		return false;
 	}

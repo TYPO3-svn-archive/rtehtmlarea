@@ -1,5 +1,4 @@
 .htmlarea { background: #fff; }
-
 .htmlarea .toolbar {
   cursor: default;
   background: ButtonFace;
@@ -10,7 +9,6 @@
 .htmlarea .toolbar table { font-family: tahoma,verdana,sans-serif; font-size: 11px; }
 .htmlarea .toolbar img { border: none; }
 .htmlarea .toolbar .label { padding: 0px 3px; }
-
 .htmlarea .toolbar .button {
   background: ButtonFace;
   color: ButtonText;
@@ -20,18 +18,13 @@
   width: 18px;
   height: 18px;
 }
-.htmlarea .toolbar .buttonHover {
-  border: 1px solid;
-  border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
-}
+.htmlarea .toolbar .buttonHover { border: 1px solid; border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight; }
 .htmlarea .toolbar .buttonActive, .htmlarea .toolbar .buttonPressed {
   padding: 2px 0px 0px 2px;
   border: 1px solid;
   border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
 }
-.htmlarea .toolbar .buttonPressed {
-  background: ButtonHighlight;
-}
+.htmlarea .toolbar .buttonPressed { background: ButtonHighlight; }
 .htmlarea .toolbar .indicator {
   padding: 0px 3px;
   overflow: hidden;
@@ -41,11 +34,7 @@
   border: 1px solid ButtonShadow;
 }
 
-.htmlarea .toolbar .buttonDisabled img {
-  filter: alpha(opacity = 25);
-  -moz-opacity: 0.25;
-}
-
+.htmlarea .toolbar .buttonDisabled img { filter: alpha(opacity = 25); -moz-opacity: 0.25; }
 .htmlarea .toolbar .separator {
   position: relative;
   margin: 3px;
@@ -57,13 +46,10 @@
 }
 
 .htmlarea .toolbar .space { width: 5px; }
-
 .htmlarea .toolbar select { font: 11px Tahoma,Verdana,sans-serif; }
-
 .htmlarea .toolbar select,
 .htmlarea .toolbar select:hover,
 .htmlarea .toolbar select:active { background: FieldFace; color: ButtonText; }
-
 .htmlarea .statusBar {
   border: 1px solid;
   border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
@@ -72,12 +58,10 @@
   color: ButtonText;
   font: 11px Tahoma,Verdana,sans-serif;
 }
-
 .htmlarea .statusBar .statusBarTree a {
   padding: 2px 5px;
   color: #00f;
 }
-
 .htmlarea .statusBar .statusBarTree a:visited { color: #00f; }
 .htmlarea .statusBar .statusBarTree a:hover {
   background-color: Highlight;
@@ -86,95 +70,47 @@
   border: 1px solid HighlightText;
 }
 
-
-/* Hidden DIV popup dialogs (PopupDiv) */
-
-.dialog {
-  color: ButtonText;
-  background: ButtonFace;
-}
-
-.dialog .content { padding: 2px; }
-
-.dialog, .dialog button, .dialog input, .dialog select, .dialog textarea, .dialog table {
-  font: 11px Tahoma,Verdana,sans-serif;
-}
-
-.dialog table { border-collapse: collapse; }
-
-.dialog .title {
-  background: #ddf;
-  color: #ff8;
-  border-bottom: 1px solid #000;
-  padding: 1px 0px 2px 5px;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: default;
-}
-
-.dialog .title .button {
-  float: right;
-  border: 1px solid #66a;
-  padding: 0px 1px 0px 2px;
-  margin-right: 1px;
-  color: #fff;
-  text-align: center;
-}
-
+/* 
+.dialog .title .button { float: right; border: 1px solid #66a; padding: 0px 1px 0px 2px; margin-right: 1px; color: #fff; text-align: center; }
 .dialog .title .button-hilite { border-color: #88f; background: #44c; }
+ */
 
-.dialog button {
-  width: 5em;
-  padding: 0px;
-}
-
-.dialog .buttonColor {
-  padding: 1px;
-  cursor: default;
-  border-width: 1px;
-  border-style: solid;
-  border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
-}
-
+.dialog .buttonColor { padding: 1px; cursor: default; border-width: 1px; border-style: solid; border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight; }
 .dialog .buttonColor-hilite { border-color: black black black black; }
-
-.dialog .buttonColor .chooser, .dialog .buttonColor .nocolor {
-  height: 0.6em;
-  border-width: 1px;
-  border-style: solid;
-  padding: 0px 1em;
-  border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-}
-
+.dialog .buttonColor .chooser, .dialog .buttonColor .nocolor { height: 0.6em; border-width: 1px; border-style: solid; padding: 0px 1em; border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow; }
 .dialog .buttonColor .nocolor { padding: 0px; }
 .dialog .buttonColor .nocolor-hilite { background-color: #fff; color: #f00; cursor: pointer}
-
 .dialog .label { text-align: right; width: 6em; }
 .dialog .value input { width: 100%; }
-.dialog .buttons { text-align: right; padding: 2px 4px 0px 4px; }
 
-.dialog legend { font-weight: bold; }
-.dialog fieldset table { margin: 2px 0px; }
-
-.popupdiv { border: 2px solid; border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight; }
-.popupwin { padding: 0px; margin: 0px; }
-
-.popupwin .title {
-  background: #ddf;
-  color: #000;
-  font-weight: bold;
-  font-size: 120%;
-  padding: 3px 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid black;
-  letter-spacing: 2px;
-}
-
-form { margin: 0px; border: none; }
+/* Selectors for popup windows */
+.popupwin { background-color: ButtonFace; color: ButtonText; font-size: 11px; font-family: Tahoma,Verdana,sans-serif; }
+.popupwin body { background-color: ButtonFace; color: ButtonText; font-size: 11px; font-family: Tahoma,Verdana,sans-serif; margin: 5px; padding: 0px; border-style: none; }
+.popupwin .title { background-color: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-top: 0px; margin-bottom: 10px; border-top: 0px; border-bottom: 1px solid black; letter-spacing: 2px; }
+.popupwin .content { padding: 0px; margin: 0px; border-style: none; }
+.popupwin table { border-collapse: collapse; border-style: none; margin: 0px; padding: 0px; }
+.popupwin form { padding: 0px; margin: 0px; border-style: none; }
+.popupwin form p { margin-top: 5px; margin-bottom: 5px; }
+.popupwin fieldset { margin-top: 5px; margin-bottom: 0px; padding: 5px 5px 5px 5px; }
+.popupwin legend { font-weight: bold; }
+.popupwin .floating { float: left; }
+.popupwin .field { margin-left: 5px; float: left; padding: 2px 5px; text-align: left; }
+.popupwin fieldset table { font-size: 11px; font-family: Tahoma,Verdana,sans-serif; margin: 2px 0px; padding: 0px; border-style: none; }
+.popupwin .buttons { clear: both; margin-top: 10px; border-top: 1px solid #999; padding: 5px; text-align: right; }
+.popupwin select, input, button, textarea, table { font: 11px Tahoma,Verdana,sans-serif; }
+.popupwin button { width: 8em; padding: 0px; }
+.popupwin .fl { width: 12em; float: left; padding: 2px 5px; text-align: right; }
+.popupwin .fr { width: 9em; float: left; padding: 2px 5px; text-align: right; }
+.popupwin .space { padding: 2px; }
+*#--HA-layout { width: 450px; }
 
 .colorTable { border-right: black 1px solid; BORDER-TOP: black 1px solid; BORDER-LEFT: black 1px solid; BORDER-BOTTOM: black 1px solid; }
 .currentColor { border-right: black 1px solid; BORDER-TOP: black 1px solid; margin-top: 0pt; margin-right: 15pt; margin-bottom: 0pt; margin-left: 15pt; BORDER-LEFT: black 1px solid; WIDTH: 20px; BORDER-BOTTOM: black 1px solid; HEIGHT: 20px; }
-.colorTable TR { height: 6px; }
-.colorTable TD { width: 6px; cursor: pointer; }
+.colorTable tr { height: 6px; }
+.colorTable td { width: 6px; cursor: pointer; }
 
 .pleasewait { text-align: left; font-size: 8pt; position: relative; top: 80; margin-top: 30px; }
+
+/* Selectors for the InsertSmiley plugin */
+div.smileytable  { height: 125px; overflow:auto; }
+.smileytable td { width: 35px; height: 25px; }

@@ -840,11 +840,7 @@ HTMLArea.prototype.generate = function () {
 			if(HTMLArea.is_ie) doc.body.contentEditable = true;
 
 				// intercept some events for updating the toolbar & keyboard handlers
-			HTMLArea._addEvents
-				(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"],
-				 function (event) {
-				 	return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
-				 });
+			HTMLArea._addEvents(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], function(ev) { editor._editorEvent(ev); });
 
 			setTimeout( function() {
 					// check if any plugins have registered refresh handlers
@@ -1142,7 +1138,7 @@ HTMLArea.prototype.forceRedraw = function() {
 HTMLArea.prototype.focusEditor = function() {
 	switch (this._editMode) {
 	    case "wysiwyg" :
-		this._iframe.contentWindow.focus();  
+		try { this._iframe.contentWindow.focus(); } catch(e) { };
 		break;
 	    case "textmode":
 		this._textArea.focus();
@@ -1611,7 +1607,7 @@ HTMLArea.prototype._createLink = function(link) {
 			f_usetarget : editor.config.makeLinkShowsTarget
 		};
 	this._popupDialog("link.html", function(param) {
-		if (!param)
+		if (!param || typeof param.f_href == "undefined")
 			return false;
 		var a = link;
 		if (!a) try {
@@ -1642,8 +1638,8 @@ HTMLArea.prototype._createLink = function(link) {
 		}
 		if (!(a && /^a$/i.test(a.tagName)))
 			return false;
-		a.target = param.f_target.trim();
-		a.title = param.f_title.trim();
+		if(typeof param.f_target != "undefined") a.target = param.f_target.trim();
+		if(typeof param.f_title != "undefined") a.title = param.f_title.trim();
 		editor.selectNodeContents(a);
 		editor.updateToolbar();
 	}, outparam, 400, 145);
@@ -1666,10 +1662,11 @@ HTMLArea.prototype._insertImage = function(image) {
 		f_border : image.border,
 		f_align  : image.align,
 		f_vert   : image.vspace,
-		f_horiz  : image.hspace
+		f_horiz  : image.hspace,
+ 		f_style  : HTMLArea.is_ie ? image.style.styleFloat : image.style.cssFloat
 	};
 	this._popupDialog("insert_image.html", function(param) {
-		if (!param) {	// user must have pressed Cancel
+		if (!param || typeof param.f_url == "undefined") {	// user must have pressed Cancel
 			return false;
 		}
 		var img = image;
@@ -1693,14 +1690,15 @@ HTMLArea.prototype._insertImage = function(image) {
 		for (var field in param) {
 			var value = param[field];
 			switch (field) {
-			    case "f_alt"    : img.alt	 = value; break;
-			    case "f_border" : img.border = parseInt(value || "0"); break;
-			    case "f_align"  : img.align	 = value; break;
-			    case "f_vert"   : img.vspace = parseInt(value || "0"); break;
-			    case "f_horiz"  : img.hspace = parseInt(value || "0"); break;
+				case "f_alt"    : img.alt	 = value; break;
+				case "f_border" : img.border = parseInt(value || "0"); break;
+				case "f_align"  : img.align	 = value; break;
+				case "f_vert"   : img.vspace = parseInt(value || "0"); break;
+				case "f_horiz"  : img.hspace = parseInt(value || "0"); break;
+				case "f_style"  : if (HTMLArea.is_ie) { img.style.styleFloat = value; }  else { img.style.cssFloat = value;} break; 
 			}
 		}
-	}, outparam, 400, 385);
+	}, outparam, 530, 385);
 };
 
 // Called when the user clicks the Insert Table button
@@ -1731,8 +1729,7 @@ HTMLArea.prototype._insertTable = function() {
 			}
 		}
 		var cellwidth = 0;
-		if (param.f_fixed)
-			cellwidth = Math.floor(100 / parseInt(param.f_cols));
+		if (param.f_fixed) cellwidth = Math.floor(100 / parseInt(param.f_cols));
 		var tbody = doc.createElement("tbody");
 		table.appendChild(tbody);
 		for (var i = 0; i < param["f_rows"]; ++i) {
@@ -1754,7 +1751,7 @@ HTMLArea.prototype._insertTable = function() {
 			editor.insertNodeAtSelection(table);
 		}
 		return true;
-	}, null, 440, 175);
+	}, null, 500, 210);
 };
 
 /***************************************************
@@ -1877,6 +1874,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 /** A generic event handler for things that happen in the IFRAME's document.
  * This function also handles key bindings. */
 HTMLArea.prototype._editorEvent = function(ev) {
+	if(!ev) var ev = this._iframe.contentWindow.event;
 	var editor = this;
 	var keyEvent = (HTMLArea.is_ie && ev.type == "keydown") || (!HTMLArea.is_ie && ev.type == "keypress");
 
@@ -2145,6 +2143,25 @@ HTMLArea.prototype.setDoctype = function(doctype) {
 	this.doctype = doctype;
 };
 
+HTMLArea.prototype.fakeEditorEvent = function(ev) {
+	HTMLArea._stopEvent(ev);
+	return false;
+};
+
+HTMLArea.prototype.editorEventResume = function() {
+	if(this.saveEditorEvent != this.fakeEditorEvent) {
+		this._editorEvent = this.saveEditorEvent;
+		this.saveEditorEvent = this.fakeEditorEvent;
+	}
+};
+
+HTMLArea.prototype.editorEventSuspend = function() {
+	if(this._editorEvent != this.fakeEditorEvent) {
+		this.saveEditorEvent = this._editorEvent;
+		this._editorEvent = this.fakeEditorEvent;
+	}
+};
+
 /***************************************************
  *  Category: UTILITY FUNCTIONS
  ***************************************************/
@@ -2242,7 +2259,7 @@ HTMLArea._removeEvent = function(el, evname, func) {
 	if (HTMLArea.is_ie) {
 		el.detachEvent("on" + evname, func);
 	} else {
-		el.removeEventListener(evname, func, true);
+		try { el.removeEventListener(evname, func, true); } catch(e) { };
 	}
 };
 
@@ -2536,8 +2553,8 @@ HTMLArea._colorToRgb = function(v) {
 // receives an URL to the popup dialog and a function that receives one value;
 // this function will get called after the dialog is closed, with the return
 // value of the dialog.
-HTMLArea.prototype._popupDialog = function(url, action, init, width, height) {
-	Dialog(this.popupURL(url), action, init, width, height);
+HTMLArea.prototype._popupDialog = function(url, action, init, width, height, _opener) {
+	Dialog(this.popupURL(url), action, init, width, height, (_opener ? _opener : this._iframe.contentWindow ), this);
 };
 
 // paths
@@ -2557,8 +2574,9 @@ HTMLArea.prototype.popupURL = function(file) {
 		if (!/\.html$/.test(popup))
 			popup += ".html";
 		url = _editor_url + "plugins/" + plugin + "/popups/" + popup;
-	} else
-		url = _editor_url + this.config.popupURL + file;
+	} else {
+		url = _typo3_site_url + _editor_url.replace(/^\//, '') + this.config.popupURL + file;
+	}
 	return url;
 };
 
@@ -2630,11 +2648,6 @@ function updateToolbarRemove() {
  */
 HTMLArea.prototype.nonStripBaseURL = function(url) {
 	return url;
-};
-
-/** Hit the Popup */
-function edHidePopup() {
-	Dialog._modal.close();
 };
 
 /*
@@ -2729,10 +2742,10 @@ HTMLArea.prototype.renderPopup_image = function() {
 
 function renderPopup_insertImage(image) {
 	var editor = RTEarea[activEditerNumber]["editor"];
-	
+	editor.focusEditor();
 	editor.insertHTML(image);
 	_selectedImage="";
-	edHidePopup();
+	Dialog._modal.close();
 	activEditerNumber = -1; // Unset
 };
 
@@ -2743,6 +2756,8 @@ function renderPopup_insertImage(image) {
 */
 function renderPopup_addLink(theLink,cur_target) {
 	var editor = RTEarea[activEditerNumber]["editor"];
+
+	editor.focusEditor();
 
 	if(!HTMLArea.is_ie) {
 		var sel = null;
@@ -2773,7 +2788,7 @@ function renderPopup_addLink(theLink,cur_target) {
 		a.target = cur_target.trim();
 	}
 	
-	edHidePopup();
+	Dialog._modal.close();
 	activEditerNumber = -1; // Unset
 };
 
@@ -2785,6 +2800,8 @@ function renderPopup_addLink(theLink,cur_target) {
 */
 function renderPopup_unLink() {
 	var editor = RTEarea[activEditerNumber]["editor"];
+
+	editor.focusEditor();
 
 	if(!HTMLArea.is_ie) {
 		var sel = null;
@@ -2801,7 +2818,7 @@ function renderPopup_unLink() {
 
 	editor._doc.execCommand("unLink", false, "");
 
-	edHidePopup();
+	Dialog._modal.close();
 	activEditerNumber = -1; // Unset
 };
 

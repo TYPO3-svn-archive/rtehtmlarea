@@ -81,6 +81,7 @@ TableOperations.prototype.getClosest = function(tagName) {
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
 TableOperations.prototype.dialogTableProperties = function() {
+	var editor = this.editor;
 	var i18n = TableOperations.I18N;
 	// retrieve existing values
 	var table = this.getClosest("table");
@@ -88,6 +89,7 @@ TableOperations.prototype.dialogTableProperties = function() {
 	// this.editor.updateToolbar();
 
 	var dialog = new PopupWin(this.editor, i18n["Table Properties"], function(dialog, params) {
+		dialog.editor.focusEditor();
 		TableOperations.processStyle(params, table);
 		for (var i in params) {
 			var val = params[i];
@@ -170,7 +172,6 @@ TableOperations.prototype.dialogTableProperties = function() {
 		};
 
 		// dialog contents
-		dialog.content.style.width = "400px";
 		dialog.content.innerHTML = " \
 <div class='title'\
  style='background: url(" + dialog.baseURL + dialog.editor.imgURL("table-prop.gif", "TableOperations") + ") #ddf 98% 50% no-repeat'>" + i18n["Table Properties"] + "\
@@ -263,7 +264,7 @@ TableOperations.prototype.dialogTableProperties = function() {
   </tr> \
 </table> \
 ";
-		var st_prop = TableOperations.createStyleFieldset(dialog.doc, dialog.editor, table);
+		var st_prop = TableOperations.createStyleFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table);
 		var p = dialog.doc.getElementById("--HA-style");
 		p.appendChild(st_prop);
 		var st_layout = TableOperations.createStyleLayoutFieldset(dialog.doc, dialog.editor, table);
@@ -272,7 +273,7 @@ TableOperations.prototype.dialogTableProperties = function() {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement(dialog.editor._iframe, "c");
-	}, 410, 540);
+	}, 470, 620);
 };
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
@@ -281,10 +282,9 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 	// retrieve existing values
 	var element = this.getClosest(cell ? "td" : "tr");
 	var table = this.getClosest("table");
-	// this.editor.selectNodeContents(element);
-	// this.editor.updateToolbar();
-
-	var dialog = new PopupWin(this.editor, i18n[cell ? "Cell Properties" : "Row Properties"], function(dialog, params) {
+	if(element) {
+	   var dialog = new PopupWin(this.editor, i18n[cell ? "Cell Properties" : "Row Properties"], function(dialog, params) {
+		dialog.editor.focusEditor();
 		TableOperations.processStyle(params, element);
 		for (var i in params) {
 			var val = params[i];
@@ -313,7 +313,6 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 
 	// this function gets called when the dialog needs to be initialized
 	function (dialog) {
-
 		var f_align = element.align;
 		var f_valign = element.vAlign;
 		var f_char = element.ch;
@@ -323,7 +322,6 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		};
 
 		// dialog contents
-		dialog.content.style.width = "400px";
 		dialog.content.innerHTML = " \
 <div class='title'\
  style='background: url(" + dialog.baseURL + dialog.editor.imgURL(cell ? "cell-prop.gif" : "row-prop.gif", "TableOperations") + ") #ddf 98% 50% no-repeat'>" + i18n[cell ? "Cell Properties" : "Row Properties"] + "</div> \
@@ -364,7 +362,7 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
   </tr> \
 </table> \
 ";
-		var st_prop = TableOperations.createStyleFieldset(dialog.doc, dialog.editor, element);
+		var st_prop = TableOperations.createStyleFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element);
 		var p = dialog.doc.getElementById("--HA-style");
 		p.appendChild(st_prop);
 		var st_layout = TableOperations.createStyleLayoutFieldset(dialog.doc, dialog.editor, element);
@@ -373,7 +371,8 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement(dialog.editor._iframe, "c");
-	}, 410, 265);
+	   }, 440, 298);
+	}
 };
 
 // this function gets called when some button from the TableOperations toolbar
@@ -796,7 +795,7 @@ TableOperations.processStyle = function(params, element) {
 // the sooner-or-later-to-be-rewritten select_color.html dialog allowing user
 // to select some color.  If a color is selected, an input field with the name
 // "f_st_"+name will be updated with the color value in #123456 format.
-TableOperations.createColorButton = function(doc, editor, color, name) {
+TableOperations.createColorButton = function(w, doc, editor, color, name) {
 	if (!color) {
 		color = "";
 	} else if (!/#/.test(color)) {
@@ -827,14 +826,14 @@ TableOperations.createColorButton = function(doc, editor, color, name) {
 		var selectColorPlugin = editor.plugins.SelectColor;
 		if (selectColorPlugin) selectColorPlugin = selectColorPlugin.instance;
 		if (selectColorPlugin) {
-			selectColorPlugin.dialogSelectColor("color", span, field);
+			selectColorPlugin.dialogSelectColor("color", span, field, w);
 		} else { 
 			editor._popupDialog("select_color.html", function(color) {
 				if (color) {
 					span.style.backgroundColor = "#" + color;
 					field.value = "#" + color;
 				}
-			}, color);
+			}, color, 200, 182, w);
 		}
 // End change for TYPO3 ColorSelect by Stanislas Rolland 2004-11-03
 	};
@@ -877,7 +876,6 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 		td = doc.createElement("td");
 		tr.appendChild(td);
 		select = doc.createElement("select");
-		td.appendChild(select);
 		select.name = "f_st_float";
 		options = ["None", "Left", "Right"];
 		for (var i = 0; i < options.length; ++i) {
@@ -889,6 +887,7 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 			option.selected = (("" + el.style.cssFloat).toLowerCase() == val);
 			select.appendChild(option);
 		}
+		td.appendChild(select);
 	}
 
 	tr = doc.createElement("tr");
@@ -988,7 +987,6 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 	select = doc.createElement("select");
 	select.name = "f_st_verticalAlign";
 	select.style.marginLeft = "0.5em";
-	td.appendChild(select);
 	options = ["Top", "Middle", "Bottom", "Baseline"];
 	for (var i = 0; i < options.length; ++i) {
 		var Val = options[i];
@@ -999,6 +997,7 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 		option.selected = (el.style.verticalAlign.toLowerCase() == val);
 		select.appendChild(option);
 	}
+	td.appendChild(select);
 
 	return fieldset;
 };
@@ -1006,7 +1005,7 @@ TableOperations.createStyleLayoutFieldset = function(doc, editor, el) {
 // Returns an HTML element containing the style attributes for the given
 // element.  This can be easily embedded into any dialog; the functionality is
 // also provided.
-TableOperations.createStyleFieldset = function(doc, editor, el) {
+TableOperations.createStyleFieldset = function(w, doc, editor, el) {
 	var i18n = TableOperations.I18N;
 	var fieldset = doc.createElement("fieldset");
 	var legend = doc.createElement("legend");
@@ -1028,7 +1027,7 @@ TableOperations.createStyleFieldset = function(doc, editor, el) {
 	td.innerHTML = i18n["Background"] + ":";
 	td = doc.createElement("td");
 	tr.appendChild(td);
-	var df = TableOperations.createColorButton(doc, editor, el.style.backgroundColor, "backgroundColor");
+	var df = TableOperations.createColorButton(w, doc, editor, el.style.backgroundColor, "backgroundColor");
 	df.firstChild.nextSibling.style.marginRight = "0.5em";
 	td.appendChild(df);
 	td.appendChild(doc.createTextNode(i18n["Image URL"] + ": "));
@@ -1049,7 +1048,7 @@ TableOperations.createStyleFieldset = function(doc, editor, el) {
 	td.innerHTML = i18n["FG Color"] + ":";
 	td = doc.createElement("td");
 	tr.appendChild(td);
-	td.appendChild(TableOperations.createColorButton(doc, editor, el.style.color, "color"));
+	td.appendChild(TableOperations.createColorButton(w, doc, editor, el.style.color, "color"));
 
 	// for better alignment we include an invisible field.
 	input = doc.createElement("input");
@@ -1066,7 +1065,7 @@ TableOperations.createStyleFieldset = function(doc, editor, el) {
 	td = doc.createElement("td");
 	tr.appendChild(td);
 
-	var colorButton = TableOperations.createColorButton(doc, editor, el.style.borderColor, "borderColor");
+	var colorButton = TableOperations.createColorButton(w, doc, editor, el.style.borderColor, "borderColor");
 	var btn = colorButton.firstChild.nextSibling;
 	td.appendChild(colorButton);
 	// borderFields.push(btn);

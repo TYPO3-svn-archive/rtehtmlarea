@@ -3,6 +3,8 @@
 // Implementation by Mihai Bazon, http://dynarch.com/mishoo/
 //
 // (c) dynarch.com 2003.
+// (c) 2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
+// Modified to use the standard dialog API 
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 //
@@ -17,8 +19,6 @@ var initial_dictionary = SpellChecker.f_dictionary;
 var pspell_charset = SpellChecker.f_charset;
 var pspell_mode = SpellChecker.f_pspell_mode;
 
-var HTMLArea = window.opener.HTMLArea;
-var is_ie = HTMLArea.is_ie;
 var editor = SpellChecker.editor;
 var frame = null;
 var currentElement = null;
@@ -39,9 +39,6 @@ function makeCleanDoc(leaveFixed) {
 		} else
 			el.className = "HA-spellcheck-fixed";
 	}
-	// we should use innerHTML here, but IE6's implementation fucks up the
-	// HTML to such extent that our poor Perl parser doesn't understand it
-	// anymore.
 	return window.opener.HTMLArea.getHTML(frame.contentWindow.document.body, false, editor);
 };
 
@@ -159,25 +156,12 @@ function learnClicked() {
 	return false;
 };
 
-function internationalizeWindow() {
-	var types = ["div", "span", "button", "title"];
-	for (var i = 0; i < types.length; ++i) {
-		var tag = types[i];
-		var els = document.getElementsByTagName(tag);
-		for (var j = els.length; --j >= 0;) {
-			var el = els[j];
-			if (el.childNodes.length == 1 && /\S/.test(el.innerHTML)) {
-				var txt = el.innerHTML;
-				if (typeof i18n[txt] != "undefined") {
-					el.innerHTML = i18n[txt];
-				}
-			}
-		}
-	}
-};
-
 function initDocument() {
-	internationalizeWindow();
+	__dlg_translate(i18n);
+	__dlg_init();
+	var param = window.dialogArguments;
+	editor = param['editor'];
+	HTMLArea = param['HTMLArea'];
 	modified = false;
 	document.title = i18n["Spell Checker"];
 	frame = document.getElementById("i_framecontent");
@@ -190,13 +174,12 @@ function initDocument() {
 	document.getElementById("f_pspell_mode").value = pspell_mode;
 	field.form.submit();
 
-	// assign some global event handlers
-
+		// assign some global event handlers
 	var select = document.getElementById("v_suggestions");
 	select.onchange = function() {
 		document.getElementById("v_replacement").value = this.value;
 	};
-	if (is_ie) {
+	if (HTMLArea.is_ie) {
 		select.attachEvent("ondblclick", replaceClicked);
 	} else {
 		select.addEventListener("dblclick", replaceClicked, true);
@@ -350,10 +333,10 @@ function finishedSpellChecking() {
 		// 2004-09-08 Stanislas Rolland: Took out Info Reference because irrelevant in the context of Typo3
 		// 
 	var doc = frame.contentWindow.document;
-        var spans = doc.getElementsByTagName("span");
-        var sps = [];
+	var spans = doc.getElementsByTagName("span");
+	var sps = [];
 	var id = 0;
-        for (var i = 0; i < spans.length; ++i) {
+		for (var i = 0; i < spans.length; ++i) {
                 var el = spans[i];
                 if (/HA-spellcheck-error/.test(el.className)) {
                         sps.push(el);
@@ -421,9 +404,3 @@ function finishedSpellChecking() {
 		}
 	}
 };
-
-
-
-
-
-

@@ -155,6 +155,7 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 	var index = tbobj.element.selectedIndex;
 	var className = tbobj.element.value;
 
+	editor.focusEditor();
 	var selTrimmed = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 	if(/\w/.test(selTrimmed)) {
 		var sel = editor._getSelection();

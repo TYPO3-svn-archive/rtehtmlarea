@@ -55,14 +55,14 @@ cfg.registerButton("FR-findreplace", i18n["Find and Replace"],
 };
 
 FindReplace.prototype.buttonPress = function(editor) { 
-FindReplace.editor = editor;
-var sel = editor.getSelectedHTML();
-  if(/\w/.test(sel)) {
-  sel = sel.replace(/<[^>]*>/g,"");
-  sel = sel.replace(/&nbsp;/g,"");
-  }
-var param = /\w/.test(sel) ? {fr_pattern: sel} : null;
-editor._popupDialog("plugin://FindReplace/find_replace", null, param, 345, 220);
+	FindReplace.editor = editor;
+	var sel = editor.getSelectedHTML();
+	if(/\w/.test(sel)) {
+		sel = sel.replace(/<[^>]*>/g,"");
+		sel = sel.replace(/&nbsp;/g,"");
+	}
+	var param = /\w/.test(sel) ? {fr_pattern: sel} : null;
+	editor._popupDialog("plugin://FindReplace/find_replace", null, param, 345, 220);
 };
 
 FindReplace._pluginInfo = {
