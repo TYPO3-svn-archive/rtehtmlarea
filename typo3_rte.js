@@ -92,6 +92,11 @@ function initEditor(editornumber) {
 			editor.config.useHTTPS = RTEarea[editornumber]["useHTTPS"];
 		}
 
+		editor.config.useCSS = true;
+		if(RTEarea[editornumber]["useCSS"]) {
+			editor.config.useHTTPS = RTEarea[editornumber]["useCSS"];
+		}
+
 		editor.config.statusBar = true;
 		if(HTMLArea.is_ie && editor.config.statusBar) {
 			editor._customUndo = true;
