@@ -1,18 +1,11 @@
 <html>
-
 <head>
   <title>Remove formatting</title>
 
 <script type="text/javascript" src="../../../popups/popup.js"></script>
 <script type="text/javascript">
-
-
 	RemoveFormat = window.opener.RemoveFormat; 
 	window.resizeTo(300, 100);
-
-	var x = opener.screenX + (opener.outerWidth - window.outerWidth) / 2;
-	var y = opener.screenY + (opener.outerHeight - window.outerHeight) / 2;
-	window.moveTo(x, y);
 
 	function Init() {
 		var i18n = RemoveFormat.I18N;
@@ -22,7 +15,7 @@
 
 	function onOK() {
 		
-		var param = new Object();
+		var param = {};
 		var i18n = RemoveFormat.I18N;
 
 		if (document.getElementById('clean_selection').checked)	{
@@ -34,7 +27,7 @@
 		var fields = ["formatting", "ms_formatting", "images", "html_all"];
 
 		oneChecked = false;
-		for (var i in fields) {
+		for (var i=0; i<fields.length; i++) {
 			var id = fields[i];
 			var el = document.getElementById(id);
 			if (el.checked) {
