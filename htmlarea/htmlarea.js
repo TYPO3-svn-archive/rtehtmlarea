@@ -681,12 +681,8 @@ HTMLArea.prototype.generate = function () {
 		this._textArea = textarea = HTMLArea.getElementById("textarea", textarea);
 	}
 	this._ta_size = {
-// Begin change by Stanislas Rolland 2004-12-04
 		w: textarea.style.width,
 		h: textarea.style.height
-		//w: textarea.offsetWidth,
-		//h: textarea.offsetHeight
-// End change by Stanislas Rolland 2004-12-04
 	};
 	textarea.style.display = "none";
 
@@ -752,13 +748,10 @@ HTMLArea.prototype.generate = function () {
 
 	// create the IFRAME
 	var iframe = document.createElement("iframe");
-
 	// workaround for the HTTPS problem
 	// iframe.setAttribute("src", "javascript:void(0);");
 	iframe.src = _editor_url + "popups/blank.html";
-
 	htmlarea.appendChild(iframe);
-
 	this._iframe = iframe;
 
 	// creates & appends the status bar, if the case
@@ -766,12 +759,8 @@ HTMLArea.prototype.generate = function () {
 
 	// remove the default border as it keeps us from computing correctly
 	// the sizes.  (somebody tell me why doesn't this work in IE)
-
 	if (!HTMLArea.is_ie) {
 		iframe.style.borderWidth = "1px";
-	// iframe.frameBorder = "1";
-	// iframe.marginHeight = "0";
-	// iframe.marginWidth = "0";
 	}
 
 	// size the IFRAME according to user's prefs or initial textarea
@@ -801,37 +790,36 @@ HTMLArea.prototype.generate = function () {
 	textarea.style.width = iframe.style.width;
  	textarea.style.height = iframe.style.height;
 
-	// IMPORTANT: we have to allow Mozilla a short time to recognize the
-	// new frame.  Otherwise we get a stupid exception.
+	// IMPORTANT: we have to allow the browser a short time to recognize the new frame and it's document.
 	function initIframe() {
 		var doc = editor._iframe.contentWindow.document;
 		if (!doc) {
-			// Try again..
-			// FIXME: don't know what else to do here.  Normally
-			// we'll never reach this point.
-			if (HTMLArea.is_gecko) {
-				setTimeout(initIframe, 100);
-				return false;
-			} else {
-				alert("ERROR: IFRAME can't be initialized.");
-			}
-		}
-		if (HTMLArea.is_gecko) {
-			// enable editable mode for Mozilla
-			doc.designMode = "on";
+			setTimeout(initIframe, 50);
+			return false;
 		}
 		editor._doc = doc;
 		if (!editor.config.fullPage) {
-// Begin change by Stanislas Rolland 2004-11-13
-// Fix the initial loading in multiple frames when DynamicCSS is enabled
-			doc.open();
-			var html = "<html>\n";
-			html += "<head></head>\n";
-			html += "<body></body>\n";
-			html += "</html>";
-			doc.write(html);
-			doc.close();
-			var head = doc.getElementsByTagName("head")[0];
+			if(HTMLArea.is_gecko) {
+				var html = doc.documentElement;
+				if(!html) {
+					setTimeout(initIframe, 50);
+					return false;
+				}
+				var head = doc.createElement("head");
+				html.appendChild(head);
+				var body = doc.createElement("body");
+				html.appendChild(body);
+			} else {
+				// FIXME: for some reason the above method does not work completetly with IE
+				doc.open();
+				var html = "<html>\n";
+				html += "<head></head>\n";
+				html += "<body></body>\n";
+				html += "</html>";
+				doc.write(html);
+				doc.close();
+				var head = doc.getElementsByTagName("head")[0];
+			}
 			if (editor.config.baseURL) {
 				var base = doc.createElement("base");
 				base.href = editor.config.baseURL;
@@ -845,7 +833,6 @@ HTMLArea.prototype.generate = function () {
 			}
 			doc.body.innerHTML = editor._textArea.value;
 			doc.body.style.border = "0px";
-// End change by Stanislas Rolland 2004-11-13
 		} else {
 			var html = editor._textArea.value;
 			if (html.match(HTMLArea.RE_doctype)) {
@@ -856,48 +843,51 @@ HTMLArea.prototype.generate = function () {
 			doc.write(html);
 			doc.close();
 		}
-
-		if (HTMLArea.is_ie) {
-			// enable editable mode for IE.	 For some reason this
-			// doesn't work if done in the same place as for Gecko
-			// (above).
-			doc.body.contentEditable = true;
-		}
-
-		editor.focusEditor();
-		// check if any plugins have registered refresh handlers
-		for (var i in editor.plugins) {
-			var plugin = editor.plugins[i].instance;
-			if (typeof plugin.onGenerate == "function")
-				plugin.onGenerate();
-			if (typeof plugin.onGenerateOnce == "function") {
-				plugin.onGenerateOnce();
-				plugin.onGenerateOnce = null;
+		function stylesLoaded() {
+			var stylesAreLoaded = true;
+			var rules;
+			for(var rule=0;rule<doc.styleSheets.length;rule++){
+				if(HTMLArea.is_gecko) try{ rules = doc.styleSheets[rule].cssRules; } catch(e) { stylesAreLoaded = false; }
+				if(HTMLArea.is_ie) try{ rules = doc.styleSheets[rule].rules; } catch(e) { stylesAreLoaded = false; }
+				if(HTMLArea.is_ie) try{ rules = doc.styleSheets[rule].imports; } catch(e) { stylesAreLoaded = false; }
 			}
-		}
+			if(!stylesAreLoaded) {
+				setTimeout(stylesLoaded, 100);
+				return false;
+			}
 
-		editor.focusEditor();
-		// intercept some events; for updating the toolbar & keyboard handlers
-		HTMLArea._addEvents
-			(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"],
-			 function (event) {
-				 return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
-			 });
+			if (HTMLArea.is_gecko) doc.designMode = "on";
+			if (HTMLArea.is_ie) doc.body.contentEditable = true;
 
-		if (typeof editor.onGenerate == "function")
-			editor.onGenerate();
+			editor.focusEditor();
+			// check if any plugins have registered refresh handlers
+			for (var i in editor.plugins) {
+				var plugin = editor.plugins[i].instance;
+				if (typeof plugin.onGenerate == "function")
+					plugin.onGenerate();
+				if (typeof plugin.onGenerateOnce == "function") {
+					plugin.onGenerateOnce();
+					plugin.onGenerateOnce = null;
+				}
+			}
 
-		setTimeout(function() {
-// Begin change by Stanislas Rolland 2004-12-04
-// Initialize the selection correctly
+			// intercept some events; for updating the toolbar & keyboard handlers
+			editor.focusEditor();
+			HTMLArea._addEvents
+				(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"],
+				 function (event) {
+				 	return editor._editorEvent(HTMLArea.is_ie ? editor._iframe.contentWindow.event : event);
+				 });
+
+			editor.focusEditor();
+			if (typeof editor.onGenerate == "function")
+				editor.onGenerate();
+
 			editor.updateToolbar();
-			if (HTMLArea.is_gecko) {
-				setTimeout(function() { editor.setMode("wysiwyg"); }, 200);
-			}
-// End change by Stanislas Rolland 2004-12-04
-		}, 150);
+		};
+		stylesLoaded();
 	};
-	setTimeout(initIframe, 100);
+	setTimeout(initIframe, 50);
 };
 
 // Switches editor mode; parameter can be "textmode" or "wysiwyg".  If no
@@ -916,41 +906,19 @@ HTMLArea.prototype.setMode = function(mode) {
 		}
 		break;
 	    case "wysiwyg":
-		if (HTMLArea.is_gecko) {
-			// disable design mode before changing innerHTML
-			try {
-				this._doc.designMode = "off";
-			} catch(e) {};
-		}
+		if (HTMLArea.is_gecko) this._doc.designMode = "off";
 		if (!this.config.fullPage)
 			this._doc.body.innerHTML = this.getHTML();
 		else
 			this.setFullHTML(this.getHTML());
 		this._textArea.style.display = "none";
 		this._iframe.style.display = "block";
-		if (HTMLArea.is_gecko) {
-			// we need to refresh that info for Moz-1.3a
-			try {
-				this._doc.designMode = "on";
-			} catch(e) {};
-		}
+		if (HTMLArea.is_gecko) this._doc.designMode = "on";
 		if (this.config.statusBar) {
 			this._statusBar.innerHTML = '';
 			// this._statusBar.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
 			this._statusBar.appendChild(this._statusBarTree);
 		}
-// Begin change by Stanislas Rolland 2004-12-04
-// Set the selection at the start of the editor's content on return to wysiwyg mode
-		if (HTMLArea.is_gecko) { 
-			var node = this.getParentElement();
-			if(!node || typeof node == "undefined") node = this._doc.body;
-			if (node.firstChild && node.firstChild.nodeType == 3 ) node = node.firstChild;
-			var sel = this._getSelection();
-			if(sel && sel.length != 0) {
-				try{ sel.collapse(node,0); } catch(e) { }
-			}
-		}
-// End change by Stanislas Rolland 2004-12-04
 		break;
 	    default:
 		alert("Mode <" + mode + "> not defined!");
