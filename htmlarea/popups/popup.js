@@ -46,7 +46,7 @@ function __dlg_init(bottom) {
 		var pos = getAbsolutePos(bottom);
 		body_height = pos.y + bottom.offsetHeight;
 	}
-	window.dialogArguments = opener.Dialog._arguments;
+	window.dialogArguments = window.opener.Dialog._arguments;
 	if (!document.all) {
 		window.sizeToContent();
 		window.sizeToContent();	// for reasons beyond understanding,
@@ -56,8 +56,8 @@ function __dlg_init(bottom) {
 		window.innerWidth = body.offsetWidth + 5;
 		window.innerHeight = body_height + 2;
 		// center on parent
-		var x = opener.screenX + (opener.outerWidth - window.outerWidth) / 2;
-		var y = opener.screenY + (opener.outerHeight - window.outerHeight) / 2;
+		var x = window.opener.screenX + (window.opener.outerWidth - window.outerWidth) / 2;
+		var y = window.opener.screenY + (window.opener.outerHeight - window.outerHeight) / 2;
 		window.moveTo(x, y);
 	} else {
 		// window.dialogHeight = body.offsetHeight + 50 + "px";
@@ -119,7 +119,3 @@ function __dlg_close_on_esc(ev) {
 	}
 	return true;
 };
-
-
-
-

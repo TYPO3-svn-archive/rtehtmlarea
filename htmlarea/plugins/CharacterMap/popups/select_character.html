@@ -48,28 +48,23 @@ border-bottom: 1px solid black; letter-spacing: 2px;
 CharacterMap = window.opener.CharacterMap; // load the CharacterMap plugin and lang file ;-)
 window.resizeTo(480, 300);
 
-function _CloseOnEsc()
-{
-    if ( event.keyCode == 27 )
-    {
+function _CloseOnEsc() {
+    if ( event.keyCode == 27 ) {
         window.close();
         return;
     }
 }
 
-function Init()                                                         // run on page load
-{
+function Init() {
    __dlg_translate(CharacterMap.I18N);
    __dlg_init();
     document.body.onkeypress = _CloseOnEsc;
-
-    var character = '';                                                   // set default input to empty
+    var character = '';
     View( null, character );
 }
 
 var oldView = null;
-function View( td, character )               // preview character
-{
+function View(td, character) {
     if (oldView)
         oldView.className = oldView.className.replace(/\s+character-hilite/, '');
     document.getElementById( 'characterPreview' ).value = character;
@@ -78,17 +73,13 @@ function View( td, character )               // preview character
         (oldView = td).className += " character-hilite";
 }
 
-function Set( string )                // return character
-{
+function Set(string) {
     var character = string;
-
-    __dlg_close( character );
+    __dlg_close(character);
 }
 
-function onCancel()                   // cancel selection
-{
-    __dlg_close( null );
-
+function onCancel() {
+    __dlg_close(null);
     return false;
 };
 
