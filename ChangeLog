@@ -1,3 +1,7 @@
+2004-12-08  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Correcting the default language labels
+	* Making initialization DOM only.
+
 2004-12-04  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Cleaning up
 	* German translation
