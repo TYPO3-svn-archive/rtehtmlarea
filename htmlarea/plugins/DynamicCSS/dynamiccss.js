@@ -239,7 +239,7 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 	var className = "";
 	var parent = editor.getParentElement();
 	if(parent) {
-		tagName = parent.tagName.toLowerCase();
+		tagName = parent.nodeName.toLowerCase();
 		className = parent.className;
 	}
 
