@@ -1,3 +1,8 @@
+2005-03-13  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.55
+	* Adjust default skin, width, height.
+	* Clean up some code.
+
 2005-03-12  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.54
 	* Eliminate superfluous line break before and after edited content.

@@ -17,6 +17,8 @@
 	padding: 1px 1px 2px 1px;
 	border: 1px solid #e4e0db;
 	border-bottom: 1px solid #000;
+	margin: 0px;
+	width: 100%;
 }
 .htmlarea .toolbar table { 
 	width: 100%;
@@ -107,18 +109,26 @@
 }
 .htmlarea .toolbar select.buttonDisabled { 
 	background-color: #e4e0db;
-}.htmlarea iframe {
+}
+.htmlarea iframe {
 	margin: 0px;
+	padding: 0px;
 	border: 1px solid #000;
 	border-top: 0px;
+	width: 100%;
 }
 .htmlarea .statusBar {
 	border: 1px solid;
 	border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-	padding: 2px 4px;
-	background-color: ButtonFace;
+	padding: 0px;
+	margin: 0px;
+	background-color: #e4e0db;
 	color: ButtonText;
 	font: 11px Tahoma,Verdana,sans-serif;
+	width: 100%;
+}
+.htmlarea .statusBarTree {
+	padding: 2px 5px;
 }
 .htmlarea .statusBar .statusBarTree a {
  	padding: 2px 5px;
@@ -132,6 +142,9 @@
  	color: HighlightText;
  	padding: 1px 4px;
  	border: 1px solid HighlightText;
+}
+.htmlarea .statusBarTextMode {
+	padding: 2px 5px;
 }
 .dialog .buttonColor {
 	padding: 1px; cursor: default;
@@ -329,6 +342,7 @@
 
 /* Selectors for the InsertSmiley plugin */
 .popupwin div.smileytable {
+
  	height: 125px;
  	overflow:auto;
 }

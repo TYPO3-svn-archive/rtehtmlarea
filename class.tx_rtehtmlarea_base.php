@@ -422,7 +422,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$RTEHeight = 380;
 			$editorWrapWidth = $RTEWidth . 'px';
 			$editorWrapHeight = $RTEHeight . 'px';
-			$this->RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'position:relative; left:0px; top:0px; height:' . $RTEHeight . 'px; width:'.$RTEWidth.'px; border: 1px solid black;';
+			$this->RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'position:relative; left:0px; top:0px; height:' . $RTEHeight . 'px; width:'.$RTEWidth.'px; border: 1px solid black; padding: 2px 0px 2px 2px;';
 			$this->toolbar_level_size = $RTEWidth;
 
 			/* =======================================
@@ -492,8 +492,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 
 				// Check if wizard_rte called this for fullscreen edtition; if so, change the size of the RTE to fullscreen using JS
 			if (basename(PATH_thisScript) == 'wizard_rte.php') {
-				$height = 'window.innerHeight';
-				$width = 'window.innerWidth';
+				$height = 'self.innerHeight';
+				$width = 'self.innerWidth';
 				
 				if ($this->client['BROWSER'] == 'msie') {
 					$height = 'document.body.offsetHeight';
@@ -501,7 +501,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				}
 				$editorWrapWidth = '100%';
 				$editorWrapHeight = '100%';
-				$this->RTEdivStyle = 'position:relative; left:0px; top:0px; height:100%; width:100%; border: 1px solid black;';
+				$this->RTEdivStyle = 'position:relative; left:0px; top:0px; height:100%; width:100%; border: 1px solid black; padding: 2px 0px 2px 2px;';
 				$pObj->additionalJS_post[] = $this->setRTEsizeByJS('RTEarea'.$pObj->RTEcounter, $height, $width);
 			}
 			
