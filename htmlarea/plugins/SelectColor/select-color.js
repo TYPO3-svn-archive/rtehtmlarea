@@ -214,7 +214,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
 				dialog.content.style.width = "330px";
-				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n["color_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
 					var targ;

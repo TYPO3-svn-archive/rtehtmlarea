@@ -5,7 +5,6 @@
 <script type="text/javascript" src="../../../popups/popup.js"></script>
 <script type="text/javascript">
 
-//window.resizeTo(400, 130);
 var HTMLArea = window.opener.HTMLArea;
 var QuickTag = window.opener.QuickTag;
 var _quickTag_hideTags = window.opener._quickTag_hideTags;
@@ -16,24 +15,25 @@ var CSSEdit = false;
 var editor = null;
 
 function Init() {
-__dlg_translate(i18n);
-__dlg_init();
+	__dlg_translate(i18n);
+	__dlg_init();
 
-var param = window.dialogArguments;
-editor = param['editor'];
-var selectext = param['selectedText']; // sem uso...
+	var param = window.dialogArguments;
+	editor = param['editor'];
+	var selectext = param['selectedText']; // sem uso...
 
-//if(!document.all) window.resizeTo(400, 130); // i don't undertand why...
-
-createDropdown("tags");
+	createDropdown("tags");
   
-var to = document.getElementById('tagopen');
-  if (document.all) to.attachEvent("onkeypress", function(e) { choice_dropdown(e) });
-  else to.addEventListener("keypress", function(e) { choice_dropdown(e) }, true);
-to.focus();
+	var to = document.getElementById('tagopen');
+  	if (document.all) {
+		to.attachEvent("onkeypress", function(e) { choice_dropdown(e) });
+  	} else {
+		to.addEventListener("keypress", function(e) { choice_dropdown(e) }, true);
+	}
+	to.focus();
 
-document.getElementById('bt_colors').style.display = 'none';
-document.body.onkeypress = __dlg_key_press;
+	document.getElementById('bt_colors').style.display = 'none';
+	document.body.onkeypress = __dlg_key_press;
 };
 
 function onCancel() {
@@ -42,8 +42,8 @@ function onCancel() {
 };
 
 function quoteTest(val) {
-var er = /^\w+\s*(\w+=\"[^\"]*\"\s*|\w+=\'[^\']*\'\s*)*$/;
-return er.test(val);
+	var er = /^\w+\s*(\w+=\"[^\"]*\"\s*|\w+=\'[^\']*\'\s*)*$/;
+	return er.test(val);
 };
 
 function onOK() {
@@ -319,44 +319,25 @@ function colors() {
 		var colloc = window.location.toString().replace(/plugins.+$/,"") +
              	"popups/select_color.html";
 		window.open(colloc, 'colors', "toolbar=no,location=no,directories=no," +
-           		 "status=no,menubar=no,scrollbars=no,resizable=no,dependent=yes,width=240,height=182");
+           		 "menubar=no,scrollbars=no,resizable=no,dependent=yes,width=200,height=182");
 	}
 // End change for TYPO3 ColorSelect by Stanislas Rolland 2004-12-08
 };
 
 </script>
+
 <style type="text/css">
-html, body { 
-background: ButtonFace; 
-color: ButtonText; 
-font: 11px Tahoma,Verdana,sans-serif; 
-margin: 0px; 
-padding: 0px; 
-border-width: 0px; 
-}
+html, body { background: ButtonFace; color: ButtonText; font: 11px Tahoma,Verdana,sans-serif; margin: 0px; padding: 0px; border-width: 0px; }
 body { padding: 5px; }
 table { font: 11px Tahoma,Verdana,sans-serif; }
 select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
 button { width: 70px; }
 .space { padding: 2px; }
-.title { 
-background: #ddf; 
-color: #000; 
-font-weight: bold; 
-font-size: 120%; 
-padding: 3px 10px; 
-margin-bottom: 10px; 
-border-bottom: 1px solid black; 
-letter-spacing: 2px; 
-}
-.buttons { 
-border-top: 1px solid #999; 
-padding: 5px; 
-text-align: right; 
-height: 20px; 
-}
+.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px; border-bottom: 1px solid black; letter-spacing: 2px; }
+.buttons { border-top: 1px solid #999; padding: 5px; text-align: right; height: 20px; }
 form { padding: 0px; margin: 0px; }
 </style>
+
 </head>
   <body onload="Init()">
 <form action="" method="get">
@@ -366,9 +347,9 @@ form { padding: 0px; margin: 0px; }
     <tbody>
       <tr> 
         <td colspan="2" align="center" style="padding: 3px; background-color: #e9e9e9;"> 
-        <strong style="font-size: 14px">&lt;</strong>
-        <input id="tagopen" type="text" style="background-color: #e9e9e9; width: 327px; border-width: 0px;">
-        <strong style="font-size: 14px">&gt;</strong>
+        <strong style="font-size: 14px;">&lt;</strong>
+        <input id="tagopen" type="text" style="background-color: #e9e9e9; width: 327px; border-width: 0px;" />
+        <strong style="font-size: 14px;">&gt;</strong>
         </td>
       </tr>
     </tbody>
@@ -380,7 +361,7 @@ form { padding: 0px; margin: 0px; }
 <button type="button" id="bt_ok" onclick="return onOK();">Ok</button>
 <button type="button" onclick="return onCancel();">Cancel</button>
 </div>
-<div id="showselect" style="position:absolute; left:7px; top:75px; width:150px; z-index:100; visibility: visible; height: 13px; color: red;">
+<div id="showselect" style="position: absolute; left: 7px; top: 75px; width: 150px; z-index: 100; visibility: visible; height: 13px; color: red;">
 </div>
 </form>
 </body>

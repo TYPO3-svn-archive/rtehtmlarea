@@ -8,37 +8,44 @@
 QuickTag.I18N = QuickTag_langArray;
 
 function QuickTag(editor) {
-this.editor = editor;
-var cfg = editor.config;
-var self = this;
+	this.editor = editor;
+	var cfg = editor.config;
+	var self = this;
+	var i18n = QuickTag.I18N;
 
-cfg.registerButton("quickeditor", QuickTag.I18N["Quick Tag Editor"], 
-                   editor.imgURL("ed_quicktag.gif", "QuickTag"), false,
-                   function(editor) { self.buttonPress(editor); });
+	cfg.registerButton({
+		id       : "quickeditor", 
+		tooltip  : i18n["Quick Tag Editor"],
+		image    : editor.imgURL("ed_quicktag.gif", "QuickTag"),
+		textMode : false,
+  		action   : function(editor) { self.buttonPress(editor); }
+		});
 
-  for(i = 0; i < cfg.toolbar.length; i++) {
-  var joincfg = cfg.toolbar[i].join("|"); 
-    if(/htmlmode/.test(joincfg)) {
-    cfg.toolbar[i] = joincfg.replace(/htmlmode/, "htmlmode|quickeditor").split("|");
-    var htmok = true;
-    }
-  }
-  if(!htmok) {
-  var line = cfg.toolbar[1] ? 1 : 0;
-  cfg.toolbar[line].push("separator","quickeditor");
-  }
+	for(i = 0; i < cfg.toolbar.length; i++) {
+		var joincfg = cfg.toolbar[i].join("|"); 
+		if(/htmlmode/.test(joincfg)) {
+			cfg.toolbar[i] = joincfg.replace(/htmlmode/, "htmlmode|quickeditor").split("|");
+			var htmok = true;
+		}
+	}
+	if(!htmok) {
+		var line = cfg.toolbar[1] ? 1 : 0;
+		cfg.toolbar[line].push("separator","quickeditor");
+	}
 };
 
 QuickTag.prototype.buttonPress = function(editor) { 
-var self = this;
-var sel = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,""); 
-var param = new Object();
-param.editor = editor;
+	var self = this;
+	var i18n = QuickTag.I18N;
+	var sel = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,""); 
+	var param = new Object();
+	param.editor = editor;
 
-  if(/\w/.test(sel))
-    editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param, 390, 100);
-  else
-    alert(QuickTag.I18N['You have to select some text']);
+  	if(/\w/.test(sel)) {
+    		editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param, 390, 105);
+  	} else {
+		alert(i18n['You have to select some text']);
+	}
 };
 
 QuickTag.prototype.setTag = function(param) { 

@@ -2388,9 +2388,6 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 					// 1; other values might be doomed too.
 					// For this reason we extract the
 					// values directly from the root node.
-					// I'm starting to HATE JavaScript
-					// development.  Browser differences
-					// suck.
 					//
 					// Using Gecko the values of href and src are converted to absolute links
 					// unless we get them using nodeValue()
@@ -2418,6 +2415,10 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 					// here; we don't need them.
 					continue;
 				}
+// Begin change by Stanislas Rolland 2004-12-22
+// Strip value="0" reported by IE on all li tags
+				if(HTMLArea.is_ie && root.tagName.toLowerCase() == "li" && name == "value" && a.nodeValue == 0) continue;
+// End change by Stanislas Rolland 2004-12-22
 // Begin change by Stanislas Rolland 2004-12-10
 				html += " " + name + '="' + value + '"';
 				//html += " " + name + '="' + HTMLArea.htmlEncode(value) + '"';

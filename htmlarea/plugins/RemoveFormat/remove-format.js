@@ -24,7 +24,7 @@ function RemoveFormat(editor) {
                 action   : function(editor) {
                                 self.buttonPress(editor);
                            }
-            })
+            });
 
 	 var a, i, j, found = false;
 	 for (i = 0; !found && i < toolbar.length; ++i) {

@@ -1,3 +1,7 @@
+2004-12-22  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Strip value="0" attribute reported by IE on all li tags
+	* Cleanup code in RemoveFormat and QuickTag plugins
+
 2004-12-20  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Revision of initial dimensions setting of all popup windows
 

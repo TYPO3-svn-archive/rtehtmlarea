@@ -1,20 +1,19 @@
 <html>
 <head>
-  <title>Remove formatting</title>
-
+<title>Remove formatting</title>
 <script type="text/javascript" src="../../../popups/popup.js"></script>
 <script type="text/javascript">
-	RemoveFormat = window.opener.RemoveFormat;
+	var RemoveFormat = window.opener.RemoveFormat;
+	var i18n = RemoveFormat.I18N;
 
 	function Init() {
-		__dlg_translate(RemoveFormat.I18N);
+		__dlg_translate(i18n);
 		__dlg_init();
 	};
 
 	function onOK() {
 		
 		var param = {};
-		var i18n = RemoveFormat.I18N;
 
 		if (document.getElementById('clean_selection').checked)	{
 			param["cleaning_area"] = "selection";
@@ -83,19 +82,19 @@ form { padding: 0px; margin: 0px; }
 			<tbody>
 		
 			<tr>
-				<td style="width: 12em; text-align: right">Formatting:</td>
+				<td style="width: 12em; text-align: right;">Formatting:</td>
 				<td><input type="checkbox" id="formatting" value="" /></td>
 			</tr>
 			<tr>
-				<td style="width: 12em; text-align: right">MS Word Formatting:</td>
+				<td style="width: 12em; text-align: right;">MS Word Formatting:</td>
 				<td><input type="checkbox" id="ms_formatting" value="" checked="checked" /></td>
 			</tr>
 			<tr>
-				<td style="width: 12em; text-align: right">Images:</td>
+				<td style="width: 12em; text-align: right;">Images:</td>
 				<td><input type="checkbox" id="images" value="" /></td>
 			</tr>
 			<tr>
-				<td style="width: 12em; text-align: right">All HTML:</td>
+				<td style="width: 12em; text-align: right;">All HTML:</td>
 				<td><input type="checkbox" id="html_all" value="" /></td>
 			</tr>
 			</tbody>
