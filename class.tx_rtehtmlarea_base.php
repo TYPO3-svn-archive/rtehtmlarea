@@ -512,7 +512,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$item = 
 				$this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
-				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $RTEWidth . 'px; height: 380px;">
+				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $RTEWidth . 'px;">
 				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($RTEdivStyle).'">
 				'.t3lib_div::formatForTextarea($value).'
 				</textarea>
