@@ -409,6 +409,7 @@ HTMLArea.prototype._createToolbar = function () {
 	var tb_row = null;
 	var tb_objects = new Object();
 	this._toolbarObjects = tb_objects;
+	var img;
 
 		// create a new line in the toolbar
 	function newLine() {
@@ -607,8 +608,8 @@ HTMLArea.prototype._createToolbar = function () {
 					HTMLArea._stopEvent(HTMLArea.is_ie ? window.event : ev);
 				}
 			});
-			var img = document.createElement("img");
-			img.src = btn[1];
+			img = document.createElement("img");
+			img.setAttribute("src", btn[1]);
 			img.style.width = "18px";
 			img.style.height = "18px";
 			el.appendChild(img);
@@ -651,7 +652,6 @@ HTMLArea.prototype._createToolbar = function () {
 			}
 		}
 	}
-
 	this._htmlArea.appendChild(toolbar);
 };
 
@@ -776,7 +776,7 @@ HTMLArea.prototype.generate = function () {
 		if (!editor._iframe.contentWindow 
 				|| !editor._iframe.contentWindow.document 
 				|| !editor._iframe.contentWindow.document.documentElement) {
-			setTimeout(initIframe, 50);
+			setTimeout(initIframe, 100);
 			return false;
 		}
 		var doc = editor._iframe.contentWindow.document;
