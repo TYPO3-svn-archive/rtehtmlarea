@@ -54,6 +54,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.hidePStyleItems =
 		default.hideFontSizes =
 		default.hideTags = font, font (full)
+		default.disableColorPicker = 0
 
 		// DEFAULT PROC RULES
 		default.proc {
@@ -115,9 +116,9 @@ if ($_EXTCONF["enableAllOptions"])  {
 
 	t3lib_extMgm::addUserTSConfig('
 		setup.default.edit_RTE = 1
-		options.HTMLAreaPluginList = ContextMenu, TYPO3Browsers, FindReplace, EnterParagraphs
+		options.HTMLAreaPluginList = ContextMenu, FindReplace, EnterParagraphs
 		options.HTMLAreaPspellMode = normal
-		options.RTEkeyList = bold,italic,underline,textindicator,line,link,image,copy,cut,paste,undo,redo,about
+		options.RTEkeyList = bold,italic,underline,textindicator,copy,cut,paste,undo,redo,about
 		');
 
 	// options.HTMLAreaPspellMode may be PSPELL_FAST or PSPELL_NORMAL or PSPELL_BAD_SPELLERS
@@ -136,6 +137,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.hidePStyleItems =
 		default.hideFontSizes =
 		default.hideTags = 
+		default.disableColorPicker = 1
 
 		// DEFAULT PROC RULES
 		default.proc {
@@ -171,7 +173,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 			HTMLparser_rte {
 
 				// TAGS ALLOWED
-				allowTags = h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center
+				allowTags = h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, a, img, nobr, hr, center
 
 				// DO NOT REMOVE UNMATCHED TAGS
 				keepNonMatchedTags = 1
@@ -181,7 +183,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 			HTMLparser_db {
 
 				// TAGS ALLOWED
-				allowTags = h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center
+				allowTags = h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, a, img, nobr, hr, center
 
 				// DO NOT REMOVE UNMATCHED TAGS
 				keepNonMatchedTags = 1
