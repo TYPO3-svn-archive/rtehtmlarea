@@ -37,14 +37,15 @@ HTMLArea.agt = navigator.userAgent.toLowerCase();
 HTMLArea.is_ie	   = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
 HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_mac	   = (HTMLArea.agt.indexOf("mac") != -1);
-HTMLArea.is_wamcom  = (HTMLArea.agt.indexOf("wamcom") != -1);
 HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
 HTMLArea.is_win_ie = (HTMLArea.is_ie && !HTMLArea.is_mac);
 HTMLArea.is_gecko  = (navigator.product == "Gecko");
+HTMLArea.is_wamcom  = (HTMLArea.agt.indexOf("wamcom") != -1) || (HTMLArea.is_gecko && (HTMLArea.agt.indexOf("1.3") != -1));
 
 // Creates a new HTMLArea object.  Tries to replace the textarea with the given
 // ID with it.
 function HTMLArea(textarea, config) {
+	var editor = this;
 	if (HTMLArea.checkSupportedBrowser()) {
 		if (typeof config == "undefined") {
 			this.config = new HTMLArea.Config();
@@ -56,10 +57,10 @@ function HTMLArea(textarea, config) {
 		this._editMode = "wysiwyg";
 		this.plugins = {};
 		this._timerToolbar = null;
-		this._timerUndo = null;
-		this._undoQueue = new Array(this.config.undoSteps);
+		this._timerUndo = setInterval(function() { if(editor._doc) editor._undoTakeSnapshot(); }, this.config.undoTimeout);
+		this._undoQueue = new Array();
 		this._undoPos = -1;
-		this._customUndo = false;
+		this._customUndo = true;
 		this._mdoc = document; // cache the document, we need it in plugins
 		this.doctype = '';
 	}
@@ -400,6 +401,7 @@ HTMLArea.prototype._createToolbar = function () {
 	toolbar.className = "toolbar";
 	toolbar.unselectable = "1";
 	var tb_line = null;
+	var first_cell_on_line = true;
 	var tb_objects = new Object();
 	this._toolbarObjects = tb_objects;
 
@@ -418,6 +420,7 @@ HTMLArea.prototype._createToolbar = function () {
 		tb_line = document.createElement("td");
 		tb_line.className = "tb-line";
 		tb_row.appendChild(tb_line);
+		first_cell_on_line = true;
 	};
 		// init first line
 	newLine();
@@ -613,13 +616,14 @@ HTMLArea.prototype._createToolbar = function () {
 			el = createSelect(txt);
 		}
 		if (el) {
-//			var tb_cell = document.createElement("td");
-//			tb_row.appendChild(tb_cell);
-//			tb_cell.appendChild(el);
 			var tb_cell = document.createElement("div");
-			tb_cell.className = "tb-cell";
+			if(first_cell_on_line) {
+				tb_cell.className = "tb-first-cell";
+				first_cell_on_line = false;
+			} else {
+				tb_cell.className = "tb-cell";
+			}
 			tb_cell.appendChild(el);
-//			toolbar.appendChild(tb_cell);
 			tb_line.appendChild(tb_cell);
 		} else {
 			alert("FIXME: Unknown toolbar item: " + txt);
@@ -644,15 +648,12 @@ HTMLArea.prototype._createToolbar = function () {
 				if (l7ed) {
 					label = HTMLArea.I18N.custom[label];
 				}
-//				var tb_cell = document.createElement("td");
-//				tb_row.appendChild(tb_cell);
 				var labelElement = document.createElement("div");
 				labelElement.className = "label";
 				labelElement.innerHTML = label;
 				var tb_cell = document.createElement("div");
 				tb_cell.className = "tb-cell";
 				tb_cell.appendChild(labelElement);
-//				toolbar.appendChild(tb_cell);
 				tb_line.appendChild(tb_cell);
 			} else {
 				createButton(code);
@@ -748,14 +749,10 @@ HTMLArea.prototype.generate = function () {
 
 		// create and append the IFRAME
 	var iframe = document.createElement("iframe");
-	if(HTMLArea.is_ie) {
+	if(HTMLArea.is_ie || HTMLArea.is_wamcom) {
 		iframe.setAttribute("src", _editor_url + "popups/blank.html");
 	} else {
-		if(HTMLArea.is_wamcom) {
-			iframe.setAttribute("src", _editor_url + "popups/wamcom.html");
-		} else {
-			iframe.setAttribute("src", "javascript:void(0);");
-		}
+		iframe.setAttribute("src", "javascript:void(0);");
 	}
 	iframe.style.borderWidth = "0px";
 	htmlarea.appendChild(iframe);
@@ -806,25 +803,25 @@ HTMLArea.prototype.generate = function () {
 				doc.documentElement.appendChild(head);
 			}
 			if (editor.config.baseURL) {
-				var base = doc.createElement("base");
-				base.href = editor.config.baseURL;
-				head.appendChild(base);
+				var base = doc.getElementsByTagName("base")[0];
+				if(!base) {
+					base = doc.createElement("base");
+					base.href = editor.config.baseURL;
+					head.appendChild(base);
+				}
 			}
 			if(editor.config.pageStyle) {
-				var link = doc.createElement("link");
-				link.rel = "stylesheet";
-				link.href = editor.config.pageStyle;
-				head.appendChild(link);
+				var link = doc.getElementsByTagName("link")[0];
+				if(!link) {
+ 					link = doc.createElement("link");
+					link.rel = "stylesheet";
+					link.href = editor.config.pageStyle;
+					head.appendChild(link);
+				}
 			}
 		} else {
 			var html = editor._textArea.value;
-			if (html.match(HTMLArea.RE_doctype)) {
-				editor.setDoctype(RegExp.$1);
-				html = html.replace(HTMLArea.RE_doctype, "");
-			}
-			doc.open();
-			doc.write(html);
-			doc.close();
+			editor.setFullHTML(html);
 		}
 
 		function stylesLoaded() {
@@ -837,7 +834,7 @@ HTMLArea.prototype.generate = function () {
 				if(HTMLArea.is_ie) try{ rules = doc.styleSheets[rule].rules; } catch(e) { stylesAreLoaded = false; }
 				if(HTMLArea.is_ie) try{ rules = doc.styleSheets[rule].imports; } catch(e) { stylesAreLoaded = false; }
 			}
-			if(!stylesAreLoaded) {
+			if(!stylesAreLoaded && !HTMLArea.is_wamcom) {
 				setTimeout(stylesLoaded, 100);
 				return false;
 			}
@@ -850,10 +847,14 @@ HTMLArea.prototype.generate = function () {
 
 				// set contents editable
 			if(HTMLArea.is_gecko) {
-				if(HTMLArea.is_wamcom) {
-					setTimeout( function() { doc.designMode = "on"; }, 10);
-				} else {
+				if(!HTMLArea.is_wamcom) {
 					doc.designMode = "on";
+				} else {
+					try { doc.designMode = "on"; }
+					catch(e) {
+						setTimeout(initIframe, 100);
+						return false;
+					}
 				}
 			}
 			if(HTMLArea.is_ie) doc.body.contentEditable = true;
@@ -865,17 +866,13 @@ HTMLArea.prototype.generate = function () {
 					// check if any plugins have registered refresh handlers
 				for (var i in editor.plugins) {
 					var plugin = editor.plugins[i].instance;
-					if (typeof plugin.onGenerate == "function")
-						plugin.onGenerate();
+					if (typeof plugin.onGenerate == "function") plugin.onGenerate();
 					if (typeof plugin.onGenerateOnce == "function") {
 						plugin.onGenerateOnce();
 						plugin.onGenerateOnce = null;
 					}
 				}
-
-				if (typeof editor.onGenerate == "function")
-					editor.onGenerate();
-
+				if (typeof editor.onGenerate == "function") editor.onGenerate();
 				editor.updateToolbar();
 			}, 100);
 		};
@@ -1169,37 +1166,53 @@ HTMLArea.prototype.focusEditor = function() {
 
 // takes a snapshot of the current text (for undo)
 HTMLArea.prototype._undoTakeSnapshot = function() {
-	++this._undoPos;
+	var curTime = (new Date()).getTime();
+	var newOne = true;
 	if (this._undoPos >= this.config.undoSteps) {
-		// remove the first element
+			// remove the first element
 		this._undoQueue.shift();
 		--this._undoPos;
 	}
-	// use the fasted method (getInnerHTML);
-	var take = true;
-	var txt = this.getInnerHTML();
-	if (this._undoPos > 0)
-		take = (this._undoQueue[this._undoPos - 1] != txt);
-	if (take) {
-		this._undoQueue[this._undoPos] = txt;
+		// New undo slot should be used if this is first undoTakeSnapshot call or if undoTimeout is elapsed
+	if (this._undoPos < 0 || this._undoQueue[this._undoPos].time < curTime - this.config.undoTimeout) {
+		++this._undoPos;
 	} else {
-		this._undoPos--;
+		newOne = false;
 	}
+ 		// use the fasted method (getInnerHTML);
+ 	var txt = this.getInnerHTML();
+	if (newOne){
+			// If previous slot contain same text new one should not be used
+		if (this._undoPos == 0 || this._undoQueue[this._undoPos - 1].text != txt){
+			this._undoQueue[this._undoPos] = { text: txt, time: curTime };
+			this._undoQueue.length = this._undoPos + 1;
+		} else {
+			this._undoPos--;
+		}
+ 	} else {
+		if (this._undoQueue[this._undoPos].text != txt){
+			this._undoQueue[this._undoPos].text = txt;
+			this._undoQueue.length = this._undoPos + 1;
+		}
+ 	}
 };
 
 HTMLArea.prototype.undo = function() {
-	if (this._undoPos > 0) {
-		var txt = this._undoQueue[--this._undoPos];
-		if (txt) this.setHTML(txt);
-		else ++this._undoPos;
+	if (this._undoPos > 0){
+			// Make shure we would not loose any changes
+		this._undoTakeSnapshot();
+		this.setHTML(this._undoQueue[--this._undoPos].text);
 	}
 };
 
 HTMLArea.prototype.redo = function() {
 	if (this._undoPos < this._undoQueue.length - 1) {
-		var txt = this._undoQueue[++this._undoPos];
-		if (txt) this.setHTML(txt);
-		else --this._undoPos;
+			// Make shure we would not loose any changes
+		this._undoTakeSnapshot();
+			// Previous call could make undo queue shorter
+		if (this._undoPos < this._undoQueue.length - 1) {
+			this.setHTML(this._undoQueue[++this._undoPos].text);
+		}
 	}
 };
 
@@ -1403,17 +1416,10 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 // Begin end by Stanislas Rolland 2004-12-04
 		}
 	}
-	// take undo snapshots
-	if (this._customUndo && !this._timerUndo) {
-		this._undoTakeSnapshot();
-		var editor = this;
-		this._timerUndo = setTimeout(function() {
-			clearTimeout(editor._timerUndo);
-			editor._timerUndo = null;
-		}, this.config.undoTimeout);
-	}
+		// take undo snapshots
+	if (this._customUndo) this._undoTakeSnapshot();
 
-	// check if any plugins have registered refresh handlers
+		// check if any plugins have registered refresh handlers
 	for (var i in this.plugins) {
 		var plugin = this.plugins[i].instance;
 		if (typeof plugin.onUpdateToolbar == "function")
@@ -2974,12 +2980,8 @@ function initEditor(editornumber) {
 			editor._typo3EditerNumber = editornumber;
 
 			for (var plugin in RTEarea[editornumber]["plugin"]) {
-				if (RTEarea[editornumber]["plugin"][plugin]) {
-					switch (plugin) {
-						default:
-							editor.registerPlugin(plugin);
-							break;
-					}
+				if(RTEarea[editornumber]["plugin"][plugin]) {
+					editor.registerPlugin(plugin);
 				}
 			}
 
@@ -3035,9 +3037,6 @@ function initEditor(editornumber) {
 			editor.config.statusBar = false;
 			if(RTEarea[editornumber]["statusBar"]) {
 				editor.config.statusBar = RTEarea[editornumber]["statusBar"];
-			}
-			if(HTMLArea.is_ie && editor.config.statusBar) {
-				editor._customUndo = true;
 			}
 
 			editor.onGenerate = function () {

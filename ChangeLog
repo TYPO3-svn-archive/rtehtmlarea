@@ -1,4 +1,8 @@
 2005-02-17  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.41
+	* RTE was not loading in Mozilla 1.3.1 (wamcom release ) for Mac OS 9 (last Mozilla release for this platform).
+	* Improved undo/redo operations.
+2005-02-17  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.39
 	* Added q, cite, abbr and acronym as allowed tags when "Enable all editor options" is checked.
 	* Added q, cite and tt tags to the tags supported by the QuickTag plugin (inserttag button).

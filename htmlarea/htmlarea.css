@@ -19,17 +19,25 @@
 	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
 }
 .htmlarea .toolbar table { 
-	width: 100%; 
+	width: 100%;
 }
 .htmlarea .toolbar .tb-line { 
 	width: 100%; 
+}
+.htmlarea .toolbar .tb-first-cell { 
+	font-family: tahoma,verdana,sans-serif; 
+	font-size: 11px; 
+	height: 22px; 
+	background-color: ButtonFace; 
+	clear: right;
+	float: left;
 }
 .htmlarea .toolbar .tb-cell { 
 	font-family: tahoma,verdana,sans-serif; 
 	font-size: 11px; 
 	height: 22px; 
 	background-color: ButtonFace; 
-	float: left; 
+	float: left;
 }
 .htmlarea .toolbar img { 
 	border: none; 

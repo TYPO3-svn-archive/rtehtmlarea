@@ -49,7 +49,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
                                  ),
 				'gecko' => array (
 					1 => array (
-						'version' => 1.4
+						'version' => 1.3
 					)
 				)
 			);
@@ -158,7 +158,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		);
 
 //	var $pluginList = 'InlineCSS, DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag';
-	var $pluginList = 'InlineCSS, DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag';
+	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS';
 
 	var $pluginButton = array(
 		'InlineCSS' 	=> 'textstyle',
@@ -238,11 +238,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 						if (is_array($browserConf)) {
 					    	reset($browserConf);
 							while(list ($browserConfNr, $browserConfSub) = each($browserConf)){
-								if ($browserConfSub["version"] <= $CLIENT['VERSION']
-									|| !sizeof($browserConfSub["version"])) {
+								if ($browserConfSub['version'] <= $CLIENT['VERSION']
+									|| empty($browserConfSub['version'])) {
 									// Version is correctly
-							    	if ($browserConfSub["system"] == $CLIENT['SYSTEM']
-										|| !sizeof($browserConfSub["system"])) {
+							    	if ($browserConfSub['system'] == $CLIENT['SYSTEM']
+										|| empty($browserConfSub['system'])) {
 										// System is correctly
 										$rteIsAvailable = 1;
 									}// End of System
@@ -492,6 +492,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
 				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
+				<div id="editorWrap' . $pObj->RTEcounter . '" style="width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
 				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($this->RTEdivStyle).'">
 				'.t3lib_div::formatForTextarea($value).'
 				</textarea>
@@ -509,8 +510,15 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 *
 	 */
 	function setToolBar() {
-		global $BE_USER;
+		global $BE_USER, $CLIENT;
 
+		if($CLIENT['BROWSER'] == 'gecko' && $CLIENT['VERSION'] == '1.3') 
+			$this->defaultToolbarOrder = 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
+				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
+				subscript, superscript, lefttoright, righttoleft, bar, left, center, right, justifyfull, linebreak, 
+				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
+				insertcharacter, line, link, image, table, bar, findreplace, spellcheck, bar, chMode, inserttag, 
+				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about';
 		$toolbarOrder = $this->thisConfig['toolbarOrder'] ? $this->thisConfig['toolbarOrder'] : $this->defaultToolbarOrder;
 
 			// Getting rid of undefined buttons
@@ -863,6 +871,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				"' . $FontSizeLabel . '" : "' . $FontSizeItem . '"';
 			$HTMLAreaFontSizeIndex++;
 		}
+
+
 		$HTMLAreaJSFontSize .= '};';
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["fontsize"] = '. $HTMLAreaJSFontSize;
@@ -956,7 +966,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		reset($this->toolbarOrderArray);
 		while (list(, $button) = each($this->toolbarOrderArray) ) {
 			// check if a new group starts
-			if ($button == "bar" && $group_has_button) {
+			if (($button == 'bar' || $button == 'linebreak') && $group_has_button) {
 					// Yes new group: add the "bar" to the group
 				$convertButton = $this->convertToolBarForHTMLArea($button);
 				if ($convertButton) {
@@ -969,7 +979,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			} elseif ($toolbar && $button == 'linebreak' && !$group_has_button) {
 					// Insert linebreak if no group is opened
 				$group = '';
-				$toolbar .= ', "' . $this->convertToolBarForHTMLArea('linebreak') . '"';
+				$toolbar .= ', "' . $this->convertToolBarForHTMLArea($button) . '"';
 			} elseif (in_array($button, $this->toolBar)) {
 					// Add the button to the group
 				$convertButton = $this->convertToolBarForHTMLArea($button);
@@ -1105,7 +1115,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				break;
 				case 'gecko':
 					$tmp = strstr($useragent,'rv:');
-					$bInfo['VERSION'] = doubleval(ereg_replace('^[^0-9]*','',substr($tmp,4)));
+					$bInfo['VERSION'] = doubleval(ereg_replace('^[^0-9]*','',substr($tmp,3)));
 				break;
 				case 'msie':
 					$tmp = strstr($useragent,'MSIE');

@@ -246,7 +246,7 @@ InlineCSS.prototype.generate = function() {
 	if(obj.loaded) {
 		self.updateValue(editor,obj);
 	} else {
- 		getCSSArray();
+		getCSSArray();
 	}
 };
 
@@ -285,7 +285,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 		className = parent.className;
 	}
 
-	var selTrimmed = editor.getSelectedHTML();
+	if(editor._iframe.contentWindow.document.designMode == "on") var selTrimmed = editor.getSelectedHTML();
 	if(selTrimmed) selTrimmed = selTrimmed.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 
 	var endPointsInSameBlock = false;
