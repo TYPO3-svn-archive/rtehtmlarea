@@ -1,10 +1,15 @@
 2004-11-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+
 	* Standardizing popup window positioning (RemoveFormat and CharacterMap plugins)
 	* Enabling the CharacterMap plugin (ext_localconf.php and class.tx_rtepbhtmlarea_base.php)
 	* Update to documentation (doc/manual.sxw)
 	* Update to version 0.3.12 of sr_htmlarea (ext_emconf.php)
+
 2004-11-22  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+
 	* Initial synchronization with latest version
+
 2004-11-18  Michael Stucki  <michael@typo3.org>
+
 	* Adding a ChangeLog
 	* Initial CVS upload
