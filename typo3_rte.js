@@ -1,10 +1,12 @@
+/*
 var activEditerNumber; // The number of the activ editer: necessary for the image and link popups
 var saveUpdateToolbar = null;
-
 var _selectedImage;
+*/
 
 /** Set the size of textarea with the RTE. It's called, if we are in fullscreen-mode.
  */
+/*
 function setRTEsizeByJS(divId, height, width) {
 	if (height > 0) {
 		document.getElementById(divId).style.height =  (height - 50) + "px";
@@ -13,10 +15,12 @@ function setRTEsizeByJS(divId, height, width) {
 		document.getElementById(divId).style.width =  (width - 30) + "px";
 	}
 }
+*/
 
 /** Load a HTMLarea Plugin, but do not load the language file
   * because we are assigning the typo3 generated language array.
   */
+/*
 function typo3LoadOnlyPlugin(pluginName) {
 	var dir = _editor_url + "plugins/" + pluginName;
 	var plugin = pluginName.replace(/([a-z])([A-Z])([a-z])/g,
@@ -26,9 +30,11 @@ function typo3LoadOnlyPlugin(pluginName) {
 	var plugin_file = dir + "/" + plugin;
 	HTMLArea._scripts.push(plugin_file);
 }
+*/
 
 /** Init each Editor, load the Editor, config the toolbar, setup the plugins, etc.
 */
+/*
 function initEditor(editornumber) {
 	var self = this;
 
@@ -129,18 +135,21 @@ function initEditor(editornumber) {
 		return false;
 	}
 };
+*/
 
 /** Hit the Popup */
+/*
 function edHidePopup() {
 	Dialog._modal.close();
 };
-
+*/
 
 /*
 *  CreateLink: Typo3-RTE function, use this instead the orignal.
 *  This is a HTMLArea object function.
 *  Open the Typo3 Link-Window
 */
+/*
 HTMLArea.prototype.renderPopup_link = function() {
 	var editor = this;
 	//Set activEditerNumber:
@@ -183,12 +192,13 @@ HTMLArea.prototype.renderPopup_link = function() {
 	
 	return false;
 }
-
+*/
 /**
 *  Insite Image: Typo3-RTE function, use this instead the orignal.
 *  This is a HTMLArea object function.
 *  Open the Typo3 Image-Window: The php-file is in the orignal rte-extension
 */
+/*
 HTMLArea.prototype.renderPopup_image = function() {
 	var editor = this;
 	//Set activEditerNumber:
@@ -214,12 +224,12 @@ HTMLArea.prototype.renderPopup_image = function() {
 	
 	return false;
 }
-
+*/
 /*
 * Other functions
 */
 
-
+/*
 function updateToolbarRestore() {
 	var editor = RTEarea[activEditerNumber]["editor"];
 	
@@ -235,12 +245,14 @@ function updateToolbarRemove() {
 		editor.updateToolbar = updateToolbarRestore;
 	}
 }
-
+*/
 
 /** IE-Browsers strip URLs to relative URLs. But for the backend wo need absolut URLs.
  *  This function overload the normal stripBaseURL-function (which generate relative URLs).
  */
+/*
 HTMLArea.prototype.nonStripBaseURL = function(url) {
 	return url;
 }
+*/
 

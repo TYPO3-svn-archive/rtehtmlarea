@@ -151,20 +151,25 @@ DynamicCSS._pluginInfo = {
 };
 
 DynamicCSS.prototype.onSelect = function(editor, obj) {
-    var tbobj = editor._toolbarObjects[obj.id];
-    var index = tbobj.element.selectedIndex;
-    var className = tbobj.element.value;
-        
-    var parent = editor.getParentElement();
-    
-    if(className!='none'){
-        parent.className=className;
-        obj.lastClass=className;
-    } else {
-        if(HTMLArea.is_gecko) parent.removeAttribute('class');
-        else parent.removeAttribute('className');
-    }
-    editor.updateToolbar();
+	var tbobj = editor._toolbarObjects[obj.id];
+	var index = tbobj.element.selectedIndex;
+	var className = tbobj.element.value;
+
+    	var parent = editor.getParentElement();
+	while (parent && !HTMLArea.isBlockElement(parent)) {
+		parent = parent.parentNode;
+	}
+	if(className != 'none'){
+		parent.className = className;
+		obj.lastClass = className;
+	} else {
+		if(HTMLArea.is_gecko) {
+			parent.removeAttribute('class');
+		} else {
+			parent.removeAttribute('className');
+		}
+	}
+	editor.updateToolbar();
 };
 
 DynamicCSS.prototype.onGenerate = function() {
@@ -243,6 +248,9 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 	var tagName = "body";
 	var className = "";
 	var parent = editor.getParentElement();
+	while (parent && !HTMLArea.isBlockElement(parent)) {
+		parent = parent.parentNode;
+	}
 	if(parent) {
 		tagName = parent.nodeName.toLowerCase();
 		className = parent.className;

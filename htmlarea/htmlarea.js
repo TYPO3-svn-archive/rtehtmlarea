@@ -1464,11 +1464,6 @@ HTMLArea.prototype.getParentElement = function() {
 		switch (sel.type) {
 		    case "Text":
 		    case "None":
-			// It seems that even for selection of type "None",
-			// there _is_ a parent element and it's value is not
-			// only correct, but very important to us.  MSIE is
-			// certainly the buggiest browser in the world and I
-			// wonder, God, how can Earth stand it?
 			return range.parentElement();
 		    case "Control":
 			return range.item(0);
@@ -2300,9 +2295,7 @@ HTMLArea._hasClass = function(el, className) {
 	return false;
 };
 
-HTMLArea._blockTags = " body form textarea fieldset ul ol dl li div " +
-"p h1 h2 h3 h4 h5 h6 quote pre table thead " +
-"tbody tfoot tr td iframe address object";
+HTMLArea._blockTags = " body form textarea fieldset ul ol dl li div p h1 h2 h3 h4 h5 h6 quote pre table thead tbody tfoot tr td iframe address object ";
 HTMLArea.isBlockElement = function(el) {
 	return el && el.nodeType == 1 && (HTMLArea._blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };

@@ -1,3 +1,7 @@
+2004-12-18  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Correction to textarea width
+	* Addition of InlineCSS plugin
+
 2004-12-13  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Correction to link update
 	* Correction to interface between SelectColor and QuickTag plugins

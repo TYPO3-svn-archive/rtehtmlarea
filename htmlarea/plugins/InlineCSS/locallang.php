@@ -1,32 +1,40 @@
 <?php
 /**
- * Language labels for the custom language subarray of htmlArea RTE (extension: rtehtmlarea)
+ * Language labels for plugin InlineCSS of htmlArea (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
 
 $LOCAL_LANG = Array (
 	'default' => Array (
-		'style' => 'Paragraph:',
-		'text_style' => 'Text:',
+		'Default' => 'Default',
+		'Undefined' => 'Undefined',
+		'InlineCSSStyleTooltip' => 'Apply style to the selected text',
+		'You have to select some text' => 'You have to select some text',
 	),
 	'dk' => Array (
 	),
 	'de' => Array (
+	  'Default' => 'Standard',
+		'Undefined' => 'Undefiniert',
 	),
 	'no' => Array (
 	),
 	'it' => Array (
 	),
 	'fr' => Array (
-		'style' => 'Paragraphe:',
-		'text_style' => 'Texte:',
+		'Default' => 'Par défaut',
+		'Undefined' => 'Indéfini',
+		'InlineCSSStyleTooltip' => 'Appliquer un style au texte sélectionné',
+		'You have to select some text' => 'Aucun texte n\'est sélectionné.',
 	),
 	'es' => Array (
-		'style' => 'Párrafo:',
-		'text_style' => 'Texto:',
+		'Default' => 'Default',
+		'Undefined' => 'Indefinido',
 	),
 	'nl' => Array (
+		'Default' => 'Standaard',
+		'Undefined' => 'Ongedefinieerd',
 	),
 	'cz' => Array (
 	),
@@ -35,6 +43,8 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'Default' => 'Oletus',
+		'Undefined' => 'Määrittelemätön',
 	),
 	'tr' => Array (
 	),
@@ -71,7 +81,6 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
-		'style' => 'Estilo:',
 	),
 	'et' => Array (
 	),

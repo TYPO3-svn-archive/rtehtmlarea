@@ -75,11 +75,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 */
 	var $conf_toolbar_order = array (
 				"fontstyle",
-					"space",
+					"bar",
 				"fontsize",
-					"space",
+					"bar",
 				"formatblock",
-					"space",
+					"bar",
 				"bold",
 				"italic",
 				"underline",
@@ -109,6 +109,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				"link",
 				"image",
 				"table",
+					"bar",
 				"chMode",
 					"bar",
 				"copy",
@@ -140,7 +141,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'formatblock'	=> 81,
 		'textindicator'	=> 28,
 		'bar'			=> 8,
-		'DynamicCSS'		=> 150,
+		'DynamicCSS'		=> 180,
 		'SpellChecker'		=> 30,
 		'SelectColor'		=> 49,
 		'InsertSmiley'		=> 22,
@@ -148,6 +149,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'RemoveFormat'		=> 22,
 		'CharacterMap'		=> 22,
 		'QuickTag'		=> 22,
+		'InlineCSS'		=> 180,
 	);
 			
 	// Config: Convert for the typo3 button name and the HTML-Area button name.
@@ -221,7 +223,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'7' =>	'36 pt',
 		);
 
-	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag';
+	var $pluginList = 'InlineCSS, DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag';
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:
@@ -381,7 +383,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->specConf = $specConf;
 
 				// HTMLArea plugins list
-			$this->pluginList = implode(',', array_intersect(t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'] , 1), t3lib_div::trimExplode(',', $this->pluginList, 1)));
+			$this->pluginList = implode(',', array_intersect(t3lib_div::trimExplode(',', $this->pluginList, 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'] , 1)));
 
 				// Language
 			$this->language = $LANG->lang;
@@ -719,7 +721,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				list($extKey,$local) = explode('/',substr($filename,4),2);
 				$filename='';
 				if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
-					$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
+					$filename = $this->siteURL . t3lib_extMgm::siteRelPath($extKey).$local;
 				}
 			} elseif (substr($filename,0,1) != '/') {
                               $filename = $this->siteURL.$filename;
@@ -777,6 +779,12 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$HTMLAreaFontname[$fontName] = '
 				"' . $LANG->sL($conf['name']) . '" : "' . $conf['value'] . '"';
 			}
+		}
+
+		if ($this->isPluginEnable('InlineCSS') && $this->thisConfig['classesCharacter'] ) {
+			$HTMLAreaJSClassesCharacter = '"' . $this->thisConfig['classesCharacter'] . '";';
+			$registerRTEinJSString .= '
+			RTEarea['.$number.']["classesCharacter"] = '. $HTMLAreaJSClassesCharacter;
 		}
 
 		if ($this->thisConfig['fontFace'] ) {
@@ -964,6 +972,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		if($this->isPluginEnable('DynamicCSS')) {
 			$toolbar_size += $this->conf_toolbar_button_size['DynamicCSS'];	
 		}
+		if($this->isPluginEnable('InlineCSS')) {
+			$toolbar_size += $this->conf_toolbar_button_size['InlineCSS'];	
+		}
 		if($this->isPluginEnable('SpellChecker')) {
 			$toolbar_size += $this->conf_toolbar_button_size['SpellChecker'];	
 		}
@@ -1024,6 +1035,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 					$group_has_button = true;
 				}
 			}
+
 			// else ignore
 			
 		}

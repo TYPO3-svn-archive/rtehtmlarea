@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for plugin DynamicCSS of RTE HtmalArea (extension: rte_pb_htmlarea)
+ * Language labels for plugin DynamicCSS of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -9,14 +9,13 @@ $LOCAL_LANG = Array (
 	'default' => Array (
 		'Default' => 'Default',
 		'Undefined' => 'Undefined',
-		'DynamicCSSStyleTooltip' => 'Style',
+		'DynamicCSSStyleTooltip' => 'Apply style to the containing paragraph',
 	),
 	'dk' => Array (
 	),
 	'de' => Array (
 	  'Default' => 'Standard',
 		'Undefined' => 'Undefiniert',
-		'DynamicCSSStyleTooltip' => 'Style',
 	),
 	'no' => Array (
 	),
@@ -25,17 +24,15 @@ $LOCAL_LANG = Array (
 	'fr' => Array (
 		'Default' => 'Par défaut',
 		'Undefined' => 'Indéfini',
-		'DynamicCSSStyleTooltip' => 'Style',
+		'DynamicCSSStyleTooltip' => 'Appliquer un style au paragraphe contenant le texte sélectionné',
 	),
 	'es' => Array (
 		'Default' => 'Default',
 		'Undefined' => 'Indefinido',
-		'DynamicCSSStyleTooltip' => 'Estilo',
 	),
 	'nl' => Array (
 		'Default' => 'Standaard',
 		'Undefined' => 'Ongedefinieerd',
-		'DynamicCSSStyleTooltip' => 'Stijl',
 	),
 	'cz' => Array (
 	),
@@ -46,7 +43,6 @@ $LOCAL_LANG = Array (
 	'fi' => Array (
 		'Default' => 'Oletus',
 		'Undefined' => 'Määrittelemätön',
-		'DynamicCSSStyleTooltip' => 'Valitse tyyli',
 	),
 	'tr' => Array (
 	),
