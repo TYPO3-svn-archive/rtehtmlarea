@@ -185,7 +185,7 @@
 			if( !xml_set_element_handler( $parser, 'startHandler', 'endHandler')) echo('Bad xml handler setting');
 			if( !xml_set_character_data_handler ( $parser, 'spellCheckHandler')) echo('Bad xml handler setting');
 			if( !xml_set_default_handler( $parser, 'defaultHandler')) echo('Bad xml handler setting');
-			if(! xml_parse($parser,'<SPELLCHECKER> '.$content.' </SPELLCHECKER>')) echo('Bad parsing');
+			if(! xml_parse($parser,'<SPELLCHECKER> ' . mb_ereg_replace('&nbsp;', ' ', $content) . ' </SPELLCHECKER>')) echo('Bad parsing');
 			if( xml_get_error_code($parser)) {
 				die('Line '.xml_get_current_line_number($parser).': '.xml_error_string(xml_get_error_code($parser)));
 			}
@@ -259,6 +259,8 @@
 				case 'IMG':
 				case 'hr':
 				case 'HR':
+				case 'input':
+				case 'INPUT':
 				case 'area':
 				case 'AREA':
 					break;
@@ -272,7 +274,7 @@
 		function spellCheckHandler($xml_parser, $string) {
 			$incurrent=array();
 			$stringText = $string;
-			$words = mb_split('\W+', $string);
+			$words = mb_split('\W+', $stringText);
 			while( list(,$word) = each($words) ) {
 				$word = mb_ereg_replace(' ', '', $word);
 				if( $word && !is_numeric($word)) {
