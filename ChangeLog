@@ -1,3 +1,7 @@
+2004-12-10  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Correcting color formatting in gecko browsers
+	* New useCSS RTE property
+
 2004-12-08  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Correcting the default language labels
 	* Making initialization DOM only.
