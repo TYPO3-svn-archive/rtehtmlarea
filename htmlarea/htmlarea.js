@@ -1447,7 +1447,9 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 			break;
 		}
 	} else {
-		return null;	// this function not yet used for IE <FIXME>
+		var sel = this._getSelection();
+		var range = this._createRange(sel);
+		range.pasteHTML(toBeInserted.outerHTML);
 	}
 };
 
