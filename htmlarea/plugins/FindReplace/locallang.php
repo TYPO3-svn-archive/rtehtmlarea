@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for plugin FindReplace of htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for plugin FindReplace of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -9,7 +9,7 @@ $LOCAL_LANG = Array (
 	'default' => Array (
 		'Substitute this occurrence?' => 'Substitute this occurrence?',
 		'Enter the text you want to find' => 'Enter the text you want to find',
-		'Inform a replacement word' => 'Enter a replacement text',
+		'Inform a replacement word' => 'This will erase all occurrences.',
 		'found items' => 'found items',
 		'replaced items' => 'replaced items',
 		'found item' => 'item found',
@@ -33,7 +33,6 @@ $LOCAL_LANG = Array (
 	'de' => Array (
 	'Substitute this occurrence?' => 'Diesen Eintrag ändern?',
 		'Enter the text you want to find' => 'Geben Sie den Text ein, den Sie suchen',
-		'Inform a replacement word' => 'Geben Sie einen Ersetzungstext ein',
 		'found items' => 'gefundene',
 		'replaced items' => 'ersetzt',
 		'found item' => 'Eintrag gefunden',
@@ -59,7 +58,7 @@ $LOCAL_LANG = Array (
 	'fr' => Array (
 		'Substitute this occurrence?' => 'Remplacer cette occurrence?',
 		'Enter the text you want to find' => 'Écrivez le texte que vous désirez rechercher',
-		'Inform a replacement word' => 'Écrivez le texte de remplacement',
+		'Inform a replacement word' => 'Ceci effacera toutes les occurrences.',
 		'found items' => 'occurrences trouvées',
 		'replaced items' => 'occurrences remplacées',
 		'found item' => 'occurrence trouvée',
@@ -81,7 +80,7 @@ $LOCAL_LANG = Array (
 	'es' => Array (
 		'Substitute this occurrence?' => '¿Reemplazar este ítem?',
 		'Enter the text you want to find' => 'Escriba el texto que desea buscar',
-		'Inform a replacement word' => 'Escriba el texto de reemplazo',
+		'Inform a replacement word' => 'Esto borrará todos los ítemes.',
 		'found items' => 'ítemes localizados',
 		'replaced items' => 'ítemes reemplazados',
 		'found item' => 'ítem localizado',
@@ -103,7 +102,6 @@ $LOCAL_LANG = Array (
 	'nl' => Array (
 		'Substitute this occurrence?' => 'Vervangen?',
 		'Enter the text you want to find' => 'Voer de tekst in die u wilt zoeken',
-		'Inform a replacement word' => 'Voer de tekst ter vervanging',
 		'found items' => 'gevonden items',
 		'replaced items' => 'vervangen items',
 		'found item' => 'item gevonden',
@@ -131,7 +129,6 @@ $LOCAL_LANG = Array (
 	'fi' => Array (
 		'Substitute this occurrence?' => 'Korvaa tämä?',
 		'Enter the text you want to find' => 'Anna teksti jonka haluat löytää',
-		'Inform a replacement word' => 'Anna korvaava teksti',
 		'found items' => 'haettuja löydettiin',
 		'replaced items' => 'korvattiin',
 		'found item' => 'haettav löydettiin',

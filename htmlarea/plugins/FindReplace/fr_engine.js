@@ -65,7 +65,7 @@ clearMarks();
     elm.style.backgroundColor = 'highlight';
     elm.style.fontWeight = 'bold';
     elm.scrollIntoView(false);
-      if(/\w/.test(replacement)) {
+      //if(  /\w/.test(replacement)  ) {
         if(replaceall || confirm(i18n["Substitute this occurrence?"])) {
         elm.firstChild.replaceData(0,elm.firstChild.data.length,replacement);
         replaces++;
@@ -75,7 +75,7 @@ clearMarks();
         clearMarks();
         continue;
         }
-      }
+      //}
     break;
     }
   }

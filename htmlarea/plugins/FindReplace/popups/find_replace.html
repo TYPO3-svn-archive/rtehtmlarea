@@ -145,9 +145,8 @@ form { padding: 0px; margin: 0px; }
                 e.click(); e.focus();" style="cursor:default;"> 
                   <span>Case sensitive search</span></span><br />
                   <input id="fr_replaceall" type="checkbox" onClick="
-                  if(!document.getElementById('fr_replacement').value) {
-                  alert(i18n['Inform a replacement word']);
-                  return false;
+                  if(!document.getElementById('fr_replacement').value && document.getElementById('fr_replaceall').checked) {
+                  return confirm(i18n['Inform a replacement word']);
                   }
                   clearDoc();">
                 <span onClick="e = document.getElementById('fr_replaceall'); 

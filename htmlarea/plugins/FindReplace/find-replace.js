@@ -33,12 +33,12 @@ cfg.registerButton("FR-findreplace", i18n["Find and Replace"],
 //    cfg.toolbar[0].splice(0, 0, "FR-findreplace", "separator");
 
 	var toolbar = cfg.toolbar;
-		// Try to insert in front of SpellChecker
+		// Try to insert in front of SpellChecker, else in front of about
 	var a, i, j, found = false;
 	for (i = 0; !found && i < toolbar.length; ++i) {
 		a = toolbar[i];
 		for (j = 0; j < a.length; ++j) {
-			if (a[j] == "SC-spell-check") {
+			if (a[j] == "SC-spell-check" || a[j] == "about") {
 				found = true;
 				break;
 			}
@@ -47,7 +47,7 @@ cfg.registerButton("FR-findreplace", i18n["Find and Replace"],
 	if (found) {
 		a.splice(j, 0, "FR-findreplace");
 	} else {
-			// If SpellChecker not found, add at the end of the first line of the toolbar
+			// If SpellChecker and about are not found, add at the end of the first line of the toolbar
 		cfg.toolbar[0].push("FR-findreplace");
 		cfg.toolbar[0].push("separator");
 	}
