@@ -2418,7 +2418,9 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 					// here; we don't need them.
 					continue;
 				}
-				html += " " + name + '="' + value + '"';
+// Begin change by Stanislas Rolland 2004-12-10
+				html += " " + name + '="' + HTMLArea.htmlEncode(value) + '"';
+// End change by Stanislas Rolland 2004-12-10
 			}
 			if (html != "") {
 				html += closed ? " />" : ">";
