@@ -1,6 +1,7 @@
 2004-11-26  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 
-	* Correcting popup window opening (popup.js, CharacterMap, RemoveFormat)
+	* onload function moved from typo3_rte.js to htmlarea.js to correct loading with Firefox/WindowsXP
+	* Correcting popup window opening with Linux/Firefox (popup.js, CharacterMap, RemoveFormat)
 	* New default RTE processing options in ext_localconf.php
 
 2004-11-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
