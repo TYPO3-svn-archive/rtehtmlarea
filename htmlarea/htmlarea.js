@@ -583,26 +583,26 @@ HTMLArea.prototype._createToolbar = function () {
 				}
 			});
 			HTMLArea._addEvent(el, "mouseout", function () {
-				if (obj.enabled) with (HTMLArea) {
-					_removeClass(el, "buttonHover");
-					_removeClass(el, "buttonActive");
-					(obj.active) && _addClass(el, "buttonPressed");
+				if (obj.enabled) {
+					HTMLArea._removeClass(el, "buttonHover");
+					HTMLArea._removeClass(el, "buttonActive");
+					(obj.active) && HTMLArea._addClass(el, "buttonPressed");
 				}
 			});
 			HTMLArea._addEvent(el, "mousedown", function (ev) {
-				if (obj.enabled) with (HTMLArea) {
-					_addClass(el, "buttonActive");
-					_removeClass(el, "buttonPressed");
-					_stopEvent(is_ie ? window.event : ev);
+				if (obj.enabled) {
+					HTMLArea._addClass(el, "buttonActive");
+					HTMLArea._removeClass(el, "buttonPressed");
+					HTMLArea._stopEvent(HTMLArea.is_ie ? window.event : ev);
 				}
 			});
 			// when clicked, do the following:
 			HTMLArea._addEvent(el, "click", function (ev) {
-				if (obj.enabled) with (HTMLArea) {
-					_removeClass(el, "buttonActive");
-					_removeClass(el, "buttonHover");
+				if (obj.enabled) {
+					HTMLArea._removeClass(el, "buttonActive");
+					HTMLArea._removeClass(el, "buttonHover");
 					obj.cmd(editor, obj.name, obj);
-					_stopEvent(is_ie ? window.event : ev);
+					HTMLArea._stopEvent(HTMLArea.is_ie ? window.event : ev);
 				}
 			});
 			var img = document.createElement("img");
@@ -651,7 +651,6 @@ HTMLArea.prototype._createToolbar = function () {
 	}
 
 	this._htmlArea.appendChild(toolbar);
-this._toolbarObjects = tb_objects;
 };
 
 HTMLArea.prototype._createStatusBar = function() {
@@ -1390,11 +1389,25 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			if (el)
 				btn.state("active", (el.style.direction == ((cmd == "righttoleft") ? "rtl" : "ltr")));
 			break;
+// Begin change by Stanislas Rolland 2004-12-01
+// These commands need a selection which they do not have when returning from textmode
+		    case "bold":
+		    case "italic":
+		    case "underline":
+		    case "strikethrough":
+		    case "subscript":
+		    case "superscript":
+			btn.state("active", false);
+			try {
+				if(!text && this.hasSelectedText()) btn.state("active", doc.queryCommandState(cmd));
+			} catch (e) { }
+			break;
+// Begin end by Stanislas Rolland 2004-12-01
 		    default:
 			cmd = cmd.replace(/(un)?orderedlist/i, "insert$1orderedlist");
 			try {
 				btn.state("active", (!text && doc.queryCommandState(cmd)));
-			} catch (e) {}
+			} catch (e) { }
 		}
 	}
 	// take undo snapshots
