@@ -98,12 +98,14 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 	var self = this;
 	var i18n = SelectColor.I18N;
 
-		// button_id's  "color" and "tag" are not registered but used to interface with the Table Operations and QuickTag plugins
-	if( !(button_id == "color" || button_id == "tag") ) {
+		// button_id's  "color" and "tag" are not registered but used to interface with the Table Operations and QuickTag plugins	switch (button_id) {
+	switch (button_id) {
+	   case "CO-forecolor":
+	   case "CO-hilitecolor":
 		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"],
 			function(dialog, params) {
 				var editor = dialog.editor;
-				self.processStyle(params, "", "");
+				self.processStyle(dialog, params, "", "");
 				editor.focusEditor();
 				editor.updateToolbar();
 				dialog.close();
@@ -160,12 +162,53 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				dialog.showAtElement();
 			}
 		);
-	} else {
+	   case "color":
 		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
 			function(dialog,params) {
-				self.processStyle(params, element, field);
+				self.processStyle(dialog, params, element, field);
 				dialog.close();
-				//dialog.opener.focus();
+			},
+
+				// this function gets called when the dialog needs to be initialized
+			function (dialog) {
+				dialog.content.style.width = "330px";
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog);
+				var colorTable = dialog.doc.getElementById("colorTable");
+				colorTable.onclick = function(e) {
+					var targ;
+					if(!e) {
+						var e = dialog.window.event;
+					}
+					if (e.target) {
+						targ = e.target;
+					} else if (e.srcElement) {
+						targ = e.srcElement;
+					}
+					if (targ.nodeType == 3) { // defeat Safari bug
+						targ = targ.parentNode;
+					}
+					dialog.doc.getElementById(button_id).value=targ.bgColor;
+					dialog.callHandler();
+					return false;
+				};
+				var colorUnset = dialog.doc.getElementById("colorUnset");
+				colorUnset.onclick = function(e) {
+					dialog.doc.getElementById(button_id).value="";
+					dialog.callHandler();
+					return false;
+				};
+				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = field.value;
+				dialog.modal = true;
+				dialog.showAtElement();
+			}
+		);
+	   case "tag":
+		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
+			function(dialog,params) {
+				//var value;
+				//self.processStyle(dialog, params, element, value);
+				field._return(params["tag"]);
+				dialog.close();
 			},
 
 				// this function gets called when the dialog needs to be initialized
@@ -205,7 +248,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 };
 
 // Applies the style found in "params" to the given element.
-SelectColor.prototype.processStyle = function(params, element, field) {
+SelectColor.prototype.processStyle = function(dialog, params, element, field) {
 	var editor = this.editor;
 	for (var i in params) {
 		var val = params[i];
@@ -229,11 +272,10 @@ SelectColor.prototype.processStyle = function(params, element, field) {
 					var parentElement = editor.getParentElement();
 					parentElement.style.backgroundColor = "";
 				}
-					break;
+				break;
 			case "color":
 				element.style.backgroundColor = val;
-			case "tag":
-				field.value += '#' + val;
+				field.value = val;
 				break;
 		}
 	}
