@@ -240,7 +240,6 @@ HTMLArea.Config = function () {
 	//    - ToolTip: default tooltip, for cases when it is not defined in the -lang- file (HTMLArea.I18N)
 	//    - Icon: path to an icon image file for the button (TODO: use one image for all buttons!)
 	//    - Enabled in text mode: if false the button gets disabled for text-only mode; otherwise enabled all the time.
-	self = this;
 	this.btnList = {
 		bold: [ "Bold", "ed_format_bold.gif", false, function(e) {e.execCommand("bold");} ],
 		italic: [ "Italic", "ed_format_italic.gif", false, function(e) {e.execCommand("italic");} ],
@@ -1796,7 +1795,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	var editor = this;	// for nested functions
 	this.focusEditor();
 	cmdID = cmdID.toLowerCase();
-	if (HTMLArea.is_gecko && !this.config.useCSS) try { this._doc.execCommand('useCSS', false, true); } catch (e) {};
+	//if (HTMLArea.is_gecko && !this.config.useCSS) try { this._doc.execCommand('useCSS', false, true); } catch (e) {};
 	switch (cmdID) {
 	    case "htmlmode" : this.setMode(); break;
 	    case "hilitecolor":
