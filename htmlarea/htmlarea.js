@@ -2367,7 +2367,10 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 			var attrs = root.attributes;
 			for (i = 0; i < attrs.length; ++i) {
 				var a = attrs.item(i);
-				if (!a.specified) {
+// Begin change by Stanislas Rolland 2004-12-08
+				//if (!a.specified) {
+				if (!a.specified && a.nodeName.toLowerCase() != 'value' ) {
+// End change by Stanislas Rolland 2004-12-08
 					continue;
 				}
 				var name = a.nodeName.toLowerCase();
