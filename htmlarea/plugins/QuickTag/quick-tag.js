@@ -42,7 +42,7 @@ param.editor = editor;
 };
 
 QuickTag.prototype.setTag = function(param) { 
-this.editor.surroundHTML(param.tagopen,param.tagclose);
+	this.editor.surroundHTML(param.tagopen,param.tagclose);
 };
 
 QuickTag._pluginInfo = {
