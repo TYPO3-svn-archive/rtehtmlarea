@@ -41,21 +41,16 @@ function initEditor(editornumber) {
 			// Toolbar: need change -> typo3-Config
 		config.toolbar = RTEarea[editornumber]["toolbar"];
 
-			// create an editor for the textbox
+			// create an editor for the textarea
 		RTEarea[editornumber]["editor"] = new HTMLArea(RTEarea[editornumber]["id"], config);
 		var editor = RTEarea[editornumber]["editor"];
 
 			// Save the editornumber and in the Object
 		editor._typo3EditerNumber = editornumber;
 
-		RTEarea[editornumber]["ruleSet"] = "article";
-
 		for (var plugin in RTEarea[editornumber]["plugin"]) {
 			if (RTEarea[editornumber]["plugin"][plugin]) {
 				switch (plugin) {
-					case "Indite":
-						editor.registerPlugin(plugin,RTEarea[editornumber]["ruleSet"]);
-						break;
 					default:
 						editor.registerPlugin(plugin);
 						break;
@@ -65,6 +60,7 @@ function initEditor(editornumber) {
 
 		if(RTEarea[editornumber]["pageStyle"]) {
 			editor.config.pageStyle = RTEarea[editornumber]["pageStyle"];
+			HTMLArea.loadStyle(editor.config.pageStyle);
 		}
 
 		if(RTEarea[editornumber]["fontname"]) {
