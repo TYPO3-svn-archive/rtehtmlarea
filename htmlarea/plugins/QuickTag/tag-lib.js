@@ -22,6 +22,7 @@ var allTags = {
 'b': 'b',
 'big': 'big',
 'blockquote': 'blockquote',
+'cite': 'cite',
 'code': 'code',
 'div': 'div',
 'em': 'em',
@@ -41,12 +42,14 @@ var allTags = {
 'ul': 'ul',
 'p': 'p',
 'pre': 'pre',
+'q': 'q',
 'small': 'small',
 'span': 'span',
 'strong': 'strong',
 'sub': 'sub',
 'sup': 'sup',
-'table': 'table'
+'table': 'table',
+'tt': 'tt'
 };
 
 // tags with options

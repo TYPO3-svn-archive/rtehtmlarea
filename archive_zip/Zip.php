@@ -3595,5 +3595,7 @@ class Archive_Zip
 
   }
   // End of class
-
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/archive_zip/Zip.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/archive_zip/Zip.php']);
+}
 ?>

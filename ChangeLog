@@ -1,3 +1,13 @@
+2005-02-17  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.39
+	* Added q, cite, abbr and acronym as allowed tags when "Enable all editor options" is checked.
+	* Added q, cite and tt tags to the tags supported by the QuickTag plugin (inserttag button).
+	* Work around bug in Mozilla 1.4 and Netscape 7.1 affecting DynamicCSS and InlineCSS plugins.
+	* Two know problems documented.
+	* Added tutorial by Jan Wulff on mod_gzip and IE caching problem.
+	* Correction for IE: if a table was selected by clicking on its border and the delete or backspace key was pressed, a Javascript error was produced, but the table was deleted anyway. The Javascript error is now gone.
+	* Correction: The TYPO3 back end form containing a text field edited with htmlArea RTE was submitted regardless of errors that should have been raised on the other fields of the form.
+
 2005-02-15  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.37
 	* Correction to the generated Mozilla/Firefox extension.

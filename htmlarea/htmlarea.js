@@ -715,9 +715,10 @@ HTMLArea.prototype.generate = function () {
 			// call previous submit methods if they were there.
 			if (typeof a != "undefined") {
 				for (var i = a.length; --i >= 0;) {
-					a[i]();
+					if (!a[i]()) return false;
 				}
 			}
+			return true;
 		};
 		if (typeof f.onreset == "function") {
 			var funcref = f.onreset;
@@ -750,7 +751,11 @@ HTMLArea.prototype.generate = function () {
 	if(HTMLArea.is_ie) {
 		iframe.setAttribute("src", _editor_url + "popups/blank.html");
 	} else {
-		iframe.setAttribute("src", "javascript:void(0);");
+		if(HTMLArea.is_wamcom) {
+			iframe.setAttribute("src", _editor_url + "popups/wamcom.html");
+		} else {
+			iframe.setAttribute("src", "javascript:void(0);");
+		}
 	}
 	iframe.style.borderWidth = "0px";
 	htmlarea.appendChild(iframe);
@@ -844,8 +849,13 @@ HTMLArea.prototype.generate = function () {
 			}
 
 				// set contents editable
-			if(HTMLArea.is_gecko && !HTMLArea.is_wamcom) doc.designMode = "on";
-			//if(HTMLArea.is_wamcom) editor._iframe.contentDocument.designMode = "on";
+			if(HTMLArea.is_gecko) {
+				if(HTMLArea.is_wamcom) {
+					setTimeout( function() { doc.designMode = "on"; }, 10);
+				} else {
+					doc.designMode = "on";
+				}
+			}
 			if(HTMLArea.is_ie) doc.body.contentEditable = true;
 
 				// intercept some events for updating the toolbar & keyboard handlers
@@ -2050,17 +2060,25 @@ HTMLArea.prototype.convertNode = function(el, newTagName) {
 HTMLArea.prototype.ie_checkBackspace = function() {
 	var sel = this._getSelection();
 	var range = this._createRange(sel);
-	var r2 = range.duplicate();
-	r2.moveStart("character", -1);
-	var a = r2.parentElement();
-	if (a != range.parentElement() &&
-	    /^a$/i.test(a.tagName)) {
-		r2.collapse(true);
-		r2.moveEnd("character", 1);
-		r2.pasteHTML('');
-		r2.select();
-		return true;
-	}
+    //QR fix for error when removing the image
+    if (sel.type == "Control"){   
+        var el = this.getParentElement();   
+        var p = el.parentNode;   
+        p.removeChild(el);   
+        return true;  
+    } else {
+       	var r2 = range.duplicate();
+       	r2.moveStart("character", -1);
+       	var a = r2.parentElement();
+       	if (a != range.parentElement() &&
+       	    /^a$/i.test(a.tagName)) {
+       		r2.collapse(true);
+       		r2.moveEnd("character", 1);
+       		r2.pasteHTML('');
+       		r2.select();
+       		return true;
+       	}
+    }
 };
 
 HTMLArea.prototype.dom_checkBackspace = function() {
@@ -2394,7 +2412,7 @@ HTMLArea.isBlockElement = function(el) {
 };
 // Begin change by Stanislas Rolland 2004-11-24
 // Add p blockquote center ul ol li tags to the HTMLArea._closingTags list
-HTMLArea._closingTags = " head title script style div p span tr td table em i strong b code cite blockquote dfn abbr acronym font center a ul ol li object tt";
+HTMLArea._closingTags = " head title script style div p span tr td table em i strong b code cite blockquote q dfn abbr acronym font center a ul ol li object tt";
 // End change by Stanislas Rolland 2004-11-24
 HTMLArea.needsClosingTag = function(el) {
 	return el && el.nodeType == 1 && (HTMLArea._closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);

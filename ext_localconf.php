@@ -81,7 +81,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 			allowTagsInTypolists = br,font,b,i,u,a,img,span
 
 			// TAGS ALLOWED
-			allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt
+			allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt, q, cite, abbr, acronym
 
 			// TAGS DENIED
 			denyTags >
@@ -96,7 +96,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 			HTMLparser_rte {
 
 				// TAGS ALLOWED
-				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt
+				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt, q, cite, abbr, acronym
 
 				// DO NOT REMOVE UNMATCHED TAGS
 				keepNonMatchedTags = 1
@@ -106,7 +106,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 			HTMLparser_db {
 
 				// TAGS ALLOWED
-				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt
+				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt, q, cite, abbr, acronym
 
 				// NO ATTRIBUTES ALLOWED ON THESE TAGS
 				noAttrib = b,i,u,br,center,sub,sup,strong,em,blockquote,strike,tt

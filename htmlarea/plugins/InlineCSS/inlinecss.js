@@ -84,7 +84,7 @@ InlineCSS.prototype.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 
 	newCssArray = cssArray;
 
-	for(var rule in cssRules){
+	for(var rule=0;rule<cssRules.length;rule++){
 			// StyleRule
 		if(cssRules[rule].selectorText){
 			if(cssRules[rule].selectorText.search(/:+/)==-1){
