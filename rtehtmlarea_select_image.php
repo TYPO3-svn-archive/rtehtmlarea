@@ -34,7 +34,7 @@
  *
  *
  *
- *   92: class tx_rtepbhtmlarea_localFolderTree extends t3lib_folderTree 
+ *   92: class tx_rtehtmlarea_localFolderTree extends t3lib_folderTree 
  *   99:     function wrapTitle($title,$v)	
  *  113:     function printTree($treeArr="")	
  *  137:     function PM_ATagWrap($icon,$cmd,$bMark="")	
@@ -42,7 +42,7 @@
  *  161:     function ext_isLinkable($v)	
  *
  *
- *  192: class tx_rtepbhtmlarea_select_image 
+ *  192: class tx_rtehtmlarea_select_image 
  *  206:     function preinit()	
  *  254:     function rteImageStorageDir()	
  *  264:     function magicProcess()	
@@ -68,9 +68,9 @@ define('MY_PATH_thisScript',str_replace('//','/', str_replace('\\','/',
 php_sapi_name()=='xcgi'||php_sapi_name()=='isapi'||php_sapi_name()=='cgi-fcgi' ? $HTTP_SERVER_VARS['PATH_TRANSLATED']:$HTTP_SERVER_VARS['SCRIPT_FILENAME'])));
 
 if( strstr(MY_PATH_thisScript, 'typo3conf') ) {
-	define(TYPO3_MOD_PATH, "../typo3conf/ext/sr_htmlarea/");
+	define(TYPO3_MOD_PATH, "../typo3conf/ext/rtehtmlarea/");
 } else {
-	define(TYPO3_MOD_PATH, "ext/sr_htmlarea/");
+	define(TYPO3_MOD_PATH, "ext/rtehtmlarea/");
 }
 
 $BACK_PATH = '../../../typo3/';
@@ -80,7 +80,7 @@ require ($BACK_PATH.'template.php');
 require_once (PATH_t3lib.'class.t3lib_foldertree.php');
 require_once (PATH_t3lib.'class.t3lib_stdgraphic.php');
 require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
-$LANG->includeLLFile('EXT:sr_htmlarea/locallang_rtepbhtmlarea_select_image.php');
+$LANG->includeLLFile('EXT:rtehtmlarea/locallang_rtehtmlarea_select_image.php');
 
 
 
@@ -91,7 +91,7 @@ $LANG->includeLLFile('EXT:sr_htmlarea/locallang_rtepbhtmlarea_select_image.php')
  * @package TYPO3
  * @subpackage tx_rte
  */
-class tx_rtepbhtmlarea_localFolderTree extends t3lib_folderTree {
+class tx_rtehtmlarea_localFolderTree extends t3lib_folderTree {
 	var $ext_IconMode=1;
 
 	/**
@@ -190,7 +190,7 @@ class tx_rtepbhtmlarea_localFolderTree extends t3lib_folderTree {
  * @package TYPO3
  * @subpackage tx_rte
  */
-class tx_rtepbhtmlarea_select_image {
+class tx_rtehtmlarea_select_image {
 	var $content;
 	var $siteUrl;
 	
@@ -215,11 +215,11 @@ class tx_rtepbhtmlarea_select_image {
 		// Determine nature of current url:
 		$this->act=t3lib_div::_GP("act");
 		
-		$this->modData = $BE_USER->getModuleData("rtepbhtmlarea_select_image.php","ses");
+		$this->modData = $BE_USER->getModuleData("rtehtmlarea_select_image.php","ses");
 		if ($this->act!="image")	{
 			if (isset($this->act))	{
 				$this->modData["act"]=$this->act;
-				$BE_USER->pushModuleData("rtepbhtmlarea_select_image.php",$this->modData);
+				$BE_USER->pushModuleData("rtehtmlarea_select_image.php",$this->modData);
 			} else {
 				$this->act=$this->modData["act"];
 			}
@@ -227,7 +227,7 @@ class tx_rtepbhtmlarea_select_image {
 		$expandPage = t3lib_div::_GP("expandFolder");
 		if (isset($expandPage))	{
 			$this->modData["expandFolder"]=$expandPage;
-			$BE_USER->pushModuleData("rtepbhtmlarea_select_image.php",$this->modData);
+			$BE_USER->pushModuleData("rtehtmlarea_select_image.php",$this->modData);
 		} else {
 			t3lib_div::_GETset($this->modData["expandFolder"],'expandFolder');
 		}
@@ -506,13 +506,13 @@ class tx_rtepbhtmlarea_select_image {
 				$_MCONF['name']='file_list';
 				$_MOD_SETTINGS = t3lib_BEfunc::getModuleData($_MOD_MENU, t3lib_div::_GP('SET'), $_MCONF['name']);
 				$addParams = '&act='.$this->act.'&expandFolder='.rawurlencode($this->modData["expandFolder"]);
-				$thumbNailCheck = t3lib_BEfunc::getFuncCheck('','SET[displayThumbs]',$_MOD_SETTINGS['displayThumbs'],'rtepbhtmlarea_select_image.php',$addParams).' '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.php:displayThumbs',1);
+				$thumbNailCheck = t3lib_BEfunc::getFuncCheck('','SET[displayThumbs]',$_MOD_SETTINGS['displayThumbs'],'rtehtmlarea_select_image.php',$addParams).' '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.php:displayThumbs',1);
 			} else {
 				$thumbNailCheck='';
 			}
 
 				// File-folders:	
-			$foldertree = t3lib_div::makeInstance("tx_rtepbhtmlarea_localFolderTree");
+			$foldertree = t3lib_div::makeInstance("tx_rtehtmlarea_localFolderTree");
 			$tree=$foldertree->getBrowsableTree();
 			list(,,$specUid) = explode("_",t3lib_div::_GP("PM"));
 			$files = $this->expandFolder($foldertree->specUIDmap[$specUid],$this->act=="plain",$noThumbs?$noThumbs:!$_MOD_SETTINGS['displayThumbs']);
@@ -708,7 +708,7 @@ class tx_rtepbhtmlarea_select_image {
 				<input type="Hidden" name="file[upload]['.$a.'][data]" value="'.$a.'"><BR>';
 		}
 		$code.='
-			<input type="Hidden" name="redirect" value="'.t3lib_extMgm::extRelPath('sr_htmlarea').'rtepbhtmlarea_select_image.php?act='.$this->act.'&expandFolder='.rawurlencode($path).'&RTEtsConfigParams='.rawurlencode(t3lib_div::_GP("RTEtsConfigParams")).'">
+			<input type="Hidden" name="redirect" value="'.t3lib_extMgm::extRelPath('rtehtmlarea').'rtehtmlarea_select_image.php?act='.$this->act.'&expandFolder='.rawurlencode($path).'&RTEtsConfigParams='.rawurlencode(t3lib_div::_GP("RTEtsConfigParams")).'">
 			<input type="Submit" name="submit" value="'.$LANG->sL("LLL:EXT:lang/locallang_core.php:file_upload.php.submit").'">
 			<div id="c-override">
 				<input type="checkbox" name="overwriteExistingFiles" value="1" /> '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_misc.php:overwriteExistingFiles',1).'
@@ -747,8 +747,8 @@ class tx_rtepbhtmlarea_select_image {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/rtepbhtmlarea_select_image.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/rtepbhtmlarea_select_image.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/rtehtmlarea_select_image.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/rtehtmlarea_select_image.php']);
 }
 
 
@@ -763,7 +763,7 @@ if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_html
 
 
 // Make instance:
-$SOBE = t3lib_div::makeInstance('tx_rtepbhtmlarea_select_image');
+$SOBE = t3lib_div::makeInstance('tx_rtehtmlarea_select_image');
 $SOBE->preinit();
 $SOBE->magicProcess();
 $SOBE->init();

@@ -1,3 +1,7 @@
+2004-11-28  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+
+	* Changing extension from sr_htmlarea to rtehtmlarea
+
 2004-11-27  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 
 	* Correcting the behavior of the paragraph (formatblock) drop down list in IE

@@ -23,7 +23,7 @@
 	*  This copyright notice MUST APPEAR in all copies of the script!
 	***************************************************************/
 	/**
-	*  Spell checking plugin 'tx_srhtmlarea_pi1' for the htmlArea RTE extension.
+	*  Spell checking plugin 'tx_rtehtmlarea_pi1' for the htmlArea RTE extension.
 	*
 	*  @author Stanislas Rolland <stanislas.rolland@fructifor.com>
 	*
@@ -33,11 +33,11 @@
 	*/
 	require_once(PATH_tslib.'class.tslib_pibase.php');
 
-	class tx_srhtmlarea_pi1 extends tslib_pibase {
+	class tx_rtehtmlarea_pi1 extends tslib_pibase {
 		var $cObj;  // The backReference to the mother cObj object set at call time
-		var $prefixId = 'tx_srhtmlarea_pi1';  // Same as class name
-		var $scriptRelPath = 'pi1/class.tx_srhtmlarea_pi1.php';  // Path to this script relative to the extension dir.
-		var $extKey = 'sr_htmlarea'; // The extension key.
+		var $prefixId = 'tx_rtehtmlarea_pi1';  // Same as class name
+		var $scriptRelPath = 'pi1/class.tx_rtehtmlarea_pi1.php';  // Path to this script relative to the extension dir.
+		var $extKey = 'rtehtmlarea'; // The extension key.
 		var $conf = array();
 		var $siteUrl;
 		var $charset = 'utf-8';
@@ -56,7 +56,7 @@
 		var $AspellDirectory;
 		var $pspell_is_available;
 		var $forceCommandMode = 0;
-		var $filePrefix = 'sr_htmlarea_';
+		var $filePrefix = 'rtehtmlarea_';
 
 		/**
 		 * Main class of Spell Checker plugin for Typo3 CMS
@@ -352,8 +352,8 @@
 
 	} // end of class
 
-	if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/pi1/class.tx_srhtmlarea_pi1.php']) {
-		include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/pi1/class.tx_srhtmlarea_pi1.php']);
+	if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/pi1/class.tx_rtehtmlarea_pi1.php']) {
+		include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/pi1/class.tx_rtehtmlarea_pi1.php']);
 	}
 
 ?>

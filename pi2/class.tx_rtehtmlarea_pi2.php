@@ -26,34 +26,29 @@
 ***************************************************************/
 
 /**
- * Front end RTE based on HTMLArea
+ * Front end RTE based on htmlArea
  *
- * @author	Philipp Borgmann <philipp.borgmann@gmx.de>
- * @coauthor Stanislas Rolland <stanislas.rolland@fructifor.com>
- */
-/**
- * Changes:
- * 20.10.2004 Stanislas Rolland
- *  create this front end version (not yet functional)
+ * @author Stanislas Rolland <stanislas.rolland@fructifor.com>
  */
 
 require_once(PATH_t3lib.'class.t3lib_rteapi.php');
 require_once(PATH_t3lib.'class.t3lib_cs.php');
-require_once(t3lib_extMgm::extPath('sr_htmlarea').'class.tx_rtepbhtmlarea_base.php');
+require_once(t3lib_extMgm::extPath('rtehtmlarea').'class.tx_rtehtmlarea_base.php');
 
-class tx_srhtmlarea_pi2 extends tx_rtepbhtmlarea_base {
+class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 
 	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, DynamicCSS, FullPage';
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:
+
 	var $RTEdivStyle;				// Alternative style for RTE <div> tag.
 	var $extHttpPath;				// full Path to this extension for http (so no Server path). It ends with "/"
 	var $rtePathImageFile;			// Path to the php-file for selection images
 	var $rtePathLinkFile;			// Path to the php-file for create a link
 
 		// Internal, static:
-	var $ID = 'rte_pb_htmlarea';				// Identifies the RTE as being the one from the "rte" extension if any external code needs to know...
+	var $ID = 'rtehtmlarea';				// Identifies the RTE as being the one from the "rte" extension if any external code needs to know...
 	
 		// For the editor
 	var $elementId;
@@ -78,7 +73,7 @@ class tx_srhtmlarea_pi2 extends tx_rtepbhtmlarea_base {
 	 */
 	function isAvailable()	{
 
-		if (TYPO3_DLOG)	t3lib_div::devLog('Checking for availability...','rte_pb_htmlarea');
+		if (TYPO3_DLOG)	t3lib_div::devLog('Checking for availability...','rtehtmlarea');
 
 		$this->errorLog = array();
 		if (!$this->debugMode)	{	// If debug-mode, let any browser through
@@ -158,7 +153,7 @@ class tx_srhtmlarea_pi2 extends tx_rtepbhtmlarea_base {
 			// Get the path to this extension:
 		$this->extHttpPath = $httpTypo3Path.t3lib_extMgm::siteRelPath($this->ID);
 			// Get the Path to the script for selecting an image
-		$this->rtePathImageFile = $this->extHttpPath."rtepbhtmlarea_select_image.php";
+		$this->rtePathImageFile = $this->extHttpPath."rtehtmlarea_select_image.php";
 			// Get the Path to the script for create a link
 		$this->rtePathLinkFile = $httpTypo3Path."typo3/browse_links.php";
 
@@ -205,7 +200,7 @@ class tx_srhtmlarea_pi2 extends tx_rtepbhtmlarea_base {
 
 			if( $this->isPluginEnable('SpellChecker') ) {
 					// Set the language of the content for the SpellChecker
-				$this->spellCheckerLanguage = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rte_pb_htmlarea']['defaultDictionary'];
+				$this->spellCheckerLanguage = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rtehtmlarea']['defaultDictionary'];
 				if($row['sys_language_uid']) {
 					$tableA = 'sys_language';
 					$tableB = 'static_languages';
@@ -343,6 +338,7 @@ class tx_srhtmlarea_pi2 extends tx_rtepbhtmlarea_base {
 			// RTEkeyList for backend user
 		$RTEkeyList = isset($BE_USER->userTS['options.']['RTEkeyList']) ? $BE_USER->userTS['options.']['RTEkeyList'] : '*';
 		if ($RTEkeyList!='*')	{
+
 			$show = t3lib_div::trimExplode(',',$RTEkeyList,1);
 		} else {
 			$show[] = 'chMode'; // Show the HTML-Mode button
@@ -465,7 +461,7 @@ class tx_srhtmlarea_pi2 extends tx_rtepbhtmlarea_base {
 				return (in_array($plugin, $pluginEnableArray) && in_array("table", $this->toolBar)) ? true : false;
 				break;
 			case 'SpellChecker':
-				return (in_array($plugin, $pluginEnableArray) && !in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rte_pb_htmlarea']['noSpellCheckLanguages']))) ? true : false;
+				return (in_array($plugin, $pluginEnableArray) && !in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rtehtmlarea']['noSpellCheckLanguages']))) ? true : false;
 				break;
 			case 'ContextMenu':
 			case 'DynamicCSS':
@@ -513,7 +509,7 @@ class tx_srhtmlarea_pi2 extends tx_rtepbhtmlarea_base {
 
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/pi2/class.tx_srhtmlarea_pi2.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/pi2/class.tx_srhtmlarea_pi2.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/pi2/class.tx_rtehtmlarea_pi2.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/pi2/class.tx_rtehtmlarea_pi2.php']);
 }
 ?>

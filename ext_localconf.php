@@ -3,7 +3,7 @@ if (!defined ("TYPO3_MODE")) 	die ("Access denied.");
 
 if(!$TYPO3_CONF_VARS['BE']['RTEenabled'])  $TYPO3_CONF_VARS['BE']['RTEenabled'] = 1;
 
-$TYPO3_CONF_VARS['BE']['RTE_reg'][$_EXTKEY] = array('objRef' => 'EXT:'.$_EXTKEY.'/class.tx_rtepbhtmlarea_base.php:&tx_rtepbhtmlarea_base');
+$TYPO3_CONF_VARS['BE']['RTE_reg'][$_EXTKEY] = array('objRef' => 'EXT:'.$_EXTKEY.'/class.tx_rtehtmlarea_base.php:&tx_rtehtmlarea_base');
 
 if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 		$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY] = array( 

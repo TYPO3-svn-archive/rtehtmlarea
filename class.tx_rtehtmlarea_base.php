@@ -28,50 +28,16 @@
 ***************************************************************/
 
 /**
- * RTE implements HTMLarea
+ * An RTE using the htmlArea editor
  *
  * @author	Philipp Borgmann <philipp.borgmann@gmx.de>
  * @coauthor	Stanislas Rolland <stanislas.rolland@fructifor.com>
  */
 
-/**
- * Changes:
- * Circa September-November 2004 Stanislas Rolland
- * put list of enabled plugins in User TS config; see ext_localconf.php
- * put spell checker suggestion mode in User TS config; see ext_localconf.php
- * put list of available Aspell dictionaries in TYPO3_CONF_VARS;  see ext_localconf.php
- * rewrite function isPluginEnable(); base it on User TS config; delete var $conf_plugins_enable
- * rewrite function loadJScode(); make it generic; base it on isPluginEnable()
- * delete var $conf_plugin_lang
- * popupeditor does not work; move it from always show to always hide
- * showhelp has no content yet; move it from always show to always hide
- * modify function registerRTEinJS($number); the list of enabled plugins is based on isPluginEnable() and, hence, on User TS config
- * modify script t3_popup.php in order to translate the windows titles
- * re-establish older version of typo3_rte.js, in order to make the typo3 popups work with translated titles
- * create htmlarea/plugins/SpellChecker/spell-check-logic.php and class.tx_srtmlarea_pi1.php
- * modify various files of htmlarea/plugins/SpellChecker to support and translate spell checking with pspell (Aspell)
- * modify functions drawRTE and loadJSFiles and scripts spell-check.js and spell-check-ui.js to set the language and charset of the content and the mode of the spellChecker
- * put default dictionary in TYPO3_CONF_VARS;  see ext_localconf.php
- * put spell checker disabling languages TYPO3_CONF_VARS;  see ext_localconf.php and apply in isPluginEnable()
- * updates to the dialogs section of main English, French and Spanish language files to translate the popups
- * use table static_languages to get the language of the content for the SpellChecker
- * correction to config.pageStyle assignment in htmlarea.js
- * modify typo3_rte.js to import stylesheet for DynamicCSS plugin
- * adjust the  Tool Bar JS when DynamicCSS and/or SpellChecker plugins are enabled
- * add a locallang.php file for each plugin and generate the JS language array with function buildJSLangArray()
- * add a locallang.php file for each subarray of the main language array and generate the JS language array with function buildJSMainLangArray()
- * add a new SelectColor htmlArea plugin to integrate the color selection wizard
- * integrate plugin InsertSmiley
- * integrate plugin FindReplace
- * add enableWordClean RTE PageConfig property
- * rely on Static Tables for language code conversions
- * integrate RemoveFormat plugin
- */
-
 require_once(PATH_t3lib.'class.t3lib_rteapi.php');
 require_once(PATH_t3lib.'class.t3lib_cs.php');
 
-class tx_rtepbhtmlarea_base extends t3lib_rteapi {
+class tx_rtehtmlarea_base extends t3lib_rteapi {
 	
 	// Config for the supported browser
 	var $conf_supported_browser = array (
@@ -264,7 +230,7 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	var $siteURL;				// TYPO3 site url
 
 		// Internal, static:
-	var $ID = 'sr_htmlarea';				// Identifies the RTE as being the one from the "rte" extension if any external code needs to know...
+	var $ID = 'rtehtmlarea';				// Identifies the RTE as being the one from the "rte" extension if any external code needs to know...
 	var $debugMode = FALSE;			// If set, the content goes into a regular TEXT area field - for developing testing of transformations. (Also any browser will load the field!)
 	
 		// For the editor
@@ -382,7 +348,7 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 				// Get the path to this extension:
 			$this->extHttpPath = $this->httpTypo3Path.t3lib_extMgm::siteRelPath($this->ID);
 				// Get the Path to the script for selecting an image
-			$this->rtePathImageFile = $this->extHttpPath . 'rtepbhtmlarea_select_image.php';
+			$this->rtePathImageFile = $this->extHttpPath . 'rtehtmlarea_select_image.php';
 				// Get the Path to the script for create a link
 			$this->rtePathLinkFile = $this->httpTypo3Path . 'typo3/browse_links.php';
 				// Get the site URL
@@ -1090,7 +1056,7 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/class.tx_rtepbhtmlarea_base.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sr_htmlarea/class.tx_rtepbhtmlarea_base.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/class.tx_rtehtmlarea_base.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/class.tx_rtehtmlarea_base.php']);
 }
 ?>
