@@ -392,16 +392,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->charset = $this->charset ? $this->charset : 'iso-8859-1';
 			$this->BECharset = trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) ? trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) : $this->charset;
 
-				// Convert the typo3 language code for htmlArea and Aspell
-			$tableB = 'static_languages';
-			$query = "SELECT lg_iso_2, lg_country_iso_2 FROM $tableB";
-				$query .= " WHERE lg_typo3 = $this->language ";
-			$res = mysql(TYPO3_db,$query);
-			while ( $languageRow = @mysql_fetch_assoc($res)) {
-				strtolower(trim($languageRow['lg_iso_2']).(trim($languageRow['lg_country_iso_2'])?'_'.trim($languageRow['lg_country_iso_2']):''));
-			}
-			$this->language = $this->language?$this->language:'en';
-
 			if( $this->isPluginEnable('SpellChecker') ) {
 					// Set the language of the content for the SpellChecker
 				$this->spellCheckerLanguage = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['defaultDictionary'];
@@ -449,7 +439,27 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 * LOAD CSS, JS and more
 			 * =======================================
 			 */
-			$pObj->additionalCode_pre['loadCSS'] = '
+
+				// Preloading the pageStyle
+			if(trim($this->thisConfig['contentCSS'])) {
+				$filename = trim($this->thisConfig['contentCSS']);
+				if (substr($filename,0,4)=='EXT:')      {       // extension
+					list($extKey,$local) = explode('/',substr($filename,4),2);
+					$filename='';
+					if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
+						$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
+					}
+				} elseif (substr($filename,0,1) != '/') {
+					$filename = $this->siteURL.$filename;
+				}
+				$pObj->additionalCode_pre['loadCSS'] = '
+					<link rel="alternate stylesheet" type="text/css" href="' . $filename . '" />';
+			} else {
+				$pObj->additionalCode_pre['loadCSS'] = '
+					<link rel="alternate stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css" />';
+			}
+
+			$pObj->additionalCode_pre['loadCSS'] .= '
 				<link rel="stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/htmlarea.css" />';
 			$pObj->additionalCode_pre['loadJSfiles'] = $this->loadJSfiles();
 			$pObj->additionalJS_pre['loadJScode'] = $this->loadJScode();		 
@@ -663,6 +673,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		;
 	}
 
+
 	/**
 	 * Return the JS-Code for Register the RTE in JS
 	 *
@@ -853,7 +864,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				return (in_array($plugin, $pluginEnableArray) && in_array('table', $this->toolBar)) ? true : false;
 				break;
 			case 'SpellChecker':
-				return (in_array($plugin, $pluginEnableArray) && !in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) ? true : false;
+				return (in_array($plugin, $pluginEnableArray) && t3lib_extMgm::isLoaded('sr_static_info') && !in_array($this->language, t3lib_div::trimExplode(' ', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) ? true : false;
 				break;
 			default:
 				return in_array($plugin, $pluginEnableArray);
