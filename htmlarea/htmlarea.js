@@ -2302,13 +2302,13 @@ HTMLArea._hasClass = function(el, className) {
 
 HTMLArea._blockTags = " body form textarea fieldset ul ol dl li div " +
 "p h1 h2 h3 h4 h5 h6 quote pre table thead " +
-"tbody tfoot tr td iframe address ";
+"tbody tfoot tr td iframe address object";
 HTMLArea.isBlockElement = function(el) {
 	return el && el.nodeType == 1 && (HTMLArea._blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };
 // Begin change by Stanislas Rolland 2004-11-24
 // Add p blockquote center ul ol li tags to the HTMLArea._closingTags list
-HTMLArea._closingTags = " head title script style div p span tr td table em i strong b code cite blockquote dfn abbr acronym font center a ul ol li ";
+HTMLArea._closingTags = " head title script style div p span tr td table em i strong b code cite blockquote dfn abbr acronym font center a ul ol li object";
 // End change by Stanislas Rolland 2004-11-24
 HTMLArea.needsClosingTag = function(el) {
 	return el && el.nodeType == 1 && (HTMLArea._closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
