@@ -92,9 +92,9 @@ function initEditor(editornumber) {
 			editor.config.useHTTPS = RTEarea[editornumber]["useHTTPS"];
 		}
 
-		editor.config.useCSS = true;
+		editor.config.useCSS = false;
 		if(RTEarea[editornumber]["useCSS"]) {
-			editor.config.useHTTPS = RTEarea[editornumber]["useCSS"];
+			editor.config.useCSS = RTEarea[editornumber]["useCSS"];
 		}
 
 		editor.config.statusBar = true;
