@@ -500,7 +500,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			// Register RTE in JS:
 			$pObj->additionalJS_post[] = $this->registerRTEinJS($pObj->RTEcounter);
 
-
 			// Set the save option for the RTE:
 			$pObj->additionalJS_submit[] = $this->setSaveRTE($pObj->RTEcounter, $pObj->formName, htmlspecialchars($PA['itemFormElName']));
 			
@@ -508,11 +507,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$item = 
 				$this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
-				<!--<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden">-->
+				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden">
 				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($RTEdivStyle).'">
 				'.t3lib_div::formatForTextarea($value).'
 				</textarea>
-				<!--</div>-->
+				</div>
 				';
 		}
 
