@@ -131,17 +131,17 @@
 .dialog .buttonColor {
   padding: 1px;
   cursor: default;
-  border: 1px solid;
+  border-width: 1px;
+  border-style: solid;
   border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
 }
 
-.dialog .buttonColor-hilite {
-  border-color: #000;
-}
+.dialog .buttonColor-hilite { border-color: black black black black; }
 
 .dialog .buttonColor .chooser, .dialog .buttonColor .nocolor {
   height: 0.6em;
-  border: 1px solid;
+  border-width: 1px;
+  border-style: solid;
   padding: 0px 1em;
   border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
 }
@@ -156,15 +156,8 @@
 .dialog legend { font-weight: bold; }
 .dialog fieldset table { margin: 2px 0px; }
 
-.popupdiv {
-  border: 2px solid;
-  border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
-}
-
-.popupwin {
-  padding: 0px;
-  margin: 0px;
-}
+.popupdiv { border: 2px solid; border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight; }
+.popupwin { padding: 0px; margin: 0px; }
 
 .popupwin .title {
   background: #fff;
@@ -184,10 +177,4 @@ form { margin: 0px; border: none; }
 .colorTable TR { height: 6px; }
 .colorTable TD { width: 6px; cursor: pointer; }
 
-.pleasewait { 
-     text-align: left; 
-     font-size: 8pt; 
-     position: relative; 
-     top: 80; 
-     margin-top: 25px;
-}
+.pleasewait { text-align: left; font-size: 8pt; position: relative; top: 80; margin-top: 30px; }

@@ -113,7 +113,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 			function (dialog) {
 				var editor = dialog.editor;
 				var doc = editor._doc;
-				dialog.content.style.width = "400px";
+				dialog.content.style.width = "330px";
 				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
@@ -157,7 +157,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 					// alert(e + "\n\n" );
 				}
 				dialog.modal = true;
-				dialog.showAtElement(dialog.editor._iframe, "c");
+				dialog.showAtElement();
 			}
 		);
 	} else {
@@ -170,7 +170,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
-				dialog.content.style.width = "400px";
+				dialog.content.style.width = "330px";
 				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
@@ -198,7 +198,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field) {
 				};
 				dialog.doc.getElementById(button_id+"Current").style.backgroundColor = field.value;
 				dialog.modal = true;
-				dialog.showAtElement(dialog.editor._iframe, "c");
+				dialog.showAtElement();
 			}
 		);
 	}
@@ -256,10 +256,10 @@ SelectColor.prototype.renderPopupSelectColor = function(sID,dialog) {
 
 	sz = '<table style="width:100%"><tr><td id="--HA-layout"><fieldset>';
 	sz += '<input type="hidden" name="' + sID + '" id="' + sID + '" value="" />';
-	sz += '<table style="width:100%"><tr><td valign="middle"><span class="buttonColor" \
+	sz += '<table style="width:100%;"><tr><td style="vertical-align: middle;"><span style="margin-left: 5px; height: 1em;" class="dialog buttonColor" \
 				onMouseover="className += \' buttonColor-hilite\';" \
 				onMouseout="className = \'buttonColor\';"> \
-			<span class="chooser" id="' + szID + '"></span> \
+			<span id="' + szID + '" class="chooser"></span> \
 			<span id="colorUnset" class="nocolor" title="' + i18n["no_color"] + '" \
 				onMouseover="className += \' nocolor-hilite\';" \
 				onMouseout="className = \'nocolor\';" \
