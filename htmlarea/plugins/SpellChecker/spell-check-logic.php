@@ -45,7 +45,7 @@
 		require_once(PATH_t3lib.'class.t3lib_tstemplate.php');
 		require_once(PATH_t3lib.'class.t3lib_page.php');
 		require_once(PATH_tslib.'class.tslib_content.php');
-		require_once(t3lib_extMgm::extPath('sr_htmlarea').'pi1/class.tx_srhtmlarea_pi1.php');
+		require_once(t3lib_extMgm::extPath('rtehtmlarea').'pi1/class.tx_rtehtmlarea_pi1.php');
 		require_once(PATH_t3lib.'class.t3lib_userauth.php');
 		require_once(PATH_tslib.'class.tslib_feuserauth.php');
 
@@ -77,7 +77,7 @@
 		$GLOBALS['TSFE']->tmpl->getFileName_backPath = PATH_site;
 		$GLOBALS['TSFE']->forceTemplateParsing = 1;
 		$GLOBALS['TSFE']->getConfigArray();
-		$spellChecker = t3lib_div::makeInstance('tx_srhtmlarea_pi1');
+		$spellChecker = t3lib_div::makeInstance('tx_rtehtmlarea_pi1');
 		$spellChecker->cObj = t3lib_div::makeInstance('tslib_cObj');
 		$conf = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$spellChecker->prefixId.'.'];
 		$spellChecker->main($conf);
