@@ -315,7 +315,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				// Get the Path to the script for selecting an image
 			$this->rtePathImageFile = $this->extHttpPath . 'rtehtmlarea_select_image.php';
 				// Get the Path to the script for create a link
-			$this->rtePathLinkFile = $this->httpTypo3Path . 'typo3/browse_links.php';
+			//$this->rtePathLinkFile = $this->httpTypo3Path . 'typo3/browse_links.php';
+			$this->rtePathLinkFile = $this->extHttpPath . 'rtehtmlarea_browse_links.php';
 				// Get the site URL
 			$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 				// Get the host URL
@@ -512,13 +513,20 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	function setToolBar() {
 		global $BE_USER, $CLIENT;
 
-		if($CLIENT['BROWSER'] == 'gecko' && $CLIENT['VERSION'] == '1.3') 
-			$this->defaultToolbarOrder = 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
+		if($CLIENT['BROWSER'] == 'gecko' && $CLIENT['VERSION'] == '1.3')  {
+			$this->defaultToolbarOrder = $pObj->docLarge ? 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
 				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
 				subscript, superscript, lefttoright, righttoleft, bar, left, center, right, justifyfull, linebreak, 
 				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
 				insertcharacter, line, link, image, table, bar, findreplace, spellcheck, bar, chMode, inserttag, 
+				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about'
+				: 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
+				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
+				subscript, superscript, linebreak, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
+				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
+				insertcharacter, line, link, image, table, linebreak, findreplace, spellcheck, bar, chMode, inserttag, 
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about';
+		}
 		$toolbarOrder = $this->thisConfig['toolbarOrder'] ? $this->thisConfig['toolbarOrder'] : $this->defaultToolbarOrder;
 
 			// Getting rid of undefined buttons

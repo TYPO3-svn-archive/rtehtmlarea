@@ -60,12 +60,9 @@
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
- 
 
 unset($MCONF);
-
 define('MY_PATH_thisScript',str_replace('//','/', str_replace('\\','/', (php_sapi_name()=='cgi'||php_sapi_name()=='xcgi'||php_sapi_name()=='isapi' ||php_sapi_name()=='cgi-fcgi')&&($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED'])? ($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED']):($_SERVER['ORIG_SCRIPT_FILENAME']?$_SERVER['ORIG_SCRIPT_FILENAME']:$_SERVER['SCRIPT_FILENAME']))));
-
 
 if( strstr(MY_PATH_thisScript, 'typo3conf') ) {
 	define(TYPO3_MOD_PATH, "../typo3conf/ext/rtehtmlarea/");
@@ -76,13 +73,10 @@ if( strstr(MY_PATH_thisScript, 'typo3conf') ) {
 $BACK_PATH = '../../../typo3/';
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
-
 require_once (PATH_t3lib.'class.t3lib_foldertree.php');
 require_once (PATH_t3lib.'class.t3lib_stdgraphic.php');
 require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
 $LANG->includeLLFile('EXT:rtehtmlarea/locallang_rtehtmlarea_select_image.php');
-
-
 
 /**
  * Local Folder Tree
@@ -91,7 +85,7 @@ $LANG->includeLLFile('EXT:rtehtmlarea/locallang_rtehtmlarea_select_image.php');
  * @package TYPO3
  * @subpackage tx_rte
  */
-class tx_rtehtmlarea_localFolderTree extends t3lib_folderTree {
+class tx_rtehtmlarea_image_localFolderTree extends t3lib_folderTree {
 	var $ext_IconMode=1;
 
 	/**
@@ -172,17 +166,6 @@ class tx_rtehtmlarea_localFolderTree extends t3lib_folderTree {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Script Class
  * 
@@ -200,6 +183,7 @@ class tx_rtehtmlarea_select_image {
 	var $allowedItems;
 	var $doc;	
 	var $imgPath;
+	var $classesImageJSOptions;
 
 	/**
 	 * Pre-initialization - the point is to do some processing before the actual init() function; In between we might have some magic-image processing going on...
@@ -235,9 +219,7 @@ class tx_rtehtmlarea_select_image {
 		if (!$this->act)	{
 			$this->act="magic";
 		}
-		
-		
-		
+
 		$RTEtsConfigParts = explode(":",t3lib_div::_GP("RTEtsConfigParams"));
 		if (count($RTEtsConfigParts)<2)	die("Error: The GET parameter 'RTEtsConfigParams' was missing. Close the window.");
 		$RTEsetup = $GLOBALS["BE_USER"]->getTSConfig("RTE",t3lib_BEfunc::getPagesTSconfig($RTEtsConfigParts[5])); 
@@ -247,6 +229,15 @@ class tx_rtehtmlarea_select_image {
 		$this->allowedItems = array_diff(explode(",","magic,plain,dragdrop,image"),t3lib_div::trimExplode(",",$this->thisConfig["blindImageOptions"],1));
 		reset($this->allowedItems);
 		if (!in_array($this->act,$this->allowedItems))	$this->act = current($this->allowedItems);
+
+		if($this->thisConfig['classesImage']) {
+			$classesImageArray = t3lib_div::trimExplode(',',$this->thisConfig['classesImage'],1);
+			$this->classesImageJSOptions = '<option value=""></option>';
+			reset($classesImageArray);
+			while(list(,$class)=each($classesImageArray)) {
+				$this->classesImageJSOptions .= '<option value="' .$class . '">' . $class . '</option>';
+			}
+		}
 	}
 
 	/**
@@ -291,6 +282,7 @@ class tx_rtehtmlarea_select_image {
 					if (!$cWidth)	$cWidth=300;
 						// This thing allows images to be based on their width - to a certain degree - by setting a high height. Then we're almost certain the image will be based on the width 
 							$cHeight=1000;
+
 		//			debug(array($cHeight,$cWidth));
 		//exit;			
 					$imgI = $imgObj->imageMagickConvert($filepath,"WEB",$cWidth."m",$cHeight."m");	// ($imagefile,$newExt,$w,$h,$params,$frame,$options,$mustCreate=0)
@@ -370,14 +362,17 @@ class tx_rtehtmlarea_select_image {
 				}
 				return "";
 			}
-			function printCurrentImageOptions()	{	//
-		//		alert(selectedImageRef.href);
-		//		var styleSelector=\'<select name="iClass" style="width:140px;"><option value=""></option><option value="TestClass">TestClass</option></select>\';
+			function printCurrentImageOptions() {
+				var classesImage = ' . ($this->thisConfig['classesImage']?'true':'false') . ';
+				if(classesImage) var styleSelector=\'<select name="iClass" style="width:140px;">' . $this->classesImageJSOptions  . '</select>\';
 		//		var alignSelector=\'<select name="iAlign" style="width:60px;"><option value=""></option><option value="left">Left</option><option value="right">Right</option></select>\';
 				var floatSelector=\'<select name="iFloat"><option value="">' . $LANG->getLL('notSet') . '</option><option value="none">' . $LANG->getLL('nonFloating') . '</option><option value="left">' . $LANG->getLL('left') . '</option><option value="right">' . $LANG->getLL('right') . '</option></select>\';
 				var bgColor=\' class="bgColor4"\';
 				var sz="";
 				sz+=\'<table border=0 cellpadding=1 cellspacing=1><form action="" name="imageData">\';
+				if(classesImage) {
+					sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("class").': \'+styleSelector+\'</td></tr>\';
+				}
 				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("width").': <input type="text" name="iWidth" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).' />&nbsp;&nbsp;'.$LANG->getLL("height").': <input type="text" name="iHeight" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).' />&nbsp;&nbsp;'.$LANG->getLL("border").': <input type="checkbox" name="iBorder" value="1" /></td></tr>\';
 				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("float").': \'+floatSelector+\'</td></tr>\';
 				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("margin_lr").': <input type="text" name="iHspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).'>&nbsp;&nbsp;'.$LANG->getLL("margin_tb").': <input type="text" name="iVspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).' /></td></tr>\';
@@ -387,7 +382,8 @@ class tx_rtehtmlarea_select_image {
 				sz+=\'</form></table>\';
 				return sz;
 			}
-			function setImageProperties()	{	//
+			function setImageProperties() {
+				var classesImage = ' . ($this->thisConfig['classesImage']?'true':'false') . ';
 				if (selectedImageRef)	{
 					selectedImageRef.width=document.imageData.iWidth.value;
 					selectedImageRef.height=document.imageData.iHeight.value;
@@ -395,7 +391,6 @@ class tx_rtehtmlarea_select_image {
 					selectedImageRef.hspace=document.imageData.iHspace.value;
 					selectedImageRef.title=document.imageData.iTitle.value;
 					selectedImageRef.alt=document.imageData.iTitle.value;
-
 					selectedImageRef.border= (document.imageData.iBorder.checked ? 1 : 0);
 
 					var iFloat = document.imageData.iFloat.options[document.imageData.iFloat.selectedIndex].value;
@@ -412,21 +407,24 @@ class tx_rtehtmlarea_select_image {
 					if (iAlign || selectedImageRef.align)	{
 						selectedImageRef.align=iAlign;
 					}
-		
 					selectedImageRef.style.cssText="";
-		
-					var iClass = document.imageData.iClass.options[document.imageData.iClass.selectedIndex].value;
-					if (iClass || (selectedImageRef.attributes["class"] && selectedImageRef.attributes["class"].value))	{
-						selectedImageRef["class"]=iClass;
-						selectedImageRef.attributes["class"].value=iClass;
-					}
 		*/
-		//			selectedImageRef.style="";
+					if(classesImage) {
+						var iClass = document.imageData.iClass.options[document.imageData.iClass.selectedIndex].value;
+						if (iClass || (selectedImageRef.attributes["class"] && selectedImageRef.attributes["class"].value))	{
+							//selectedImageRef["class"]=iClass;
+							//selectedImageRef.attributes["class"].value=iClass;
+							selectedImageRef.className = iClass;
+						}
+					}
+		
+					//selectedImageRef.style="";
 					self.parent.parent.edHidePopup();
 				}
 				return false;
 			}
-			function insertImagePropertiesInForm()	{	//
+			function insertImagePropertiesInForm()	{
+				var classesImage = ' . ($this->thisConfig['classesImage']?'true':'false') . ';
 				if (selectedImageRef)	{
 					document.imageData.iWidth.value = selectedImageRef.width;
 					document.imageData.iHeight.value = selectedImageRef.height;
@@ -455,17 +453,18 @@ class tx_rtehtmlarea_select_image {
 							fObj.selectedIndex = a;
 						}
 					}
+		*/
 						// Update class
-							// selectedImageRef.className ??
-					var fObj=document.imageData.iClass;
-					var value=selectedImageRef.attributes["class"].value;
-					var l=fObj.length;
-					for (a=0;a<l;a++)	{
-						if (fObj.options[a].value == value)	{
-							fObj.selectedIndex = a;
+					if(classesImage) {
+						var fObj=document.imageData.iClass;
+						var value=selectedImageRef.className;
+						var l=fObj.length;
+						for (a=0;a<l;a++)	{
+							if (fObj.options[a].value == value)	{
+								fObj.selectedIndex = a;
+							}
 						}
 					}
-					*/
 					
 				}
 			//	alert(document.imageData);
@@ -532,7 +531,7 @@ class tx_rtehtmlarea_select_image {
 			}
 
 				// File-folders:	
-			$foldertree = t3lib_div::makeInstance("tx_rtehtmlarea_localFolderTree");
+			$foldertree = t3lib_div::makeInstance("tx_rtehtmlarea_image_localFolderTree");
 			$tree=$foldertree->getBrowsableTree();
 			list(,,$specUid) = explode("_",t3lib_div::_GP("PM"));
 			$files = $this->expandFolder($foldertree->specUIDmap[$specUid],$this->act=="plain",$noThumbs?$noThumbs:!$_MOD_SETTINGS['displayThumbs']);
@@ -545,10 +544,8 @@ class tx_rtehtmlarea_select_image {
 			</tr>
 			</table>
 			<BR>'.$thumbNailCheck;
-			
-			
-			
-			/*
+
+/*
 				// Target:
 			if ($this->act!="mail")	{
 				$ltarget='<table border=0 cellpadding=2 cellspacing=1><form name="ltargetform" id="ltargetform"><tr>';
@@ -566,11 +563,8 @@ class tx_rtehtmlarea_select_image {
 				
 				$this->content.=$ltarget;
 			}
-			*/
-			
-			
-			
-			
+*/
+
 			// ***************************
 			// Upload
 			// ***************************
@@ -604,6 +598,7 @@ class tx_rtehtmlarea_select_image {
 			';
 		}
 
+
 	}
 
 	/**
@@ -615,15 +610,6 @@ class tx_rtehtmlarea_select_image {
 		$this->content.= $this->doc->endPage();
 		echo $this->content;
 	}
-	
-
-
-
-
-
-
-
-
 
 
 	/***************************
@@ -770,15 +756,6 @@ class tx_rtehtmlarea_select_image {
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/rtehtmlarea_select_image.php'])	{
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/rtehtmlarea_select_image.php']);
 }
-
-
-
-
-
-
-
-
-
 
 
 

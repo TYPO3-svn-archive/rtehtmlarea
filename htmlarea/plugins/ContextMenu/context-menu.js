@@ -286,8 +286,9 @@ ContextMenu.prototype.getContextMenu = function(target) {
 	return menu;
 };
 
-ContextMenu.prototype.popupMenu = function(ev) {
+ContextMenu.prototype.popupMenu = function(ev,target) {
 	var self = this;
+	if(!target) var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
 	var i18n = ContextMenu.I18N;
 	if (this.currentMenu)
 		this.currentMenu.parentNode.removeChild(this.currentMenu);
@@ -338,7 +339,6 @@ ContextMenu.prototype.popupMenu = function(ev) {
 		if (HTMLArea.is_ie)
 			self.iePopup.hide();
 	};
-	var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
 	var ifpos = getPos(self.editor._iframe);
 	var x = ev.clientX + ifpos.x;
 	var y = ev.clientY + ifpos.y;
@@ -348,7 +348,6 @@ ContextMenu.prototype.popupMenu = function(ev) {
 	if (!HTMLArea.is_ie) {
 		doc = document;
 	} else {
-		// IE stinks
 		var popup = this.iePopup = window.createPopup();
 		doc = popup.document;
 		doc.open();
@@ -386,12 +385,12 @@ ContextMenu.prototype.popupMenu = function(ev) {
 			item.className = "separator";
 			var td = doc.createElement("td");
 			td.className = "icon";
-			var IE_IS_A_FUCKING_SHIT = '>';
+			var divAttribs = '>';
 			if (HTMLArea.is_ie) {
 				td.unselectable = "on";
-				IE_IS_A_FUCKING_SHIT = " unselectable='on' style='height=1px'>&nbsp;";
+				divAttribs = " unselectable='on' style='height: 1px;'>&nbsp;";
 			}
-			td.innerHTML = "<div" + IE_IS_A_FUCKING_SHIT + "</div>";
+			td.innerHTML = "<div" + divAttribs + "</div>";
 			var td1 = td.cloneNode(true);
 			td1.className = "label";
 			item.appendChild(td);
@@ -453,18 +452,14 @@ ContextMenu.prototype.popupMenu = function(ev) {
 	}
 
 	if (!HTMLArea.is_ie) {
-// Start change patch when window scrolling
 		var dx = x + div.offsetWidth - window.innerWidth - window.pageXOffset + 4;
 		var dy = y + div.offsetHeight - window.innerHeight - window.pageYOffset + 4;
-		//var dx = x + div.offsetWidth - window.innerWidth + 4;
-		//var dy = y + div.offsetHeight - window.innerHeight + 4;
-// End change patch when window scrolling
 		if (dx > 0) x -= dx;
 		if (dy > 0) y -= dy;
 		div.style.left = x + "px";
 		div.style.top = y + "px";
 	} else {
-		// determine the size (did I mention that IE stinks?)
+			// determine the size
 		var foobar = document.createElement("div");
 		foobar.className = "htmlarea-context-menu";
 		foobar.innerHTML = div.innerHTML;

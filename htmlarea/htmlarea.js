@@ -575,12 +575,14 @@ HTMLArea.prototype._createToolbar = function () {
 				context : btn[4] || null // enabled in a certain context?
 			};
 			tb_objects[txt] = obj;
+			//el.obj = obj;
 			// handlers to emulate nice flat toolbar buttons
 			HTMLArea._addEvent(el, "mouseover", function () {
 				if (obj.enabled) {
 					HTMLArea._addClass(el, "buttonHover");
 				}
 			});
+			//HTMLArea._addEvent(el, "mouseover", HTMLArea.toolBarButtonMouseOverHandler);
 			HTMLArea._addEvent(el, "mouseout", function () {
 				if (obj.enabled) {
 					HTMLArea._removeClass(el, "buttonHover");
@@ -661,6 +663,14 @@ HTMLArea.prototype._createToolbar = function () {
 		}
 	}
 	this._htmlArea.appendChild(toolbar);
+};
+
+HTMLArea.toolBarButtonMouseOverHandler = function(ev) {
+	if (!ev) var ev = window.event;
+	var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
+	if (target.obj["enabled"]) {
+		HTMLArea._addClass(target, "buttonHover");
+	}
 };
 
 HTMLArea.prototype._createStatusBar = function() {
@@ -852,7 +862,9 @@ HTMLArea.prototype.generate = function () {
 				} else {
 					try { doc.designMode = "on"; }
 					catch(e) {
-						setTimeout(initIframe, 100);
+						doc.open();
+						doc.close();
+						setTimeout(initIframe, 500);
 						return false;
 					}
 				}
@@ -1228,30 +1240,15 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			for (var i = ancestors.length; --i >= 0;) {
 				var el = ancestors[i];
 				if (!el) {
-					// hell knows why we get here; this
-					// could be a classic example of why
-					// it's good to check for conditions
-					// that are impossible to happen ;-)
 					continue;
 				}
 				var a = document.createElement("a");
 				a.href = "#";
 				a.el = el;
 				a.editor = this;
-				a.onclick = function() {
-					this.blur();
-					this.editor.selectNodeContents(this.el);
-					this.editor.updateToolbar(true);
-					return false;
-				};
-				a.oncontextmenu = function() {
-					// TODO: add context menu here
-					this.blur();
-					var info = "Inline style:\n\n";
-					info += this.el.style.cssText.split(/;\s*/).join(";\n");
-					alert(info);
-					return false;
-				};
+				a.contextMenu = a.editor.plugins.ContextMenu.instance;
+				HTMLArea._addEvent(a, "click", HTMLArea.statusBarClickHandler);
+				HTMLArea._addEvent(a, "contextmenu", HTMLArea.statusBarContextMenuHandler);
 				var txt = el.tagName.toLowerCase();
 				a.title = el.style.cssText;
 				if (el.id) {
@@ -1425,6 +1422,23 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 		if (typeof plugin.onUpdateToolbar == "function")
 			plugin.onUpdateToolbar();
 	}
+};
+
+HTMLArea.statusBarClickHandler =  function (ev) {
+	if (!ev) var ev = window.event;
+	var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
+	target.blur();
+	target.editor.selectNodeContents(target.el);
+	target.editor.updateToolbar(true);
+	return false;
+};
+HTMLArea.statusBarContextMenuHandler = function (ev) {
+	if (!ev) var ev = window.event;
+	var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
+	target.blur();
+	target.editor.selectNodeContents(target.el);
+	target.editor.updateToolbar(true);
+	return target.contextMenu.popupMenu(ev, target.el);
 };
 
 /** Returns a node after which we can insert other nodes, in the current
@@ -2794,17 +2808,19 @@ HTMLArea.prototype.renderPopup_link = function() {
 	}
 	
 	if (sel != null && sel.tagName && sel.tagName.toUpperCase() == "A") {
-		if(sel.getAttribute("target") != null) {
-			addUrlParams="?curUrl[href]="+escape(sel.getAttribute("href")) + "&curUrl[target]="+escape(sel.getAttribute("target")) + conf_RTEtsConfigParams;
-		} else {
-			addUrlParams="?curUrl[href]="+escape(sel.getAttribute("href")) + conf_RTEtsConfigParams;
+		addUrlParams = "?curUrl[href]=" + escape(sel.getAttribute("href"));
+		if(sel.target) {
+			addUrlParams += "&curUrl[target]=" + escape(sel.target);
 		}
+		if(sel.className) {
+			addUrlParams += "&curUrl[class]=" + escape(sel.className);
+		}
+		addUrlParams += conf_RTEtsConfigParams;
 	}
 	else if (editor.getSelectedHTML && editor.getSelectedHTML()) {
 		var text = editor.getSelectedHTML();
 		if (text && text != null) {
 			var offset = text.toUpperCase().indexOf("<A");
-
 			if (offset!=-1)	{
 				var ATagContent = text.substring(offset+2);
 				offset = ATagContent.toUpperCase().indexOf(">");
@@ -2876,7 +2892,7 @@ function renderPopup_insertImage(image) {
 *   So the renderPopup_link function set activEditerNumber and we have access with
 *   the RTEarea-Array
 */
-function renderPopup_addLink(theLink,cur_target) {
+function renderPopup_addLink(theLink,cur_target,cur_class) {
 	var editor = RTEarea[activEditerNumber]["editor"];
 	editor.focusEditor();
 
@@ -2907,6 +2923,7 @@ function renderPopup_addLink(theLink,cur_target) {
 	
 	if (a) {
 		a.target = cur_target.trim();
+		a.className = cur_class.trim();
 	}
 	
 	Dialog._modal.close();

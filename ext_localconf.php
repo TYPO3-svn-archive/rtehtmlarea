@@ -61,6 +61,8 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.hideTags = font, font (full)
 		default.disableColorPicker = 0
 		default.classesCharacter = quote, highlight, deprecated
+		default.classesImage = 
+		default.classesAnchor = 
 
 			## Default proc rules
 		default.proc {
@@ -115,9 +117,8 @@ if ($_EXTCONF["enableAllOptions"])  {
 				keepNonMatchedTags = 1
 			}
 		}
-
 			## tt_content RTE configuration
-		config.tt_content.bodytext.showButtons  = *
+		config.tt_content.bodytext.showButtons = *
 
 			## Setting these defaults for the eventual front end RTE:
 		default.HTMLAreaPluginList = SpellChecker, ContextMenu, InsertSmiley, FindReplace
@@ -154,6 +155,8 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.hideTags = 
 		default.disableColorPicker = 1
 		default.classesCharacter = 
+		default.classesImage = 
+		default.classesAnchor = 
 
 		// DEFAULT PROC RULES
 		default.proc {
