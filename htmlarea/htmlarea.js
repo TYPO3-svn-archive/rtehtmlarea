@@ -666,25 +666,39 @@ HTMLArea.prototype.generate = function () {
 	} else {
 		iframe.setAttribute("src", "javascript:void(0);");
 	}
+	iframe.className = "editorIframe";
 	htmlarea.appendChild(iframe);
 	this._iframe = iframe;
 
 		// create & append the status bar
 	this._createStatusBar();
 
-		// size the height of the iframe according to user's prefs or initial textarea
+		// size the width and height of the iframe according to user's prefs or initial textarea
 	var height = (this.config.height == "auto" ? (textarea.style.height) : this.config.height);
+	var textareaHeight = height;
 	if(height.indexOf("%") == -1) {
-		height = parseInt(height)-2;
+		height = parseInt(height) - 2;
 		if (this.config.sizeIncludesToolbar) {
 			height -= this._toolbar.offsetHeight;
 			height -= this._statusBar.offsetHeight;
 		}
 		if (height < 0) height = 0;
-		height = height + "px";
+		textareaHeight = (height - 4);
+		if (textareaHeight < 0) textareaHeight = 0;
+		height += "px";
+		textareaHeight += "px";
 	}
 	iframe.style.height = height;
-	textarea.style.height = (parseInt(height)-4) + "px";
+	textarea.style.height = textareaHeight;
+
+	var textareaWidth = (this.config.width == "auto" ? (textarea.style.width) : this.config.width);
+	if(textareaWidth.indexOf("%") == -1) {
+		textareaWidth = parseInt(textareaWidth) - 2;
+		if (textareaWidth < 0) textareaWidth = 0;
+		textareaWidth += "px";
+	}
+	iframe.style.width = "100%";
+	textarea.style.width = textareaWidth;
 
 	editor.initIframe();
 	return this;
@@ -1325,7 +1339,7 @@ HTMLArea.statusBarHandler = function (ev) {
 	var target = (ev.target) ? ev.target : ev.srcElement;
 	var editor = target.editor;
 	target.blur();
-	editor.selectNode(target.el);
+	if(HTMLArea.is_gecko) { editor.selectNode(target.el); } else { editor.selectNodeContents(target.el); }
 	editor.updateToolbar(true);
 	switch (ev.type) {
 		case "click" : return false;
@@ -1495,7 +1509,7 @@ HTMLArea.prototype.surroundHTML = function(startTag, endTag) {
 	this.insertHTML(startTag + html + endTag);
 };
 
-/// Retrieve the selected block
+// Retrieves the contents of selected block
 HTMLArea.prototype.getSelectedHTML = function() {
 	var sel = this._getSelection();
 	var range = this._createRange(sel);
@@ -1506,6 +1520,19 @@ HTMLArea.prototype.getSelectedHTML = function() {
 			sel = this._getSelection();
 			range = this._createRange(sel);
 		}
+		existing = range.htmlText;
+	} else {
+		existing = HTMLArea.getHTML(range.cloneContents(), false, this);
+	}
+	return existing;
+};
+
+// Retrieves simply the selected block
+HTMLArea.prototype.getSelectedHTMLContents = function() {
+	var sel = this._getSelection();
+	var range = this._createRange(sel);
+	var existing = null;
+	if (HTMLArea.is_ie) {
 		existing = range.htmlText;
 	} else {
 		existing = HTMLArea.getHTML(range.cloneContents(), false, this);
@@ -1722,8 +1749,7 @@ HTMLArea.prototype._insertTable = function() {
  *  Category: EVENT HANDLERS
  ***************************************************/
 
-// the execCommand function (intercepts some commands and replaces them with
-// our own implementation)
+// the execCommand function intercepts some commands and replaces them with our own implementation
 HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	var editor = this;	// for nested functions
 	this.focusEditor();
@@ -1748,11 +1774,11 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 		HTMLArea._object = this;
 		if (HTMLArea.is_ie) {
 			//if (confirm(HTMLArea.I18N.msg["IE-sucks-full-screen"]))
-			{
+			//{
 				window.open(this.popupURL("fullscreen.html"), "ha_fullscreen",
 					    "toolbar=no,location=no,directories=no,status=no,menubar=no," +
 					    "scrollbars=no,resizable=yes,width=640,height=480");
-			}
+			//}
 		} else {
 			window.open(this.popupURL("fullscreen.html"), "ha_fullscreen",
 				    "toolbar=no,menubar=no,personalbar=no,width=640,height=480," +
@@ -1982,25 +2008,23 @@ HTMLArea.prototype.convertNode = function(el, newTagName) {
 HTMLArea.prototype.ie_checkBackspace = function() {
 	var sel = this._getSelection();
 	var range = this._createRange(sel);
-    //QR fix for error when removing the image
-    if (sel.type == "Control"){   
-        var el = this.getParentElement();   
-        var p = el.parentNode;   
-        p.removeChild(el);   
-        return true;  
-    } else {
-       	var r2 = range.duplicate();
-       	r2.moveStart("character", -1);
-       	var a = r2.parentElement();
-       	if (a != range.parentElement() &&
-       	    /^a$/i.test(a.tagName)) {
-       		r2.collapse(true);
-       		r2.moveEnd("character", 1);
+	if (sel.type == "Control"){   
+		var el = this.getParentElement();   
+		var p = el.parentNode;   
+		p.removeChild(el);   
+		return true;  
+	} else {
+		var r2 = range.duplicate();
+		r2.moveStart("character", -1);
+		var a = r2.parentElement();
+		if (a != range.parentElement() && /^a$/i.test(a.tagName)) {
+			r2.collapse(true);
+			r2.moveEnd("character", 1);
        		r2.pasteHTML('');
        		r2.select();
        		return true;
-       	}
-    }
+		}
+	}
 };
 
 HTMLArea.prototype.dom_checkBackspace = function() {
@@ -2379,6 +2403,7 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 					// avoid certain attributes
 					continue;
 				}
+				if(root.tagName.toLowerCase() == "hr" && name == "style") continue;
 				var value;
 				if (name != "style") {
 					// IE5.5 reports wrong values. For this reason we extract the values directly from the root node.
@@ -2578,7 +2603,11 @@ HTMLArea.getElementById = function(tag, id) {
 function setRTEsizeByJS(divId, height, width) {
 	if(HTMLArea.is_gecko) { height = height - 25; } else { height = height - 60; }
 	if (height > 0) { document.getElementById(divId).style.height =  height + "px"; }
-	if(HTMLArea.is_gecko) { width = "99%"; } else { width = (width - 15) + "px"; }
+	if(HTMLArea.is_gecko) { 
+		width = "99%";
+	} else {
+		width = "97%";
+	}
 	document.getElementById(divId).style.width = width;
 };
 
@@ -2802,6 +2831,21 @@ function renderPopup_unLink() {
 
 	Dialog._modal.close();
 	activEditerNumber = -1; // Unset
+};
+
+/*
+ * Extending the TYPO3 Lorem Ipsum extension
+ */
+function lorem_ipsum(element,text) {
+	if(element.tagName.toLowerCase() == "textarea" && element.id && element.id.substr(0,7) == "RTEarea") {
+		var editor = RTEarea[element.id.substr(7,8)]["editor"];
+		var doc = editor._doc;
+		var p = doc.createElement("p");
+		p.appendChild(doc.createTextNode(text));
+		doc.body.appendChild(p);
+		editor.updateToolbar();
+	}
+	
 };
 
 /*

@@ -1,15 +1,20 @@
 /* Selectors for the editor */
 .htmlarea {
 	background: #fff;
+ 	margin: 0px;
+ 	padding: 0px;
 }
 .pleasewait {
  	text-align: left;
  	font-size: 8pt;
  	position: relative;
- 	top: 80;
+ 	top: 0px;
  	margin-top: 30px;
 }
-
+.editorWrap {
+ 	margin: 0px;
+ 	padding: 0px;
+}
 /* Selectors for the editor toolbar */
 .htmlarea .toolbar {
 	cursor: default;
@@ -81,7 +86,7 @@
 	cursor: default;
 	border: 1px solid ButtonShadow;
 }
-.htmlarea .toolbar .buttonDisabled img { 
+.htmlarea .toolbar .buttonDisabled img {
 	filter: alpha(opacity = 25); 
 	-moz-opacity: 0.25; 
 }
@@ -101,8 +106,8 @@
 	margin: 2px 2px 0px 2px; 
 }
 .htmlarea .toolbar select, .htmlarea .toolbar select:hover, .htmlarea .toolbar select:active { 
-	background: FieldFace; 
-	color: ButtonText; 
+	background-color: #fff;
+	color: ButtonText;
 }
 .htmlarea .toolbar .buttonDisabled select { 
 	background-color: #e4e0db;
@@ -110,7 +115,7 @@
 .htmlarea .toolbar select.buttonDisabled { 
 	background-color: #e4e0db;
 }
-.htmlarea iframe {
+.htmlarea .editorIframe {
 	margin: 0px;
 	padding: 0px;
 	border: 1px solid #000;
@@ -307,8 +312,8 @@
 .popupwin input.shorter-value {
  	width: 17em;
 }
-*#--HA-layout {
- width: 450px;
+#--HA-layout {
+ 	width: 450px;
 }
 .colorTable {
 	border: black 1px solid;
@@ -336,8 +341,9 @@
 }
 .popupwin .imagepreview iframe {
  	border: 1px solid gray;
- 	width: 300;
- 	height: 200;
+ 	width: 300px;
+
+ 	height: 200px;
 }
 
 /* Selectors for the InsertSmiley plugin */

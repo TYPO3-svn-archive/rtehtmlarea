@@ -134,7 +134,7 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 	var selTrimmed;
 
 	editor.focusEditor();
-	var selectedHTML = editor.getSelectedHTML();
+	var selectedHTML = editor.getSelectedHTMLContents();
 	if(selectedHTML) selTrimmed = selectedHTML.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 	var parent = editor.getParentElement();
 	if(/\w/.test(selTrimmed)) {
@@ -263,7 +263,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 		className = parent.className;
 	}
 
-	var selTrimmed = editor.getSelectedHTML();
+	var selTrimmed = editor.getSelectedHTMLContents();
 	if(selTrimmed) selTrimmed = selTrimmed.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 
 	var endPointsInSameBlock = false;

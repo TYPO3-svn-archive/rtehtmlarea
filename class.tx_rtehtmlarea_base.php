@@ -135,7 +135,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'redo' => 'redo',
 		'textindicator' => 'textindicator',
 		'about' => 'about',
-	);
+		);
 
 	var $defaultParagraphs = array(
 		'p' =>	'Normal',
@@ -203,6 +203,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	var $thisConfig;
 	var $confValues;
 	var $language;
+	var $BECharset;
+	var $OutputCharset;
 	var $editorCSS;
 	var $spellCheckerLanguage;
 	var $spellCheckerCharset;
@@ -222,11 +224,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return	boolean		TRUE if this RTE object offers an RTE in the current browser environment
 	 */
 	function isAvailable()	{
-		//global $CLIENT;
-		//$saveClient = $CLIENT;
-		//$CLIENT = $this->clientInfo();
 		$this->client = $this->clientInfo();
-
 		$this->errorLog = array();
 		if (!$this->debugMode)	{	// If debug-mode, let any browser through
 			$rteIsAvailable = 0;
@@ -266,7 +264,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$this->errorLog[] = "rte: Browser not supported. Only msie Version 5 or higher and Mozilla based client 1 and higher.";
 			}
 		}
-		//$CLIENT = $saveClient;
 		if ($rteIsAvailable)	return true;
 	}
 
@@ -286,13 +283,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return	string		HTML code for RTE!
 	 */
 	function drawRTE(&$pObj,$table,$field,$row,$PA,$specConf,$thisConfig,$RTEtypeVal,$RTErelPath,$thePidValue)	{
-		//global $CLIENT;
-		global $BE_USER,$LANG,$HTTP_GET_VARS,$TBE_TEMPLATE,$TCA;
+//		global $BE_USER,$LANG,$HTTP_GET_VARS,$TBE_TEMPLATE,$TCA;
+		global $BE_USER,$LANG;
 
 		$this->TCEform = $pObj;
 		$LANG->includeLLFile('EXT:' . $this->ID . '/locallang.php');
-		//$saveClient = $CLIENT;
-		//$CLIENT = $this->clientInfo();
 		$this->client = $this->clientInfo();
 		
 			// Draw form element:
@@ -355,6 +350,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->charset = $this->csObj->charSetArray[$this->language];
 			$this->charset = $this->charset ? $this->charset : 'iso-8859-1';
 			$this->BECharset = trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) ? trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) : $this->charset;
+			$this->OutputCharset = $this->BECharset;
 
 			/* =======================================
 			 * TOOLBAR CONFIGURATION
@@ -456,15 +452,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$skinFilename='';
 				if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
 					$skinFilename = $this->httpTypo3Path.t3lib_extMgm::siteRelPath($extKey).$local;
-					//if(!file_exists(PATH_site.$skinFilename)) die('Configuration error: ' . PATH_site.$skinFilename . ' is not a valid skin CSS file');
 				}
 			} elseif (substr($skinFilename,0,1) != '/') {
-				//if(!file_exists(PATH_site.$skinFilename)) die('Configuration error: ' . PATH_site.$skinFilename . ' is not a valid skin CSS file');
 				$skinFilename = $this->siteURL.$skinFilename;
-			} 
-				//else {
-				//if(!file_exists(PATH_site.substr($skinFilename,1))) die('Configuration error: ' . PATH_site.substr($skinFilename,1) . ' is not a valid skin CSS file');
-				//}
+			}
 			$this->editorCSS = $skinFilename;
 			$pObj->additionalCode_pre['loadCSS'] .= '
 				<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
@@ -492,8 +483,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 
 				// Check if wizard_rte called this for fullscreen edtition; if so, change the size of the RTE to fullscreen using JS
 			if (basename(PATH_thisScript) == 'wizard_rte.php') {
-				$height = 'self.innerHeight';
-				$width = 'self.innerWidth';
+				$height = 'window.innerHeight';
+				$width = 'window.innerWidth';
 				
 				if ($this->client['BROWSER'] == 'msie') {
 					$height = 'document.body.offsetHeight';
@@ -515,14 +506,12 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$item = 
 				$this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
-				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
+				<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
 				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($this->RTEdivStyle).'">'.t3lib_div::formatForTextarea($value).'</textarea>
 				</div>
 				';
 		}
-
 			// Return form item:
-		//$CLIENT = $saveClient;
 		return $item;
 	}
 	
@@ -965,10 +954,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$JSLanguageArray .= ' }' . chr(10);
 		}
 		$JSLanguageArray .= ' };' . chr(10);
-		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->BECharset);
+		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->OutputCharset);
 	}
-
-
 
 	/**
 	 * Return a JS language array for the plugin
@@ -989,7 +976,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$JSLanguageArray .=  (($index++)?',':'') . ' "' . $labelKey . '" : "' . str_replace('"', '\"', $labelValue) . '"' . chr(10);
 		} 
 		$JSLanguageArray .= ' };' . chr(10);
-		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->BECharset);
+		return $this->csObj->conv($JSLanguageArray, $this->charset, $this->OutputCharset);
 	}
 	
 	/**

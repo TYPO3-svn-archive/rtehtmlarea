@@ -1,3 +1,17 @@
+2005-03-21  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.60
+	* Further adjustments to width of editor components.
+	* Correction to incorrect behavior in IE when selecting an image or a table and when the textstyle toolbar element is shown.
+	* If extension Lorem Ipsum is installed, htmlArea RTE will extend it so that dummy content may be inserted when the editor is in wysiwyg mode. Lorem Ipsum must however be installed before htmlArea RTE itself is installed.
+	* Initial release of class tx_rtehtmlarea_pi2 allowing rich text editing in the front end. See Modern Guestbook Extended for an example.
+	* New FAQ's.
+	* Strip style attribute out of hr tags.
+	* Eliminate warning from some servers on insert link, insert image and spell check popup windows.
+	* Correction JavaScript error when selecting an image in Mozila/Firefox.
+	* Correction to image width and height setting.
+	* Allow setting only one dimension of the image for proportional display.
+	* Allow setting image alternate text independently of the title attribute.
+
 2005-03-13  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.55
 	* Adjust default skin, width, height.

@@ -1,7 +1,7 @@
 <?php
 if (!defined ("TYPO3_MODE")) 	die ("Access denied.");
 
-// Configuring of class ux_parsehtml_proc extending class t3lib_parsehtml_proc:
+// Configuration of class ux_parsehtml_proc extending class t3lib_parsehtml_proc
 $TYPO3_CONF_VARS[TYPO3_MODE]["XCLASS"]["t3lib/class.t3lib_parsehtml_proc.php"]=t3lib_extMgm::extPath($_EXTKEY)."class.ux_t3lib_parsehtml_proc.php";
 
 if(!$TYPO3_CONF_VARS['BE']['RTEenabled'])  $TYPO3_CONF_VARS['BE']['RTEenabled'] = 1;
@@ -37,11 +37,11 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.enableWordClean = 1
 		default.useCSS = 1
 		default.defaultLinkTarget =
-		default.showStatusBar =  1
-		default.showButtons =  *
+		default.showStatusBar = 1
+		default.showButtons = *
 		default.hideButtons =
 		default.disableContextMenu = 0
-		default.disableColorSelect = 0
+		default.disableSelectColor = 0
 		default.disableTYPO3Browsers = 0
 		default.disableEnterParagraphs = 0
 		default.hidePStyleItems =
@@ -111,11 +111,15 @@ if ($_EXTCONF["enableAllOptions"])  {
 		}
 			## tt_content RTE configuration
 		config.tt_content.bodytext.showButtons = *
-
-			## Setting these defaults for the eventual front end RTE:
-		default.HTMLAreaPluginList = SpellChecker, ContextMenu, InsertSmiley, FindReplace
-		default.HTMLAreaPspellMode = normal
 	}
+
+		## default front end RTE configuration
+	RTE.default.FE < RTE.default
+	RTE.default.FE.showStatusBar = 0
+	RTE.default.FE.hideButtons = chMode
+
+		## tt_content TCEFORM configuration
+	TCEFORM.tt_content.bodytext.RTEfullScreenWidth= 100%
 		');
 } else {
 
@@ -140,7 +144,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.showButtons =  bold,italic,underline,textindicator,copy,cut,paste,undo,redo,about
 		default.hideButtons = 
 		default.disableContextMenu = 0
-		default.disableColorSelect = 0
+		default.disableSelectColor = 0
 		default.disableTYPO3Browsers = 0
 		default.disableEnterParagraphs = 0
 		default.hidePStyleItems =
@@ -201,6 +205,13 @@ if ($_EXTCONF["enableAllOptions"])  {
 			}
 		}
 	}
-		');
+		## default front end RTE configuration
+	RTE.default.FE < RTE.default
+	RTE.default.FE.showStatusBar = 0
+	RTE.default.FE.hideButtons = chMode
+
+		## tt_content TCEFORM configuration
+	TCEFORM.tt_content.bodytext.RTEfullScreenWidth= 100%
+	');
 }
 ?>

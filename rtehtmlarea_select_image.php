@@ -61,6 +61,7 @@
  *
  */
 
+error_reporting (E_ALL ^ E_NOTICE);
 unset($MCONF);
 define('MY_PATH_thisScript',str_replace('//','/', str_replace('\\','/', (php_sapi_name()=='cgi'||php_sapi_name()=='xcgi'||php_sapi_name()=='isapi' ||php_sapi_name()=='cgi-fcgi')&&($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED'])? ($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED']):($_SERVER['ORIG_SCRIPT_FILENAME']?$_SERVER['ORIG_SCRIPT_FILENAME']:$_SERVER['SCRIPT_FILENAME']))));
 
@@ -192,6 +193,7 @@ class tx_rtehtmlarea_select_image {
 	 */
 	function preinit()	{
 		global $BE_USER;
+
 
 		// Current site url:
 		$this->siteUrl = t3lib_div::getIndpEnv("TYPO3_SITE_URL");
@@ -378,6 +380,7 @@ class tx_rtehtmlarea_select_image {
 				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("margin_lr").': <input type="text" name="iHspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).'>&nbsp;&nbsp;'.$LANG->getLL("margin_tb").': <input type="text" name="iVspace" value=""'.$GLOBALS["TBE_TEMPLATE"]->formWidth(4).' /></td></tr>\';
 		//		sz+=\'<tr><td\'+bgColor+\'>Textwrapping: \'+alignSelector+\'&nbsp;&nbsp;Style: \'+styleSelector+\'</td></tr>\';
 				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("title").': <input type="text" name="iTitle"'.$GLOBALS["TBE_TEMPLATE"]->formWidth(20).' /></td></tr>\';
+				sz+=\'<tr><td\'+bgColor+\'>'.$LANG->getLL("alt").': <input type="text" name="iAlt"'.$GLOBALS["TBE_TEMPLATE"]->formWidth(20).' /></td></tr>\';
 				sz+=\'<tr><td><input type="submit" value="'.$LANG->getLL("update").'" onClick="return setImageProperties();"></td></tr>\';
 				sz+=\'</form></table>\';
 				return sz;
@@ -385,12 +388,20 @@ class tx_rtehtmlarea_select_image {
 			function setImageProperties() {
 				var classesImage = ' . ($this->thisConfig['classesImage']?'true':'false') . ';
 				if (selectedImageRef)	{
-					selectedImageRef.width=document.imageData.iWidth.value;
-					selectedImageRef.height=document.imageData.iHeight.value;
+					if(document.imageData.iWidth.value) {
+						selectedImageRef.width=document.imageData.iWidth.value;
+					} else {
+						selectedImageRef.removeAttribute("width");
+					}
+					if(document.imageData.iHeight.value) {
+						selectedImageRef.height=document.imageData.iHeight.value;
+					} else {
+						selectedImageRef.removeAttribute("height");
+					}
 					selectedImageRef.vspace=document.imageData.iVspace.value;
 					selectedImageRef.hspace=document.imageData.iHspace.value;
 					selectedImageRef.title=document.imageData.iTitle.value;
-					selectedImageRef.alt=document.imageData.iTitle.value;
+					selectedImageRef.alt=document.imageData.iAlt.value;
 					selectedImageRef.border= (document.imageData.iBorder.checked ? 1 : 0);
 
 					var iFloat = document.imageData.iFloat.options[document.imageData.iFloat.selectedIndex].value;
@@ -431,6 +442,7 @@ class tx_rtehtmlarea_select_image {
 					document.imageData.iVspace.value = selectedImageRef.vspace;
 					document.imageData.iHspace.value = selectedImageRef.hspace;
 					document.imageData.iTitle.value = selectedImageRef.title;
+					document.imageData.iAlt.value = selectedImageRef.alt;
 					if (parseInt(selectedImageRef.border))	{
 						document.imageData.iBorder.checked = 1;
 					}
@@ -596,6 +608,7 @@ class tx_rtehtmlarea_select_image {
 		insertImagePropertiesInForm();
 			</script>
 			';
+
 		}
 
 
