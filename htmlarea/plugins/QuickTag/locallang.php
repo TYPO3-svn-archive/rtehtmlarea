@@ -7,7 +7,7 @@
 
 $LOCAL_LANG = Array (
 	'default' => Array (
-		'Quick Tag Editor' => 'Quick TAG Editor',
+		'Quick Tag Editor' => 'Insert tag',
 		'Enter the TAG you want to insert' => 'Enter the TAG you want to insert',
 		'You have to select some text' => 'You have to select some text',
 		'There are some unclosed quote' => 'There are some unclosed quotes',
@@ -29,7 +29,7 @@ $LOCAL_LANG = Array (
 	'it' => Array (
 	),
 	'fr' => Array (
-		'Quick Tag Editor' => 'Éditeur de balise',
+		'Quick Tag Editor' => 'Insérer une balise',
 		'Enter the TAG you want to insert' => 'Entrez la balise que vous désirez insérer.',
 		'You have to select some text' => 'Aucun texte n\'est sélectionné.',
 		'There are some unclosed quote' => 'Il y a des guillemets non fermés.',
@@ -45,6 +45,18 @@ $LOCAL_LANG = Array (
 	'es' => Array (
 	),
 	'nl' => Array (
+		'Quick Tag Editor' => 'Quick TAG Editor',
+		'Enter the TAG you want to insert' => 'Vul hier de TAG in die u wilt invoegen',
+		'You have to select some text' => 'U dient eerst tekst te selecteren',
+		'There are some unclosed quote' => 'Er zijn een aantal niet gesloten quotes',
+		'This attribute already exists in the TAG' => 'Dit attribuut bestaat al in de TAG',
+		'No CSS class avaiable' => 'Geen CSS classes beschikbaar',
+		'OPTIONS' => 'OPTIES',
+		'ATTRIBUTES' => 'ATTRIBUTEN',
+		'TAGs' => 'TAGs',
+		'Colors' => 'Kleuren',
+		'Ok' => 'OK',
+		'Cancel' => 'Annuleer',
 	),
 	'cz' => Array (
 	),
@@ -53,6 +65,18 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'Quick Tag Editor' => 'Nopea TAG muokkain',
+		'Enter the TAG you want to insert' => 'Anna TAG jonka haluat lisätä',
+		'You have to select some text' => 'Sinun on valittava tekstiä',
+		'There are some unclosed quote' => 'Joukko sulkemattomia lainauksia (quotes) olemassa',
+		'This attribute already exists in the TAG' => 'Tämä attribuutti on jo olemassa TAGissa',
+		'No CSS class avaiable' => 'CSS luokkia ei saatavilla',
+		'OPTIONS' => 'VAIHTOEHDOT',
+		'ATTRIBUTES' => 'ATTRIBUUTIT',
+		'TAGs' => 'TAGit',
+		'Colors' => 'Värit',
+		'Ok' => 'OK',
+		'Cancel' => 'Peruuta',
 	),
 	'tr' => Array (
 	),
