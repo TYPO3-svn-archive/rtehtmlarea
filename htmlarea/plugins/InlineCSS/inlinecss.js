@@ -1,8 +1,6 @@
 // Inline CSS plugin for HTMLArea
 // Sponsored by http://www.fructifor.com
-// Implementation by Stanislas Rolland
-//
-// (c) Stanislas Rolland 2004
+// (c) 2004-2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 
@@ -21,7 +19,7 @@ function InlineCSS(editor, args) {
 		tooltip	: i18n["InlineCSSStyleTooltip"],
 		options	: {"":""},
 		action	: function(editor) { self.onSelect(editor, this); },
-		refresh	: function(editor) { self.generate(); },
+		refresh	: function(editor) { self.generate(editor); },
 		context	: "*",
 		cssArray	: new Array(),
 		parseCount	: 1,
@@ -35,8 +33,8 @@ function InlineCSS(editor, args) {
 	cfg.registerDropdown(obj);
 };
 
-InlineCSS.prototype.parseStyleSheet=function(editor){
-	var editor = this.editor;
+InlineCSS.parseStyleSheet = function(editor){
+	//var editor = this.editor;
 	var obj = editor.config.customSelects["InlineCSS-class"];
 	var i18n = InlineCSS.I18N;
 	var iframe = editor._iframe.contentWindow.document;
@@ -44,44 +42,31 @@ InlineCSS.prototype.parseStyleSheet=function(editor){
 	obj.loaded = true;
 
 	for(var i=0;i<iframe.styleSheets.length;i++){
-			// Mozilla
             if(HTMLArea.is_gecko){
+			try{ newCssArray = InlineCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray); 
+			} catch(e){ obj.loaded = false; }
+		} else {
 			try{
-				newCssArray=this.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray);
-			}
-			catch(e){
-				obj.loaded = false;
-			//	alert(e);
-			}
-		}
-			// IE
-            else {
-                try{
-                    // @import StyleSheets (IE)
-                    if(iframe.styleSheets[i].imports){
-                        newCssArray=this.applyCSSIEImport(editor,i18n,iframe.styleSheets[i].imports,newCssArray);
-                    }
-                    if(iframe.styleSheets[i].rules){
-                        newCssArray=this.applyCSSRule(editor,i18n,iframe.styleSheets[i].rules,newCssArray);
-                    }
-                }
-                catch(e){
-				obj.loaded = false;
-                //	alert(e);
-                }
+					// @import StyleSheets (IE)
+				if(iframe.styleSheets[i].imports){
+					newCssArray = InlineCSS.applyCSSIEImport(editor,i18n,iframe.styleSheets[i].imports,newCssArray);
+				}
+				if(iframe.styleSheets[i].rules){
+					newCssArray = InlineCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].rules,newCssArray);
+				}
+			} catch(e){ obj.loaded = false; }
 		}
 	}
 	return newCssArray;
 };
 
-InlineCSS.prototype.applyCSSRule=function(editor,i18n,cssRules,cssArray){
+InlineCSS.applyCSSRule = function(editor,i18n,cssRules,cssArray){
 	var cssElements = new Array();
 	var cssElement = new Array();
 	var newCssArray = new Array();
 	var tagName;
 	var className;
 	var obj = editor.config.customSelects["InlineCSS-class"];
-
 	newCssArray = cssArray;
 
 	for(var rule=0;rule<cssRules.length;rule++){
@@ -117,22 +102,22 @@ InlineCSS.prototype.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 		}
 			// ImportRule (Mozilla)
 		else if(cssRules[rule].styleSheet){
-			newCssArray=this.applyCSSRule(editor,i18n,cssRules[rule].styleSheet.cssRules,newCssArray);
+			newCssArray = InlineCSS.applyCSSRule(editor,i18n,cssRules[rule].styleSheet.cssRules,newCssArray);
 		}
 	}
 	return newCssArray;
 };
 
-InlineCSS.prototype.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
+InlineCSS.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
 	var newCssArray = new Array();
 	newCssArray = cssArray;
 
 	for(var i=0;i<cssIEImport.length;i++){
 		if(cssIEImport[i].imports){
-			newCssArray=this.applyCSSIEImport(editor,i18n,cssIEImport[i].imports,newCssArray);
+			newCssArray = InlineCSS.applyCSSIEImport(editor,i18n,cssIEImport[i].imports,newCssArray);
 		}
 		if(cssIEImport[i].rules){
-			newCssArray=this.applyCSSRule(editor,i18n,cssIEImport[i].rules,newCssArray);
+			newCssArray = InlineCSS.applyCSSRule(editor,i18n,cssIEImport[i].rules,newCssArray);
 		}
 	}
 	return newCssArray;
@@ -151,8 +136,8 @@ InlineCSS._pluginInfo = {
 
 InlineCSS.prototype.onSelect = function(editor, obj) {
 	var tbobj = editor._toolbarObjects[obj.id];
-	var index = tbobj.element.selectedIndex;
-	var className = tbobj.element.value;
+	var index = document.getElementById(tbobj.elementId).selectedIndex;
+	var className = document.getElementById(tbobj.elementId).value;
 	var selTrimmed;
 
 	editor.focusEditor();
@@ -207,7 +192,7 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 InlineCSS.prototype.onGenerate = function() {
 	var editor = this.editor;
 	var obj = editor.config.customSelects["InlineCSS-class"];
-	if(HTMLArea.is_gecko) this.generate();
+	if(HTMLArea.is_gecko) this.generate(editor);
 };
 
 InlineCSS.prototype.onUpdateToolbar = function() {
@@ -221,19 +206,18 @@ InlineCSS.prototype.onUpdateToolbar = function() {
 				editor._iframe.contentWindow.clearTimeout(obj.timeout);
 				obj.timeout = null;
 			}
-			this.generate();
+			this.generate(editor);
 		}
 	}
 };
 
-InlineCSS.prototype.generate = function() {
-	var editor = this.editor;
+InlineCSS.prototype.generate = function(editor) {
 	var obj = editor.config.customSelects["InlineCSS-class"];
 	var self = this;
 
         // Let us load the style sheets
 	function getCSSArray(){
-		obj.cssArray = self.parseStyleSheet(editor);
+		obj.cssArray = InlineCSS.parseStyleSheet(editor);
 		if( !obj.loaded && obj.parseCount<17 ) {
 			obj.timeout = editor._iframe.contentWindow.setTimeout(getCSSArray, 200);
 			obj.parseCount++ ;
@@ -261,7 +245,7 @@ InlineCSS.prototype.onMode = function(mode) {
 				editor._iframe.contentWindow.clearTimeout(obj.timeout);
 				obj.timeout = null;
 			}
-			this.generate();
+			this.generate(editor);
 		}
 	}
 };
@@ -273,7 +257,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 			editor._iframe.contentWindow.clearTimeout(obj.timeout);
 			obj.timeout = null;
 		}
-		this.generate();
+		this.generate(editor);
 	}
 
 	var cssArray = obj.cssArray;
@@ -285,7 +269,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 		className = parent.className;
 	}
 
-	if(editor._iframe.contentWindow.document.designMode == "on") var selTrimmed = editor.getSelectedHTML();
+	var selTrimmed = editor.getSelectedHTML();
 	if(selTrimmed) selTrimmed = selTrimmed.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 
 	var endPointsInSameBlock = false;
@@ -317,7 +301,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 		}
 	}
 
-      var select = editor._toolbarObjects[obj.id].element;
+	var select = document.getElementById(editor._toolbarObjects[obj.id].elementId);
 	select.disabled = !(/\w/.test(selTrimmed)) || !(endPointsInSameBlock);
 
 	if( obj.lastTag!=tagName || obj.lastClass!=className || true ){        
@@ -348,7 +332,6 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 		}
 
 		select.selectedIndex = 0;
-
 		if (typeof className != "undefined" && /\S/.test(className)) {
 			for (var i = select.options.length; --i >= 0;) {
 				var option = select.options[i];

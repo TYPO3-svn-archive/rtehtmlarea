@@ -14,8 +14,12 @@
 // Toolbar: Toolbar elements are floating in a continuous div rather than cells in a table.
 // Toolbar: Linebreaks create a new such floating div that may extend on possibly more than one line
 // Toolbar: Add tooltip on select boxes
+// Toolbar: Revise all event handlers
+// Statusbar: Revise all event handlers
+// Cleanup: unhook event handlers and release undo stack
 // Generate function: re-written to make it almost DOM only and solve many loading problems
 // Config: add various configuration variables (useCSS, disableEnterParagraphs, etc.)
+// Browser: special initialization for Mozilla 1.3.1 on Mac OS 9
 
 if (typeof _editor_url == "string") {
 	// Leave exactly one backslash at the end of _editor_url
@@ -341,7 +345,6 @@ HTMLArea.Config.prototype.registerButton = function(id, tooltip, image, textMode
  * configuration.  You still have to add it to the toolbar, same as with the
  * buttons.  Call it like this:
  *
- * FIXME: add example
  */
 HTMLArea.Config.prototype.registerDropdown = function(object) {
 	// check for existing id
@@ -352,32 +355,6 @@ HTMLArea.Config.prototype.registerDropdown = function(object) {
 		// alert("WARNING [HTMLArea.Config::registerDropdown]:\nA button with the same ID already exists.");
 	}
 	this.customSelects[object.id] = object;
-};
-
-/** Call this function to remove some buttons/drop-down boxes from the toolbar.
- * Pass as the only parameter a string containing button/drop-down names
- * delimited by spaces.  Note that the string should also begin with a space
- * and end with a space.  Example:
- *
- *   config.hideSomeButtons(" fontname fontsize textindicator ");
- *
- * It's useful because it's easier to remove stuff from the defaul toolbar than
- * create a brand new toolbar ;-)
- */
-HTMLArea.Config.prototype.hideSomeButtons = function(remove) {
-	var toolbar = this.toolbar;
-	for (var i in toolbar) {
-		var line = toolbar[i];
-		for (var j = line.length; --j >= 0; ) {
-			if (remove.indexOf(" " + line[j] + " ") >= 0) {
-				var len = 1;
-				if (/separator|space/.test(line[j + 1])) {
-					len = 2;
-				}
-				line.splice(j, len);
-			}
-		}
-	}
 };
 
 /** Helper function: replace all TEXTAREA-s in the document with HTMLArea-s. */
@@ -430,13 +407,14 @@ HTMLArea.prototype._createToolbar = function () {
 	// createSelect functions below).
 	function setButtonStatus(id, newval) {
 		var oldval = this[id];
-		var el = this.element;
+		var el = document.getElementById(this.elementId);
 		if (oldval != newval) {
 			switch (id) {
 			    case "enabled":
 				if (newval) {
 					HTMLArea._removeClass(el, "buttonDisabled");
 					el.disabled = false;
+
 				} else {
 					HTMLArea._addClass(el, "buttonDisabled");
 					el.disabled = true;
@@ -469,13 +447,9 @@ HTMLArea.prototype._createToolbar = function () {
 		    case "fontsize":
 		    case "fontname":
 		    case "formatblock":
-			// the following line retrieves the correct
-			// configuration option because the variable name
-			// inside the Config object is named the same as the
-			// button/select in the toolbar.  For instance, if txt
-			// == "formatblock" we retrieve config.formatblock (or
-			// a different way to write it in JS is
-			// config["formatblock"].
+			// the following line retrieves the correct configuration option because the variable name
+			// inside the Config object is named the same as the button/select in the toolbar.  For instance, if txt
+			// == "formatblock" we retrieve config.formatblock (or a different way to write it in JS is config["formatblock"].
 			options = editor.config[txt];
 			tooltip = HTMLArea.I18N.tooltips[txt];
 			cmd = txt;
@@ -498,25 +472,27 @@ HTMLArea.prototype._createToolbar = function () {
 		if (options) {
 			el = document.createElement("select");
 			el.title = tooltip;
+			var elementId = editor._typo3EditerNumber + "-" + txt;
+			el.id = elementId;
 			var obj = {
 				name	: txt, // field name
-				element : el,	// the UI element (SELECT)
+				elementId : elementId, // unique id for the UI element (SELECT)
 				enabled : true, // is it enabled?
 				text	: false, // enabled in text mode?
 				cmd	: cmd, // command ID
 				state	: setButtonStatus, // for changing state
-				context : context
+				context : context,
+				editor : editor
 			};
 			tb_objects[txt] = obj;
+			el._obj = obj;
 			for (var i in options) {
 				var op = document.createElement("option");
 				op.innerHTML = i;
 				op.value = options[i];
 				el.appendChild(op);
 			}
-			HTMLArea._addEvent(el, "change", function () {
-				editor._comboSelected(el, txt);
-			});
+			HTMLArea._addEvent(el, "change", HTMLArea.toolBarButtonHandler);
 		}
 
 		return el;
@@ -544,11 +520,13 @@ HTMLArea.prototype._createToolbar = function () {
 			el.appendChild(document.createTextNode("A"));
 			el.className = "indicator";
 			el.title = HTMLArea.I18N.tooltips.textindicator;
+			var elementId = editor._typo3EditerNumber + "-" + txt;
+			el.id = elementId;
 			var obj = {
 				name	: txt, // the button name (i.e. 'bold')
-				element : el, // the UI element (DIV)
+				elementId : elementId, // unique id for the UI element (DIV)
 				enabled : true, // is it enabled?
-				active	: false, // is it pressed?
+				active : false, // is it pressed?
 				text	: false, // enabled in text mode?
 				cmd	: "textindicator", // the command ID
 				state	: setButtonStatus // for changing state
@@ -562,50 +540,23 @@ HTMLArea.prototype._createToolbar = function () {
 			el = document.createElement("div");
 			el.title = btn[0];
 			el.className = "button";
-			// let's just pretend we have a button object, and
-			// assign all the needed information to it.
+			var elementId = editor._typo3EditerNumber + "-" + txt;
+			el.id = elementId;
+				// let's just pretend we have a button object and assign all the needed information to it.
 			var obj = {
 				name	: txt, // the button name (i.e. 'bold')
-				element : el, // the UI element (DIV)
+				elementId : elementId, // unique id for the UI element (DIV)
 				enabled : true, // is it enabled?
 				active	: false, // is it pressed?
 				text	: btn[2], // enabled in text mode?
 				cmd	: btn[3], // the command ID
 				state	: setButtonStatus, // for changing state
-				context : btn[4] || null // enabled in a certain context?
+				context : btn[4] || null, // enabled in a certain context?
+				editor : editor
 			};
 			tb_objects[txt] = obj;
-			//el.obj = obj;
-			// handlers to emulate nice flat toolbar buttons
-			HTMLArea._addEvent(el, "mouseover", function () {
-				if (obj.enabled) {
-					HTMLArea._addClass(el, "buttonHover");
-				}
-			});
-			//HTMLArea._addEvent(el, "mouseover", HTMLArea.toolBarButtonMouseOverHandler);
-			HTMLArea._addEvent(el, "mouseout", function () {
-				if (obj.enabled) {
-					HTMLArea._removeClass(el, "buttonHover");
-					HTMLArea._removeClass(el, "buttonActive");
-					(obj.active) && HTMLArea._addClass(el, "buttonPressed");
-				}
-			});
-			HTMLArea._addEvent(el, "mousedown", function (ev) {
-				if (obj.enabled) {
-					HTMLArea._addClass(el, "buttonActive");
-					HTMLArea._removeClass(el, "buttonPressed");
-					HTMLArea._stopEvent(HTMLArea.is_ie ? window.event : ev);
-				}
-			});
-			// when clicked, do the following:
-			HTMLArea._addEvent(el, "click", function (ev) {
-				if (obj.enabled) {
-					HTMLArea._removeClass(el, "buttonActive");
-					HTMLArea._removeClass(el, "buttonHover");
-					obj.cmd(editor, obj.name, obj);
-					HTMLArea._stopEvent(HTMLArea.is_ie ? window.event : ev);
-				}
-			});
+			el._obj = obj;
+			HTMLArea._addEvents(el, ["mouseover", "mouseout", "mousedown", "click"], HTMLArea.toolBarButtonHandler);
 			/* Image problem on Windows XP
 			var img = document.createElement("img");
 			img.setAttribute("src", btn[1]);
@@ -665,14 +616,59 @@ HTMLArea.prototype._createToolbar = function () {
 	this._htmlArea.appendChild(toolbar);
 };
 
-HTMLArea.toolBarButtonMouseOverHandler = function(ev) {
+// Handler to emulate nice flat toolbar buttons and process toolbar element events
+HTMLArea.toolBarButtonHandler = function(ev) {
 	if (!ev) var ev = window.event;
 	var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
-	if (target.obj["enabled"]) {
-		HTMLArea._addClass(target, "buttonHover");
+	if(target.tagName.toLowerCase() == "img") target = target.parentNode;
+	var obj = target._obj;
+	if(obj.enabled) {
+		switch(ev.type) {
+			case "mouseover":
+				HTMLArea._addClass(target, "buttonHover");
+				break;
+			case "mouseout":
+				HTMLArea._removeClass(target, "buttonHover");
+				HTMLArea._removeClass(target, "buttonActive");
+				if(obj.active) HTMLArea._addClass(target, "buttonPressed");
+				break;
+			case "mousedown":
+				HTMLArea._addClass(target, "buttonActive");
+				HTMLArea._removeClass(target, "buttonPressed");
+				HTMLArea._stopEvent(ev);
+				break;
+			case "click":
+				HTMLArea._removeClass(target, "buttonActive");
+				HTMLArea._removeClass(target, "buttonHover");
+				obj.cmd(obj.editor, obj.name, obj);
+				HTMLArea._stopEvent(ev);
+				break;
+			case "change":
+				obj.editor.focusEditor();
+				var value = target.options[target.selectedIndex].value;
+				switch (obj.name) {
+					case "fontname":
+					case "fontsize": 
+						obj.editor.execCommand(obj.name, false, value);
+						break;
+					case "formatblock":
+						(HTMLArea.is_ie) && (value = "<" + value + ">");
+						obj.editor.execCommand(obj.name, false, value);
+						break;
+					default:
+							// look it up in the registered dropdowns
+						var dropdown = obj.editor.config.customSelects[obj.name];
+						if (typeof dropdown != "undefined") {
+							dropdown.action(obj.editor);
+						} else {
+							alert("FIXME: combo box " + obj.name + " not implemented");
+						}
+				}
+		}
 	}
 };
 
+// Create the status bar
 HTMLArea.prototype._createStatusBar = function() {
 	var statusbar = document.createElement("div");
 	statusbar.className = "statusBar";
@@ -750,9 +746,6 @@ HTMLArea.prototype.generate = function () {
 			}
 		};
 	}
-
-		// add a handler for the "back/forward" case: on body.unload we save the HTML content into the original textarea.
-	window.onunload = function() { editor._textArea.value = editor.getHTML(); };
 
 		// create & append the toolbar
 	this._createToolbar();
@@ -873,6 +866,8 @@ HTMLArea.prototype.generate = function () {
 
 				// intercept some events for updating the toolbar & keyboard handlers
 			HTMLArea._addEvents(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], function(ev) { editor._editorEvent(ev); });
+				// add unload handler
+			HTMLArea._addEvent(editor._iframe.contentWindow, "unload", function(ev) { editor.removeEditorEvents(ev); });
 
 			setTimeout( function() {
 					// check if any plugins have registered refresh handlers
@@ -893,6 +888,25 @@ HTMLArea.prototype.generate = function () {
 	setTimeout(initIframe, 50);
 	return this;
 };
+
+HTMLArea.prototype.removeEditorEvents = function(ev) {
+	if (!ev) var ev = window.event;
+	var editor = this;
+		// save the HTML content into the original textarea for the back/forward case
+	editor._textArea.value = editor.getHTML();
+		// release undo/redo snapshots
+	clearInterval(editor._timerUndo);
+	editor._undoQueue = "undefined";
+		// release some events for updating the toolbar & keyboard handlers
+	HTMLArea._removeEvents(editor._iframe.contentWindow.document, ["keydown", "keypress", "mousedown", "mouseup", "drag"], function(ev) { editor._editorEvent(ev); });
+		// release toolbar button handlers
+	for (var i in editor._toolbarObjects) {
+		var btn = editor._toolbarObjects[i];
+		var el = document.getElementById(btn.elementId);
+		HTMLArea._removeEvents(el, ["mouseover", "mouseout", "mousedown", "click", "change"], HTMLArea.toolBarButtonHandler);
+	}
+};
+
 
 // Switches editor mode; parameter can be "textmode" or "wysiwyg".  If no
 // parameter was passed this function toggles between modes.
@@ -1149,10 +1163,6 @@ HTMLArea.prototype._wordClean = function() {
 	};
 	parseTree(this._doc.body);
 	// showStats();
-	// this.debugTree();
-	// this.setHTML(this.getHTML());
-	// this.setHTML(this.getInnerHTML());
-	// this.forceRedraw();
 	this.updateToolbar();
 };
 
@@ -1233,11 +1243,18 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 	var doc = this._doc;
 	var text = (this._editMode == "textmode");
 	var ancestors = null;
+	var i;
 	if (!text) {
 		ancestors = this.getAllAncestors();
 		if (this.config.statusBar && !noStatus) {
+				// Unhook previous events handlers
+			if(this._statusBarTree.hasChildNodes()) {
+				for (i = this._statusBarTree.firstChild; i; i = i.nextSibling) {
+					if(i.nodeName.toLowerCase() == "a") HTMLArea._removeEvents(i, ["click", "contextmenu"], HTMLArea.statusBarHandler);
+				}
+			}
 			this._statusBarTree.innerHTML = HTMLArea.I18N.msg["Path"] + ": "; // clear
-			for (var i = ancestors.length; --i >= 0;) {
+			for (i = ancestors.length; --i >= 0;) {
 				var el = ancestors[i];
 				if (!el) {
 					continue;
@@ -1247,8 +1264,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 				a.el = el;
 				a.editor = this;
 				a.contextMenu = a.editor.plugins.ContextMenu.instance;
-				HTMLArea._addEvent(a, "click", HTMLArea.statusBarClickHandler);
-				HTMLArea._addEvent(a, "contextmenu", HTMLArea.statusBarContextMenuHandler);
+				HTMLArea._addEvents(a, ["click", "contextmenu"], HTMLArea.statusBarHandler);
 				var txt = el.tagName.toLowerCase();
 				a.title = el.style.cssText;
 				if (el.id) {
@@ -1266,7 +1282,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 		}
 	}
 
-	for (var i in this._toolbarObjects) {
+	for (i in this._toolbarObjects) {
 		var btn = this._toolbarObjects[i];
 		var cmd = i;
 		var inContext = true;
@@ -1316,7 +1332,8 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			if (!text) try {
 				var value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
 				if (!value) {
-					btn.element.selectedIndex = 0;
+					document.getElementById(btn.elementId).selectedIndex = 0;
+					//btn.element.selectedIndex = 0;
 					break;
 				}
 // Begin change by Stanislas Rolland 2004-11-27
@@ -1345,17 +1362,21 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 					// FIXME: the following line is scary.
 					if ((j.toLowerCase() == value) ||
 						   (options[j].substr(0, value.length).toLowerCase() == value)) {
-						btn.element.selectedIndex = k;
+						//btn.element.selectedIndex = k;
+						document.getElementById(btn.elementId).selectedIndex = k;
 						throw "ok";
 					}
 					++k;
 				}
-				btn.element.selectedIndex = 0;
+				//btn.element.selectedIndex = 0;
+				document.getElementById(btn.elementId).selectedIndex = 0;
+
 			} catch(e) {};
 			break;
 		    case "textindicator":
 			if (!text) {
-				try {with (btn.element.style) {
+//				try {with (btn.element.style) {
+				try {with (document.getElementById(btn.elementId).style) {
 					backgroundColor = HTMLArea._makeColor(
 						doc.queryCommandValue(HTMLArea.is_ie ? "backcolor" : "hilitecolor"));
 					if (/transparent/i.test(backgroundColor)) {
@@ -1417,28 +1438,23 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 	if (this._customUndo) this._undoTakeSnapshot();
 
 		// check if any plugins have registered refresh handlers
-	for (var i in this.plugins) {
+	for (i in this.plugins) {
 		var plugin = this.plugins[i].instance;
 		if (typeof plugin.onUpdateToolbar == "function")
 			plugin.onUpdateToolbar();
 	}
 };
-
-HTMLArea.statusBarClickHandler =  function (ev) {
+// Handler to process status bar element events
+HTMLArea.statusBarHandler = function (ev) {
 	if (!ev) var ev = window.event;
 	var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
 	target.blur();
 	target.editor.selectNodeContents(target.el);
 	target.editor.updateToolbar(true);
-	return false;
-};
-HTMLArea.statusBarContextMenuHandler = function (ev) {
-	if (!ev) var ev = window.event;
-	var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
-	target.blur();
-	target.editor.selectNodeContents(target.el);
-	target.editor.updateToolbar(true);
-	return target.contextMenu.popupMenu(ev, target.el);
+	switch (ev.type) {
+		case "click" : return false;
+		case "contextmenu" : return target.contextMenu.popupMenu(ev, target.el);
+	}
 };
 
 /** Returns a node after which we can insert other nodes, in the current
@@ -1812,29 +1828,6 @@ HTMLArea.prototype._insertTable = function() {
 /***************************************************
  *  Category: EVENT HANDLERS
  ***************************************************/
-
-// el is reference to the SELECT object
-// txt is the name of the select field, as in config.toolbar
-HTMLArea.prototype._comboSelected = function(el, txt) {
-	this.focusEditor();
-	var value = el.options[el.selectedIndex].value;
-	switch (txt) {
-	    case "fontname":
-	    case "fontsize": this.execCommand(txt, false, value); break;
-	    case "formatblock":
-		(HTMLArea.is_ie) && (value = "<" + value + ">");
-		this.execCommand(txt, false, value);
-		break;
-	    default:
-		// try to look it up in the registered dropdowns
-		var dropdown = this.config.customSelects[txt];
-		if (typeof dropdown != "undefined") {
-			dropdown.action(this);
-		} else {
-			alert("FIXME: combo box " + txt + " not implemented");
-		}
-	}
-};
 
 // the execCommand function (intercepts some commands and replaces them with
 // our own implementation)

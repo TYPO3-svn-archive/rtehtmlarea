@@ -27,7 +27,7 @@ function DynamicCSS(editor, args) {
 		tooltip	: i18n["DynamicCSSStyleTooltip"],
 		options	: {"":""},
 		action	: function(editor) { self.onSelect(editor, this); },
-		refresh	: function(editor) { self.generate(); },
+		refresh	: function(editor) { self.generate(editor); },
 		context	: "*",
 		cssArray	: new Array(),
 		parseCount	: 1,
@@ -39,46 +39,33 @@ function DynamicCSS(editor, args) {
 	cfg.registerDropdown(obj);
 };
 
-DynamicCSS.prototype.parseStyleSheet=function(editor){
-	var editor = this.editor;
+DynamicCSS.parseStyleSheet = function(editor){
 	var obj = editor.config.customSelects["DynamicCSS-class"];
 	var i18n = DynamicCSS.I18N;
 	var iframe = editor._iframe.contentWindow.document;
 	var newCssArray = new Array();
 	obj.loaded = true;
-
 	for(var i=0;i<iframe.styleSheets.length;i++){
 			// Mozilla
             if(HTMLArea.is_gecko){
+			try{ newCssArray = DynamicCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray); }
+			catch(e){ obj.loaded = false; }
+		} else {
 			try{
-				newCssArray=this.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray);
-			}
-			catch(e){
-				obj.loaded = false;
-			//	alert(e);
-			}
-		}
-			// IE
-            else {
-                try{
-                    // @import StyleSheets (IE)
-                    if(iframe.styleSheets[i].imports){
-                        newCssArray=this.applyCSSIEImport(editor,i18n,iframe.styleSheets[i].imports,newCssArray);
-                    }
-                    if(iframe.styleSheets[i].rules){
-                        newCssArray=this.applyCSSRule(editor,i18n,iframe.styleSheets[i].rules,newCssArray);
-                    }
-                }
-                catch(e){
-				obj.loaded = false;
-                //	alert(e);
-                }
+					// @import StyleSheets (IE)
+				if(iframe.styleSheets[i].imports){
+					newCssArray = DynamicCSS.applyCSSIEImport(editor,i18n,iframe.styleSheets[i].imports,newCssArray);
+				}
+				if(iframe.styleSheets[i].rules){
+					newCssArray = DynamicCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].rules,newCssArray);
+				}
+			} catch(e) { obj.loaded = false; }
 		}
 	}
 	return newCssArray;
 };
 
-DynamicCSS.prototype.applyCSSRule=function(editor,i18n,cssRules,cssArray){
+DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 	var cssElements = new Array();
 	var cssElement = new Array();
 	var newCssArray = new Array();
@@ -116,22 +103,21 @@ DynamicCSS.prototype.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 		}
 			// ImportRule (Mozilla)
 		else if(cssRules[rule].styleSheet){
-			newCssArray=this.applyCSSRule(editor,i18n,cssRules[rule].styleSheet.cssRules,newCssArray);
+			newCssArray = DynamicCSS.applyCSSRule(editor,i18n,cssRules[rule].styleSheet.cssRules,newCssArray);
 		}
 	}
 	return newCssArray;
 };
 
-DynamicCSS.prototype.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
+DynamicCSS.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
 	var newCssArray = new Array();
 	newCssArray = cssArray;
-
 	for(var i=0;i<cssIEImport.length;i++){
 		if(cssIEImport[i].imports){
-			newCssArray=this.applyCSSIEImport(editor,i18n,cssIEImport[i].imports,newCssArray);
+			newCssArray = DynamicCSS.applyCSSIEImport(editor,i18n,cssIEImport[i].imports,newCssArray);
 		}
 		if(cssIEImport[i].rules){
-			newCssArray=this.applyCSSRule(editor,i18n,cssIEImport[i].rules,newCssArray);
+			newCssArray = DynamicCSS.applyCSSRule(editor,i18n,cssIEImport[i].rules,newCssArray);
 		}
 	}
 	return newCssArray;
@@ -150,8 +136,8 @@ DynamicCSS._pluginInfo = {
 
 DynamicCSS.prototype.onSelect = function(editor, obj) {
 	var tbobj = editor._toolbarObjects[obj.id];
-	var index = tbobj.element.selectedIndex;
-	var className = tbobj.element.value;
+	var index = document.getElementById(tbobj.elementId).selectedIndex;
+	var className = document.getElementById(tbobj.elementId).value;
 
 	editor.focusEditor();
     	var parent = editor.getParentElement();
@@ -174,7 +160,7 @@ DynamicCSS.prototype.onSelect = function(editor, obj) {
 DynamicCSS.prototype.onGenerate = function() {
 	var editor = this.editor;
 	var obj = editor.config.customSelects["DynamicCSS-class"];
-	if(HTMLArea.is_gecko) this.generate();
+	if(HTMLArea.is_gecko) this.generate(editor);
 };
 
 DynamicCSS.prototype.onUpdateToolbar = function() {
@@ -188,19 +174,18 @@ DynamicCSS.prototype.onUpdateToolbar = function() {
 				editor._iframe.contentWindow.clearTimeout(obj.timeout);
 				obj.timeout = null;
 			}
-			this.generate();
+			this.generate(editor);
 		}
 	}
 };
 
-DynamicCSS.prototype.generate = function() {
-	var editor = this.editor;
+DynamicCSS.prototype.generate = function(editor) {
 	var obj = editor.config.customSelects["DynamicCSS-class"];
 	var self = this;
 
         // Let us load the style sheets
 	function getCSSArray(){
-		obj.cssArray = self.parseStyleSheet(editor);
+		obj.cssArray = DynamicCSS.parseStyleSheet(editor);
 		if( !obj.loaded && obj.parseCount<17 ) {
 			obj.timeout = editor._iframe.contentWindow.setTimeout(getCSSArray, 200);
 			obj.parseCount++ ;
@@ -228,7 +213,7 @@ DynamicCSS.prototype.onMode = function(mode) {
 				editor._iframe.contentWindow.clearTimeout(obj.timeout);
 				obj.timeout = null;
 			}
-			this.generate();
+			this.generate(editor);
 		}
 	}
 };
@@ -240,7 +225,7 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 			editor._iframe.contentWindow.clearTimeout(obj.timeout);
 			obj.timeout = null;
 		}
-		this.generate();
+		this.generate(editor);
 	}
 
 	var cssArray = obj.cssArray;
@@ -259,7 +244,7 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 		obj.lastTag=tagName;
 		obj.lastClass=className;
             var i18n = DynamicCSS.I18N;
-            var select = editor._toolbarObjects[obj.id].element;
+            var select = document.getElementById(editor._toolbarObjects[obj.id].elementId);
 		while(select.options.length>0){
 			select.options[select.length-1] = null;
 		}

@@ -13,7 +13,7 @@
 /* Selectors for the editor toolbar */
 .htmlarea .toolbar {
 	cursor: default;
-	background: ButtonFace;
+	background-color: ButtonFace;
 	padding: 1px 1px 2px 1px;
 	border: 1px solid;
 	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
@@ -59,13 +59,16 @@
 	border: 1px solid; 
 	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight; 
 }
-.htmlarea .toolbar .buttonActive, .htmlarea .toolbar .buttonPressed {
+.htmlarea .toolbar .buttonActive {
 	padding: 2px 0px 0px 2px;
 	border: 1px solid;
 	border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
 }
-.htmlarea .toolbar .buttonPressed { 
-	background: ButtonHighlight; 
+.htmlarea .toolbar .buttonPressed {
+	padding: 2px 0px 0px 2px;
+	border: 1px solid;
+	border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
+	background-color: ButtonHighlight;
 }
 .htmlarea .toolbar .indicator {
 	margin: 4px 0px 0px 0px;
