@@ -1,6 +1,9 @@
 <?php
 if (!defined ("TYPO3_MODE")) 	die ("Access denied.");
 
+// Configuring of class ux_parsehtml_proc extending class t3lib_parsehtml_proc:
+$TYPO3_CONF_VARS[TYPO3_MODE]["XCLASS"]["t3lib/class.t3lib_parsehtml_proc.php"]=t3lib_extMgm::extPath($_EXTKEY)."class.ux_t3lib_parsehtml_proc.php";
+
 if(!$TYPO3_CONF_VARS['BE']['RTEenabled'])  $TYPO3_CONF_VARS['BE']['RTEenabled'] = 1;
 
 $TYPO3_CONF_VARS['BE']['RTE_reg'][$_EXTKEY] = array('objRef' => 'EXT:'.$_EXTKEY.'/class.tx_rtehtmlarea_base.php:&tx_rtehtmlarea_base');
@@ -41,6 +44,7 @@ t3lib_extMgm::addPageTSConfig('
 	RTE {
 		default.contentCSS = EXT:' . $_EXTKEY . '/htmlarea/plugins/DynamicCSS/dynamiccss.css
 		default.enableWordClean = 1
+		default.useCSS = 1
 		default.showButtons =  *
 		default.hideButtons =
 		default.hidePStyleItems =
