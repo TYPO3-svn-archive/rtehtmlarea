@@ -233,7 +233,7 @@ SelectColor.prototype.processStyle = function(params, element, field) {
 			case "color":
 				element.style.backgroundColor = val;
 			case "tag":
-				field.value += '#' + val + '"';
+				field.value += '#' + val;
 				break;
 		}
 	}
