@@ -12,7 +12,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 				'noSpellCheckLanguages' => 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8',
 				'AspellDirectory' => '/usr/bin/aspell',
 				'forceCommandMode' => 0,
-				'HTMLAreaPluginList' => 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,Indite,RemoveFormat',
+				'HTMLAreaPluginList' => 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap',
 		);
 } else {
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList'] = 'en';
@@ -20,7 +20,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages'] = 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8';
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory'] = '/usr/bin/aspell';
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode'] = 0;
-		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'TableOperations,SpellChecker,ContextMenu,DynamicCSS,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,Indite,RemoveFormat,CharacterMap';
+		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap';
 }
 
 // regarding 'noSpellCheckLanguages', see http://aspell.net/man-html/Unsupported.html#Unsupported
