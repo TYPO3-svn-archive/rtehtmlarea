@@ -409,7 +409,6 @@ HTMLArea.prototype._createToolbar = function () {
 	var tb_row = null;
 	var tb_objects = new Object();
 	this._toolbarObjects = tb_objects;
-	var img;
 
 		// create a new line in the toolbar
 	function newLine() {
@@ -608,11 +607,14 @@ HTMLArea.prototype._createToolbar = function () {
 					HTMLArea._stopEvent(HTMLArea.is_ie ? window.event : ev);
 				}
 			});
-			img = document.createElement("img");
+			/* Image problem on Windows XP
+			var img = document.createElement("img");
 			img.setAttribute("src", btn[1]);
 			img.style.width = "18px";
 			img.style.height = "18px";
 			el.appendChild(img);
+			Image problem on Windows XP */
+			el.innerHTML = '<img src="'+ btn[1] +'" width="18" height="18" />';
 		} else if (!el) {
 			el = createSelect(txt);
 		}
@@ -740,7 +742,7 @@ HTMLArea.prototype.generate = function () {
 
 		// create and append the IFRAME
 	var iframe = document.createElement("iframe");
-	if(this.config.useHTTPS) {
+	if(this.config.useHTTPS || HTMLArea.is_ie) {
 		iframe.setAttribute("src", _editor_url + "popups/blank.html");
 	} else {
 		iframe.setAttribute("src", "javascript:void(0);");
