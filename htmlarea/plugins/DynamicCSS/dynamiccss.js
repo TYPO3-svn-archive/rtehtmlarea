@@ -21,6 +21,7 @@ function DynamicCSS(editor, args) {
 	var toolbar = cfg.toolbar;
 	var self = this;
 	var i18n = DynamicCSS.I18N;
+	var editornumber = editor._typo3EditerNumber;
 
 	var obj = {
 		id		: "DynamicCSS-class",
@@ -34,7 +35,8 @@ function DynamicCSS(editor, args) {
 		loaded	: false,
 		timeout	: null,
 		lastTag	: "",
-		lastClass	: ""
+		lastClass	: "",
+		showTagFreeClasses	: RTEarea[editornumber]["showTagFreeClasses"]
 		};
 	cfg.registerDropdown(obj);
 };
@@ -71,7 +73,7 @@ DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 	var newCssArray = new Array();
 	var tagName;
 	var className;
-
+	var obj = editor.config.customSelects["DynamicCSS-class"];
 	newCssArray = cssArray;
 	for(var rule=0;rule<cssRules.length;rule++){
 			// StyleRule
@@ -85,19 +87,19 @@ DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 					cssElement = cssElements[k].split(".");
 					tagName=cssElement[0].toLowerCase().trim();
 					className=cssElement[1];
-
-					if(!tagName) tagName='all';
-					if(!newCssArray[tagName]) newCssArray[tagName]=new Array();
-
-					if(className){
-						if(tagName=='all') cssName=className;
-						else cssName='<'+className+'>';
-					} else {
-						className='none';
-						if(tagName=='all') cssName=i18n["Default"];
-						else cssName='<'+i18n["Default"]+'>';
+					if(!tagName) tagName = "all";
+					if( tagName != "all" || obj["showTagFreeClasses"] == true) {
+						if(!newCssArray[tagName]) newCssArray[tagName]=new Array();
+						if(className){
+							if(tagName=='all') cssName=className;
+							else cssName='<'+className+'>';
+						} else {
+							className='none';
+							if(tagName=='all') cssName=i18n["Default"];
+							else cssName='<'+i18n["Default"]+'>';
+						}
+						newCssArray[tagName][className]=cssName;
 					}
-					newCssArray[tagName][className]=cssName;
 				}
 			}
 		}
@@ -204,7 +206,7 @@ DynamicCSS.prototype.generate = function(editor) {
 
 DynamicCSS.prototype.onMode = function(mode) {
 	var editor = this.editor;
-	if(mode=='wysiwyg'){
+	if(mode == 'wysiwyg'){
 		var obj = editor.config.customSelects["DynamicCSS-class"];
 		if(obj.loaded) { 
 			this.updateValue(editor,obj);
@@ -219,7 +221,7 @@ DynamicCSS.prototype.onMode = function(mode) {
 };
 
 DynamicCSS.prototype.updateValue = function(editor,obj) {
-
+	var cssClass, i;
 	if(!obj.loaded) {
 		if(obj.timeout) {
 			editor._iframe.contentWindow.clearTimeout(obj.timeout);
@@ -240,41 +242,40 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 		className = parent.className;
 	}
 
-	if( obj.lastTag!=tagName || obj.lastClass!=className ){        
-		obj.lastTag=tagName;
-		obj.lastClass=className;
+	if( obj.lastTag != tagName || obj.lastClass != className ){        
+		obj.lastTag = tagName;
+		obj.lastClass = className;
             var i18n = DynamicCSS.I18N;
             var select = document.getElementById(editor._toolbarObjects[obj.id].elementId);
 		while(select.options.length>0){
 			select.options[select.length-1] = null;
 		}
-
 		select.options[0]=new Option(i18n["Default"],'none');
 		if(cssArray){
 				// style class only allowed if parent tag is not body or editor is in fullpage mode
-			if(tagName!='body' || editor.config.fullPage){
+			if(tagName != 'body' || editor.config.fullPage){
 				if(cssArray[tagName]){
-					for(var cssClass in cssArray[tagName]){
-						if(cssClass=='none') {
-							select.options[0]=new Option(cssArray[tagName][cssClass],cssClass);
+					for(cssClass in cssArray[tagName]){
+						if(cssClass == 'none') {
+							select.options[0] = new Option(cssArray[tagName][cssClass],cssClass);
 						} else {
-							select.options[select.options.length]=new Option(cssArray[tagName][cssClass],cssClass);
+							select.options[select.options.length] = new Option(cssArray[tagName][cssClass],cssClass);
 						}
 					}
 				}
 				if(cssArray['all']){
-					for(var cssClass in cssArray['all']){
-						select.options[select.options.length]=new Option(cssArray['all'][cssClass],cssClass);
+					for(cssClass in cssArray['all']){
+						select.options[select.options.length] = new Option(cssArray['all'][cssClass],cssClass);
 					}
 				}
 			}
-			else if(cssArray[tagName] && cssArray[tagName]['none']) select.options[0]=new Option(cssArray[tagName]['none'],'none');
+			else if(cssArray[tagName] && cssArray[tagName]['none']) select.options[0] = new Option(cssArray[tagName]['none'],'none');
 		}
 
 		select.selectedIndex = 0;
 
 		if (typeof className != "undefined" && /\S/.test(className)) {
-			for (var i = select.options.length; --i >= 0;) {
+			for (i = select.options.length; --i >= 0;) {
 				var option = select.options[i];
 				if (className == option.value) {
 					select.selectedIndex = i;
@@ -282,12 +283,12 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 				}
 			}
 			if(select.selectedIndex == 0){
-				select.options[select.options.length]=new Option(i18n["Undefined"],className);
-				select.selectedIndex=select.options.length-1;
+				select.options[select.options.length] = new Option(i18n["Undefined"],className);
+				select.selectedIndex = select.options.length-1;
 			}
 		}
 
-		if(select.options.length>1) select.disabled=false;
-		else select.disabled=true;
+		if(select.options.length>1) select.disabled = false;
+		else select.disabled = true;
 	}
 };

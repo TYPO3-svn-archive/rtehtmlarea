@@ -719,6 +719,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["disableEnterParagraphs"] = ' . (trim($this->thisConfig['disableEnterParagraphs'])?'true':'false') . ';
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
+			RTEarea['.$number.']["showTagFreeClasses"] = ' . (trim($this->thisConfig['showTagFreeClasses'])?'true':'false') . ';
 			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';
 			RTEarea['.$number.']["enableMozillaExtension"] = ' . (($CLIENT['BROWSER'] == 'gecko' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension'])?'true':'false') . ';
 			RTEarea['.$number.']["plugin"] = new Array();';
@@ -806,8 +807,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			}
 		}
 
-		if ($this->isPluginEnable('InlineCSS') && $this->thisConfig['classesCharacter'] ) {
-			$HTMLAreaJSClassesCharacter = '"' . $this->thisConfig['classesCharacter'] . '";';
+		if ($this->isPluginEnable('InlineCSS') ) {
+			$HTMLAreaJSClassesCharacter = ($this->thisConfig['classesCharacter'])?('"' . $this->thisConfig['classesCharacter'] . '";'):'null;';
 			$registerRTEinJSString .= '
 			RTEarea['.$number.']["classesCharacter"] = '. $HTMLAreaJSClassesCharacter;
 		}
@@ -842,6 +843,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["fontname"] = '. $HTMLAreaJSFontface;
 		}
 			// Paragraphs
+
 		$HTMLAreaParagraphs = $this->defaultParagraphs;
 		if ($this->thisConfig['hidePStyleItems'] ) {
 			$hidePStyleItems =  t3lib_div::trimExplode(',', $this->thisConfig['hidePStyleItems'], 1);
@@ -1060,6 +1062,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return      bool     Returns TRUE on success, FALSE on failure
 	 */
 	function copyr($source, $dest) {
+
+
 			// Simple copy for a file
 		if (is_file($source)) {
 			return copy($source, $dest);
@@ -1170,6 +1174,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	function cleanList($str)        {
 		if (strstr($str,'*'))   {
 			$str = '*';
+
 		} else {
 			$str = implode(',',array_unique(t3lib_div::trimExplode(',',$str,1)));
 		}

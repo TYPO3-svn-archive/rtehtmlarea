@@ -117,9 +117,9 @@ unset($MCONF);
 define('MY_PATH_thisScript',str_replace('//','/', str_replace('\\','/', (php_sapi_name()=='cgi'||php_sapi_name()=='xcgi'||php_sapi_name()=='isapi' ||php_sapi_name()=='cgi-fcgi')&&($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED'])? ($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED']):($_SERVER['ORIG_SCRIPT_FILENAME']?$_SERVER['ORIG_SCRIPT_FILENAME']:$_SERVER['SCRIPT_FILENAME']))));
 
 if( strstr(MY_PATH_thisScript, 'typo3conf') ) {
-	define(TYPO3_MOD_PATH, "../typo3conf/ext/rtehtmlarea/");
+	define('TYPO3_MOD_PATH', "../typo3conf/ext/rtehtmlarea/");
 } else {
-	define(TYPO3_MOD_PATH, "ext/rtehtmlarea/");
+	define('TYPO3_MOD_PATH', "ext/rtehtmlarea/");
 }
 
 $BACK_PATH = '../../../typo3/';
@@ -804,6 +804,7 @@ class tx_rtehtmlarea_browse_links {
 				function link_folder(folder)	{	//
 					var theLink = \''.$this->siteURL.'\'+folder;
 					self.parent.parent.renderPopup_addLink(theLink,cur_target,cur_class);
+
 					return false;
 				}
 				function link_spec(theLink)	{	//
@@ -1681,6 +1682,7 @@ class tx_rtehtmlarea_browse_links {
 
 		$expandFolder = $expandFolder ? $expandFolder : $this->expandFolder;
 		$out='';
+
 		if ($expandFolder && $this->checkFolder($expandFolder))	{
 
 				// Listing the files:

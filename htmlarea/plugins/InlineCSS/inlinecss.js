@@ -29,7 +29,6 @@ function InlineCSS(editor, args) {
 		lastClass	: "",
 		classesCharacter : RTEarea[editornumber]["classesCharacter"]
 		};
-
 	cfg.registerDropdown(obj);
 };
 
@@ -40,11 +39,11 @@ InlineCSS.parseStyleSheet = function(editor){
 	var iframe = editor._iframe.contentWindow.document;
 	var newCssArray = new Array();
 	obj.loaded = true;
-
 	for(var i=0;i<iframe.styleSheets.length;i++){
+			// Mozilla
             if(HTMLArea.is_gecko){
-			try{ newCssArray = InlineCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray); 
-			} catch(e){ obj.loaded = false; }
+			try{ newCssArray = InlineCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray); }
+			catch(e){ obj.loaded = false; }
 		} else {
 			try{
 					// @import StyleSheets (IE)
@@ -54,7 +53,7 @@ InlineCSS.parseStyleSheet = function(editor){
 				if(iframe.styleSheets[i].rules){
 					newCssArray = InlineCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].rules,newCssArray);
 				}
-			} catch(e){ obj.loaded = false; }
+			} catch(e) { obj.loaded = false; }
 		}
 	}
 	return newCssArray;
@@ -64,38 +63,32 @@ InlineCSS.applyCSSRule = function(editor,i18n,cssRules,cssArray){
 	var cssElements = new Array();
 	var cssElement = new Array();
 	var newCssArray = new Array();
-	var tagName;
-	var className;
+	var tagName, className, rule, k;
 	var obj = editor.config.customSelects["InlineCSS-class"];
 	newCssArray = cssArray;
-
-	for(var rule=0;rule<cssRules.length;rule++){
+	for(rule=0;rule<cssRules.length;rule++){
 			// StyleRule
 		if(cssRules[rule].selectorText){
 			if(cssRules[rule].selectorText.search(/:+/)==-1){
-
 					// split equal Styles (Mozilla-specific) e.q. head, body {border:0px}
 					// for ie not relevant. returns allways one element
 				cssElements = cssRules[rule].selectorText.split(",");
-				for(var k=0;k<cssElements.length;k++){
+				for(k=0;k<cssElements.length;k++){
 					cssElement = cssElements[k].split(".");
-					tagName=cssElement[0].toLowerCase().trim();
-					className=cssElement[1];
-
-					if( obj["classesCharacter"].indexOf(className) != -1 ) {
-
-						if(!tagName) tagName='all';
-						if(!newCssArray[tagName]) newCssArray[tagName]=new Array();
-
+					tagName = cssElement[0].toLowerCase().trim();
+					className = cssElement[1];
+					if( (!obj["classesCharacter"] && (tagName == 'span')) || (obj["classesCharacter"] && obj["classesCharacter"].indexOf(className) != -1)) {
+						if(!tagName) tagName = 'all';
+						if(!newCssArray[tagName]) newCssArray[tagName] = new Array();
 						if(className){
-							if(tagName=='all') cssName=className;
-							else cssName='<'+className+'>';
+							if(tagName == 'all') cssName = className;
+							else cssName = '<'+className+'>';
 						} else {
-							className='none';
-							if(tagName=='all') cssName=i18n["Default"];
-							else cssName='<'+i18n["Default"]+'>';
+							className = 'none';
+							if(tagName == 'all') cssName = i18n["Default"];
+							else cssName = '<'+i18n["Default"]+'>';
 						}
-						newCssArray[tagName][className]=cssName;
+						newCssArray[tagName][className] = cssName;
 					}
 				}
 			}
@@ -251,6 +244,7 @@ InlineCSS.prototype.onMode = function(mode) {
 };
 
 InlineCSS.prototype.updateValue = function(editor,obj) {
+	var cssClass, i;
 
 	if(!obj.loaded) {
 		if(obj.timeout) {
@@ -303,49 +297,44 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 
 	var select = document.getElementById(editor._toolbarObjects[obj.id].elementId);
 	select.disabled = !(/\w/.test(selTrimmed)) || !(endPointsInSameBlock);
-
-	if( obj.lastTag!=tagName || obj.lastClass!=className || true ){        
-		obj.lastTag=tagName;
-		obj.lastClass=className;
-            var i18n = InlineCSS.I18N;
-		while(select.options.length>0){
-			select.options[select.length-1] = null;
-		}
-
-		select.options[0]=new Option(i18n["Default"],'none');
-		if(cssArray){
-				// style class only allowed if parent tag is not body or editor is in fullpage mode
-			if(cssArray[tagName] && (tagName!='body' || editor.config.fullPage)){
-				for(var cssClass in cssArray[tagName]){
-					if(cssClass=='none') {
-						select.options[0]=new Option(cssArray[tagName][cssClass],cssClass);
-					} else {
-						select.options[select.options.length]=new Option(cssArray[tagName][cssClass],cssClass);
-					}
-				}
-			}
-			if(cssArray['all']){
-				for(var cssClass in cssArray['all']){
-					select.options[select.options.length]=new Option(cssArray['all'][cssClass],cssClass);
-				}
-			}
-		}
-
-		select.selectedIndex = 0;
-		if (typeof className != "undefined" && /\S/.test(className)) {
-			for (var i = select.options.length; --i >= 0;) {
-				var option = select.options[i];
-				if (className == option.value) {
-					select.selectedIndex = i;
-					break;
-				}
-			}
-			if(select.selectedIndex == 0){
-				select.options[select.options.length]=new Option(i18n["Undefined"],className);
-				select.selectedIndex=select.options.length-1;
-			}
-		}
-
-		select.disabled = !(select.options.length>1) || !(/\w/.test(selTrimmed)) || !(endPointsInSameBlock);
+      
+	obj.lastTag = tagName;
+	obj.lastClass = className;
+	var i18n = InlineCSS.I18N;
+	while(select.options.length>0){
+		select.options[select.length-1] = null;
 	}
+	select.options[0]=new Option(i18n["Default"],'none');
+	if(cssArray){
+			// we are in span and 'all' tags only
+		if(cssArray['span']) {
+			for(cssClass in cssArray['span']){
+				if(cssClass == 'none') {
+					select.options[0] = new Option(cssArray['span'][cssClass],cssClass);
+				} else {
+					select.options[select.options.length] = new Option(cssArray['span'][cssClass],cssClass);
+				}
+			}
+		}
+		if(cssArray['all']){
+			for(cssClass in cssArray['all']){
+				select.options[select.options.length] = new Option(cssArray['all'][cssClass],cssClass);
+			}
+		}
+	}
+	select.selectedIndex = 0;
+	if (typeof className != "undefined" && /\S/.test(className)) {
+		for (i = select.options.length; --i >= 0;) {
+			var option = select.options[i];
+			if (className == option.value) {
+				select.selectedIndex = i;
+				break;
+			}
+		}
+		if(select.selectedIndex == 0){
+			select.options[select.options.length]=new Option(i18n["Undefined"],className);
+			select.selectedIndex=select.options.length-1;
+		}
+	}
+	select.disabled = !(select.options.length>1) || !(/\w/.test(selTrimmed)) || !(endPointsInSameBlock);
 };

@@ -60,9 +60,10 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.hideFontSizes =
 		default.hideTags = font, font (full)
 		default.disableColorPicker = 0
-		default.classesCharacter = quote, highlight, deprecated
-		default.classesImage = 
+		default.classesCharacter = 
+		default.classesImage = float-right, blue-background
 		default.classesAnchor = 
+		default.showTagFreeClasses = 0
 
 			## Default proc rules
 		default.proc {
@@ -157,6 +158,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 		default.classesCharacter = 
 		default.classesImage = 
 		default.classesAnchor = 
+		default.showTagFreeClasses = 0
 
 		// DEFAULT PROC RULES
 		default.proc {

@@ -1,49 +1,35 @@
-p { 
-  FONT-FAMILY: Arial, Helvetica;
-  FONT-SIZE: 9pt;
-  FONT-WEIGHT: normal;
-  COLOR: #000000;
-}
-
-p.p1 { 
-  FONT-FAMILY: Arial, Helvetica;
-  FONT-SIZE: 11pt;
-  FONT-WEIGHT: normal;
-  COLOR: #000000;
-}
-
-p.p2 { 
-  FONT-FAMILY: Arial, Helvetica;
-  FONT-SIZE: 13pt;
-  FONT-WEIGHT: normal;
-  COLOR: #000000;
-}
-
-img.img1 { 
-  FLOAT: right;
-}
-
-div { 
-  FONT-FAMILY: Arial, Helvetica;
-  FONT-SIZE: 9pt;
-  FONT-WEIGHT: bold;
-  COLOR: #000000;
-}
-
-div.div1 { 
-  FONT-FAMILY: Arial, Helvetica;
-  FONT-SIZE: 11pt;
-  FONT-WEIGHT: bold;
-  COLOR: #000000;
-}
-
-div.div2 { 
-  FONT-FAMILY: Arial, Helvetica;
-  FONT-SIZE: 13pt;
-  FONT-WEIGHT: bold;
-  COLOR: #000000;
-}
-
 .quote { font-style: italic; color: #ee9; }
 .highlight { background-color: yellow; color: #000; }
 .deprecated { text-decoration: line-through; color: #aaa; }
+
+span.quote { font-style: italic; color: #ee9; }
+span.highlight { background-color: yellow; color: #000; }
+span.deprecated { text-decoration: line-through; color: #aaa; }
+
+p { font-family : Verdana, sans-serif; font-size : 12px; }
+p.blue-text { color: #35006d; }
+p.blue-background { color: #ffffff; background-color: #35006d; }
+
+img.float-right { float: right; }
+img.blue-background { background-color: #35006d; }
+
+table.table-redbackground { background: red none; }
+table.table-yellowbackground { background: yellow none; }
+
+tboby.tbody-redbackground { background: red none; }
+tbody.tbody-yellowbackground { background: yellow none; }
+
+tr.tr-redbackground { background: red none; }
+tr.tr-yellowbackground { background: yellow none; }
+
+td.td-redbackground { background: red none; }
+td.td-yellowbackground { background: yellow none; }
+
+ol.ol-redbackground { background: red none; }
+ol.ol-yellowbackground { background: yellow none; }
+
+ul.ul-redbackground { background: red none; }
+ul.ul-yellowbackground { background: yellow none; }
+
+li.li-redbackground { background: red none; }
+li.li-yellowbackground { background: yellow none; }

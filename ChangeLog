@@ -1,3 +1,12 @@
+2005-02-26  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.45
+	* Correcting path setting warning in insert link and insert image dialogs on some server configurations.
+	* Correction for Mozilla/Firefox: when "Save and preview" was clicked, the editor was grabbing the focus away from the preview popup window.
+	* Correction to the behavior of the status bar. See Known problems for remaining problem in IE.
+	* New default value for RTE Page TSConfig property classesCharacter.
+	* New  RTE Page TSConfig property: showTagFreeClasses.
+	* Further internal structure changes and event handlers release.
+
 2005-02-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.44
 	* Internal structure changes for improved memory management, garbage collection, event handlers removal, etc.
