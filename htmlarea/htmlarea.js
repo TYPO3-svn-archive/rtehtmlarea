@@ -58,7 +58,15 @@ function HTMLArea(textarea, config) {
 	}
 };
 
-HTMLArea.onload = function(){};
+// Begin change by Stanislas Rolland 2004-11-26
+//HTMLArea.onload = function(){};
+	// We initialize the editors only when the scripts are loaded
+HTMLArea.is_loaded = false;
+HTMLArea.onload = function(){ 
+	HTMLArea.is_loaded = true;
+};
+// End change by Stanislas Rolland 2004-11-26
+
 HTMLArea._scripts = [];
 HTMLArea.loadScript = function(url, plugin) {
 	if (plugin)
