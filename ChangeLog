@@ -1,3 +1,14 @@
+2005-02-15  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.37
+	* Correction to the generated Mozilla/Firefox extension.
+	* Correction to table operations: the current vertical alignment property of tables, rows and cell was incorrectly displayed.
+	* New FAQs.
+	* Replacing htmlArea plugin EnterParagrahs with corrected function from htmlArea 3 RC3 (modified for table cells). Corrects never ending header tag formatting.
+	* Improved installation dialog and platform-independence of Mozilla/Firefox/Netscape extension for access to clipboard.
+	* Eliminate warning when spell checking reverts to command mode with Aspell 0.5.
+	* Further extension to system class t3lib_parsehtml_proc to add hr tag to $headListTags.
+	* Added tt as allowed tags when "Enable all editor options" is checked.
+
 2005-02-09  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.35
 	* Browser recognition.

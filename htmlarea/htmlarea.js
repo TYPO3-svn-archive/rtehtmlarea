@@ -1,5 +1,5 @@
 // htmlArea v3.0 - Copyright (c) 2003-2005 dynarch.com
-//					   2002-2005 interactivetools.com, inc.
+//					   2002-2003 interactivetools.com, inc.
 //					   2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
 // This copyright notice MUST stay intact for use (see license.txt).
 //
@@ -15,6 +15,7 @@
 // Toolbar: Linebreaks create a new such floating div that may extend on possibly more than one line
 // Toolbar: Add tooltip on select boxes
 // Generate function: re-written to make it almost DOM only and solve many loading problems
+// Config: add various configuration variables (useCSS, disableEnterParagraphs, etc.)
 
 if (typeof _editor_url == "string") {
 	// Leave exactly one backslash at the end of _editor_url
@@ -36,6 +37,7 @@ HTMLArea.agt = navigator.userAgent.toLowerCase();
 HTMLArea.is_ie	   = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
 HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_mac	   = (HTMLArea.agt.indexOf("mac") != -1);
+HTMLArea.is_wamcom  = (HTMLArea.agt.indexOf("wamcom") != -1);
 HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
 HTMLArea.is_win_ie = (HTMLArea.is_ie && !HTMLArea.is_mac);
 HTMLArea.is_gecko  = (navigator.product == "Gecko");
@@ -151,6 +153,9 @@ HTMLArea.Config = function () {
 
 	// for Mozilla
 	this.enableMozillaExtension = true;
+
+	// for Mozilla
+	this.disableEnterParagraphs = false;
 
 	// style included in the iframe document
 	this.pageStyle = "";
@@ -788,6 +793,7 @@ HTMLArea.prototype.generate = function () {
 		}
 		var doc = editor._iframe.contentWindow.document;
 		editor._doc = doc;
+
 		if (!editor.config.fullPage) {
 			var head = doc.getElementsByTagName("head")[0];
 			if(!head) {
@@ -838,7 +844,8 @@ HTMLArea.prototype.generate = function () {
 			}
 
 				// set contents editable
-			if(HTMLArea.is_gecko) doc.designMode = "on";
+			if(HTMLArea.is_gecko && !HTMLArea.is_wamcom) doc.designMode = "on";
+			//if(HTMLArea.is_wamcom) editor._iframe.contentDocument.designMode = "on";
 			if(HTMLArea.is_ie) doc.body.contentEditable = true;
 
 				// intercept some events for updating the toolbar & keyboard handlers
@@ -1865,8 +1872,23 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 							"enable scripts from this TYPO3 site to access the clipboard.\n\n";
 					}
 					if (confirm(HTMLArea.I18N.msg["Moz-Extension"])) {
-						var xpi={'TYPO3 htmlArea RTE Preferences':'../uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi'};
-  						InstallTrigger.install(xpi);
+						if (InstallTrigger.enabled()) {
+							function mozillaInstallCallback(url,returnCode) {
+								if(returnCode == 0) { 
+									alert(HTMLArea.I18N.msg["Moz-Extension-Success"]);
+									return; 
+								} else {
+									alert(HTMLArea.I18N.msg["Moz-Extension-Failure"]);
+									return; 
+								}
+							};
+							var xpi = new Object();
+							xpi["TYPO3 htmlArea RTE Preferences"] = "../uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi";
+  							InstallTrigger.install(xpi, mozillaInstallCallback);
+						} else {
+							alert(HTMLArea.I18N.msg["Moz-Extension-Install-Not-Enabled"]);
+							return; 
+						}
 					}
 				} else {
 					if (typeof HTMLArea.I18N.msg["Moz-Clipboard"] == "undefined") {
@@ -1973,15 +1995,12 @@ HTMLArea.prototype._editorEvent = function(ev) {
 	else if (keyEvent) {
 		// other keys here
 		switch (ev.keyCode) {
-// Begin change by Stanislas Rolland 2004-12-01
-// Remove this and use EnterParagraphs plugin instead
-		    //case 13: // KEY enter
-			//if (HTMLArea.is_gecko && !ev.shiftKey) {
-			//	this.dom_checkInsertP();
-			//	HTMLArea._stopEvent(ev);
-			//}
-			//break;
-// End change by Stanislas Rolland 2004-12-01
+		    case 13: // KEY enter
+			if (HTMLArea.is_gecko && !ev.shiftKey && !editor.config.disableEnterParagraphs) {
+				this.dom_checkInsertP();
+				HTMLArea._stopEvent(ev);
+			}
+			break;
 		    case 8: // KEY backspace
 		    case 46: // KEY delete
 			if (HTMLArea.is_gecko && !ev.shiftKey) {
@@ -2007,13 +2026,16 @@ HTMLArea.prototype._editorEvent = function(ev) {
 };
 
 HTMLArea.prototype.scrollToCaret = function() {
-	var 	e = this.getParentElement(),
+	var
+		e = this.getParentElement(),
 		w = this._iframe.contentWindow,
 		h = w.innerHeight || w.height,
 		d = this._doc,
-  		t = d.documentElement.scrollTop || d.body.scrollTop;
-	if (typeof h == "undefined")	return false;
-	if (e.offsetTop > h + t) w.scrollTo(e.offsetLeft, e.offsetTop - h + e.offsetHeight);
+		t = d.documentElement.scrollTop || d.body.scrollTop;
+	if (typeof h == "undefined")
+		return false;
+	if (e.offsetTop > h + t)
+		w.scrollTo(e.offsetLeft, e.offsetTop - h + e.offsetHeight);
 };
 
 HTMLArea.prototype.convertNode = function(el, newTagName) {
@@ -2071,29 +2093,32 @@ HTMLArea.prototype.dom_checkBackspace = function() {
 
 HTMLArea.prototype.dom_checkInsertP = function() {
 	var i, SC, left, right, r2,
-		sel = this._getSelection(),
-		r = this._createRange(sel),
-		p = this.getAllAncestors(),
+		sel   = this._getSelection(),
+		r     = this._createRange(sel),
+		p     = this.getAllAncestors(),
 		block = null,
-		doc = this._doc,
-		body = doc.body;
+		doc   = this._doc,
+		body  = doc.body;
+
 	for (i = 0; i < p.length; ++i)
-		if (HTMLArea.isBlockElement(p[i]) && !/body|html/i.test(p[i].tagName)) {
+		if (HTMLArea.isBlockElement(p[i]) && !/body|html|table|tbody|tr/i.test(p[i].tagName)) {
 			block = p[i];
 			break;
 		}
+
 	if (!r.collapsed)
 		r.deleteContents();
 	sel.removeAllRanges();
 	SC = r.startContainer;
-	if (!block) {
+
+	if (!block || /td/i.test(block.tagName) ) {
 		left = SC;
 		for (i = SC; i && i != body && !HTMLArea.isBlockElement(i); i = HTMLArea.getPrevNode(i))
 			left = i;
 		right = SC;
 		for (i = SC; i && i != body && !HTMLArea.isBlockElement(i); i = HTMLArea.getNextNode(i))
 			right = i;
-		if (left != body && right != body) {
+		if (left != body && right != body && !(block && left == block ) && !(block && right == block )) {
 			r2 = r.cloneRange();
 			r2.setStartBefore(left);
 			r2.surroundContents(block = doc.createElement("p"));
@@ -2105,26 +2130,34 @@ HTMLArea.prototype.dom_checkInsertP = function() {
 			if (!/\S/.test(HTMLArea.getInnerText(block)))
 				block.innerHTML = "<br />";
 			block.normalize();
-		} else {
-			r = doc.createRange();
-			r.setStart(body, 0);
-			r.setEnd(body, 0);
-			r.insertNode(block = doc.createElement("p"));
-			block.innerHTML = "<br />";
+		} else { 
+			if (!block) {
+				r = doc.createRange();
+				r.setStart(body, 0);
+				r.setEnd(body, 0);
+				r.insertNode(block = doc.createElement("p"));
+				block.innerHTML = "<br />";
+			} else {
+				r = doc.createRange();
+				r.setStart(block, 0);
+				r.setEnd(block, 0);
+				r.insertNode(block = doc.createElement("p"));
+				block.innerHTML = "<br />";
+			}
 		}
 		r.selectNodeContents(block);
 	} else {
 		r.setEndAfter(block);
 		var df = r.extractContents(), left_empty = false;
-  		if (!/\S/.test(block.innerHTML)) {
+		if (!/\S/.test(block.innerHTML)) {
 			block.innerHTML = "<br />";
-  			left_empty = true;
+			left_empty = true;
 		}
 		p = df.firstChild;
 		if (p) {
 			if (!/\S/.test(HTMLArea.getInnerText(p))) {
-				if (/^h[1-6]$/i.test(p.tagName))
-					p = this.convertNode(p, "p");
+ 				if (/^h[1-6]$/i.test(p.tagName))
+ 					p = this.convertNode(p, "p");
 				p.innerHTML = "<br />";
 			}
 			if (/^li$/i.test(p.tagName) && left_empty && !block.nextSibling) {
@@ -2361,7 +2394,7 @@ HTMLArea.isBlockElement = function(el) {
 };
 // Begin change by Stanislas Rolland 2004-11-24
 // Add p blockquote center ul ol li tags to the HTMLArea._closingTags list
-HTMLArea._closingTags = " head title script style div p span tr td table em i strong b code cite blockquote dfn abbr acronym font center a ul ol li object";
+HTMLArea._closingTags = " head title script style div p span tr td table em i strong b code cite blockquote dfn abbr acronym font center a ul ol li object tt";
 // End change by Stanislas Rolland 2004-11-24
 HTMLArea.needsClosingTag = function(el) {
 	return el && el.nodeType == 1 && (HTMLArea._closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
@@ -2520,12 +2553,12 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 };
 
 HTMLArea.getPrevNode = function(node) {
-	if (!node)			  return null;
+	if (!node)                return null;
 	if (node.previousSibling) return node.previousSibling;
 	if (node.parentNode)      return node.parentNode;
 	return null;
 };
-  	 
+
 HTMLArea.getNextNode = function(node) {
 	if (!node)            return null;
 	if (node.nextSibling) return node.nextSibling;
@@ -2964,6 +2997,11 @@ function initEditor(editornumber) {
 			editor.config.useHTTPS = false;
 			if(RTEarea[editornumber]["useHTTPS"]) {
 				editor.config.useHTTPS = RTEarea[editornumber]["useHTTPS"];
+			}
+
+			editor.config.disableEnterParagraphs = false;
+			if(RTEarea[editornumber]["disableEnterParagraphs"]) {
+				editor.config.disableEnterParagraphs = RTEarea[editornumber]["disableEnterParagraphs"];
 			}
 
 			editor.config.useCSS = false;

@@ -3,6 +3,7 @@
 *  Copyright notice
 *
 *  (c) 1999-2004 Kasper Skaarhoj (kasper@typo3.com)
+*  (c) 2004-2005 Stanislas Rolland (stanislas.rolland@fructifor.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -33,7 +34,6 @@
  *
  * @author	Kasper Skaarhoj <kasper@typo3.com>
  * @internal
- * Modification by Stanislas Rolland 2004-12-10 to allow style attribute on span tags
  */
 
 require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
@@ -46,8 +46,11 @@ require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
  * @package TYPO3
  * @subpackage t3lib
  * Modification by Stanislas Rolland 2004-12-10 to allow style attribute on span tags
+ * Modification by Stanislas Rolland 2005-02-10 to include hr in headListTags
  */
 class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
+
+	var $headListTags = 'PRE,UL,OL,H1,H2,H3,H4,H5,H6,HR';
 
 
 	/**

@@ -16,7 +16,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 		'noSpellCheckLanguages' => 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8',
 		'AspellDirectory' => '/usr/bin/aspell',
 		'forceCommandMode' => 0,
-		'HTMLAreaPluginList' => 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,EnterParagraphs,QuickTag,InlineCSS',
+		'HTMLAreaPluginList' => 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,QuickTag,InlineCSS',
 		'enableMozillaExtension' => 1,
 	);
 } else {
@@ -25,7 +25,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages'] = 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8';
 	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory'] = '/usr/bin/aspell';
 	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode'] = 0;
-	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,EnterParagraphs,QuickTag,InlineCSS';
+	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,QuickTag,InlineCSS';
 	if(!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'])) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'] = 1;
 }
 
@@ -81,7 +81,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 			allowTagsInTypolists = br,font,b,i,u,a,img,span
 
 			// TAGS ALLOWED
-			allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
+			allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt
 
 			// TAGS DENIED
 			denyTags >
@@ -96,7 +96,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 			HTMLparser_rte {
 
 				// TAGS ALLOWED
-				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
+				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt
 
 				// DO NOT REMOVE UNMATCHED TAGS
 				keepNonMatchedTags = 1
@@ -106,7 +106,10 @@ if ($_EXTCONF["enableAllOptions"])  {
 			HTMLparser_db {
 
 				// TAGS ALLOWED
-				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
+				allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font, tt
+
+				// NO ATTRIBUTES ALLOWED ON THESE TAGS
+				noAttrib = b,i,u,br,center,sub,sup,strong,em,blockquote,strike,tt
 
 				// DO NOT REMOVE UNMATCHED TAGS
 				keepNonMatchedTags = 1
@@ -187,9 +190,6 @@ if ($_EXTCONF["enableAllOptions"])  {
 
 				// TAGS ALLOWED
 				allowTags = h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, a, img, nobr, hr, center
-
-				// DO NOT REMOVE UNMATCHED TAGS
-				keepNonMatchedTags = 1
 			}
 
 			// CONTENT TO DATABASE
@@ -198,8 +198,8 @@ if ($_EXTCONF["enableAllOptions"])  {
 				// TAGS ALLOWED
 				allowTags = h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, a, img, nobr, hr, center
 
-				// DO NOT REMOVE UNMATCHED TAGS
-				keepNonMatchedTags = 1
+				// NO ATTRIBUTES ALLOWED ON THESE TAGS
+				noAttrib = b,i,u,br,center,sub,sup,strong,em,blockquote,strike,tt
 			}
 		}
 	}

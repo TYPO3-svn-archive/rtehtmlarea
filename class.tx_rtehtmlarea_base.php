@@ -157,7 +157,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'7' =>	'36 pt',
 		);
 
-	var $pluginList = 'InlineCSS, DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag';
+//	var $pluginList = 'InlineCSS, DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag';
+	var $pluginList = 'InlineCSS, DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag';
+
 	var $pluginButton = array(
 		'InlineCSS' 	=> 'textstyle',
 		'DynamicCSS' 	=> 'blockstyle',
@@ -582,7 +584,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		if($this->thisConfig['disableContextMenu']) $hidePlugins[] = 'ContextMenu';
 		if($this->thisConfig['disableSelectColor']) $hidePlugins[] = 'SelectColor';
 		if($this->thisConfig['disableTYPO3Browsers']) $hidePlugins[] = 'TYPO3Browsers';
-		if($this->thisConfig['disableEnterParagraphs']) $hidePlugins[] = 'EnterParagraphs';
+//		if($this->thisConfig['disableEnterParagraphs']) $hidePlugins[] = 'EnterParagraphs';
 
 		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
 
@@ -692,12 +694,13 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 */
 	function registerRTEinJS($number) {
 		global $LANG, $CLIENT;
+
 		$registerRTEinJSString = '
 			RTEarea['.$number.'] = new Array();
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
 			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
-
+			RTEarea['.$number.']["disableEnterParagraphs"] = ' . (trim($this->thisConfig['disableEnterParagraphs'])?'true':'false') . ';
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
 			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';
@@ -889,7 +892,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	function buildJSMainLangArray() { 
 
 		$JSLanguageArray .= 'var HTMLArea_langArray = new Array();' . chr(10);
-		$JSLanguageArray .= 'var HTMLArea_langArray = { ' . chr(10);
+		$JSLanguageArray .= 'HTMLArea_langArray = { ' . chr(10);
 
 		$subArrays = array( 'tooltips', 'buttons' , 'msg' , 'dialogs', 'custom');
 		$subArraysIndex = 0;
@@ -1006,7 +1009,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	function makeMozillaExtension() {
 		$archivePath = PATH_site . 'uploads/tx_' . $this->ID;
 		$archiveName = $archivePath . '/typo3_' . $this->ID . '_prefs.xpi';
-		if(!file_exists($archiveName)) {
+		//if(!file_exists($archiveName)) {
 			require_once(t3lib_extMgm::extPath('rtehtmlarea').'archive_zip/Zip.php');
 			$extensionFilesPath = t3lib_extMgm::extPath($this->ID).'mozilla';
 			$this->updateMozillaUserFile($archivePath, $extensionFilesPath);
@@ -1014,7 +1017,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$params = array('remove_all_path' => true);
 			$zip = new Archive_Zip($archiveName);
 			$archiveInfo = $zip->create($extensionFiles, $params);
-		}
+		//}
 	}
 
 	function updateMozillaUserFile($archivePath,$extensionFilesPath) {
@@ -1022,7 +1025,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$inputHandle = fopen($inputFilename, 'rb');
 		$contents = fread ($inputHandle, filesize ($inputFilename));
 		fclose($inputHandle);
-		$contents = str_replace ( 'http://www.mozilla.org', ereg_replace('.*\/$', substr($this->siteURL, 0, strlen($this->siteURL)-1), $this->siteURL), $contents);
+		$contents = str_replace ( 'http://www.mozilla.org', t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST'), $contents);
 		$outputFilename = $archivePath . '/user.js';
 		$outputHandle = fopen($outputFilename,'wb');
 		fwrite($outputHandle, $contents);

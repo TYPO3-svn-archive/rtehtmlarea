@@ -4,10 +4,10 @@ const name = "user";
 const version = "1.0";
 const fileName = name + ".js";
 
-var error = initInstall(displayName, name, version);
+var error = initInstall(displayName, "/" + author + "/" + displayName, version);
 logComment("initInstall of " + displayName + " returned: " + error);
 
-var folder = getFolder("Current User");
+var folder = getFolder("Profile");
 logComment("getFolder of " + displayName + " returned: " + folder);
 setPackageFolder(folder);
 

@@ -84,7 +84,7 @@
 			if(!$safe_mode_is_enabled && (!$this->pspell_is_available || $this->forceCommandMode)) {
 				$AspellVersionString = explode('Aspell', shell_exec( $this->AspellDirectory.' -v'));
 				$AspellVersion = substr( $AspellVersionString[1], 0, 4);
-				if( floatval($AspellVersion) < floatval('0.6') && (!$this->pspell_is_available || $this->forceCommandMode)) echo('Configuration problem: Aspell version too old. Spell checking cannot be performed in command mode');
+				if( floatval($AspellVersion) < floatval('0.5') && (!$this->pspell_is_available || $this->forceCommandMode)) echo('Configuration problem: Aspell version too old. Spell checking cannot be performed in command mode');
 			}
 
 				// Setting the list of dictionaries
