@@ -3,6 +3,8 @@
 *  Copyright notice
 *
 *  (c) 2004 Kasper Skaarhoj (kasper@typo3.com)
+*  (c) 2004 Philipp Borgmann <philipp.borgmann@gmx.de>
+*  (c) 2004 Stanislas Rolland <stanislas.rolland@fructifor.com>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -29,7 +31,7 @@
  * RTE implements HTMLarea
  *
  * @author	Philipp Borgmann <philipp.borgmann@gmx.de>
- * @coauthor Stanislas Rolland <stanislas.rolland@fructifor.com>
+ * @coauthor	Stanislas Rolland <stanislas.rolland@fructifor.com>
  */
 
 /**
@@ -60,32 +62,15 @@
  * add a locallang.php file for each subarray of the main language array and generate the JS language array with function buildJSMainLangArray()
  * add a new SelectColor htmlArea plugin to integrate the color selection wizard
  * integrate plugin InsertSmiley
- * integrate plugin SearchAndReplace
+ * integrate plugin FindReplace
+ * add enableWordClean RTE PageConfig property
+ * rely on Static Tables for language code conversions
+ * integrate RemoveFormat plugin
  */
-
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
- *
- *   58: class tx_rte_base extends t3lib_rteapi
- *   74:     function isAvailable()
- *  104:     function drawRTE(&$pObj,$table,$field,$row,$PA,$specConf,$thisConfig,$RTEtypeVal,$RTErelPath,$thePidValue)
- *
- * TOTAL FUNCTIONS: 2
- * (This index is automatically created/updated by the extension "extdeveval")
- *
- */
-
 
 require_once(PATH_t3lib.'class.t3lib_rteapi.php');
 require_once(PATH_t3lib.'class.t3lib_cs.php');
-/**
- * RTE implements HTMLarea
- *
- * @author	Philipp Borgmann <philipp.borgmann@gmx.de>
- * @package TYPO3
- */
+
 class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	
 	// Config for the supported browser
@@ -246,8 +231,28 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 			"about" 		=> "about"
 		);
 
-//	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, DynamicCSS, FullPage, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat';
-	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, DynamicCSS, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat';
+	var $defaultParagraphs = array(
+		'p' =>	'Normal',
+		'h1' =>	'Heading 1',
+		'h2' =>	'Heading 2',
+		'h3' =>	'Heading 3',
+		'h4' =>	'Heading 4',
+		'h5' =>	'Heading 5',
+		'h6' =>	'Heading 6',
+		'pre' => 'Preformatted',
+		);
+
+	var $defaultFontSizes = array(
+		'1' =>	'8 pt',
+		'2' =>	'10 pt',
+		'3' =>	'12 pt',
+		'4' =>	'14 pt',
+		'5' =>	'18 pt',
+		'6' =>	'24 pt',
+		'7' =>	'36 pt',
+		);
+
+	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, Indite';
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:
@@ -270,8 +275,6 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	var $thePid;
 	var $RTEsetup;
 	var $thisConfig;
-	//var $hide;
-	//var $toggleHTML;
 	var $confValues;
 	var $language;
 	var $spellCheckerLanguage;
@@ -280,7 +283,6 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	var $specConf;
 	var $toolBar = array();			// Save the buttons for the toolbar
 	var $toolbar_level_size;		// The size for each level in the toolbar:
-	var $loadDelay = 400;		// The timeout delay between initial loading if multiple instances
 
 	/**
 	 * Returns true if the RTE is available. Here you check if the browser requirements are met.
@@ -353,9 +355,14 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	function drawRTE(&$pObj,$table,$field,$row,$PA,$specConf,$thisConfig,$RTEtypeVal,$RTErelPath,$thePidValue)	{
 		global $CLIENT;
 		global $BE_USER,$LANG,$HTTP_GET_VARS,$TBE_TEMPLATE,$TCA;
+
+		$LANG->includeLLFile('EXT:' . $this->ID . '/locallang.php');
 		
 			// Draw form element:
 		if ($this->debugMode)	{	// Draws regular text area (debug mode)
+
+
+
 			$item = parent::drawRTE($pObj,$table,$field,$row,$PA,$specConf,$thisConfig,$RTEtypeVal,$RTErelPath,$thePidValue);
 		} else {	// Draw real RTE
 		
@@ -365,19 +372,19 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 			 */
 			// set the path: we need the absolut path:
 			// first get the http-path to typo3:
-			$httpTypo3Path = dirname(dirname($_SERVER['SCRIPT_NAME']));
+			$this->httpTypo3Path = dirname(dirname($_SERVER['SCRIPT_NAME']));
 
-			if (strlen($httpTypo3Path) == 1) {
-				$httpTypo3Path = "/";
+			if (strlen($this->httpTypo3Path) == 1) {
+				$this->httpTypo3Path = "/";
 			} else {
-				$httpTypo3Path .= "/";
+				$this->httpTypo3Path .= "/";
 			}
 				// Get the path to this extension:
-			$this->extHttpPath = $httpTypo3Path.t3lib_extMgm::siteRelPath($this->ID);
+			$this->extHttpPath = $this->httpTypo3Path.t3lib_extMgm::siteRelPath($this->ID);
 				// Get the Path to the script for selecting an image
 			$this->rtePathImageFile = $this->extHttpPath . 'rtepbhtmlarea_select_image.php';
 				// Get the Path to the script for create a link
-			$this->rtePathLinkFile = $httpTypo3Path . 'typo3/browse_links.php';
+			$this->rtePathLinkFile = $this->httpTypo3Path . 'typo3/browse_links.php';
 				// Get the site URL
 			$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 
@@ -469,21 +476,16 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 			 */
 			$this->toolbar_level_size = $RTEWidth;
 			$this->setToolBar();
-			
+
 			/* =======================================
-			 * LOAD JS, CSS and more
+			 * LOAD CSS, JS and more
 			 * =======================================
-			 */			
-			$pObj->additionalCode_pre['loadJSfiles'] = $this->loadJSfiles();
+			 */
 			$pObj->additionalCode_pre['loadCSS'] = '
-				<style type="text/css">
-					' .$this->loadCSS() .'
-				</style>
-			';
-			
-			$pObj->additionalJS_pre['loadJScode'] = $this->loadJScode();
-						 
-			 
+				<link rel="stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/htmlarea.css" />';
+			$pObj->additionalCode_pre['loadJSfiles'] = $this->loadJSfiles();
+			$pObj->additionalJS_pre['loadJScode'] = $this->loadJScode();		 
+
 			/* =======================================
 			 * DRAW THE EDITOR
 			 * =======================================
@@ -513,12 +515,12 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 					$height = "document.body.offsetHeight";
 					$wight = "document.body.offsetWidth";
 				}
-				
 				$pObj->additionalJS_post[] = $this->setRTEsizeByJS('RTEarea'.$pObj->RTEcounter, $height, $wight);
 			}
 			
 			// Register RTE in JS:
 			$pObj->additionalJS_post[] = $this->registerRTEinJS($pObj->RTEcounter);
+
 
 			// Set the save option for the RTE:
 			$pObj->additionalJS_submit[] = $this->setSaveRTE($pObj->RTEcounter, $pObj->formName, htmlspecialchars($PA['itemFormElName']));
@@ -526,9 +528,12 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 			// draw the textarea
 			$item = 
 				$this->triggerField($PA['itemFormElName']).'
+				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
+				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden">
 				<textarea id="RTEarea'.$pObj->RTEcounter.'" rows="24" cols="80" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($RTEdivStyle).'">
 				'.t3lib_div::formatForTextarea($value).'
 				</textarea>
+				</div>
 				';
 		}
 
@@ -543,6 +548,7 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	 * 
 	 */
 	function setToolBar() {
+
 		global $BE_USER;
 
 		//toolBar
@@ -662,7 +668,13 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 				$loadPluginCode .= $this->buildJSLangArray($plugin) . chr(10);
 				$loadPluginCode .= 'typo3LoadOnlyPlugin("' . $plugin . '");' . chr(10);
 			}
-		}			
+		}
+		if ($this->isPluginEnable('Indite')) {
+				$loadPluginCode .= 'HTMLArea.loadScript("xml/XML_Utility.js","Indite");' . chr(10);
+				$loadPluginCode .= 'HTMLArea.loadScript("xml/XML_Document.js","Indite");' . chr(10);
+				$loadPluginCode .= 'HTMLArea.loadScript("xml/DTD_Document.js","Indite");' . chr(10);
+				$loadPluginCode .= 'HTMLArea.loadScript("rules/article.js","Indite");' . chr(10);
+		}
 
 		return '
 			var conf_RTEtsConfigParams = "&RTEtsConfigParams='.rawurlencode($this->RTEtsConfigParams()).'";
@@ -680,22 +692,13 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 			.'
 			var extHttpPath = "'.$this->extHttpPath.'"; // Path to this extension
 			var rtePathImageFile = "'.$this->rtePathImageFile.'"; // Path to the php-file for selection images
-			var rtePathLinkFile = "'.$this->rtePathLinkFile.'"; // Path to the php-file for create a link
-		'
+			var rtePathLinkFile = "'.$this->rtePathLinkFile.'"; // Path to the php-file for create a link'
 			// Load the Plugins:
-			.$loadPluginCode
+			. $loadPluginCode
+			.  '
+			HTMLArea.init();
+			HTMLArea.I18N = HTMLArea_langArray;'
 		;
-	}
-
-	/**
-	 * Return the CSS-Code for formating the editor
-	 *
-	 * @return string		the CSS-Code for formating the editor
-	 */
-	function loadCSS() {
-		return '
-			@import url('. $this->extHttpPath .'htmlarea/htmlarea.css);
-		';
 	}
 
 	/**
@@ -706,11 +709,11 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	function registerRTEinJS($number) {
 		global $LANG;
 		$registerRTEinJSString = '
-			RTEarea['.$number.'] = new array();
+			RTEarea['.$number.'] = new Array();
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
 			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
-			RTEarea['.$number.']["plugin"] = new array();';
+			RTEarea['.$number.']["plugin"] = new Array();';
 		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
 		while( list(,$plugin) = each($pluginArray) ) {
 			if ($this->isPluginEnable($plugin)) {
@@ -718,23 +721,35 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["plugin"]["'.$plugin.'"] = true;';
 			}
 		}
-		if ( $this->isPluginEnable('DynamicCSS') ) {
-			if(trim($this->thisConfig['contentCSS'])) {
-				$filename = trim($this->thisConfig['contentCSS']);
-				if (substr($filename,0,4)=='EXT:')      {       // extension
-					list($extKey,$local) = explode('/',substr($filename,4),2);
-					$filename='';
-					if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
-						$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
-					}
-				} 
-				$registerRTEinJSString .= '
-			RTEarea['.$number.']["pageStyle"] = "@import url(' . $filename . ');";';
-			} else {
-				$registerRTEinJSString .= '
-			RTEarea['.$number.']["pageStyle"] = "@import url(' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamic.css);";';
+			// Setting the list of classes if specified in the RTE config
+		if (is_array($this->RTEsetup['properties']['classes.']) )  {
+			$HTMLAreaClassname = array();
+			reset($this->RTEsetup['properties']['classes.']);
+			while(list($className,$conf)=each($this->RTEsetup['properties']['classes.']))      {
+				$className=substr($className,0,-1);
+				$HTMLAreaClassname[$className] = '
+				["' . $conf['name'] . '" , "' . $conf['value'] . '"]';
 			}
 		}
+			// Setting the pageStyle
+		if(trim($this->thisConfig['contentCSS'])) {
+			$filename = trim($this->thisConfig['contentCSS']);
+			if (substr($filename,0,4)=='EXT:')      {       // extension
+				list($extKey,$local) = explode('/',substr($filename,4),2);
+				$filename='';
+				if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
+					$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
+				}
+			} elseif (substr($filename,0,1) != '/') {
+                              $filename = $this->siteURL.$filename;
+			} 
+			$registerRTEinJSString .= '
+		RTEarea['.$number.']["pageStyle"] = "' . $filename .'";';
+		} else {
+			$registerRTEinJSString .= '
+		RTEarea['.$number.']["pageStyle"] = "' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css";';
+		}
+
 		if ( $this->isPluginEnable('SelectColor') ) {
 			if(trim($this->thisConfig['disableColorPicker'])) {
 				$registerRTEinJSString .= '
@@ -782,7 +797,6 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 			}
 		}
 
-
 		if ($this->thisConfig['fontFace'] ) {
 			$HTMLAreaJSFontface = '{';
 			$HTMLAreaFontface = t3lib_div::trimExplode(',' , $this->cleanList($this->thisConfig['fontFace']));
@@ -806,27 +820,59 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 				"Times New Roman" : "Times New Roman,Times,serif",
 				"Garamond" : "Garamond",
 				"Lucida Handwriting" : "Lucida Handwriting",
-				"Courrier" : "Courrier",
+				"Courier" : "Courier",
 				"Webdings" : "Webdings",
 				"Wingdings" : "Wingdings" };';
 			$registerRTEinJSString .= '
 			RTEarea['.$number.']["fontname"] = '. $HTMLAreaJSFontface;
 		}
-
-			// Set a loading delay for multiple instances of HTMLArea on the same page in Mozilla
-		if($number == 1) {
-			$registerRTEinJSString .= '
-				RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
-				initEditor('.$number.');';
-		} else {
-			$registerRTEinJSString .= '
-				RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
-				if( HTMLArea.is_gecko) {
-					setTimeout("initEditor('.$number.');", ' . ($number-1)*$this->loadDelay . ');
-				} else {
-					initEditor('.$number.');
-				}';
+			// Paragraphs
+		$HTMLAreaParagraphs = $this->defaultParagraphs;
+		if ($this->thisConfig['hidePStyleItems'] ) {
+			$hidePStyleItems =  t3lib_div::trimExplode(',', $this->thisConfig['hidePStyleItems'], 1);
+			foreach($hidePStyleItems as $item)  unset($HTMLAreaParagraphs[strtolower($item)]);
 		}
+		$HTMLAreaJSParagraph = '{';
+		reset($HTMLAreaParagraphs);
+		$HTMLAreaParagraphIndex = 0;
+		while( list($PStyleItem,$PStyleLabel) = each($HTMLAreaParagraphs)) {
+			if($HTMLAreaParagraphIndex) { 
+				$HTMLAreaJSParagraph .= ',';
+			}
+			$HTMLAreaJSParagraph .= '
+				"' . $LANG->getLL($PStyleLabel) . '" : "' . $PStyleItem . '"';
+			$HTMLAreaParagraphIndex++;
+		}
+		$HTMLAreaJSParagraph .= '};';
+		$registerRTEinJSString .= '
+			RTEarea['.$number.']["paragraphs"] = '. $HTMLAreaJSParagraph;
+
+			// Font sizes
+		$HTMLAreaFontSizes = $this->defaultFontSizes;
+		if ($this->thisConfig['hideFontSizes'] ) {
+			$hideFontSizes =  t3lib_div::trimExplode(',', $this->thisConfig['hideFontSizes'], 1);
+			foreach($hideFontSizes as $item)  unset($HTMLAreaFontSizes[strtolower($item)]);
+		}
+		$HTMLAreaJSFontSize = '{';
+		reset($HTMLAreaFontSizes);
+		$HTMLAreaParagraphIndex = 0;
+		while( list($FontSizeItem,$FontSizeLabel) = each($HTMLAreaFontSizes)) {
+			if($HTMLAreaFontSizeIndex) { 
+				$HTMLAreaJSFontSize .= ',';
+			}
+			$HTMLAreaJSFontSize .= '
+				"' . $FontSizeLabel . '" : "' . $FontSizeItem . '"';
+			$HTMLAreaFontSizeIndex++;
+		}
+		$HTMLAreaJSFontSize .= '};';
+		$registerRTEinJSString .= '
+			RTEarea['.$number.']["fontsize"] = '. $HTMLAreaJSFontSize;
+
+		$registerRTEinJSString .= '
+			RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
+			initEditor('.$number.');
+';
+
 		return $registerRTEinJSString;
 	}
 	
@@ -834,6 +880,7 @@ class tx_rtepbhtmlarea_base extends t3lib_rteapi {
 	 * Return ture, if the plugin can loaded
 	 *
 	 * @return boolean		1 if the plugin can be loaded
+
 	 */
 	function isPluginEnable($plugin) { 
 		global $BE_USER;

@@ -14,25 +14,6 @@ function setRTEsizeByJS(divId, height, width) {
 	}
 }
 
-/** Load a HTMLarea Plugin, check the loaded language and if it's necessary, the function
-  * load the english-language file.
-  */
-function typo3LoadPlugin(pluginName, lang) {
-	var dir = _editor_url + "plugins/" + pluginName;
-	var plugin = pluginName.replace(/([a-z])([A-Z])([a-z])/g,
-					function (str, l1, l2, l3) {
-						return l1 + "-" + l2.toLowerCase() + l3;
-					}).toLowerCase() + ".js";
-	var plugin_file = dir + "/" + plugin;
-	var plugin_lang = dir + "/lang/" + lang + ".js";
-	HTMLArea._scripts.push(plugin_file, plugin_lang);
-	document.write("<script type='text/javascript' src='" + plugin_file + "'></script>");
-	document.write("<script type='text/javascript' src='" + plugin_lang + "'></script>");	
-	//this.loadScript(plugin_file);
-	//this.loadScript(plugin_lang);
-}
-
-// Begin change for typo3 locallang generated language array by Stanislas Rolland 2004-10-31
 /** Load a HTMLarea Plugin, but do not load the language file
   * because we are assigning the typo3 generated language array.
   */
@@ -44,108 +25,122 @@ function typo3LoadOnlyPlugin(pluginName) {
 					}).toLowerCase() + ".js";
 	var plugin_file = dir + "/" + plugin;
 	HTMLArea._scripts.push(plugin_file);
-	document.write("<script type='text/javascript' src='" + plugin_file + "'></script>");
-	//this.loadScript(plugin_file);
-	// the language file is assigned in the loaded plugin script
-
 }
-// End change for typo3 locallang generated language array by Stanislas Rolland 2004-10-31
 
+	// We initialize the editors when the scripts are loaded
+HTMLArea.is_loaded = false;
+HTMLArea.onload = function(){ 
+	HTMLArea.is_loaded = true;
+};
 
-/** Init each Editor, load the Editor, config the toolbar, setup the plugins and
-* call pageReady
+/** Init each Editor, load the Editor, config the toolbar, setup the plugins, etc.
 */
 function initEditor(editornumber) {
+	var self = this;
+
+	if(!HTMLArea.is_loaded) {
+		setTimeout(function() { self.initEditor(editornumber); }, 150);
+	} else {
+
 	var config = new HTMLArea.Config();
 
-	// Toolbar: need change -> typo3-Config
+		// Toolbar: need change -> typo3-Config
 	config.toolbar = RTEarea[editornumber]["toolbar"];
 
-	// create an editor for the textbox
+		// create an editor for the textbox
 	RTEarea[editornumber]["editor"] = new HTMLArea(RTEarea[editornumber]["id"], config);
-	// Save the editornumber in the Object
-	RTEarea[editornumber]["editor"]._typo3EditerNumber = editornumber;
-
-	for (var i in RTEarea[editornumber]["plugin"]) {
-		if (RTEarea[editornumber]["plugin"][i])
-			RTEarea[editornumber]["editor"].registerPlugin(i);
-	}
-	
-
-// Changed for DynamnicCSS plugin by Stanislas Rolland 2004-09-25
-	if(RTEarea[editornumber]["pageStyle"]) {
-		RTEarea[editornumber]["editor"].config.pageStyle = RTEarea[editornumber]["pageStyle"];
-	} else {
-		RTEarea[editornumber]["editor"].config.pageStyle = "body {font-family:Verdana, Arial;}";
-	}
-// Changed for DynamnicCSS plugin by Stanislas Rolland 2004-09-25
-
-// Changed to honor RTE fontFace PageTSConfig by Stanislas Rolland 2004-09-25
-	if(RTEarea[editornumber]["fontname"]) {
-		RTEarea[editornumber]["editor"].config.fontname = RTEarea[editornumber]["fontname"];
-	}
-// Changed to honor RTE fontFace PageTSConfig by Stanislas Rolland 2004-09-25
-
-// Changed to honor RTE fontsize PageTSConfig by Stanislas Rolland 2004-09-25
-	if(RTEarea[editornumber]["fontsize"]) {
-		RTEarea[editornumber]["editor"].config.fontsize = RTEarea[editornumber]["fontsize"];
-	}
-// Changed to honor RTE fontsize PageTSConfig by Stanislas Rolland 2004-09-25
-
-// Changed to honor RTE colors PageTSConfig by Stanislas Rolland 2004-10-31
-	if(RTEarea[editornumber]["colors"]) {
-		RTEarea[editornumber]["editor"].config.colors = RTEarea[editornumber]["colors"];
-	}
-// Changed to honor RTE colors PageTSConfig by Stanislas Rolland 2004-10-31
-
-// Changed to honor RTE disbleColorPicker PageTSConfig by Stanislas Rolland 2004-10-31
-	if(RTEarea[editornumber]["disableColorPicker"]) {
-		RTEarea[editornumber]["editor"].config.disableColorPicker = RTEarea[editornumber]["disableColorPicker"];
-	}
-// Changed to honor RTE disbleColorPicker PageTSConfig by Stanislas Rolland 2004-10-31
-
-	//RTEarea[editornumber]["editor"].config.width = 600;
-	RTEarea[editornumber]["editor"].config.sizeIncludesToolbar = true;
-
-// Begin change by Stanislas Rolland 2004-11-06
-// Honor RTE enableWordClean Page TSConfig
-// Set killWordOnPaste and intercept paste , dragdrop and drop events for wordClean
 	var editor = RTEarea[editornumber]["editor"];
-	if(RTEarea[editornumber]["enableWordClean"]) {
-		editor.config.killWordOnPaste = true;
-		editor.config.htmlareaPaste = true;
-		editor.onGenerate = function () {
+
+		// Save the editornumber and in the Object
+	editor._typo3EditerNumber = editornumber;
+
+	RTEarea[editornumber]["ruleSet"] = "article";
+
+	for (var plugin in RTEarea[editornumber]["plugin"]) {
+		if (RTEarea[editornumber]["plugin"][plugin]) {
+			switch (plugin) {
+				case "Indite":
+					editor.registerPlugin(plugin,RTEarea[editornumber]["ruleSet"]);
+					break;
+				default:
+					editor.registerPlugin(plugin);
+					break;
+			}
+		}
+	}
+
+	if(RTEarea[editornumber]["pageStyle"]) {
+		editor.config.pageStyle = RTEarea[editornumber]["pageStyle"];
+	}
+
+	if(RTEarea[editornumber]["fontname"]) {
+		editor.config.fontname = RTEarea[editornumber]["fontname"];
+	}
+
+	if(RTEarea[editornumber]["fontsize"]) {
+		editor.config.fontsize = RTEarea[editornumber]["fontsize"];
+	}
+
+	if(RTEarea[editornumber]["colors"]) {
+		editor.config.colors = RTEarea[editornumber]["colors"];
+	}
+
+	if(RTEarea[editornumber]["disableColorPicker"]) {
+		editor.config.disableColorPicker = RTEarea[editornumber]["disableColorPicker"];
+	}
+
+	if(RTEarea[editornumber]["paragraphs"]) {
+		editor.config.formatblock = RTEarea[editornumber]["paragraphs"];
+	}
+
+	editor.config.width = "auto";
+	editor.config.height = "auto";
+	editor.config.sizeIncludesToolbar = false;
+	editor.config.fullPage = false;
+
+	editor.config.statusBar = true;
+
+	if(HTMLArea.is_ie && editor.config.statusBar) {
+		editor._customUndo = true;
+	}
+
+	editor.onGenerate = function () {
+			// IE does not like automatic sizing
+		if(HTMLArea.is_ie) {
+			var size = editor._textArea.style.width;
+			editor._toolbar.style.width = size;
+			editor._statusBar.style.width = size;
+		}
+			// Set killWordOnPaste and intercept paste , dragdrop and drop events for wordClean
+		if(RTEarea[editornumber]["enableWordClean"]) {
+			editor.config.killWordOnPaste = true;
+			editor.config.htmlareaPaste = true;
 			HTMLArea._addEvents (HTMLArea.is_ie ? editor._doc.body : editor._doc, ["paste","dragdrop","drop"], 
 				function (event) { 
 					if (editor.config.killWordOnPaste) { 
 						setTimeout(function() { 
-							editor._wordClean();
+							editor._wordClean(editor._doc.body);
 						}, 250);
 					}
 				}
 			);
-		};
-	} else {
-		editor.config.killWordOnPaste = false;
-	}
-// End change by Stanislas Rolland 2004-11-06
+		} else {
+			editor.config.killWordOnPaste = false;
+		}
+		document.getElementById('pleasewait' + editornumber).style.display='none';
+		document.getElementById('editorWrap' + editornumber).style.visibility='visible';
+	};
 
-	RTEarea[editornumber]["editor"].generate();
-	
-	// Set the size of the toolbar and statusBar, because IE has problem with automatik size
-	if(HTMLArea.is_ie) {
-		var size = RTEarea[editornumber]["editor"]._textArea.style.width;
-		RTEarea[editornumber]["editor"]._toolbar.style.width = size;
-		RTEarea[editornumber]["editor"]._statusBar.style.width = size;
-	}
+	editor.generate();
 
 	return false;
-}
+	}
+};
 
 /** Hit the Popup */
 function edHidePopup() {
 	Dialog._modal.close();
-}
+};
 
 
 /*

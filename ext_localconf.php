@@ -12,7 +12,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 				'noSpellCheckLanguages' => 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8',
 				'AspellDirectory' => '/usr/bin/aspell',
 				'forceCommandMode' => 0,
-				'HTMLAreaPluginList' => 'TableOperations,SpellChecker,ContextMenu,DynamicCSS,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace',
+				'HTMLAreaPluginList' => 'DynamicCSS,TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,Indite,RemoveFormat',
 		);
 } else {
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList'] = 'en';
@@ -20,7 +20,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages'] = 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8';
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory'] = '/usr/bin/aspell';
 		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode'] = 0;
-		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'TableOperations,SpellChecker,ContextMenu,DynamicCSS,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace';
+		if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'TableOperations,SpellChecker,ContextMenu,DynamicCSS,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,Indite,RemoveFormat';
 }
 
 // regarding 'noSpellCheckLanguages', see http://aspell.net/man-html/Unsupported.html#Unsupported
@@ -28,7 +28,7 @@ if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
 
 t3lib_extMgm::addUserTSConfig('
 		setup.default.edit_RTE = 1
-		options.HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, DynamicCSS, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace
+		options.HTMLAreaPluginList = DynamicCSS, TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat
 		options.HTMLAreaPspellMode = normal
 		options.RTEkeyList = fontstyle,fontsize,formatblock,bold,italic,underline,strikethrough,superscript,subscript,left,center,right,justifyfull,lefttoright,righttoleft,orderedlist,unorderedlist,outdent,indent,textcolor,bgcolor,textindicator,line,link,image,table,chMode,copy,cut,paste,undo,redo,about
 		');
@@ -40,15 +40,17 @@ t3lib_extMgm::addUserTSConfig('
 // Preserving <table>-html tags by default
 t3lib_extMgm::addPageTSConfig('
 		RTE.default.proc.preserveTables = 1
-		RTE.default.contentCSS = EXT:$_EXTKEY/htmlarea/plugins/DynamicCSS/dynamiccss.css
+		RTE.default.contentCSS = EXT:' . $_EXTKEY . '/htmlarea/plugins/DynamicCSS/dynamiccss.css
 		RTE.default.enableWordClean = 1
 		RTE.default.showButtons =  *
 		RTE.default.hideButtons =
+		RTE.default.hidePStyleItems =
+		RTE.default.hideFontSizes =
 		RTE.default.proc.overruleMode = ts_css
 		RTE.defaultproc.entryHTMLparser_db.allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, img, nobr, hr, center, font
 
 		## Setting these defaults for the eventual front end RTE:
-		RTE.default.HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, DynamicCSS, InsertSmiley, FindReplace
+		RTE.default.HTMLAreaPluginList = SpellChecker, ContextMenu, InsertSmiley, FindReplace
 		RTE.default.HTMLAreaPspellMode = normal
 		');
 
