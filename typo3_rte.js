@@ -87,20 +87,17 @@ function initEditor(editornumber) {
 		editor.config.sizeIncludesToolbar = false;
 		editor.config.fullPage = false;
 
-		editor.config.statusBar = true;
+		editor.config.useHTTPS = false;
+		if(RTEarea[editornumber]["useHTTPS"]) {
+			editor.config.useHTTPS = RTEarea[editornumber]["useHTTPS"];
+		}
 
+		editor.config.statusBar = true;
 		if(HTMLArea.is_ie && editor.config.statusBar) {
 			editor._customUndo = true;
 		}
 
 		editor.onGenerate = function () {
-
-				// IE does not like automatic sizing
-			if(HTMLArea.is_ie) {
-				var size = editor._textArea.style.width;
-				editor._toolbar.style.width = size;
-				editor._statusBar.style.width = size;
-			}
 
 				// Set killWordOnPaste and intercept paste , dragdrop and drop events for wordClean
 			if(RTEarea[editornumber]["enableWordClean"]) {
