@@ -1,3 +1,10 @@
+2004-12-13  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Correction to link update
+	* Correction to interface between SelectColor and QuickTag plugins
+	* New showStatusBar property
+	* New minimal/full options configuration check box
+	* Documentation of version 0.4.10
+
 2004-12-12  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* New QuickTag plugin and hideTags config property
 	* Documentation of version 0.4.9
