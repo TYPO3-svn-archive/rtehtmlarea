@@ -686,6 +686,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
 			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
+			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
+			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';
 			RTEarea['.$number.']["plugin"] = new Array();';
 		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
 		while( list(,$plugin) = each($pluginArray) ) {
