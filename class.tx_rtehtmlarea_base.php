@@ -249,6 +249,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	var $spellCheckerLanguage;
 	var $spellCheckerCharset;
 	var $spellCheckerMode;
+	var $quickTagHideTags;
 	var $specConf;
 	var $toolBar = array();			// Save the buttons for the toolbar
 	var $toolbar_level_size;		// The size for each level in the toolbar:
@@ -422,6 +423,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				if( !in_array($this->spellCheckerMode, $this->spellCheckerModes)) {
 					$this->spellCheckerMode = 'normal';
 				}
+			}
+
+			if( $this->isPluginEnable('QuickTag') && trim($this->thisConfig['hideTags'])) {
+				$this->quickTagHideTags = implode(',', t3lib_div::trimExplode(',', $this->thisConfig['hideTags'], 1));
 			}
 			
 			// Setting style: for the div-Tag
@@ -625,6 +630,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			_spellChecker_lang = "' . $this->spellCheckerLanguage . '";
 			_spellChecker_charset = "' . $this->spellCheckerCharset . '";
 			_spellChecker_mode = "' . $this->spellCheckerMode . '";
+			_quickTag_hideTags = "' . $this->quickTagHideTags . '";
 			' . $this->buildJSMainLangArray() . '
 		</script>
 		<script type="text/javascript" src="' . $this->extHttpPath . 'htmlarea/htmlarea.js"></script>

@@ -16,6 +16,8 @@
 var allTags = {
 'a': 'a',
 'a (full)': 'a href="" target=""',
+'abbr': 'abbr',
+'acronym': 'acronym',
 'address': 'address',
 'b': 'b',
 'big': 'big',

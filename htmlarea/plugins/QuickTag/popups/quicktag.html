@@ -8,6 +8,7 @@
 window.resizeTo(400, 130);
 var HTMLArea = window.opener.HTMLArea;
 var QuickTag = window.opener.QuickTag;
+var _quickTag_hideTags = window.opener._quickTag_hideTags;
 var i18n = QuickTag.I18N;
 var curTag = 'none';
 var curTagOpt = false;
@@ -202,7 +203,7 @@ function choice_dropdown(e) {
 
   if(Key != 32) return;
   
-var text = document.getElementById('tagopen').value.replace(/^\s*([^\s]+)\s*$/,"$1");
+  var text = document.getElementById('tagopen').value.replace(/^\s*([^\s]+)\s*$/,"$1");
     
   if(CSSEdit && quoteTest(text)) CSSEdit = false;
   if(CSSEdit) return;
@@ -218,11 +219,11 @@ var text = document.getElementById('tagopen').value.replace(/^\s*([^\s]+)\s*$/,"
   return;
   }
 
-var att = 'all';
+  var att = 'all';
   if(curTagOpt == true) 
     att = curTag;
 
-createDropdown(att);
+  createDropdown(att);
 };
 
 function createDropdown(type) {
@@ -237,14 +238,14 @@ _sel.onchange = function() { selchange(); };
   
   if(typeof type == 'object') {
   var obj = type;
-  forObj(i18n["OPTIONS"]);
+  forObj(i18n["OPTIONS"],'options');
   _div.appendChild(_sel);
   return;
   }
   
   if(type == 'tags') {
   var obj = allTags;
-  forObj(i18n["TAGs"]);
+  forObj(i18n["TAGs"],'tags');
   _div.appendChild(_sel);
   return;
   }
@@ -254,21 +255,23 @@ var topt = eval('opTag_'+type);
   if(typeof topt == 'object') var obj = topt;
   else return;
 
-forObj(i18n["ATTRIBUTES"]);
-_div.appendChild(_sel);
+  forObj(i18n["ATTRIBUTES"],'attributes');
+  _div.appendChild(_sel);
 
-  function forObj(first) {
+  function forObj(first,type) {
     if(first) {
     var _op = document.createElement("option");
     _op.appendChild(document.createTextNode(first));
     _sel.appendChild(_op);
     }
-    for(i in obj) {
-    var opt = document.createElement("option");
-    opt.appendChild(document.createTextNode(i));
-    opt.value = obj[i];
-    _sel.appendChild(opt);
-    }
+	for(i in obj) {
+		if( type != 'tags' || _quickTag_hideTags.indexOf(i) == -1 ) {
+			var opt = document.createElement("option");
+			opt.appendChild(document.createTextNode(i));
+			opt.value = obj[i];
+			_sel.appendChild(opt);
+		}
+	}
   };
 };
 
@@ -287,7 +290,7 @@ Dialog._return = function (val) {
 };
 
 function colors() {
-// Begin change for TYPO3 ColorSelect by Stanislas Rolland 2004-11-08
+// Begin change for TYPO3 ColorSelect by Stanislas Rolland 2004-12-08
 		var selectColorPlugin = editor.plugins.SelectColor;
 		if (selectColorPlugin) selectColorPlugin = selectColorPlugin.instance;
 		if (selectColorPlugin) {
