@@ -1,9 +1,11 @@
-<html>
+<html class="popupwin">
 <head>
 	<title>Select Color</title>
 	<script type="text/javascript" src="popup.js"></script>
 	<script type="text/javascript">
 		HTMLArea = window.opener.HTMLArea;
+		_editor_CSS = window.opener._editor_CSS;
+		__dlg_loadStyle(_editor_CSS);
 		var i18n = window.opener.HTMLArea.I18N.dialogs;
 
 function Init() {  // run on page load

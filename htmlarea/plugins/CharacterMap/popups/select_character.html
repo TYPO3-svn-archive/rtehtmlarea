@@ -2,12 +2,14 @@
 <head>
 	<title>Insert special character</title>
 	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<link rel="stylesheet" href="../../../htmlarea.css" />
+	<!--<link rel="stylesheet" href="../../../htmlarea.css" />-->
 	<script type="text/javascript" src="../../../popups/popup.js"></script>
 	<script type="text/javascript">
 			// HTMLSource based on HTMLArea XTD 1.5 (http://mosforge.net/projects/htmlarea3xtd/) modified by Holger Hees
 			// Original Author - Bernhard Pfeifer novocaine@gmx.net
 		HTMLArea = window.opener.HTMLArea;
+		_editor_CSS = window.opener._editor_CSS;
+		__dlg_loadStyle(_editor_CSS);
 		CharacterMap = window.opener.CharacterMap;
 
 		function Init() {
@@ -47,9 +49,9 @@
 <form method="get" style="margin:2px; padding:2px" onSubmit="Set(document.getElementById('showCharacter').value); return false;">
 <table border="0" cellspacing="0" cellpadding="4" width="100%">
 	<tr>
-		<td style="background: Buttonface" valign="center"><div style="padding: 1px; white-space: nowrap; font-family: tahoma,arial,sans-serif; font-size: 11px; font-weight: normal;">HTML value:<div id="characterPreview"></div></div></td>
-		<td style="background: Buttonface" valign="center"><input type="text" name="showcharacter" id="showCharacter" value="" size="15" style="background: #fff; font-size: 11px;" /></td>
-		<td style="background: Buttonface" width="100%"></td>
+		<td valign="center"><div style="padding: 1px; white-space: nowrap; font-family: tahoma,arial,sans-serif; font-size: 11px; font-weight: normal;">HTML value:<div id="characterPreview"></div></div></td>
+		<td valign="center"><input type="text" name="showcharacter" id="showCharacter" value="" size="15" style="background: #fff; font-size: 11px;" /></td>
+		<td width="100%"></td>
 	</tr>
 </table>
 <table border="0" cellspacing="1" cellpadding="0" width="100%" style="cursor: pointer; background: #ADAD9C; border: 1px inset;">

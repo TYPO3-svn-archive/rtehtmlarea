@@ -290,5 +290,7 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 
 		if(select.options.length>1) select.disabled = false;
 		else select.disabled = true;
+		select.className = "";
+		if(select.disabled) select.className = "buttonDisabled";
 	}
 };

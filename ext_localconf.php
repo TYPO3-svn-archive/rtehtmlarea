@@ -5,31 +5,18 @@ if (!defined ("TYPO3_MODE")) 	die ("Access denied.");
 $TYPO3_CONF_VARS[TYPO3_MODE]["XCLASS"]["t3lib/class.t3lib_parsehtml_proc.php"]=t3lib_extMgm::extPath($_EXTKEY)."class.ux_t3lib_parsehtml_proc.php";
 
 if(!$TYPO3_CONF_VARS['BE']['RTEenabled'])  $TYPO3_CONF_VARS['BE']['RTEenabled'] = 1;
-
 $TYPO3_CONF_VARS['BE']['RTE_reg'][$_EXTKEY] = array('objRef' => 'EXT:'.$_EXTKEY.'/class.tx_rtehtmlarea_base.php:&tx_rtehtmlarea_base');
 
-if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY])) {
-		// regarding 'noSpellCheckLanguages', see http://aspell.net/man-html/Unsupported.html#Unsupported
-	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY] = array( 
-		'dictionaryList' => 'en', 
-		'defaultDictionary' => 'en',
-		'noSpellCheckLanguages' => 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8',
-		'AspellDirectory' => '/usr/bin/aspell',
-		'forceCommandMode' => 0,
-		'HTMLAreaPluginList' => 'TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,QuickTag,InlineCSS,DynamicCSS',
-		'enableMozillaExtension' => 1,
-	);
-} else {
-	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList'] = 'en';
-	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['defaultDictionary']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['defaultDictionary'] = 'fr';
-	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages'] = 'ja,km,ko,lo,th,zh,b5,gb,ja-enc,ja-jis,ja-sjis,ja-utf8';
-	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory'] = '/usr/bin/aspell';
-	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode'] = 0;
-	if(!$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList']) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = 'TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,QuickTag,InlineCSS,DynamicCSS';
-	if(!isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'])) $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'] = 1;
-}
-
 $_EXTCONF = unserialize($_EXTCONF);    // unserializing the configuration so we can use it here:
+
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableAllOptions'] = $_EXTCONF["enableAllOptions"] ? $_EXTCONF["enableAllOptions"] : 0;
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'] = $_EXTCONF["enableMozillaExtension"] ? $_EXTCONF["enableMozillaExtension"] : 0;
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode'] = $_EXTCONF["forceCommandMode"] ? $_EXTCONF["forceCommandMode"] : 0;
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['dictionaryList'] = $_EXTCONF["dictionaryList"] ? $_EXTCONF["dictionaryList"] : 'en';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['defaultDictionary'] = $_EXTCONF["defaultDictionary"] ? $_EXTCONF["defaultDictionary"] : 'en';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['AspellDirectory'] = $_EXTCONF["AspellDirectory"] ? $_EXTCONF["AspellDirectory"] : '/usr/bin/aspell';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['noSpellCheckLanguages'] = $_EXTCONF["noSpellCheckLanguages"] ? $_EXTCONF["noSpellCheckLanguages"] : 'ja,km,ko,lo,th,zh,b5,gb';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['HTMLAreaPluginList'] = $_EXTCONF["HTMLAreaPluginList"] ? $_EXTCONF["HTMLAreaPluginList"] : 'TableOperations,SpellChecker,ContextMenu,SelectColor,TYPO3Browsers,InsertSmiley,FindReplace,RemoveFormat,CharacterMap,QuickTag,InlineCSS,DynamicCSS';
 
 if ($_EXTCONF["enableAllOptions"])  {
 
@@ -45,6 +32,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 	t3lib_extMgm::addPageTSConfig('
 	RTE {
 			## Default RTE configuration
+		default.skin = EXT:' . $_EXTKEY . '/htmlarea/skins/default/htmlarea.css
 		default.contentCSS = EXT:' . $_EXTKEY . '/htmlarea/plugins/DynamicCSS/dynamiccss.css
 		default.enableWordClean = 1
 		default.useCSS = 1
@@ -116,6 +104,9 @@ if ($_EXTCONF["enableAllOptions"])  {
 
 				// DO NOT REMOVE UNMATCHED TAGS
 				keepNonMatchedTags = 1
+
+				// XHTML COMPLIANCE
+				xhtml_cleaning = 1
 			}
 		}
 			## tt_content RTE configuration
@@ -140,6 +131,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 	//Default RTE configuration
 	t3lib_extMgm::addPageTSConfig('
 	RTE {
+		default.skin = EXT:' . $_EXTKEY . '/htmlarea/skins/default/htmlarea.css
 		default.contentCSS = EXT:' . $_EXTKEY . '/htmlarea/plugins/DynamicCSS/dynamiccss.css
 		default.enableWordClean = 1
 		default.useCSS = 1
@@ -174,6 +166,7 @@ if ($_EXTCONF["enableAllOptions"])  {
 
 			// TAGS ALLOWED OUTSIDE P & DIV
 			allowTagsOutside = 
+
 
 			// TAGS ALLOWED IN TYPOLISTS
 			allowTagsInTypolists = br,font,b,i,u,a,img,span

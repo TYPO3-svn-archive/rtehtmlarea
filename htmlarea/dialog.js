@@ -51,11 +51,6 @@ Dialog._geckoOpenModal = function(url, action, init, width, height, _opener, edi
 		return false;
 	};
 
-		// suspend editor events
-	if(_opener == editor._iframe.contentWindow) { 
-		editor.editorEventSuspend();
-	}
-
 		// capture focus events
 	function capwin(w) {
 		if(HTMLArea.is_gecko) {
@@ -79,9 +74,6 @@ Dialog._geckoOpenModal = function(url, action, init, width, height, _opener, edi
 			try { for (var i = 0; i < w.frames.length; i++) { relwin(w.frames[i]); }; } catch(e) { };
 		};
 		relwin(window);
-
-			// resume editor events
-		if(_opener == editor._iframe.contentWindow) { editor.editorEventResume(); }
 
 		HTMLArea._removeEvent(window, "unload", function() { if(Dialog._dialog && Dialog._dialog.dialogWindow) { Dialog._dialog.dialogWindow.close(); Dialog._dialog = null; };  dlg.close(); return false; });
 		Dialog._dialog = null;

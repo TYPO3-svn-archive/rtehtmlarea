@@ -54,7 +54,11 @@ PopupWin.prototype._geckoOpenModal = function(editor, _title, handler, initFunct
 	var link = doc.createElement("link");
 	link.rel = "stylesheet";
 	link.type ="text/css";
-	link.href = _typo3_host_url + ((typeof _editor_css != "undefined") ? editor_css : (_editor_url + "htmlarea.css"));
+	if( _editor_CSS.indexOf("http") == -1 ) {
+		link.href = _typo3_host_url + _editor_CSS;
+	} else {
+		link.href = _editor_CSS;
+	}
 	head.appendChild(link);
 	if(!doc.all) html.appendChild(head);
 	var body = doc.body;
@@ -121,9 +125,6 @@ PopupWin.prototype.captureEvents = function() {
 		}
 		for (var i = 0; i < w.frames.length; i++) { capwin(w.frames[i]); }
 	};
-		// suspend editor events
-	if(_opener == editor._iframe.contentWindow) { editor.editorEventSuspend(); }
-
 	capwin(window);
 
 		// capture unload events
@@ -149,10 +150,6 @@ PopupWin.prototype.releaseEvents = function() {
 			try { for (var i = 0; i < w.frames.length; i++) { relwin(w.frames[i]); }; } catch(e) { };
 		};
 		relwin(window);
-
-			// resume editor events
-		if(_opener == editor._iframe.contentWindow) { editor.editorEventResume(); }
-
 		PopupWin._removeEvent(_opener, "unload", function() { self.releaseEvents(); self.close(); return false; });	
 	}
 };

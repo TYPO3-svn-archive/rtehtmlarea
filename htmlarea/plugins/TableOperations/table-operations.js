@@ -125,6 +125,17 @@ TableOperations.prototype.dialogTableProperties = function() {
 			    case "f_rules":
 				table.rules = (val != "not set") ? val : "";
 				break;
+			    case "f_class":
+				if(val != 'none'){
+					table.className = val;
+				} else if(table.className) {
+					if(HTMLArea.is_gecko) {
+						table.removeAttribute('class');
+					} else {
+						table.removeAttribute('className');
+					}
+				}
+				break;
 			}
 		}
 		dialog.editor.forceRedraw();
@@ -143,6 +154,11 @@ TableOperations.prototype.dialogTableProperties = function() {
 	function (dialog) {
 		TableOperations.buildTitle(dialog.doc, i18n, dialog.content, "Table Properties");
 		TableOperations.buildDescriptionFieldset(dialog.doc, table, i18n, dialog.content);
+		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
+		if (obj && obj.loaded) {
+			var cssArray = obj.cssArray;
+			TableOperations.buildStylingFieldset(dialog.doc, table, i18n, dialog.content, cssArray);
+		}
 		TableOperations.buildLayoutFieldset(dialog.doc, table, i18n, dialog.content);
 		TableOperations.buildAlignmentFieldset(dialog.doc, table, i18n, dialog.content, "floating");
 		TableOperations.buildSpacingFieldset(dialog.doc, table, i18n, dialog.content);
@@ -151,7 +167,7 @@ TableOperations.prototype.dialogTableProperties = function() {
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement();
-	}, 520, 560);
+	}, 520, 585);
 };
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
@@ -176,6 +192,17 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 			    case "f_valign":
 				element.vAlign = val;
 				break;
+			    case "f_class":
+				if(val != 'none'){
+					element.className = val;
+				} else if(element.className) {
+					if(HTMLArea.is_gecko) {
+						element.removeAttribute('class');
+					} else {
+						element.removeAttribute('className');
+					}
+				}
+				break;
 			}
 		}
 		dialog.editor.forceRedraw();
@@ -193,15 +220,22 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		// this function gets called when the dialog needs to be initialized
 	function (dialog) {
 		TableOperations.buildTitle(dialog.doc, i18n, dialog.content, (cell ? "Cell Properties" : "Row Properties"));
-		TableOperations.insertSpace(dialog.doc,dialog.content);
+		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
+		if (obj && obj.loaded) {
+			var cssArray = obj.cssArray;
+			TableOperations.buildStylingFieldset(dialog.doc, element, i18n, dialog.content, cssArray);
+		} else {
+			TableOperations.insertSpace(dialog.doc,dialog.content);
+		}
 		TableOperations.buildLayoutFieldset(dialog.doc, element, i18n, dialog.content, "floating");
 		TableOperations.buildAlignmentFieldset(dialog.doc, element, i18n, dialog.content);
 		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, i18n, dialog.content);
 		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, i18n, dialog.content);
 		dialog.addButtons("ok", "cancel");
 		dialog.modal = true;
-		if(!HTMLArea.is_gecko) dialog.showAtElement();
-	   }, 560, 345);
+		//if(!HTMLArea.is_gecko) dialog.showAtElement();
+		dialog.showAtElement();
+	   }, 560, 380);
 	}
 };
 
@@ -716,6 +750,45 @@ TableOperations.buildDescriptionFieldset = function(doc,el,i18n,content) {
 	TableOperations.insertSpace(doc, fieldset);
 	content.appendChild(fieldset);
 };
+TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
+	var tagName = el.tagName.toLowerCase();
+	var cssLabels = new Array();
+	var cssClasses = new Array();
+	cssLabels[0] = i18n["Default"];
+	cssClasses[0] = "none";
+	var selected = el.className;
+	var found = false, i = 1, cssClass;
+	if(cssArray[tagName]) {
+		for(cssClass in cssArray[tagName]){
+			if(cssClass != "none") {
+				cssLabels[i] = cssArray[tagName][cssClass];
+				cssClasses[i] = cssClass;
+				if(cssClass == selected) found = true;
+				i++;
+			} else {
+				cssLabels[0] = cssArray[tagName][cssClass];
+			}
+		}
+	}
+	if(cssArray['all']){
+		for(cssClass in cssArray['all']){
+			cssLabels[i] = cssArray['all'][cssClass];
+			cssClasses[i] = cssClass;
+			if(cssClass == selected) found = true;
+			i++;
+		}
+	}
+	if(selected && !found) {
+		cssLabels[i] = i18n["Undefined"];
+		cssClasses[i] = selected;
+	}
+	var fieldset = doc.createElement("fieldset");
+	TableOperations.insertLegend(doc, i18n, fieldset, "CSS Style");
+	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_class", "Class:", "fr", "floating", "Class selector", cssLabels, cssClasses, new RegExp((selected ? selected : "none"), "i"), "", false);
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
+};
 TableOperations.buildLayoutFieldset = function(doc,el,i18n,content,fieldsetClass) {
 	var select;
 	var selected;
@@ -921,7 +994,8 @@ TableOperations.buildInput = function(doc,el,i18n,fieldset,fieldName,fieldLabel,
 		if(fields) fields.push(label);
 	}
 };
-TableOperations.buildSelectField = function(doc,el,i18n,fieldset,fieldName,fieldLabel,labelClass,selectClass,fieldTitle,options,values,selected,fields) {
+TableOperations.buildSelectField = function(doc,el,i18n,fieldset,fieldName,fieldLabel,labelClass,selectClass,fieldTitle,options,values,selected,fields,translateOptions) {
+	if(typeof translateOptions == "undefined") var translateOptions = true;
 		// Field Label
 	if(fieldLabel) {
 		var label = doc.createElement("div");
@@ -940,10 +1014,16 @@ TableOperations.buildSelectField = function(doc,el,i18n,fieldset,fieldName,field
 	for (var i = 0; i < options.length; ++i) {
 		option = doc.createElement("option");
 		option.value = values[i];
-		option.innerHTML = i18n[options[i]];
+		if(translateOptions) {
+			option.appendChild(doc.createTextNode(i18n[options[i]]));
+		} else {
+			option.appendChild(doc.createTextNode(options[i]));
+		}
 		option.selected = selected.test(option.value);
 		select.appendChild(option);
 	}
+	if(select.options.length>1) select.disabled = false;
+	else select.disabled = true;
 	fieldset.appendChild(select);
 	if(fields) fields.push(select);
 	return select;

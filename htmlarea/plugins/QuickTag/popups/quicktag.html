@@ -2,11 +2,13 @@
 <head>
 	<title>Quick Tag Editor</title>
 	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<link rel="stylesheet" href="../../../htmlarea.css" />
+	<!--<link rel="stylesheet" href="../../../htmlarea.css" />-->
 	<script type="text/javascript" src="../tag-lib.js"></script>
 	<script type="text/javascript" src="../../../popups/popup.js"></script>
 	<script type="text/javascript">
 		HTMLArea = window.opener.HTMLArea;
+		_editor_CSS = window.opener._editor_CSS;
+		__dlg_loadStyle(_editor_CSS);
 		var QuickTag = window.opener.QuickTag;
 		var _quickTag_hideTags = window.opener._quickTag_hideTags;
 		var i18n = QuickTag.I18N;

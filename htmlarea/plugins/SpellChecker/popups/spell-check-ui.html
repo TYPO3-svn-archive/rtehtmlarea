@@ -9,41 +9,31 @@
 
    $Id$
 -->
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html class="popupwin" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>Spell Checker</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="../../../htmlarea.css" />
+	<!--<link rel="stylesheet" href="../../../htmlarea.css" />-->
 	<script type="text/javascript" src="../spell-check-ui.js"></script>
 	<script type="text/javascript" src="../../../popups/popup.js"></script>
 	<script type="text/javascript">
 		HTMLArea = window.opener.HTMLArea;
+		_editor_CSS = window.opener._editor_CSS;
+		__dlg_loadStyle(_editor_CSS);
 	</script>
 	<style type="text/css">
-		html, body { margin: 0px; padding: 0px; background: ButtonFace; color: ButtonText; border-width: 0px; font: 11px Tahoma,Verdana,sans-serif; }
-		body { padding: 5px; }
-		.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px; border-bottom: 1px solid black; letter-spacing: 2px; }
-		a:link, a:visited { color: #00f; text-decoration: none; }
-		a:hover { color: #f00; text-decoration: underline; }
-		table { background-color: ButtonFace; color: ButtonText; font-family: tahoma,verdana,sans-serif; font-size: 11px; }
 		iframe { background-color: #fff; color: #000; height: 100%; width: 100%; }
 		.controls { width: 14em; }
 		.controls .sectitle { /* background-color: #736c6c; color: #fff;
 		border-top: 1px solid #000; border-bottom: 1px solid #fff; */
 		text-align: center; font-weight: bold; padding: 2px 4px; }
 		.controls .secbody { margin-bottom: 10px; }
-		button, select { font-family: tahoma,verdana,sans-serif; font-size: 11px; }
-		button { width: 9em; padding: 0px; }
-		input, select { font-family: fixed,"andale mono",monospace; }
 		#v_currentWord { color: #f00; font-weight: bold; }
 		#statusbar { padding: 7px 0px 0px 5px; }
 		#status { font-weight: bold; }
-		#b_recheck { 
-			width: 12em;
-		}
 	</style>
 </head>
-<body onload="initDocument();">
+<body class="popupwin" onload="initDocument();">
 
     <!-- 2004-09-08 Stanislas Rolland: redirected the action of the form to spell-check-logic.php -->
     <!-- 2004-09-16 Stanislas Rolland: added fields charset and pspell_mode -->
@@ -55,7 +45,7 @@
 		<input type="hidden" name="pspell_mode" id="f_pspell_mode" />
 		<input type="hidden" name="init" id="f_init" value="1" />
 	</form>
-	<table style="height: 100%; width: 100%; border-collapse: collapse;" cellspacing="0" cellpadding="0">
+	<table class="popupwin" style="height: 100%; width: 100%; border-collapse: collapse;" cellspacing="0" cellpadding="0">
 	<tr>
         <td colspan="2">
 		<div class="title" style="width: 100%; padding: 2px;">Spell Checker</div>

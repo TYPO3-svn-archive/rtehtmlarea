@@ -11,7 +11,7 @@
 // Toolbar: Add tooltip on select boxes
 // Toolbar: Revise all event handlers, avoid anonymous functions
 // Statusbar: Revise all event handlers, avoid anonymous functions
-// Cleanup: unhook event handlers and release undo stack
+// Cleanup: unhook many event handlers and release undo stack
 // Generate function: re-written to make it almost DOM only and solve many loading problems
 // Config: add various configuration variables (useCSS, disableEnterParagraphs, etc.)
 // Browser: special initialization for Mozilla 1.3.1 on Mac OS 9
@@ -23,8 +23,14 @@ if (typeof _editor_url == "string") {
 	alert("WARNING: _editor_url is not set!  You should set this variable to the editor files path; it should preferably be an absolute path, like in '/htmlarea/', but it can be relative if you prefer.  Further we will try to load the editor files correctly but we'll probably fail.");
 	_editor_url = '';
 }
-
-// make sure we have a language
+if (typeof _editor_skin != "string") {
+	_editor_skin = _editor_url + "skins/default/";
+} else {
+	_editor_skin = _editor_skin.replace(/\x2f*$/, '/');
+}
+if (typeof _editor_CSS != "string") {
+	_editor_CSS = _editor_url + "skins/default/htmlarea.css";
+}
 if (typeof _editor_lang == "string") {
 	_editor_lang = _editor_lang.toLowerCase();
 } else {
@@ -81,9 +87,7 @@ HTMLArea.init = function() {
 	var savetitle = document.title;
 	var evt = HTMLArea.is_ie ? "onreadystatechange" : "onload";
 	function loadNextScript() {
-		if (current > 0 && HTMLArea.is_ie &&
-		    !/loaded|complete/.test(window.event.srcElement.readyState))
-			return;
+		if (current > 0 && HTMLArea.is_ie && !/loaded|complete/.test(window.event.srcElement.readyState)) return;
 		if (current < HTMLArea._scripts.length) {
 			var url = HTMLArea._scripts[current++];
 			document.title = "[HTMLArea: loading script " + current + "/" + HTMLArea._scripts.length + "]";
@@ -278,7 +282,7 @@ HTMLArea.Config = function () {
 		// initialize tooltips from the I18N module and generate correct image path
 	for (var i in this.btnList) {
 		var btn = this.btnList[i];
-		btn[1] = _editor_url + this.imgURL + btn[1];
+		btn[1] = _editor_skin + this.imgURL + btn[1];
 		if (typeof HTMLArea.I18N.tooltips[i] != "undefined") {
 			btn[0] = HTMLArea.I18N.tooltips[i];
 		}
@@ -651,7 +655,6 @@ HTMLArea.prototype._createStatusBar = function() {
 };
 
 // Creates the HTMLArea object and replaces the textarea with it.
-// Substantially rewritten by Stanislas Rolland November-December 2004
 HTMLArea.prototype.generate = function () {
 	var editor = this;
 
@@ -706,7 +709,6 @@ HTMLArea.prototype.generate = function () {
 	} else {
 		iframe.setAttribute("src", "javascript:void(0);");
 	}
-	iframe.style.borderWidth = "0px";
 	htmlarea.appendChild(iframe);
 	this._iframe = iframe;
 
@@ -730,12 +732,11 @@ HTMLArea.prototype.generate = function () {
 		width = width + "px";
 	}
 	iframe.style.width = width;
-	if(this.config.width == "auto") iframe.style.width = "100%";
+	//if(this.config.width == "auto") iframe.style.width = "100%";
 	iframe.style.height = height;
 
-	textarea.style.width = iframe.style.width;
-	textarea.style.margin = "0px";
-	textarea.style.border = "0px";
+//	textarea.style.width = iframe.style.width;
+	textarea.style.height = iframe.style.height;
 
 		// IMPORTANT: we have to allow the browser a short time to recognize the new iframe and it's document.
 	function initIframe() {
@@ -792,8 +793,8 @@ HTMLArea.prototype.generate = function () {
 			}
 
 			if (!editor.config.fullPage) {
-				doc.body.style.border = iframe.style.border;
-				doc.body.style.width = doc.body.clientWidth - 2;
+				doc.body.style.borderWidth = "0px";
+				//doc.body.style.width = (doc.body.clientWidth - 2) + "px";
 				doc.body.innerHTML = editor._textArea.value;
 			}
 
@@ -815,6 +816,7 @@ HTMLArea.prototype.generate = function () {
 
 				// Set editor number in iframe and document for retrival in event handlers
 			doc._editorNo = editor._typo3EditerNumber;
+			if(HTMLArea.is_ie) doc.documentElement._editorNo = editor._typo3EditerNumber;
 				// intercept some events for updating the toolbar & keyboard handlers
 			//HTMLArea._addEvents(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], editor._editorEvent);
 			HTMLArea._addEvents(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], HTMLArea._editorEvent);
@@ -881,7 +883,9 @@ HTMLArea.prototype.setMode = function(mode) {
 		this._iframe.style.display = "none";
 		this._textArea.style.display = "block";
 		if (this.config.statusBar) {
-			this._statusBar.innerHTML = HTMLArea.I18N.msg["TEXT_MODE"];
+			//this._statusBar.innerHTML = HTMLArea.I18N.msg["TEXT_MODE"];
+			this._statusBar.innerHTML = '';
+			this._statusBar.appendChild(document.createTextNode(HTMLArea.I18N.msg["TEXT_MODE"]));
 		}
 		break;
 	    case "wysiwyg":
@@ -895,7 +899,6 @@ HTMLArea.prototype.setMode = function(mode) {
 		if (HTMLArea.is_gecko) this._doc.designMode = "on";
 		if (this.config.statusBar) {
 			this._statusBar.innerHTML = '';
-			// this._statusBar.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
 			this._statusBar.appendChild(this._statusBarTree);
 		}
 		break;
@@ -957,7 +960,7 @@ HTMLArea.prototype.registerPlugin2 = function(plugin, args) {
 	if (typeof plugin == "string")
 		plugin = eval(plugin);
 	if (typeof plugin == "undefined") {
-		/* FIXME: This should never happen. But why does it do? */
+		alert("Can't register undefined plugin.");
 		return false;
 	}
 	var obj = new plugin(this, args);
@@ -989,21 +992,23 @@ HTMLArea.loadPlugin = function(pluginName) {
 	document.write("<script type='text/javascript' src='" + plugin_lang + "'></script>");	
 };
 
-HTMLArea.loadStyle = function(style, plugin) {
-	var url = _editor_url || '';
-	if (typeof plugin != "undefined") {
-		url += "plugins/" + plugin + "/";
+HTMLArea.loadStyle = function(style, plugin, url) {
+	if(typeof url == "undefined") {
+		var url = _editor_url || '';
+		if (typeof plugin != "undefined") {
+			url += "plugins/" + plugin + "/";
+		}
+		url += style;
+		if (/^\//.test(style))
+			url = style;
 	}
-	url += style;
-	if (/^\//.test(style))
-		url = style;
 	var head = document.getElementsByTagName("head")[0];
 	var link = document.createElement("link");
 	link.rel = "stylesheet";
 	link.href = url;
 	head.appendChild(link);
 };
-HTMLArea.loadStyle(typeof _editor_css == "string" ? _editor_css : "htmlarea.css");
+HTMLArea.loadStyle('','',_editor_CSS);
 
 /***************************************************
  *  Category: EDITOR UTILITIES
@@ -1206,6 +1211,7 @@ HTMLArea.prototype.redo = function() {
 
 // updates enabled/disable/active state of the toolbar elements
 HTMLArea.prototype.updateToolbar = function(noStatus) {
+	var editor = this;
 	var doc = this._doc;
 	var text = (this._editMode == "textmode");
 	var ancestors = null;
@@ -1219,7 +1225,9 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 					if(i.nodeName.toLowerCase() == "a") HTMLArea._removeEvents(i, ["click", "contextmenu"], HTMLArea.statusBarHandler);
 				}
 			}
-			this._statusBarTree.innerHTML = HTMLArea.I18N.msg["Path"] + ": "; // clear
+//			this._statusBarTree.innerHTML = HTMLArea.I18N.msg["Path"] + ": "; // clear
+			this._statusBarTree.innerHTML = '';
+			this._statusBarTree.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": ")); // clear
 			for (i = ancestors.length; --i >= 0;) {
 				var el = ancestors[i];
 				if (!el) {
@@ -1536,6 +1544,7 @@ HTMLArea.prototype.selectNode = function(node) {
 	editor.focusEditor();
 	editor.forceRedraw();
 	if (HTMLArea.is_ie) {
+			//FIXME: Fails to select the full contents of table, ol and ul
 		var range = editor._doc.body.createTextRange();
 		range.moveToElementText(node);
 		range.select();
@@ -1547,7 +1556,6 @@ HTMLArea.prototype.selectNode = function(node) {
 		sel.addRange(range);
 	}
 };
-
 
 // Inserts HTML code at the current position. Deletes the selection, if any.
 HTMLArea.prototype.insertHTML = function(html) {
@@ -1582,6 +1590,11 @@ HTMLArea.prototype.getSelectedHTML = function() {
 	var range = this._createRange(sel);
 	var existing = null;
 	if (HTMLArea.is_ie) {
+		if(sel.type.toLowerCase() == "control") {
+			this.selectNodeContents(range(0));
+			sel = this._getSelection();
+			range = this._createRange(sel);
+		}
 		existing = range.htmlText;
 	} else {
 		existing = HTMLArea.getHTML(range.cloneContents(), false, this);
@@ -1736,19 +1749,14 @@ HTMLArea.prototype._insertTable = function() {
 	var editor = this;	// for nested functions
 	editor.focusEditor();
 	editor._popupDialog("insert_table.html", function(param) {
-		if (!param) {	// user must have pressed Cancel
-			return false;
-		}
+		if (!param) { return false; } // user must have pressed Cancel
 		var doc = editor._doc;
-		// create the table element
+			// create the table element
 		var table = doc.createElement("table");
-		// assign the given arguments
-
+			// assign the given arguments
 		for (var field in param) {
 			var value = param[field];
-			if (!value) {
-				continue;
-			}
+			if (!value) { continue; }
 			switch (field) {
 				case "f_width"   : table.style.width = value + param["f_unit"]; break;
 				case "f_align"   : table.style.textAlign = value; break;
@@ -1787,10 +1795,10 @@ HTMLArea.prototype._insertTable = function() {
 			}
 		}
 		editor.focusEditor();
+			// insert the table
 		if (HTMLArea.is_ie) {
 			range.pasteHTML(table.outerHTML);
 		} else {
-			// insert the table
 			editor.insertNodeAtSelection(table);
 		}
 		editor.forceRedraw();
@@ -1928,17 +1936,21 @@ HTMLArea._editorEvent = function(ev) {
 	if (!ev) var ev = window.event;
 	var target = (ev.target) ? ev.target : ev.srcElement;
 	var owner = (target.ownerDocument) ? target.ownerDocument : target;
+	while (HTMLArea.is_ie && owner.parentElement ) { // IE5.5 does not report any ownerDocument
+		owner = owner.parentElement;
+	}
 	var editor = RTEarea[owner._editorNo]["editor"];
 	var keyEvent = (HTMLArea.is_ie && ev.type == "keydown") || (!HTMLArea.is_ie && ev.type == "keypress");
 	editor.focusEditor();
 
-	if (keyEvent)
+	if (keyEvent) {
 		for (var i in editor.plugins) {
 			var plugin = editor.plugins[i].instance;
-			if (typeof plugin.onKeyPress == "function")
-				if (plugin.onKeyPress(ev))
-					return false;
+			if (typeof plugin.onKeyPress == "function") {
+				if (plugin.onKeyPress(ev)) return false;
+			}
 		}
+	}
 	if (keyEvent && ev.ctrlKey && !ev.altKey) {
 		var sel = null;
 		var range = null;
@@ -1985,14 +1997,25 @@ HTMLArea._editorEvent = function(ev) {
 			if (HTMLArea.is_ie)
 				value = "<" + value + ">";
 			break;
+		    case '-':  // Soft hyphen
+			editor.focusEditor();
+			editor.insertHTML('&shy;');
+			HTMLArea._stopEvent(ev);
+			break;
 		}
 		if (cmd) {
 			// execute simple command
 			editor.execCommand(cmd, false, value);
 			HTMLArea._stopEvent(ev);
 		}
-	}
-	else if (keyEvent) {
+/*
+		if (ev.keyCode == 45) { // Soft hyphen
+			editor.focusEditor();
+			editor.insertHTML('&shy;');
+			HTMLArea._stopEvent(ev);
+		}
+*/
+	} else if (keyEvent) {
 		// other keys here
 		switch (ev.keyCode) {
 		    case 13: // KEY enter
@@ -2236,14 +2259,10 @@ HTMLArea.prototype.setDoctype = function(doctype) {
 
 HTMLArea.prototype.editorEventResume = function() {
 	var editor = this;
-	//HTMLArea._addEvents(editor._doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], editor._editorEvent);
-	//HTMLArea._addEvents(editor._doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], HTMLArea._editorEvent);
 };
 
 HTMLArea.prototype.editorEventSuspend = function() {
 	var editor = this;
-	//HTMLArea._removeEvents(editor._doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], editor._editorEvent);
-	//HTMLArea._removeEvents(editor._doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], HTMLArea._editorEvent);
 };
 
 /***************************************************
@@ -2491,13 +2510,10 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 // End change by Stanislas Rolland 2004-12-10
 						}
 					}
-				} else { // IE fails to put style in attributes list
-					// FIXME: cssText reported by IE is UPPERCASE
+				} else { // IE fails to put style in attributes list. cssText reported by IE is UPPERCASE
 					value = root.style.cssText;
 				}
-				if (/(_moz|^$)/.test(value)) {
-					// Mozilla reports some special tags
-					// here; we don't need them.
+				if (/(_moz|^$)/.test(value)) { // Mozilla reports some special tags here; we don't need them.
 					continue;
 				}
 // Begin change by Stanislas Rolland 2004-12-22
@@ -2642,10 +2658,12 @@ HTMLArea.prototype._popupDialog = function(url, action, init, width, height, _op
 // paths
 
 HTMLArea.prototype.imgURL = function(file, plugin) {
-	if (typeof plugin == "undefined")
-		return _editor_url + file;
-	else
-		return _editor_url + "plugins/" + plugin + "/img/" + file;
+	if (typeof plugin == "undefined") {
+		return _editor_skin  + this.config.imgURL + file;
+	} else {
+//return _editor_images + "plugins/" + plugin + "/img/" + file;
+		return _editor_skin + this.config.imgURL + plugin + "/" + file;
+	}
 };
 
 HTMLArea.prototype.popupURL = function(file) {
@@ -2685,15 +2703,10 @@ HTMLArea.getElementById = function(tag, id) {
 /** Set the size of textarea with the RTE. It's called, if we are in fullscreen-mode.
  */
 function setRTEsizeByJS(divId, height, width) {
-	height = height - 20;
-	if(HTMLArea.is_ie) height = height - 60
-	if(HTMLArea.is_ie) width = width - 40
-	if (height > 0) {
-		document.getElementById(divId).style.height =  height + "px";
-	}
-	if (width > 0) {
-		document.getElementById(divId).style.width = width + "px";
-	}
+	if(HTMLArea.is_ie) { width = width - 2; } else {width = width - 7;}
+	if(HTMLArea.is_ie) { height = height - 60; } else { height = height - 30; }
+	if (height > 0) { document.getElementById(divId).style.height =  height + "px"; }
+	if (width > 0) { document.getElementById(divId).style.width = width + "px"; }
 };
 
 /** Hit the Popup */
@@ -2701,9 +2714,7 @@ function edHidePopup() {
 	Dialog._modal.close();
 };
 
-/** Load a HTMLarea Plugin, but do not load the language file
-  * because we are assigning the typo3 generated language array.
-  */
+// Load a HTMLarea Plugin, but do not load the language file because we are assigning the TYPO3 generated language array.
 function typo3LoadOnlyPlugin(pluginName) {
 	var dir = _editor_url + "plugins/" + pluginName;
 	var plugin = pluginName.replace(/([a-z])([A-Z])([a-z])/g,
@@ -2716,20 +2727,17 @@ function typo3LoadOnlyPlugin(pluginName) {
 
 function updateToolbarRestore() {
 	var editor = RTEarea[activEditerNumber]["editor"];
-	
 	editor.updateToolbar = saveUpdateToolbar;
 	saveUpdateToolbar = null;
 };
 
 function updateToolbarRemove() {
 	var editor = RTEarea[activEditerNumber]["editor"];
-	
 	if (editor.updateToolbar != updateToolbarRestore) {
 		saveUpdateToolbar = editor.updateToolbar;
 		editor.updateToolbar = updateToolbarRestore;
 	}
 };
-
 
 /** IE-Browsers strip URLs to relative URLs. But for the backend wo need absolut URLs.
  *  This function overload the normal stripBaseURL-function (which generate relative URLs).
@@ -2739,9 +2747,7 @@ HTMLArea.prototype.nonStripBaseURL = function(url) {
 };
 
 /*
-*  CreateLink: Typo3-RTE function, use this instead the orignal.
-*  This is a HTMLArea object function.
-*  Open the Typo3 Link-Window
+*  CreateLink: Typo3-RTE function, use this instead of the original.
 */
 HTMLArea.prototype.renderPopup_link = function() {
 	var editor = this;
@@ -2792,10 +2798,8 @@ HTMLArea.prototype.renderPopup_link = function() {
 	return false;
 };
 
-/**
-*  Insite Image: Typo3-RTE function, use this instead the orignal.
-*  This is a HTMLArea object function.
-*  Open the Typo3 Image-Window: The php-file is in the orignal rte-extension
+/*
+*  Insert Image: Typo3-RTE function, use this instead of the original.
 */
 HTMLArea.prototype.renderPopup_image = function() {
 	var editor = this;
@@ -2848,10 +2852,10 @@ function renderPopup_insertImage(image) {
 */
 function renderPopup_addLink(theLink,cur_target,cur_class) {
 	var editor = RTEarea[activEditerNumber]["editor"];
+	var a, sel = null;
 	editor.focusEditor();
 
 	if(!HTMLArea.is_ie) {
-		var sel = null;
 		var text = null;
 		sel = editor.getParentElement();
 		if (sel == null || sel.tagName.toUpperCase() != "A") {
@@ -2865,18 +2869,33 @@ function renderPopup_addLink(theLink,cur_target,cur_class) {
 
 	editor._doc.execCommand("createlink", false, theLink);
 
-	var a = editor.getParentElement();
-	if (!HTMLArea.is_ie && !a) {
-		var sel = editor._getSelection();
-		var range = editor._createRange(sel);
-		a = range.startContainer;
-		if (!/^a$/i.test(a.tagName))
-			a = a.nextSibling;
-	}
-	
-	if (a) {
-		a.target = cur_target.trim();
-		a.className = cur_class.trim();
+	sel = editor._getSelection();
+	var range = editor._createRange(sel);
+	a = editor.getParentElement();
+	if(a) {
+/*
+		if (!HTMLArea.is_ie) {
+			a = range.startContainer;
+			if (!/^a$/i.test(a.tagName)) {
+				a = a.nextSibling;
+				if (a == null) a = range.startContainer.parentNode;
+			}
+		}
+*/
+			// we may have created multiple links in as many blocks
+		function setLinkAttributes(node) {
+			if (/^a$/i.test(node.tagName)) {
+				if((HTMLArea.is_gecko && range.intersectsNode(node)) || (HTMLArea.is_ie)) {
+					node.target = cur_target.trim();
+					node.className = cur_class.trim();
+				}
+			} else {
+				for (var i = node.firstChild; i; i = i.nextSibling) {
+					if(i.nodeType == 1 || i.nodeType == 11) setLinkAttributes(i);
+				}
+			}
+		};
+		setLinkAttributes(a);
 	}
 	
 	Dialog._modal.close();
@@ -2939,7 +2958,7 @@ function initEditor(editornumber) {
 
 			var config = new HTMLArea.Config();
 
-				// Toolbar: need change -> typo3-Config
+				// Get the toolbar config
 			config.toolbar = RTEarea[editornumber]["toolbar"];
 
 				// create an editor for the textarea

@@ -345,6 +345,7 @@ $LOCAL_LANG = Array (
 		'target_popUpWindow' => 'Avaa ikkunassa',
 		'target_popUpWindow_width' => 'Leveys',
 		'target_popUpWindow_height' => 'Korkeus',
+		'anchor_class' => 'Tyyli',
 		'newWindow' => 'Uusi ikkuna',
 		'top' => 'Alkuun',
 		'none' => 'Ei mitään - uusi linkki!',
@@ -944,6 +945,12 @@ $LOCAL_LANG = Array (
 	'jp' => Array (
 	),
 	'vn' => Array (
+	),
+	'ca' => Array (
+	),
+	'ba' => Array (
+	),
+	'kr' => Array (
 	),
 );
 ?>

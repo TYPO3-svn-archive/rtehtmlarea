@@ -13,10 +13,10 @@
 /* Selectors for the editor toolbar */
 .htmlarea .toolbar {
 	cursor: default;
-	background-color: ButtonFace;
+	background-color: #e4e0db;
 	padding: 1px 1px 2px 1px;
-	border: 1px solid;
-	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
+	border: 1px solid #e4e0db;
+	border-bottom: 1px solid #000;
 }
 .htmlarea .toolbar table { 
 	width: 100%;
@@ -28,7 +28,7 @@
 	font-family: tahoma,verdana,sans-serif; 
 	font-size: 11px; 
 	height: 22px; 
-	background-color: ButtonFace; 
+	background-color: #e4e0db; 
 	clear: right;
 	float: left;
 }
@@ -36,7 +36,7 @@
 	font-family: tahoma,verdana,sans-serif; 
 	font-size: 11px; 
 	height: 22px; 
-	background-color: ButtonFace; 
+	background-color: #e4e0db; 
 	float: left;
 }
 .htmlarea .toolbar img { 
@@ -44,12 +44,12 @@
 }
 .htmlarea .toolbar .label { 
 	padding: 4px 3px 0px 3px; 
-	background-color: ButtonFace; 
+	background-color: #e4e0db; 
 }
 .htmlarea .toolbar .button {
-	background-color: ButtonFace;
+	background-color: #e4e0db;
 	color: ButtonText;
-	border: 1px solid ButtonFace;
+	border: 1px solid #e4e0db;
 	padding: 1px;
 	margin: 0px;
 	width: 18px;
@@ -57,7 +57,7 @@
 }
 .htmlarea .toolbar .buttonHover { 
 	border: 1px solid; 
-	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight; 
+	border-color: #e4e0db #999999 #999999 #e4e0db; 
 }
 .htmlarea .toolbar .buttonActive {
 	padding: 2px 0px 0px 2px;
@@ -67,7 +67,7 @@
 .htmlarea .toolbar .buttonPressed {
 	padding: 2px 0px 0px 2px;
 	border: 1px solid;
-	border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
+	border-color: #999999 #e4e0db #e4e0db #999999;
 	background-color: ButtonHighlight;
 }
 .htmlarea .toolbar .indicator {
@@ -85,12 +85,11 @@
 }
 .htmlarea .toolbar .separator {
 	position: relative;
-	margin: 3px;
+	margin: 0px 3px 0px 3px;
 	padding: 0px;
-	border-left: 1px solid ButtonShadow;
-	border-right: 1px solid ButtonHighlight;
+	border-left: 1px solid #999;
 	width: 0px;
-	height: 16px;
+	height: 20px;
 }
 .htmlarea .toolbar .space { 
 	padding: 2px;
@@ -102,6 +101,17 @@
 .htmlarea .toolbar select, .htmlarea .toolbar select:hover, .htmlarea .toolbar select:active { 
 	background: FieldFace; 
 	color: ButtonText; 
+}
+.htmlarea .toolbar .buttonDisabled select { 
+	background-color: #e4e0db;
+}
+.htmlarea .toolbar select.buttonDisabled { 
+	background-color: #e4e0db;
+}
+.htmlarea iframe {
+	margin: 0px;
+	border: 1px solid #000;
+	border-top: 0px;
 }
 .htmlarea .statusBar {
 	border: 1px solid;
@@ -142,13 +152,13 @@
 
 /* Selectors for popup windows */
 .popupwin { 
-	background-color: ButtonFace; 
+	background-color: #e4e0db;
 	color: ButtonText; 
 	font-size: 11px; 
 	font-family: Tahoma,Verdana,sans-serif; 
 }
 .popupwin body { 
-	background-color: ButtonFace; 
+	background-color: #e4e0db;
 	color: ButtonText; 
 	font-size: 11px; 
 	font-family: Tahoma,Verdana,sans-serif; 
@@ -228,6 +238,7 @@
 	font: 11px Tahoma,Verdana,sans-serif; 
 }
 .popupwin button { 
+	background-color: #e4e0db;
 	width: 8em; 
 	padding: 0px; 
 }

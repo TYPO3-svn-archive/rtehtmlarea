@@ -30,6 +30,14 @@ function comboSelectValue(c, val) {
 	c.value = val;
 };
 
+function __dlg_loadStyle(url) {
+	var head = document.getElementsByTagName("head")[0];
+	var link = document.createElement("link");
+	link.rel = "stylesheet";
+	link.href = url;
+	head.appendChild(link);
+}
+
 function __dlg_init(bottom,noResize) {
 	var body = document.body;
 	window.focus();

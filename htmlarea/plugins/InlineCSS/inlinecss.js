@@ -337,4 +337,6 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 		}
 	}
 	select.disabled = !(select.options.length>1) || !(/\w/.test(selTrimmed)) || !(endPointsInSameBlock);
+	select.className = "";
+	if(select.disabled) select.className = "buttonDisabled";
 };

@@ -50,6 +50,7 @@ $LOCAL_LANG = Array (
 		'TEXT_MODE' => 'U bent in de TEKST MODE. Gebruik de [<>] knop om terug te schakelen naar WYSIWYG.',
 		'IE-sucks-full-screen' => 'De volledige scherm modus in combinatie met Internet Explorer levert problemen op door fouten die wij niet hebben kunnen omzijlen. U ziet mogelijk een verkeerde weergave, beperkte functies en/of willekeurige vastlopen van de browser. Als u een windows 9x systeem gebruikt, dan is het zeer waarschijnlijk dat u een \'Algemene toepassingsfout\' zult  krijgen en opnieuw zult moeten opstarten.\\n\\n U bent dus gewaarschuwd. Druk op OK als u toch wil proberen in volledige scherm modes te werken.',
 		'Moz-Clipboard' => 'Niet geautoriseerde scripts kunnen vanwege veiligheidsredenen geen geautomatiseerde toegang krijgen tot knippen, kopieren en plakken. Klik OK om een technische beschrijving op mozilla.org te lezen over goe een script toegang gegeven kan worden tot het klembord.',
+		'Moz-Extension' => 'In verband met de veiligheid kunnen niet geautoriseerde applicaties geen toegang krijgen tot het clipboard. Klik op OK om een component te installeren welke toegang mag krijgen tot het clipboard van deze TYPO3 site.',
 	),
 	'cz' => Array (
 	),
@@ -62,6 +63,10 @@ $LOCAL_LANG = Array (
 		'TEXT_MODE' => 'Olet TEXT MODE tilassa. Käytä [<>] näppäintä siirtyksesi takaisin WYSIWYG tilaan.',
 		'IE-sucks-full-screen' => 'Koko ikkuna tilan tiedetään aiheuttavan ongelmia Internet Explorerissa, koska selaimessa olevia virheitä emme ole kyenneet ohjelmallisesti korjaamaan. Voit saada roskaa näytölle, muokkaimen toimintoja voi puuttua ja satunnaisesti voi ohjelma kaatua. Jos järjestelmäsi on Windows 9x on todennäköistä että saat \'Yleinen järjestelmä virhe\'/\'General Protection Fault\' virheilmoituksen ja sinun on käynnistettävä laitteistosi uudestaan.\\n\\nOlemme varoittaneet Sinua. Ole hyvä ja paina OK jos kaikesta huolimatta haluat kokeilla täyden näytön muokkausta.',
 		'Moz-Clipboard' => 'Etuoikeudettomat skriptit eivät voi käyttää leikkaa/kopioi/liitä toimintoja ohjelmallisesti turvallisuussyistä. Näpsäytä OKta nähdäksesi teknisen huomautuksen mozilla.org sivuilla, joka näyttää sinulle kuinka voit sallia skriptin käyttävän leikepöytää.',
+		'Moz-Extension' => 'Turvallisuud syistä, eivät etuoikeudettomat sovellukset saa käyttää leikepöytää. Näpsäytä OK asentaaksesi komponentin joka oikeuttaa sovellutusten käyttää tätä Typo3 sivustoa leikepöydän käsittelyssä ja suoritta kopiointi, leikkaa ja liitä komentoja.',
+		'Moz-Extension-Success' => 'Installointi onnistui. Sinun tulee käynnistää selain uudestaan, jotta muutokset tulisivat voimaan.',
+		'Moz-Extension-Failure' => 'Valitan, installointi epäonnistui.',
+		'Moz-Extension-Install-Not-Enabled' => 'Installointia ei voida suorittaa. Ole ystävällinen ja muuta selaimesi oletuksia salliaksesi ohjelmiston installoinnin tältä TYPO3 sivustolta.',
 	),
 	'tr' => Array (
 	),

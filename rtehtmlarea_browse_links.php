@@ -123,7 +123,6 @@ if( strstr(MY_PATH_thisScript, 'typo3conf') ) {
 }
 
 $BACK_PATH = '../../../typo3/';
-$BACK_PATH = '../../../typo3/';
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 require_once (PATH_t3lib.'class.t3lib_browsetree.php');
@@ -728,9 +727,9 @@ class tx_rtehtmlarea_browse_links {
 			var cur_target="'.($this->setTarget?$this->setTarget:'').'";
 			var cur_class="'.($this->setClass?$this->setClass:'').'";
 
-			function setTarget(target)	{
-				cur_target=target;
-				add_target="&curUrl[target]="+escape(target);
+			function setTarget(value)	{
+				cur_target=value;
+				add_target="&curUrl[target]="+escape(value);
 			}
 			function setClass(value)	{
 				cur_class=value;
@@ -1368,6 +1367,7 @@ class tx_rtehtmlarea_browse_links {
 			$_MOD_MENU = array('displayThumbs' => '');
 			$_MCONF['name']='file_list';
 			$_MOD_SETTINGS = t3lib_BEfunc::getModuleData($_MOD_MENU, t3lib_div::_GP('SET'), $_MCONF['name']);
+
 			$addParams = '&act='.$this->act.'&mode='.$this->mode.'&expandFolder='.rawurlencode($path).'&bparams='.rawurlencode($this->bparams);
 			$thumbNailCheck = t3lib_BEfunc::getFuncCheck('','SET[displayThumbs]',$_MOD_SETTINGS['displayThumbs'],'browse_links.php',$addParams).' '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.php:displayThumbs',1);
 		} else {

@@ -239,6 +239,7 @@ $LOCAL_LANG = Array (
 		'images' => 'Kuvat',
 		'magicImage_msg' => 'Magic moodissa voit valita minkä kokoisen kuvan tahansa. Kuva muutetaan automaattisesti sivulle sopivaksi.',
 		'plainImage_msg' => 'Tavallisessa moodissa voit lisätä vain (JPG, GIF ja PNG) maksimissaan 640x480 pikseliä olevia kuvia. Näiden kuvien tulee olla etukäteen sovitettu www-käyttöön-',
+		'class' => 'Tyyli',
 		'width' => 'Leveys',
 		'height' => 'Korkeus',
 		'border' => 'Raja',

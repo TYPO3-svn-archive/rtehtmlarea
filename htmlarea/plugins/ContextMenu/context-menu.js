@@ -15,7 +15,7 @@
 // Assign language array generated from TYPO3 locallang file
 // Patch when window scrolling for Mozilla
 
-HTMLArea.loadStyle("menu.css", "ContextMenu");
+//HTMLArea.loadStyle("menu.css", "ContextMenu");
 ContextMenu.I18N = ContextMenu_langArray;
 
 function ContextMenu(editor) {
@@ -35,11 +35,7 @@ ContextMenu._pluginInfo = {
 
 ContextMenu.prototype.onGenerate = function() {
 	var self = this;
-	var doc = this.editordoc = this.editor._iframe.contentWindow.document;
-	HTMLArea._addEvents(doc, ["contextmenu"],
-			    function (event) {
-				    return self.popupMenu(HTMLArea.is_ie ? self.editor._iframe.contentWindow.event : event);
-			    });
+	HTMLArea._addEvent(this.editor._doc, "contextmenu", function(ev) {self.popupMenu(ev); });
 	this.currentMenu = null;
 };
 
@@ -288,7 +284,8 @@ ContextMenu.prototype.getContextMenu = function(target) {
 
 ContextMenu.prototype.popupMenu = function(ev,target) {
 	var self = this;
-	if(!target) var target = HTMLArea.is_ie ? ev.srcElement : ev.target;
+	if (!ev) var ev = window.event;
+	if(!target) var target = (ev.target) ? ev.target : ev.srcElement;
 	var i18n = ContextMenu.I18N;
 	if (this.currentMenu)
 		this.currentMenu.parentNode.removeChild(this.currentMenu);
@@ -333,9 +330,9 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 		self.currentMenu.parentNode.removeChild(self.currentMenu);
 		self.currentMenu = null;
 		HTMLArea._removeEvent(document, "mousedown", documentClick);
-		HTMLArea._removeEvent(self.editordoc, "mousedown", documentClick);
+		HTMLArea._removeEvent(self.editor._doc, "mousedown", documentClick);
 		if (keys.length > 0)
-			HTMLArea._removeEvent(self.editordoc, "keypress", keyPress);
+			HTMLArea._removeEvent(self.editor._doc, "keypress", keyPress);
 		if (HTMLArea.is_ie)
 			self.iePopup.hide();
 	};
@@ -351,7 +348,8 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 		var popup = this.iePopup = window.createPopup();
 		doc = popup.document;
 		doc.open();
-		doc.write("<html><head><style type='text/css'>@import url(" + _editor_url + "plugins/ContextMenu/menu.css); html, body { padding: 0px; margin: 0px; overflow: hidden; border: 0px; }</style></head><body unselectable='yes'></body></html>");
+//		doc.write("<html><head><style type='text/css'>@import url(" + _editor_url + "plugins/ContextMenu/menu.css); html, body { padding: 0px; margin: 0px; overflow: hidden; border: 0px; }</style></head><body unselectable='yes'></body></html>");
+		doc.write("<html><head><link rel='stylesheet' type='text/css' href='" + _editor_CSS + "' /><style type='text/css'>html, body { padding: 0px; margin: 0px; overflow: hidden; border: 0px; }</style></head><body unselectable='yes'></body></html>");
 		doc.close();
 	}
 	div = doc.createElement("div");
@@ -446,8 +444,6 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 					HTMLArea._stopEvent(ev);
 				return false;
 			};
-			//if (typeof option[2] == "string")
-			//item.title = option[2];
 		}
 	}
 
@@ -474,10 +470,8 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	this.timeStamp = (new Date()).getTime();
 
 	HTMLArea._addEvent(document, "mousedown", documentClick);
-	HTMLArea._addEvent(this.editordoc, "mousedown", documentClick);
-	if (keys.length > 0)
-		HTMLArea._addEvent(this.editordoc, "keypress", keyPress);
-
+	HTMLArea._addEvent(this.editor._doc, "mousedown", documentClick);
+	if (keys.length > 0) HTMLArea._addEvent(this.editor._doc, "keypress", keyPress);
 	HTMLArea._stopEvent(ev);
 	return false;
 };

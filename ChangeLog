@@ -1,3 +1,20 @@
+2005-03-12  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.54
+	* Eliminate superfluous line break before and after edited content.
+	* Eliminate extension conflict with clasical RTE extension.
+	* Update to Dutch and Finnish translations.
+	* Correction for IE: a JavaScript error was raised when selecting an image and then clicking on inserttag, emoticon or insertcharacter button.
+	* Easier setting of extension configuration variables at the time of installation.
+	* Correction for IE5.5: working around missing ownerDocument property.
+	* New RTE Page TSConfig property: skin.
+	* Moving context menu styles to the editor default skin CSS file.
+	* Correcting editing area width in Firefox.
+	* Ensure a default value for the editor skin.
+	* Correcting path to default skin in some configurations.
+	* Correcting editing area width and height when in text mode and/or in full page mode.
+	* Adding class attribute to table, row and cell properties popup windows when blockstyle toolbar element is enabled.
+	* Correcting target and class setting on links.
+
 2005-02-26  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.45
 	* Correcting path setting warning in insert link and insert image dialogs on some server configurations.

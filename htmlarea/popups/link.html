@@ -1,9 +1,11 @@
-<html>
+<html class="popupwin">
 <head>
 	<title>Insert/Modify Link</title>
 	<script type="text/javascript" src="popup.js"></script>
 	<script type="text/javascript">
 		HTMLArea = window.opener.HTMLArea;
+		_editor_CSS = window.opener._editor_CSS;
+		__dlg_loadStyle(_editor_CSS);
 		var i18n = window.opener.HTMLArea.I18N.dialogs;
 
 function i18N(str) {
@@ -79,13 +81,6 @@ function onCancel() {
 </script>
 
 <style type="text/css">
-html, body {
-  background: ButtonFace;
-  color: ButtonText;
-  font: 11px Tahoma,Verdana,sans-serif;
-  margin: 0px;
-  padding: 0px;
-}
 body { padding: 5px; }
 table { font: 11px Tahoma,Verdana,sans-serif; }
 select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
@@ -100,7 +95,7 @@ border-bottom: 1px solid black; letter-spacing: 2px;
 
 </head>
 
-<body onload="Init()">
+<body class="popupwin" onload="Init()">
 <div class="title">Insert/Modify Link</div>
 
 <form action="" method="get">
