@@ -41,21 +41,25 @@ function DynamicCSS(editor, args) {
 };
 
 DynamicCSS.prototype.parseStyleSheet=function(editor){
+	var editor = this.editor;
+	var obj = editor.config.customSelects["DynamicCSS-class"];
 	var i18n = DynamicCSS.I18N;
 	var iframe = editor._iframe.contentWindow.document;
 	var newCssArray = new Array();
-        
-        for(var i=0;i<iframe.styleSheets.length;i++){
-            // Mozilla
+	obj.loaded = true;
+
+	for(var i=0;i<iframe.styleSheets.length;i++){
+			// Mozilla
             if(HTMLArea.is_gecko){
-                try{
-                    newCssArray=this.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray);
-                }
-                catch(e){
-                 //	alert(e);
-                }
-            }
-            // IE
+			try{
+				newCssArray=this.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray);
+			}
+			catch(e){
+				obj.loaded = false;
+			//	alert(e);
+			}
+		}
+			// IE
             else {
                 try{
                     // @import StyleSheets (IE)
@@ -67,6 +71,7 @@ DynamicCSS.prototype.parseStyleSheet=function(editor){
                     }
                 }
                 catch(e){
+				obj.loaded = false;
                 //	alert(e);
                 }
 		}
@@ -172,11 +177,15 @@ DynamicCSS.prototype.onUpdateToolbar = function() {
 	var editor = this.editor;
 	var obj = editor.config.customSelects["DynamicCSS-class"];
 	if(HTMLArea.is_gecko && editor._editMode != "textmode") {
-		if(obj.timeout) {
-			editor._iframe.contentWindow.clearTimeout(obj.timeout);
-			obj.timeout = null;
+		if(obj.loaded) { 
+			this.updateValue(editor,obj);
+		} else {
+			if(obj.timeout) {
+				editor._iframe.contentWindow.clearTimeout(obj.timeout);
+				obj.timeout = null;
+			}
+			this.generate();
 		}
-		this.generate();
 	}
 };
 
@@ -187,42 +196,38 @@ DynamicCSS.prototype.generate = function() {
 
         // Let us load the style sheets
 	function getCSSArray(){
-		var oldLength = 0;
-		for(var x in obj.cssArray) ++oldLength;   //   .length will not work with this object structure
 		obj.cssArray = self.parseStyleSheet(editor);
-		var newLength = 0;
-		for(var y in obj.cssArray) ++newLength;
-		if( (oldLength != newLength) && (obj.parseCount<17) ) {
-			obj.timeout = editor._iframe.contentWindow.setTimeout(getCSSArray,obj.parseCount*500);
-			obj.parseCount = obj.parseCount*2;
-			// now let us wait for the gecko doc and body! 
+		if( !obj.loaded && obj.parseCount<17 ) {
+			obj.timeout = editor._iframe.contentWindow.setTimeout(getCSSArray, 200);
+			obj.parseCount++ ;
 		} else {
 			obj.timeout = null;
 			obj.loaded = true;
 			self.updateValue(editor,obj);
 		}
 	};
-	getCSSArray();
+	if(obj.loaded) {
+		self.updateValue(editor,obj);
+	} else {
+ 		getCSSArray();
+	}
 };
-/*
+
 DynamicCSS.prototype.onMode = function(mode) {
 	var editor = this.editor;
 	if(mode=='wysiwyg'){
 		var obj = editor.config.customSelects["DynamicCSS-class"];
-		obj.cssArray=null;
-		obj.cssArray=new Array();
-		obj.parseCount = 1;
-		obj.lastTag = "";
-		obj.lastClass = "";
-		obj.loaded = false;
-		if(obj.timeout) {
-			editor._iframe.contentWindow.clearTimeout(obj.timeout);
-			obj.timeout = null;
+		if(obj.loaded) { 
+			this.updateValue(editor,obj);
+		} else {
+			if(obj.timeout) {
+				editor._iframe.contentWindow.clearTimeout(obj.timeout);
+				obj.timeout = null;
+			}
+			this.generate();
 		}
-		this.generate();
 	}
 };
-*/
 
 DynamicCSS.prototype.updateValue = function(editor,obj) {
 
@@ -235,7 +240,7 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 	}
 
 	var cssArray = obj.cssArray;
-	var tagName = "";
+	var tagName = "body";
 	var className = "";
 	var parent = editor.getParentElement();
 	if(parent) {

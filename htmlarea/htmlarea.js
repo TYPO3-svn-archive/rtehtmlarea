@@ -681,8 +681,12 @@ HTMLArea.prototype.generate = function () {
 		this._textArea = textarea = HTMLArea.getElementById("textarea", textarea);
 	}
 	this._ta_size = {
-		w: textarea.offsetWidth,
-		h: textarea.offsetHeight
+// Begin change by Stanislas Rolland 2004-12-04
+		w: textarea.style.width,
+		h: textarea.style.height
+		//w: textarea.offsetWidth,
+		//h: textarea.offsetHeight
+// End change by Stanislas Rolland 2004-12-04
 	};
 	textarea.style.display = "none";
 
@@ -822,8 +826,7 @@ HTMLArea.prototype.generate = function () {
 // Fix the initial loading in multiple frames when DynamicCSS is enabled
 			doc.open();
 			var html = "<html>\n";
-			html += "<head>\n";
-			html += "</head>\n";
+			html += "<head></head>\n";
 			html += "<body></body>\n";
 			html += "</html>";
 			doc.write(html);
@@ -885,8 +888,14 @@ HTMLArea.prototype.generate = function () {
 			editor.onGenerate();
 
 		setTimeout(function() {
+// Begin change by Stanislas Rolland 2004-12-04
+// Initialize the selection correctly
 			editor.updateToolbar();
-		}, 250);
+			if (HTMLArea.is_gecko) {
+				setTimeout(function() { editor.setMode("wysiwyg"); }, 200);
+			}
+// End change by Stanislas Rolland 2004-12-04
+		}, 150);
 	};
 	setTimeout(initIframe, 100);
 };
@@ -917,8 +926,8 @@ HTMLArea.prototype.setMode = function(mode) {
 			this._doc.body.innerHTML = this.getHTML();
 		else
 			this.setFullHTML(this.getHTML());
-		this._iframe.style.display = "block";
 		this._textArea.style.display = "none";
+		this._iframe.style.display = "block";
 		if (HTMLArea.is_gecko) {
 			// we need to refresh that info for Moz-1.3a
 			try {
@@ -930,6 +939,18 @@ HTMLArea.prototype.setMode = function(mode) {
 			// this._statusBar.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
 			this._statusBar.appendChild(this._statusBarTree);
 		}
+// Begin change by Stanislas Rolland 2004-12-04
+// Set the selection at the start of the editor's content on return to wysiwyg mode
+		if (HTMLArea.is_gecko) { 
+			var node = this.getParentElement();
+			if(!node || typeof node == "undefined") node = this._doc.body;
+			if (node.firstChild && node.firstChild.nodeType == 3 ) node = node.firstChild;
+			var sel = this._getSelection();
+			if(sel && sel.length != 0) {
+				try{ sel.collapse(node,0); } catch(e) { }
+			}
+		}
+// End change by Stanislas Rolland 2004-12-04
 		break;
 	    default:
 		alert("Mode <" + mode + "> not defined!");
@@ -1373,8 +1394,13 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 					}
 					color = HTMLArea._makeColor(doc.queryCommandValue("forecolor"));
 					fontFamily = doc.queryCommandValue("fontname");
-					fontWeight = doc.queryCommandState("bold") ? "bold" : "normal";
-					fontStyle = doc.queryCommandState("italic") ? "italic" : "normal";
+// Begin change by Stanislas Rolland 2004-12-04
+// Check if queryCommandState is available
+					fontWeight = "normal";
+					fontStyle = "normal";
+					try { fontWeight = doc.queryCommandState("bold") ? "bold" : "normal"; } catch(ex) { fontWeight = "normal"; };
+					try { fontStyle = doc.queryCommandState("italic") ? "italic" : "normal"; } catch(ex) { fontStyle = "normal"; };
+// End change by Stanislas Rolland 2004-12-04
 				}} catch (e) {
 					// alert(e + "\n\n" + cmd);
 				}
@@ -1389,25 +1415,32 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			if (el)
 				btn.state("active", (el.style.direction == ((cmd == "righttoleft") ? "rtl" : "ltr")));
 			break;
-// Begin change by Stanislas Rolland 2004-12-01
-// These commands need a selection which they do not have when returning from textmode
+// Begin change by Stanislas Rolland 2004-12-04
 		    case "bold":
 		    case "italic":
-		    case "underline":
 		    case "strikethrough":
+		    case "underline":
 		    case "subscript":
 		    case "superscript":
-			btn.state("active", false);
-			try {
-				if(!text && this.hasSelectedText()) btn.state("active", doc.queryCommandState(cmd));
-			} catch (e) { }
-			break;
-// Begin end by Stanislas Rolland 2004-12-01
-		    default:
+		    case "justifyleft":
+		    case "justifycenter":
+		    case "justifyright":
+		    case "justifyfull":
+		    case "indent":
+		    case "outdent":
+		    case "insertorderedlist":
+		    case "insertunorderedlist":
+		    case "orderedlist":
+		    case "unorderedlist":
 			cmd = cmd.replace(/(un)?orderedlist/i, "insert$1orderedlist");
-			try {
-				btn.state("active", (!text && doc.queryCommandState(cmd)));
-			} catch (e) { }
+			var commandState = false;
+			if( !text ) {
+				try { commandState = doc.queryCommandState(cmd); } catch(e) { commandState = false; }
+			}
+			btn.state("active", commandState);
+			break;
+		    default:
+// Begin end by Stanislas Rolland 2004-12-04
 		}
 	}
 	// take undo snapshots

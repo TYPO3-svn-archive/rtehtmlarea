@@ -147,6 +147,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'FindReplace'		=> 22,
 		'RemoveFormat'		=> 22,
 		'CharacterMap'		=> 22,
+		'QuickTag'		=> 22,
 	);
 			
 	// Config: Convert for the typo3 button name and the HTML-Area button name.
@@ -220,7 +221,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'7' =>	'36 pt',
 		);
 
-	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs';
+	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs, QuickTag';
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:
@@ -507,11 +508,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$item = 
 				$this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
-				<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden">
-				<textarea id="RTEarea'.$pObj->RTEcounter.'" rows="24" cols="80" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($RTEdivStyle).'">
+				<!--<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden">-->
+				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($RTEdivStyle).'">
 				'.t3lib_div::formatForTextarea($value).'
 				</textarea>
-				</div>
+				<!--</div>-->
 				';
 		}
 
