@@ -796,7 +796,7 @@ TableOperations.buildAlignmentFieldset = function(doc,el,i18n,content,fieldsetCl
 	}
 */
 	TableOperations.insertSpace(doc, fieldset);
-	select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_vertAlign", "Vertical alignment:", "fl", "floating", "Vertical alignment of content within cell", ["Top", "Middle", "Bottom", "Baseline"], ["top", "middle", "bottom", "baseline"], new RegExp((el.style.vertAlign ? el.style.vertAlign : "middle"), "i"));
+	select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_vertAlign", "Vertical alignment:", "fl", "floating", "Vertical alignment of content within cell", ["Top", "Middle", "Bottom", "Baseline"], ["top", "middle", "bottom", "baseline"], new RegExp((el.style.verticalAlign ? el.style.verticalAlign : "middle"), "i"));
 	TableOperations.insertSpace(doc, fieldset);
 	content.appendChild(fieldset);
 };

@@ -41,15 +41,15 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	
 	// Config for the supported browser
 	var $conf_supported_browser = array (
-				"msie" => array (
+				'msie' => array (
 					1 => array (
-						"version" => 5,
-						"system" => "win"
+						'version' => 5.5,
+						'system' => 'win'
 					)
                                  ),
-				"net" => array (
+				'gecko' => array (
 					1 => array (
-						"version" => 1
+						'version' => 1.4
 					)
 				)
 			);
@@ -218,6 +218,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 */
 	function isAvailable()	{
 		global $CLIENT;
+		$saveClient = $CLIENT;
+		$CLIENT = $this->clientInfo();
 
 		if (TYPO3_DLOG)	t3lib_div::devLog('Checking for availability...',$this->ID);
 
@@ -260,7 +262,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$this->errorLog[] = "rte: Browser not supported. Only msie Version 5 or higher and Mozilla based client 1 and higher.";
 			}
 		}
-		if (!count($this->errorLog))	return TRUE;
+		$CLIENT = $saveClient;
+		if ($rteIsAvailable)	return true;
 	}
 
 	/**
@@ -283,6 +286,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		global $BE_USER,$LANG,$HTTP_GET_VARS,$TBE_TEMPLATE,$TCA;
 
 		$LANG->includeLLFile('EXT:' . $this->ID . '/locallang.php');
+		$saveClient = $CLIENT;
+		$CLIENT = $this->clientInfo();
 		
 			// Draw form element:
 		if ($this->debugMode)	{	// Draws regular text area (debug mode)
@@ -295,7 +300,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 */
 			// set the path: we need the absolut path:
 			// first get the http-path to typo3:
-			$this->httpTypo3Path = dirname(dirname(t3lib_div::getIndpEnv('SCRIPT_NAME')));
+			//$this->httpTypo3Path = dirname(dirname(t3lib_div::getIndpEnv('SCRIPT_NAME')));
+			$this->httpTypo3Path = substr( substr( t3lib_div::getIndpEnv('TYPO3_SITE_URL'), strlen( t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST') ) ), 0, -1 );
 
 			if (strlen($this->httpTypo3Path) == 1) {
 				$this->httpTypo3Path = "/";
@@ -313,7 +319,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				// Get the host URL
 			$this->hostURL = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST');
 
-			if($CLIENT['BROWSER'] == 'net' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension']) {
+			if($CLIENT['BROWSER'] == 'gecko' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension'] && extension_loaded('zlib')) {
 				$this->makeMozillaExtension();
 			}
 
@@ -372,6 +378,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 					$query  = "SELECT $tableA.uid, $tableB.lg_iso_2, $tableB.lg_country_iso_2, $tableB.lg_typo3 FROM $tableA LEFT JOIN $tableB ON $tableA.static_lang_isocode=$tableB.uid WHERE $tableA.uid IN (" . $languagesUidsList . ") ";
 						$query .= t3lib_BEfunc::BEenableFields($tableA);
 						$query .= t3lib_BEfunc::deleteClause($tableA);
+
 					$res = mysql(TYPO3_db,$query);
 					while ( $languageRow = @mysql_fetch_assoc($res)) {
 						$this->spellCheckerLanguage = strtolower(trim($languageRow['lg_iso_2']).(trim($languageRow['lg_country_iso_2'])?'_'.trim($languageRow['lg_country_iso_2']):''));
@@ -446,7 +453,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 */
 				// Transform value:
 			$value = $this->transformContent('rte',$PA['itemFormElValue'],$table,$field,$row,$specConf,$thisConfig,$RTErelPath,$thePidValue);
-			if ($CLIENT['BROWSER'] == 'net') {
+			if ($CLIENT['BROWSER'] == 'gecko') {
 				// need to change some tags:
 				// change <strong> to <b>
 				$value = preg_replace("/<(\/?)strong>/i", "<$1b>", $value);
@@ -491,6 +498,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		}
 
 			// Return form item:
+		$CLIENT = $saveClient;
 		return $item;
 	}
 	
@@ -668,10 +676,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			.'
 			var extHttpPath = "'.$this->extHttpPath.'"; // Path to this extension
 			var rtePathImageFile = "'.$this->rtePathImageFile.'"; // Path to the php-file for selection images
-			var rtePathLinkFile = "'.$this->rtePathLinkFile.'"; // Path to the php-file for create a link'
+			var rtePathLinkFile = "' . $this->rtePathLinkFile . '"; // Path to the php-file for create a link'
 			// Load the Plugins:
-
-			. $loadPluginCode
+			. chr(10) . $loadPluginCode
 			.  '
 			HTMLArea.init();
 			HTMLArea.I18N = HTMLArea_langArray;'
@@ -690,10 +697,11 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
 			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
+
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
 			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';
-			RTEarea['.$number.']["enableMozillaExtension"] = ' . (($CLIENT['BROWSER'] == 'net' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension'])?'true':'false') . ';
+			RTEarea['.$number.']["enableMozillaExtension"] = ' . (($CLIENT['BROWSER'] == 'gecko' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension'])?'true':'false') . ';
 			RTEarea['.$number.']["plugin"] = new Array();';
 		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
 		while( list(,$plugin) = each($pluginArray) ) {
@@ -1058,6 +1066,70 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			// Clean up
 		$dir->close();
 		return true;
+	}
+
+	/**
+	 * Client Browser Information
+	 *
+	 * Usage: 4
+	 *
+	 * @param	string		Alternative User Agent string (if empty, t3lib_div::getIndpEnv('HTTP_USER_AGENT') is used)
+	 * @return	array		Parsed information about the HTTP_USER_AGENT in categories BROWSER, VERSION, SYSTEM and FORMSTYLE
+	 */
+	function clientInfo($useragent='')	{
+		if (!$useragent) $useragent=t3lib_div::getIndpEnv('HTTP_USER_AGENT');
+
+		$bInfo=array();
+			// Which browser?
+		if (strstr($useragent,'Konqueror'))	{
+			$bInfo['BROWSER']= 'konqu';
+		} elseif (strstr($useragent,'Opera'))	{
+			$bInfo['BROWSER']= 'opera';
+		} elseif (strstr($useragent,'MSIE 4') || strstr($useragent,'MSIE 5') || strstr($useragent,'MSIE 6'))	{
+			$bInfo['BROWSER']= 'msie';
+		} elseif (strstr($useragent,'Gecko/'))	{
+			$bInfo['BROWSER']='gecko';
+		} elseif (strstr($useragent,'Mozilla/4')) {
+			$bInfo['BROWSER']='net';
+		}
+		if ($bInfo['BROWSER'])	{
+				// Browser version
+			switch($bInfo['BROWSER'])	{
+				case 'net':
+					$bInfo['VERSION']= doubleval(substr($useragent,8));
+					if (strstr($useragent,'Netscape6/')) {$bInfo['VERSION']=doubleval(substr(strstr($useragent,'Netscape6/'),10));}
+					if (strstr($useragent,'Netscape/7')) {$bInfo['VERSION']=doubleval(substr(strstr($useragent,'Netscape/7'),9));}
+				break;
+				case 'gecko':
+					$tmp = strstr($useragent,'rv:');
+					$bInfo['VERSION'] = doubleval(ereg_replace('^[^0-9]*','',substr($tmp,4)));
+				break;
+				case 'msie':
+					$tmp = strstr($useragent,'MSIE');
+					$bInfo['VERSION'] = doubleval(ereg_replace('^[^0-9]*','',substr($tmp,4)));
+				break;
+				case 'opera':
+					$tmp = strstr($useragent,'Opera');
+					$bInfo['VERSION'] = doubleval(ereg_replace('^[^0-9]*','',substr($tmp,5)));
+				break;
+				case 'konqu':
+					$tmp = strstr($useragent,'Konqueror/');
+					$bInfo['VERSION'] = doubleval(substr($tmp,10));
+				break;
+			}
+				// Client system
+			if (strstr($useragent,'Win'))	{
+				$bInfo['SYSTEM'] = 'win';
+			} elseif (strstr($useragent,'Mac'))	{
+				$bInfo['SYSTEM'] = 'mac';
+			} elseif (strstr($useragent,'Linux') || strstr($useragent,'X11') || strstr($useragent,'SGI') || strstr($useragent,' SunOS ') || strstr($useragent,' HP-UX '))	{
+				$bInfo['SYSTEM'] = 'unix';
+			}
+		}
+			// Is true if the browser supports css to format forms, especially the width
+		$bInfo['FORMSTYLE']=($bInfo['BROWSER']=='msie' || ($bInfo['BROWSER']=='net'&&$bInfo['VERSION']>=5) || $bInfo['BROWSER']=='opera' || $bInfo['BROWSER']=='konqu');
+
+		return $bInfo;
 	}
 
 	/***************************

@@ -742,7 +742,7 @@ HTMLArea.prototype.generate = function () {
 
 		// create and append the IFRAME
 	var iframe = document.createElement("iframe");
-	if(this.config.useHTTPS && HTMLArea.is_ie) {
+	if(HTMLArea.is_ie) {
 		iframe.setAttribute("src", _editor_url + "popups/blank.html");
 	} else {
 		iframe.setAttribute("src", "javascript:void(0);");
@@ -2244,14 +2244,8 @@ HTMLArea.cloneObject = function(obj) {
 // FIXME!!! this should return false for IE < 5.5
 HTMLArea.checkSupportedBrowser = function() {
 	if (HTMLArea.is_gecko) {
-		if (navigator.productSub < 20021201) {
-			alert("You need at least Mozilla-1.3 Alpha.\n" +
-			      "Sorry, your Gecko is not supported.");
-			return false;
-		}
 		if (navigator.productSub < 20030210) {
-			alert("Mozilla < 1.3 Beta is not supported!\n" +
-			      "I'll try, though, but it might not work.");
+ 			return false;
 		}
 	}
 	return HTMLArea.is_gecko || HTMLArea.is_ie;
@@ -2910,108 +2904,114 @@ var _selectedImage;
 function initEditor(editornumber) {
 	var self = this;
 
-	if(!HTMLArea.is_loaded) {
-		setTimeout(function() { self.initEditor(editornumber); }, 150);
-	} else {
+	if(HTMLArea.checkSupportedBrowser()) {
 
-		var config = new HTMLArea.Config();
+		if(!HTMLArea.is_loaded) {
+			setTimeout(function() { self.initEditor(editornumber); }, 150);
+		} else {
 
-			// Toolbar: need change -> typo3-Config
-		config.toolbar = RTEarea[editornumber]["toolbar"];
+			var config = new HTMLArea.Config();
 
-			// create an editor for the textarea
-		RTEarea[editornumber]["editor"] = new HTMLArea(RTEarea[editornumber]["id"], config);
-		var editor = RTEarea[editornumber]["editor"];
+				// Toolbar: need change -> typo3-Config
+			config.toolbar = RTEarea[editornumber]["toolbar"];
 
-			// Save the editornumber and in the Object
-		editor._typo3EditerNumber = editornumber;
+				// create an editor for the textarea
+			RTEarea[editornumber]["editor"] = new HTMLArea(RTEarea[editornumber]["id"], config);
+			var editor = RTEarea[editornumber]["editor"];
 
-		for (var plugin in RTEarea[editornumber]["plugin"]) {
-			if (RTEarea[editornumber]["plugin"][plugin]) {
-				switch (plugin) {
-					default:
-						editor.registerPlugin(plugin);
-						break;
+				// Save the editornumber and in the Object
+			editor._typo3EditerNumber = editornumber;
+
+			for (var plugin in RTEarea[editornumber]["plugin"]) {
+				if (RTEarea[editornumber]["plugin"][plugin]) {
+					switch (plugin) {
+						default:
+							editor.registerPlugin(plugin);
+							break;
+					}
 				}
 			}
-		}
 
-		if(RTEarea[editornumber]["pageStyle"]) {
-			editor.config.pageStyle = RTEarea[editornumber]["pageStyle"];
-		}
-
-		if(RTEarea[editornumber]["fontname"]) {
-			editor.config.fontname = RTEarea[editornumber]["fontname"];
-		}
-
-		if(RTEarea[editornumber]["fontsize"]) {
-			editor.config.fontsize = RTEarea[editornumber]["fontsize"];
-		}
-
-		if(RTEarea[editornumber]["colors"]) {
-			editor.config.colors = RTEarea[editornumber]["colors"];
-		}
-
-		if(RTEarea[editornumber]["disableColorPicker"]) {
-			editor.config.disableColorPicker = RTEarea[editornumber]["disableColorPicker"];
-		}
-
-		if(RTEarea[editornumber]["paragraphs"]) {
-			editor.config.formatblock = RTEarea[editornumber]["paragraphs"];
-		}
-
-		editor.config.width = "auto";
-		editor.config.height = "auto";
-		editor.config.sizeIncludesToolbar = true;
-		editor.config.fullPage = false;
-
-		editor.config.useHTTPS = false;
-		if(RTEarea[editornumber]["useHTTPS"]) {
-			editor.config.useHTTPS = RTEarea[editornumber]["useHTTPS"];
-		}
-
-		editor.config.useCSS = false;
-		if(RTEarea[editornumber]["useCSS"]) {
-			editor.config.useCSS = RTEarea[editornumber]["useCSS"];
-		}
-
-		editor.config.enableMozillaExtension = false;
-		if(RTEarea[editornumber]["enableMozillaExtension"]) {
-			editor.config.enableMozillaExtension = RTEarea[editornumber]["enableMozillaExtension"];
-		}
-
-		editor.config.statusBar = false;
-		if(RTEarea[editornumber]["statusBar"]) {
-			editor.config.statusBar = RTEarea[editornumber]["statusBar"];
-		}
-		if(HTMLArea.is_ie && editor.config.statusBar) {
-			editor._customUndo = true;
-		}
-
-		editor.onGenerate = function () {
-
-				// Set killWordOnPaste and intercept paste , dragdrop and drop events for wordClean
-			if(RTEarea[editornumber]["enableWordClean"]) {
-				editor.config.killWordOnPaste = true;
-				editor.config.htmlareaPaste = true;
-				HTMLArea._addEvents (HTMLArea.is_ie ? editor._doc.body : editor._doc, ["paste","dragdrop","drop"], 
-					function (event) { 
-						if (editor.config.killWordOnPaste) { 
-							setTimeout(function() { 
-								editor._wordClean(editor._doc.body);
-							}, 250);
-						}
-					}
-				);
-			} else {
-				editor.config.killWordOnPaste = false;
+			if(RTEarea[editornumber]["pageStyle"]) {
+				editor.config.pageStyle = RTEarea[editornumber]["pageStyle"];
 			}
 
-			document.getElementById('pleasewait' + editornumber).style.display='none';
-			document.getElementById('editorWrap' + editornumber).style.visibility='visible';
-		};
+			if(RTEarea[editornumber]["fontname"]) {
+				editor.config.fontname = RTEarea[editornumber]["fontname"];
+			}
 
-		editor.generate();
-		return false;
+			if(RTEarea[editornumber]["fontsize"]) {
+				editor.config.fontsize = RTEarea[editornumber]["fontsize"];
+			}
+
+			if(RTEarea[editornumber]["colors"]) {
+				editor.config.colors = RTEarea[editornumber]["colors"];
+			}
+
+			if(RTEarea[editornumber]["disableColorPicker"]) {
+				editor.config.disableColorPicker = RTEarea[editornumber]["disableColorPicker"];
+			}
+
+			if(RTEarea[editornumber]["paragraphs"]) {
+				editor.config.formatblock = RTEarea[editornumber]["paragraphs"];
+			}
+
+			editor.config.width = "auto";
+			editor.config.height = "auto";
+			editor.config.sizeIncludesToolbar = true;
+			editor.config.fullPage = false;
+
+			editor.config.useHTTPS = false;
+			if(RTEarea[editornumber]["useHTTPS"]) {
+				editor.config.useHTTPS = RTEarea[editornumber]["useHTTPS"];
+			}
+
+			editor.config.useCSS = false;
+			if(RTEarea[editornumber]["useCSS"]) {
+				editor.config.useCSS = RTEarea[editornumber]["useCSS"];
+			}
+
+			editor.config.enableMozillaExtension = false;
+			if(RTEarea[editornumber]["enableMozillaExtension"]) {
+				editor.config.enableMozillaExtension = RTEarea[editornumber]["enableMozillaExtension"];
+			}
+
+			editor.config.statusBar = false;
+			if(RTEarea[editornumber]["statusBar"]) {
+				editor.config.statusBar = RTEarea[editornumber]["statusBar"];
+			}
+			if(HTMLArea.is_ie && editor.config.statusBar) {
+				editor._customUndo = true;
+			}
+
+			editor.onGenerate = function () {
+
+					// Set killWordOnPaste and intercept paste , dragdrop and drop events for wordClean
+				if(RTEarea[editornumber]["enableWordClean"]) {
+					editor.config.killWordOnPaste = true;
+					editor.config.htmlareaPaste = true;
+					HTMLArea._addEvents (HTMLArea.is_ie ? editor._doc.body : editor._doc, ["paste","dragdrop","drop"], 
+						function (event) { 
+							if (editor.config.killWordOnPaste) { 
+								setTimeout(function() { 
+									editor._wordClean(editor._doc.body);
+								}, 250);
+							}
+						}
+					);
+				} else {
+					editor.config.killWordOnPaste = false;
+				}
+
+				document.getElementById('pleasewait' + editornumber).style.display='none';
+				document.getElementById('editorWrap' + editornumber).style.visibility='visible';
+			};
+
+			editor.generate();
+			return false;
+		} 
+	} else {
+		document.getElementById('pleasewait' + editornumber).style.display='none';
+		document.getElementById('editorWrap' + editornumber).style.visibility='visible';
 	}
 };

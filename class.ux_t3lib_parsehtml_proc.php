@@ -116,8 +116,9 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						// Setting up font tags if they are allowed:
 					if (isset($keepTags['font']))		{
 						$colors=array_merge(array(''),t3lib_div::trimExplode(',',$this->procOptions['allowedFontColors'],1));
+ // Modification by Stanislas Rolland 2005-02-08 to allow style attribute on font tags
 						$keepTags['font']=array(
-							'allowedAttribs'=>'face,color,size',
+							'allowedAttribs'=>'face,color,size,style',
 							'fixAttrib' => Array(
 								'face' => Array (
 									'removeIfFalse' => 1
@@ -159,8 +160,4 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
 }
 
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_parsehtml_proc.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_parsehtml_proc.php']);
-}
 ?>

@@ -1,3 +1,10 @@
+2005-02-09  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.35
+	* Browser recognition.
+	* HTTPS in Mozilla/Firefox.
+	* Style on font tag.
+	* Vertical align display.
+
 2005-02-05  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.33
 	* Generation of Mozilla/Firefox extension.
