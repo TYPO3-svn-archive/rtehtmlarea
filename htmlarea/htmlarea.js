@@ -2283,8 +2283,10 @@ HTMLArea._blockTags = " body form textarea fieldset ul ol dl li div " +
 HTMLArea.isBlockElement = function(el) {
 	return el && el.nodeType == 1 && (HTMLArea._blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };
-
-HTMLArea._closingTags = " head script style div span tr td tbody table em strong b i code cite dfn abbr acronym font a title ";
+// Begin change by Stanislas Rolland 2004-11-24
+// Add p blockquote center ul ol li tags to the HTMLArea._closingTags list
+HTMLArea._closingTags = " head title script style div p span tr td table em i strong b code cite blockquote dfn abbr acronym font center a ul ol li ";
+// End change by Stanislas Rolland 2004-11-24
 HTMLArea.needsClosingTag = function(el) {
 	return el && el.nodeType == 1 && (HTMLArea._closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };
@@ -2322,8 +2324,11 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 		var closed;
 		var i;
 		var root_tag = (root.nodeType == 1) ? root.tagName.toLowerCase() : '';
-		if (root_tag == 'br' && !root.nextSibling)
+// Begin change by Stanislas Rolland 2004-11-24
+// Eliminate lonesome br tag
+		if (root_tag == 'br' && !root.nextSibling && !root.previousSibling )
 			break;
+// End change by Stanislas Rolland 2004-11-24
 		if (outputRoot)
 			outputRoot = !(editor.config.htmlRemoveTags && editor.config.htmlRemoveTags.test(root_tag));
 		if (HTMLArea.is_ie && root_tag == "head") {
@@ -2406,8 +2411,11 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 	    case 3: // Node.TEXT_NODE
 		// If a text node is alone in an element and all spaces, replace it with an non breaking one
 		// This partially undoes the damage done by moz, which translates '&nbsp;'s into spaces in the data element
-		/* if ( !root.previousSibling && !root.nextSibling && root.data.match(/^\s*$/i) ) html = '&nbsp;';
-		   else */
+// Begin change by Stanislas Rolland 2004-11-24
+// Uncomment the two following lines
+		if ( !root.previousSibling && !root.nextSibling && root.data.match(/^\s*$/i) ) html = '&nbsp;';
+		   else
+// End change by Stanislas Rolland 2004-11-24
 		html = /^script|style$/i.test(root.parentNode.tagName) ? root.data : HTMLArea.htmlEncode(root.data);
 		break;
 	    case 4: // Node.CDATA_SECTION_NODE
