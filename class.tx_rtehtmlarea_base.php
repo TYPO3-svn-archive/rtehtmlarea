@@ -145,6 +145,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'SelectColor'		=> 49,
 		'InsertSmiley'		=> 22,
 		'FindReplace'		=> 22,
+		'RemoveFormat'		=> 22,
+		'CharacterMap'		=> 22,
 	);
 			
 	// Config: Convert for the typo3 button name and the HTML-Area button name.
@@ -218,7 +220,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'7' =>	'36 pt',
 		);
 
-	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap';
+	var $pluginList = 'DynamicCSS, TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, EnterParagraphs';
 	var $spellCheckerModes = array( 'ultra', 'fast', 'normal', 'bad-spellers');
 		
 		// External:
