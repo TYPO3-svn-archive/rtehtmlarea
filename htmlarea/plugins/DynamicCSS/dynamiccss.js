@@ -204,7 +204,7 @@ DynamicCSS.prototype.generate = function() {
 	};
 	getCSSArray();
 };
-
+/*
 DynamicCSS.prototype.onMode = function(mode) {
 	var editor = this.editor;
 	if(mode=='wysiwyg'){
@@ -222,6 +222,7 @@ DynamicCSS.prototype.onMode = function(mode) {
 		this.generate();
 	}
 };
+*/
 
 DynamicCSS.prototype.updateValue = function(editor,obj) {
 
