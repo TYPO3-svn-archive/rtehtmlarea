@@ -34,8 +34,6 @@
 require_once(t3lib_extMgm::extPath('rtehtmlarea').'class.tx_rtehtmlarea_base.php');
 
 class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
-
-	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, InsertSmiley';
 		
 		// External:
 
@@ -145,6 +143,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			// htmlArea plugins list
 		$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginList , 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'], 1));
 		$hidePlugins = array();
+		$hidePlugins[] = 'TYPO3Browsers';
 		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
 		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 
@@ -166,10 +165,12 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 				$tableA = 'sys_language';
 				$tableB = 'static_languages';
 				$languagesUidsList = $row['sys_language_uid'];
-				$query  = "SELECT $tableA.uid, $tableB.lg_iso_2, $tableB.lg_country_iso_2, $tableB.lg_typo3 FROM $tableA LEFT JOIN $tableB ON $tableA.static_lang_isocode=$tableB.uid WHERE $tableA.uid IN (" . $languagesUidsList . ") ";
-				$query .= $GLOBALS['TSFE']->cObj->enableFields($tableA);
-				$res = mysql(TYPO3_db,$query);
-				while ( $languageRow = @mysql_fetch_assoc($res)) {
+				$selectFields = $tableA . '.uid,' . $tableB . '.lg_iso_2,' . $tableB . '.lg_country_iso_2,' . $tableB . '.lg_typo3';
+				$table = $tableA . ' LEFT JOIN ' . $tableB . ' ON ' . $tableA . '.static_lang_isocode=' . $tableB . '.uid';
+				$whereClause = $tableA . '.uid IN (' . $languagesUidsList . ') ';
+				$whereClause .= $GLOBALS['TSFE']->cObj->enableFields($tableA);
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($selectFields, $table, $whereClause);
+				while ( $languageRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res) ) {
 					$this->spellCheckerLanguage = strtolower(trim($languageRow['lg_iso_2']).(trim($languageRow['lg_country_iso_2'])?'_'.trim($languageRow['lg_country_iso_2']):''));
 					$this->spellCheckerTypo3Language = strtolower(trim($languageRow['lg_typo3']));
 				}
@@ -360,7 +361,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 	 */
 	function registerRTEinJS($number) {
 
-		$registerRTEinJSString = '
+		$registerRTEinJSString = '		/*<![CDATA[*/
 			RTEarea['.$number.'] = new Array();
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
@@ -402,10 +403,10 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
                               $filename = $this->siteURL.$filename;
 			} 
 			$registerRTEinJSString .= '
-		RTEarea['.$number.']["pageStyle"] = "' . $filename .'";';
+			RTEarea['.$number.']["pageStyle"] = "' . $filename .'";';
 		} else {
 			$registerRTEinJSString .= '
-		RTEarea['.$number.']["pageStyle"] = "' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css";';
+			RTEarea['.$number.']["pageStyle"] = "' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css";';
 		}
 
 		if ( $this->isPluginEnable('SelectColor') ) {
@@ -540,8 +541,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
 			initEditor('.$number.');
-';
-
+		/*]]>*/';
 
 		return $registerRTEinJSString;
 	}
@@ -577,8 +577,9 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 	* @desc 
 	*/
 	function RTEtsConfigParams()	{
-		$p = t3lib_BEfunc::getSpecConfParametersFromArray($this->specConf['rte_transform']['parameters']);
-		return $this->elementParts[0].':'.$this->elementParts[1].':'.$this->elementParts[2].':'.$this->thePid.':'.$this->typeVal.':'.$this->tscPID.':'.$p['imgpath'];
+		//$p = t3lib_BEfunc::getSpecConfParametersFromArray($this->specConf['rte_transform']['parameters']);
+		//return $this->elementParts[0].':'.$this->elementParts[1].':'.$this->elementParts[2].':'.$this->thePid.':'.$this->typeVal.':'.$this->tscPID.':'.$p['imgpath'];
+		return '';
 	}
 
 }

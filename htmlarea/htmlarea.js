@@ -766,23 +766,58 @@ HTMLArea.prototype.initIframe = function() {
 
 			// set contents editable
 		if(HTMLArea.is_gecko) {
+				// If we can't set designMode, we may be in a hidden TYPO3 tab
+			var inTYPO3Tab = false;
+			var DTMDiv = editor._textArea;
+			while (DTMDiv && (DTMDiv.nodeType == 1) && (DTMDiv.tagName.toLowerCase() != "body")) {
+				if(DTMDiv.tagName.toLowerCase() == "div" && DTMDiv.id.indexOf("DTM-") != -1 && DTMDiv.id.indexOf("-DIV") != -1 && DTMDiv.className == "c-tablayer") {
+					inTYPO3Tab = true;
+					break;
+				} else {
+					DTMDiv = DTMDiv.parentNode;
+				}
+			}
 			if(!HTMLArea.is_wamcom) {
-				doc.designMode = "on";
+				try { doc.designMode = "on"; } catch(e) {}
 			} else {
 				try { doc.designMode = "on"; }
 				catch(e) {
-					doc.open();
-					doc.close();
-					setTimeout(function() { editor.initIframe(); }, 500);
-				return false;
+					if(!(inTYPO3Tab && DTMDiv.style.display == "none")) {
+						doc.open();
+						doc.close();
+						setTimeout(function() { editor.initIframe(); }, 500);
+						return false;
+					}
 				}
 			}
 		}
 		if(HTMLArea.is_ie) doc.body.contentEditable = true;
+		editor._editMode = "wysiwyg";
 
 			// Set editor number in iframe and document for retrival in event handlers
 		doc._editorNo = editor._typo3EditerNumber;
 		if(HTMLArea.is_ie) doc.documentElement._editorNo = editor._typo3EditerNumber;
+
+			// FIXME: when the TYPO3 TCA feature div2tab is used, the editor iframe may become hidden with style.display = "none"
+			// This breaks the editor in gecko browsers: the designMode attribute needs to be resetted after the style.display of the containing div is resetted to "block"
+			// Here we rely on TYPO3 naming conventions for the div id and class name
+		if(HTMLArea.is_gecko && inTYPO3Tab) {
+			HTMLArea._addEvent(DTMDiv, "DOMAttrModified",
+				function(ev) {
+					if(ev.target == DTMDiv && editor._editMode == "wysiwyg" && DTMDiv.style.display == "block") {
+						setTimeout( function() {
+							try { doc.designMode = "on"; } 
+							catch(e) {
+								doc.open();
+								doc.close();
+								editor.initIframe();}
+							}, 20);
+						HTMLArea._stopEvent(ev);
+					}
+				}
+			);
+		}
+
 			// intercept some events for updating the toolbar & keyboard handlers
 		HTMLArea._addEvents(doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"], HTMLArea._editorEvent);
 			// add unload handler
@@ -1101,13 +1136,14 @@ HTMLArea.prototype.forceRedraw = function() {
 // focuses the iframe window and returns a reference to the editor document.
 HTMLArea.prototype.focusEditor = function() {
 	switch (this._editMode) {
-	    case "wysiwyg" :
-		try { this._iframe.contentWindow.focus(); } catch(e) { };
-		break;
-	    case "textmode":
-		this._textArea.focus();
-		break;
-	    default	   : alert("ERROR: mode " + this._editMode + " is not defined");
+		case "wysiwyg" :
+			try { this._iframe.contentWindow.focus(); } catch(e) { };
+			break;
+		case "textmode":
+			this._textArea.focus();
+			break;
+		default: 
+			alert("ERROR: mode " + this._editMode + " is not defined");
 	}
 	return this._doc;
 };
@@ -1524,7 +1560,9 @@ HTMLArea.prototype.getSelectedHTML = function() {
 		}
 		existing = range.htmlText;
 	} else {
-		existing = HTMLArea.getHTML(range.cloneContents(), false, this);
+		var cloneContents = "";
+		try { cloneContents = range.cloneContents(); } catch(e) { }
+		existing = HTMLArea.getHTML(cloneContents, false, this);
 	}
 	return existing;
 };
@@ -1537,7 +1575,9 @@ HTMLArea.prototype.getSelectedHTMLContents = function() {
 	if (HTMLArea.is_ie) {
 		existing = range.htmlText;
 	} else {
-		existing = HTMLArea.getHTML(range.cloneContents(), false, this);
+		var cloneContents = "";
+		try { cloneContents = range.cloneContents(); } catch(e) { }
+		existing = HTMLArea.getHTML(cloneContents, false, this);
 	}
 	return existing;
 };
@@ -1868,9 +1908,10 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	return false;
 };
 
-// A generic event handler for things that happen in the IFRAME's document.
-// This function also handles key bindings.
-//HTMLArea.prototype._editorEvent = function(ev) {
+/*
+* A generic event handler for things that happen in the IFRAME's document.
+* This function also handles key bindings.
+*/
 HTMLArea._editorEvent = function(ev) {
 	if (!ev) var ev = window.event;
 	var target = (ev.target) ? ev.target : ev.srcElement;
@@ -2350,14 +2391,9 @@ HTMLArea.needsClosingTag = function(el) {
 };
 
 // Performs HTML encoding of some given string
-// \x22 means '"' -- we use hex reprezentation so that we don't disturb JS compressors.
-HTMLArea.htmlEncode = function(str) {
-	str = str.replace(/&/ig, "&amp;");
-	str = str.replace(/</ig, "&lt;");
-	str = str.replace(/>/ig, "&gt;");
-	str = str.replace(/\x22/ig, "&quot;");
-	return str;
-};
+HTMLArea.htmlEncode = function(value) {
+  return value.replace(/&/ig,'&amp;').replace(/\"/ig,'&quot;').replace(/</ig,'&lt;').replace(/>/ig,'&gt;');
+}
 
 // Retrieves the HTML code from the given node.	 This is a replacement for getting innerHTML, using standard DOM calls.
 // Wrapper catch a Mozilla-Exception with non well-formed html source code.
@@ -2427,11 +2463,10 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 				}
 					// Strip value="0" reported by IE on all li tags
 				if(HTMLArea.is_ie && root.tagName.toLowerCase() == "li" && name == "value" && a.nodeValue == 0) continue;
-// Begin change by Stanislas Rolland 2004-12-10
+// Begin change by Stanislas Rolland 2005-04-06
 				html += " " + name + '="' + value + '"';
 				//html += " " + name + '="' + HTMLArea.htmlEncode(value) + '"';
-// Patch is not working. Perhaps a problem in htmlEncode...
-// End change by Stanislas Rolland 2004-12-10
+// End change by Stanislas Rolland 2005-04-06
 			}
 			if (html != "") {
 				html += closed ? " />" : ">";

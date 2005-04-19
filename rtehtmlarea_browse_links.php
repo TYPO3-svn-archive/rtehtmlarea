@@ -1024,7 +1024,7 @@ class tx_rtehtmlarea_browse_links {
 					';
 		$bgcolor=' class="bgColor4"';
 		$bgcolorA=' class="bgColor5"';
-		if (!$wiz)	$menu.='<td'.$bgcolor.'><a href="#" onclick="self.parent.parent.renderPopup_unLink();return false;">'.$GLOBALS['LANG']->getLL('removeLink',1).'</a></td>';
+		if (!$wiz)	$menu.='<td'.$bgcolor.'><a href="#" onclick="parent.window.opener.renderPopup_unLink();return false;">'.$GLOBALS['LANG']->getLL('removeLink',1).'</a></td>';
 		if (in_array('page',$allowedItems))	$menu.='
 					<td'.($this->act=='page'?$bgcolorA:$bgcolor).'><a href="#" onclick="jumpToUrl(\'?act=page\');return false;">'.$GLOBALS['LANG']->getLL('page',1).'</a></td>';
 		if (in_array('file',$allowedItems))	$menu.='
@@ -2164,6 +2164,7 @@ class tx_rtehtmlarea_browse_links {
 						<td>';
 
 			// Create the new-folder name field:
+
 		$a=1;
 
 		$code.='<input'.$this->doc->formWidth(20).' type="text" name="file[newfolder]['.$a.'][data]" />'.

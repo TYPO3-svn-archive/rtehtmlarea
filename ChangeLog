@@ -1,3 +1,16 @@
+2005-04-18  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.4.70
+	* Correction to problem in method TS_transfrom_db.
+	* Correction for Mozilla/Firefox and TCA feature dividers2Tabs.
+	* Tune and simplify RTE processing options.
+	* New FAQ on custom tags.
+	* Method TS_transform_db is modified in order to remove true line breaks from hx tag content.
+	* Correction to link removal.
+	* Correction to default Page TSConfig.
+	* Corrections to the front end editor plugin: allow all htmlArea plugins except TYPO3Browsers, remove call to t3lib_BEfunc.
+	* Using TYPO3 db manipulation class.
+	* Correcting the spell checker style sheet in IE for the front end editor.
+
 2005-04-01  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.64
 	* Move minimal and full default Page TsConfig to external files.

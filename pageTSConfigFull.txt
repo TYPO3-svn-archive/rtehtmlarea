@@ -1,120 +1,84 @@
-RTE {
-	default {
+RTE.default {
+		## Default RTE configuration
+	skin = EXT:rtehtmlarea/htmlarea/skins/default/htmlarea.css
+	contentCSS = EXT:rtehtmlarea/htmlarea/plugins/DynamicCSS/dynamiccss.css
+	enableWordClean = 1
+	useCSS = 1
+	defaultLinkTarget =
+	showStatusBar = 1
+	showButtons = *
+	hideButtons =
+	disableContextMenu = 0
+	disableSelectColor = 0
+	disableTYPO3Browsers = 0
+	disableEnterParagraphs = 0
+	hidePStyleItems =
+	hideFontSizes =
+	hideTags = font, font (full)
+	disableColorPicker = 0
+	classesCharacter = 
+	classesImage = float-right, blue-background
+	classesAnchor = 
+	showTagFreeClasses = 1
 
-			## Default RTE configuration
-		skin = EXT:rtehtmlarea/htmlarea/skins/default/htmlarea.css
-		contentCSS = EXT:rtehtmlarea/htmlarea/plugins/DynamicCSS/dynamiccss.css
-		enableWordClean = 1
-		useCSS = 1
-		defaultLinkTarget =
-		showStatusBar = 1
-		showButtons = *
-		hideButtons =
-		disableContextMenu = 0
-		disableSelectColor = 0
-		disableTYPO3Browsers = 0
-		disableEnterParagraphs = 0
-		hidePStyleItems =
-		hideFontSizes =
-		hideTags = font, font (full)
-		disableColorPicker = 0
-		classesCharacter = 
-		classesImage = float-right, blue-background
-		classesAnchor = 
-		showTagFreeClasses = 1
+		## Default proc rules
+	proc {
 
-			## Default proc rules
-		proc {
+			## TRANSFORMATION METHOD
+		overruleMode = ts_css
 
-				## TRANSFORMATION METHOD
-			overruleMode = ts_css
+			## LINES CONVERSION
+		dontConvBRtoParagraph = 1
 
-				## LINES CONVERSION
-			dontConvBRtoParagraph = 1
+			## BRING FONT TAGS INSIDE PARAGRAPHS
+		internalizeFontTags = 1
 
-				## TAGS ALLOWED OUTSIDE P & DIV
-			allowTagsOutside = img,hr
+			## TAGS ALLOWED OUTSIDE P & DIV
+		allowTagsOutside = img,hr
 
-				## TAGS ALLOWED IN TYPOLISTS
-			allowTagsInTypolists = br,font,b,i,u,a,img,span
+			## TAGS ALLOWED
+		allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, link, img, nobr, hr, center, font, tt, q, cite, abbr, acronym
+
+			## TAGS DENIED
+		denyTags >
+
+			## ALLOWED P & DIV ATTRIBUTES
+		keepPDIVattribs = class, style
+
+			## ALLOWED CLASSES
+		allowedClasses = _
+
+			## CONTENT TO DATABASE
+		entryHTMLparser_db = 1
+		entryHTMLparser_db {
 
 				## TAGS ALLOWED
-			allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, link, img, nobr, hr, center, font, tt, q, cite, abbr, acronym
+			allowTags < RTE.default.proc.allowTags
 
-				## TAGS DENIED
-			denyTags >
+				## XHTML COMPLIANCE
+			xhtml_cleaning = 1
 
-				## ALLOWED P & DIV ATTRIBUTES
-			keepPDIVattribs = class, style
+				## AVOID TO HSC TWICE
+			htmlSpecialChars = 0
 
-				## ALLOW TABLES
-			preserveTables = 1 
+				## CLEAN TAGS
+			tags.hr.allowedAttribs = class
+			noAttrib = b, i, u, strike, sub, sup, strong, em, quote, blockquote, cite, tt, br, center
 
-				## ALLOWED CLASSES
-			allowedClasses = _
-
-				## CONTENT TO RTE
-			HTMLparser_rte = 1
-			HTMLparser_rte {
-
-					## TAGS ALLOWED
-				allowTags < RTE.default.proc.allowTags
-
-					## DO NOT REMOVE UNMATCHED TAGS
-				keepNonMatchedTags = 1
-			}
-
-				## CONTENT TO DATABASE
-			entryHTMLparser_db = 1
-			entryHTMLparser_db {
-
-					## TAGS ALLOWED
-				allowTags < RTE.default.proc.allowTags
-
-					## DO NOT REMOVE UNMATCHED TAGS
-				keepNonMatchedTags = 1
-
-					## XHTML COMPLIANCE
-				xhtml_cleaning = 1
-
-					## CLEAN TAGS
-				tags.b.allowedAttribs = 0
-				tags.i.allowedAttribs = 0
-				tags.u.allowedAttribs = 0
-				tags.strike.allowedAttribs = 0
-				tags.sub.allowedAttribs = 0
-				tags.sup.allowedAttribs = 0
-				tags.strong.allowedAttribs = 0
-				tags.em.allowedAttribs = 0
-				tags.quote.allowedAttribs = 0
-				tags.blockquote.allowedAttribs = 0
-				tags.cite.allowedAttribs = 0
-				tags.tt.allowedAttribs = 0
-				tags.br.allowedAttribs = 0
-				tags.center.allowedAttribs = 0
-				tags.hr.allowedAttribs = class
-			}
-			exitHTMLparser_db = 1
-			exitHTMLparser_db {
-
-					## TAGS ALLOWED
-				allowTags < RTE.default.proc.allowTags
-
-					## REMAP B AND I TAGS
-				tags.b.remap = strong
-				tags.i.remap = em
-			}
+				## REMAP B AND I TAGS
+			tags.b.remap = strong
+			tags.i.remap = em
 		}
-
-			## front end RTE configuration
-		FE < RTE.default
-		FE.showStatusBar = 0
-		FE.hideButtons = chMode
 	}
-
-		## tt_content RTE configuration
-	config.tt_content.bodytext.showButtons = *
 }
+
+	## front end RTE configuration
+RTE.default.FE < RTE.default
+RTE.default.FE.showStatusBar = 0
+RTE.default.FE.hideButtons = chMode
+
+	## tt_content RTE configuration
+RTE.config.tt_content.bodytext.showButtons = *
 
 	## tt_content TCEFORM configuration
 TCEFORM.tt_content.bodytext.RTEfullScreenWidth= 100%

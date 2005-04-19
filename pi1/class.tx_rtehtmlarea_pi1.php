@@ -108,11 +108,12 @@
 			$languageArray = array();
 			$tableA = 'sys_language';
 			$tableB = 'static_languages';
-			$query  = "SELECT $tableA.uid, $tableB.lg_iso_2, $tableB.lg_country_iso_2 FROM $tableA LEFT JOIN $tableB ON $tableA.static_lang_isocode=$tableB.uid WHERE 1 ";
-				$query .= " AND $tableA.hidden != '1'";
-			$res = mysql(TYPO3_db,$query);
-			echo mysql_error();
-			while($row = mysql_fetch_assoc($res))    {
+			$selectFields = $tableA . '.uid,' . $tableB . '.lg_iso_2,' . $tableB . '.lg_country_iso_2';
+			$table = $tableA . ' LEFT JOIN ' . $tableB . ' ON ' . $tableA . '.static_lang_isocode=' . $tableB . '.uid';
+			$whereClause = '1=1 ';
+			$whereClause .= ' AND ' . $tableA . '.hidden != "1"';
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($selectFields, $table, $whereClause);
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))    {
 				$languageArray[] = strtolower($row['lg_iso_2']).($row['lg_country_iso_2']?'_'.$row['lg_country_iso_2']:'');
 			}
 			if(!in_array($defaultDictionary, $languageArray)) {
@@ -166,13 +167,17 @@
 			}
 
 				// Initialize output
-			$this->result = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+			$this->result = '<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="' . substr($this->dictionary, 0, 2) . '" lang="' . substr($this->dictionary, 0, 2) . '">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" media="all" href="spell-check-style.css" />
 <script type="text/javascript">
-<!--
+/*<![CDATA[*/
 ';
 
 				// Getting the input content
@@ -203,7 +208,7 @@
 
 				// Insert spellcheck info
 			$this->result .= 'var spellcheck_info = { "Total words":"'.$this->wordCount.'","Misspelled words":"'.sizeof($this->misspelled).'","Total suggestions":"'.$this->suggestionCount.'","Total words suggested":"'.$this->suggestedWordCount.'","Spelling checked in":"'.$time.'" }; 
--->
+/*]]>*/
 </script>
 </head>
 ';

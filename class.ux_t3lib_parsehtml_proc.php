@@ -51,9 +51,9 @@ require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
  */
 class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
- // <Begin Stanislas Rolland 2005-02-10 to include hr in headListTags>
+ // <Stanislas Rolland 2005-02-10 to include hr in headListTags>
 	var $headListTags = 'PRE,UL,OL,H1,H2,H3,H4,H5,H6,HR';
- // <End Stanislas Rolland 2005-02-10 to include hr in headListTags>
+ // </Stanislas Rolland 2005-02-10 to include hr in headListTags>
 
 	/**
 	 * Creates an array of configuration for the HTMLcleaner function based on whether content go TO or FROM the Rich Text Editor ($direction)
@@ -104,7 +104,7 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						// Setting up span tags if they are allowed:
 					if (isset($keepTags['span']))		{
 						$classes=array_merge(array(''),$this->allowedClasses);
- // <Begin Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
+ // <Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
 						$keepTags['span']=array(
 							'allowedAttribs'=> 'class,style',
 							'fixAttrib' => Array(
@@ -121,7 +121,7 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						// Setting up font tags if they are allowed:
 					if (isset($keepTags['font']))		{
 						$colors=array_merge(array(''),t3lib_div::trimExplode(',',$this->procOptions['allowedFontColors'],1));
- // <End Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
+ // </Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
 						$keepTags['font']=array(
 							'allowedAttribs'=>'face,color,size,style',
 							'fixAttrib' => Array(
@@ -183,14 +183,17 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
 		$cc=0;
 		$aC = count($blockSplit);
+// <Stanislas Rolland 2005-04-02 to avoid superfluous linebreak after ending headListTag>
+		while($aC && !strcmp(trim($blockSplit[$aC-1]),'')) {
+			unset($blockSplit[$aC-1]);
+			$aC = count($blockSplit);
+		}
+// </Stanislas Rolland 2005-04-02 to avoid superfluous linebreak>
 
 			// Traverse the blocks
 		foreach($blockSplit as $k => $v)	{
 			$cc++;
- // <Begin Stanislas Rolland 2005-03-26 to avoid superfluous linebreak>
-			//$lastBR = $cc==$aC ? '' : chr(10);
-			$lastBR = ($css || $cc==$aC) ? '' : chr(10);
- // <End Stanislas Rolland 2005-03-26 to avoid superfluous linebreak>
+			$lastBR = $cc==$aC ? '' : chr(10);
 			if ($k%2)	{	// Inside block:
 
 					// Init:
@@ -258,7 +261,10 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 												$lastBR;
 							}
 						} else {
-							$blockSplit[$k].=$lastBR;
+// <Stanislas Rolland 2005-04-06 to eliminate true linebreaks inside hx tags>
+							$blockSplit[$k]=str_replace(chr(10),'',$blockSplit[$k]).$lastBR;
+							//$blockSplit[$k].=$lastBR;
+// </Stanislas Rolland 2005-04-06 to eliminate true linebreaks inside hx tags>
 						}
 					break;
 					default:

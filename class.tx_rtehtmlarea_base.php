@@ -379,12 +379,13 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 					$tableA = 'sys_language';
 					$tableB = 'static_languages';
 					$languagesUidsList = $row['sys_language_uid'];
-					$query  = "SELECT $tableA.uid, $tableB.lg_iso_2, $tableB.lg_country_iso_2, $tableB.lg_typo3 FROM $tableA LEFT JOIN $tableB ON $tableA.static_lang_isocode=$tableB.uid WHERE $tableA.uid IN (" . $languagesUidsList . ") ";
-						$query .= t3lib_BEfunc::BEenableFields($tableA);
-						$query .= t3lib_BEfunc::deleteClause($tableA);
-
-					$res = mysql(TYPO3_db,$query);
-					while ( $languageRow = @mysql_fetch_assoc($res)) {
+					$selectFields = $tableA . '.uid,' . $tableB . '.lg_iso_2,' . $tableB . '.lg_country_iso_2,' . $tableB . '.lg_typo3';
+					$table = $tableA . ' LEFT JOIN ' . $tableB . ' ON ' . $tableA . '.static_lang_isocode=' . $tableB . '.uid';
+					$whereClause = $tableA . '.uid IN (' . $languagesUidsList . ') ';
+					$whereClause .= t3lib_BEfunc::BEenableFields($tableA);
+					$whereClause .= t3lib_BEfunc::deleteClause($tableA);
+					$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($selectFields, $table, $whereClause);
+					while($languageRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))    {
 						$this->spellCheckerLanguage = strtolower(trim($languageRow['lg_iso_2']).(trim($languageRow['lg_country_iso_2'])?'_'.trim($languageRow['lg_country_iso_2']):''));
 						$this->spellCheckerTypo3Language = strtolower(trim($languageRow['lg_typo3']));
 					}
@@ -694,6 +695,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		}
 
 		return '
+		/*<![CDATA[*/
 			var conf_RTEtsConfigParams = "&RTEtsConfigParams=' . rawurlencode($this->RTEtsConfigParams()) . '";
 			var RTEarea = new Array();
 			var extHttpPath = "'.$this->extHttpPath.'";
@@ -701,8 +703,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			var rtePathLinkFile = "' . $this->rtePathLinkFile . '";'
 			. $loadPluginCode .  '
 			HTMLArea.init();
-			HTMLArea.I18N = HTMLArea_langArray;'
-		;
+			HTMLArea.I18N = HTMLArea_langArray;
+		/*]]>*/
+		';
 	}
 
 	/**
@@ -713,7 +716,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	function registerRTEinJS($number) {
 		global $LANG;
 
-		$registerRTEinJSString = '
+		$registerRTEinJSString = '		/*<![CDATA[*/
 			RTEarea['.$number.'] = new Array();
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
@@ -896,7 +899,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
 			initEditor('.$number.');
-';
+		/*]]>*/';
 
 		return $registerRTEinJSString;
 	}
@@ -1065,6 +1068,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$extensionFiles = array($extensionFilesPath . 'install.js', $extensionFilesPath .  'contents.rdf', $archivePath . 'user.js');
 			$params = array('remove_all_path' => true);
 			$zip = new Archive_Zip($archiveName);
+
 			$archiveInfo = $zip->create($extensionFiles, $params);
 		}
 
