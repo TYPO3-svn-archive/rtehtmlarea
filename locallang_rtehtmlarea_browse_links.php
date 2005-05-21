@@ -19,6 +19,7 @@ $LOCAL_LANG = Array (
 		'target_popUpWindow_width' => 'Width',
 		'target_popUpWindow_height' => 'Height',
 		'anchor_class' => 'Style',
+		'anchor_title' => 'Title',
 		'newWindow' => 'New window',
 		'top' => 'Top',
 		'none' => 'None - new link!',
@@ -177,6 +178,7 @@ $LOCAL_LANG = Array (
 		'target_popUpWindow_width' => 'Largeur',
 		'target_popUpWindow_height' => 'Hauteur',
 		'anchor_class' => 'Style',
+		'anchor_title' => 'Titre',
 		'newWindow' => 'Nouvelle fenêtre',
 		'top' => 'Haut',
 		'none' => 'Aucun - Insérer un nouveau lien!',
@@ -206,6 +208,7 @@ $LOCAL_LANG = Array (
 		'target_popUpWindow_width' => 'Anchura',
 		'target_popUpWindow_height' => 'Altura',
 		'anchor_class' => 'Estilo',
+		'anchor_title' => 'Título',
 		'newWindow' => 'Nueva ventana',
 		'top' => 'Arriba',
 		'none' => 'Ninguno - nueva liga',
@@ -799,6 +802,10 @@ $LOCAL_LANG = Array (
 		'folderTree' => 'Árvore da pasta',
 		'files' => 'Arquivos',
 		'target' => 'Destino',
+		'target_popUpWindow' => 'Abrir na janela',
+		'target_popUpWindow_width' => 'Largura',
+		'target_popUpWindow_height' => 'Altura',
+		'anchor_class' => 'Estilo',
 		'newWindow' => 'Nova janela',
 		'top' => 'Topo',
 		'none' => 'Nenhum - novo link!',
@@ -951,6 +958,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

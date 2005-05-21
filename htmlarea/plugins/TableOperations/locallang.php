@@ -98,6 +98,7 @@ $LOCAL_LANG = Array (
 		'TO-row-prop' => 'Row properties',
 		'TO-row-split' => 'Split row',
 		'TO-table-prop' => 'Table properties',
+		'TO-toggle-borders' => 'Toggle borders',
 		'Table Properties' => 'Table Properties',
 		'Text alignment:' => 'Text alignment:',
 		'Horizontal alignment of text within cell' => 'Horizontal alignment of text within cell',
@@ -405,6 +406,7 @@ $LOCAL_LANG = Array (
 		'TO-row-prop' => 'Propriétés de la rangée',
 		'TO-row-split' => 'Scinder la rangée',
 		'TO-table-prop' => 'Propriétés de la table',
+		'TO-toggle-borders' => 'Montrer les bordures',
 		'Table Properties' => 'Propriétés de la table',
 		'Text alignment:' => 'Alignement du texte:',
 		'Horizontal alignment of text within cell' => 'Alignement horizontal du texte à l\'intérieur de la cellule',
@@ -625,6 +627,11 @@ $LOCAL_LANG = Array (
 	'fi' => Array (
 		'Not set' => 'Ei asetettu',
 		'None' => 'Ei mitään',
+		'CSS Style' => 'CSS tyyli',
+		'Class:' => 'Luokka (class):',
+		'Class selector' => 'CSS luokan (class) valitsin',
+		'Default' => 'Oletus',
+		'Undefined' => 'Määrittelemätön',
 		'Alignment' => 'Tasaus',
 		'All four sides' => 'Kaikilta neljältä puolelta',
 		'Background and colors' => 'Tausta ja värit',
@@ -899,6 +906,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

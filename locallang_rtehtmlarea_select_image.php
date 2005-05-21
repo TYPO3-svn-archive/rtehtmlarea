@@ -254,6 +254,7 @@ $LOCAL_LANG = Array (
 		'left' => 'Vasen',
 		'right' => 'Oikea',
 		'title' => 'Otsikko',
+		'alt' => 'Vaihtoehtoinen teksti',
 		'update' => 'Päivitä',
 		'magicImage' => 'Uusi Magic Kuva',
 		'plainImage' => 'Uusi tavallinen kuva',
@@ -459,12 +460,19 @@ $LOCAL_LANG = Array (
 		'images' => 'Imagens',
 		'magicImage_msg' => 'No modo "Mágico" você pode selecionar qualquer tipo de imagem com quaisquer dimensões. A imagem é automaticamente convertida para um formato de imagem de internet e qualquer ajuste que você faça no tamanho da imagem é pós-processado para otimizar o tamanho e a qualidade.',
 		'plainImage_msg' => 'No modo "Simples" você pode apenas inserir imagens de formato comum na internet (JPG, GIF e PNG) até 640x480 pontos. Este método é destinado a imagens já otimizadas para a Internet.',
+		'class' => 'Estilo',
 		'width' => 'Largura',
 		'height' => 'Altura',
 		'border' => 'Borda',
 		'margin_tb' => 'Margem superior/inferior',
 		'margin_lr' => 'Margem esquerda/direita',
+		'float' => 'Flutuar',
+		'notSet' => 'Não configurado',
+		'nonFloating' => 'Não-flutuante',
+		'left' => 'Esquerda',
+		'right' => 'Direita',
 		'title' => 'Título',
+		'alt' => 'Texto Alternativo',
 		'update' => 'Atualização',
 		'magicImage' => 'Nova imagem (modo Mágico)',
 		'plainImage' => 'Nova imagem (modo Simples)',
@@ -490,6 +498,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

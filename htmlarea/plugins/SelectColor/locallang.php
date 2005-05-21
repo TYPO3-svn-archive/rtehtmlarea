@@ -113,6 +113,12 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'CO-forecolor' => 'Cor de Texto',
+		'CO-hilitecolor' => 'Cor de Fundo',
+		'CO-forecolor_title' => 'Defina a cor de texto',
+		'CO-hilitecolor_title' => 'Defina a cor de fundo',
+		'color_title' => 'Escolha uma cor',
+		'no_color' => 'Sem cor',
 	),
 	'et' => Array (
 	),
@@ -133,6 +139,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

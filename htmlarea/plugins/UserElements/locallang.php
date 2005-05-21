@@ -1,38 +1,28 @@
 <?php
 /**
- * Language labels for buttons of RTE HtmalArea (extension: rte_pb_htmlarea)
+ * Language labels for plugin UserElements of TYPO3 htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
 
 $LOCAL_LANG = Array (
 	'default' => Array (
-		'ok' => 'OK',
-		'cancel' => 'Cancel',
+		'Insert custom element' => 'Insert custom element',
 	),
 	'dk' => Array (
 	),
 	'de' => Array (
-		'ok' => 'OK',
-		'cancel' => 'Abbrechen',
 	),
 	'no' => Array (
 	),
 	'it' => Array (
-		'ok' => 'OK',
-		'cancel' => 'Cancella',
 	),
 	'fr' => Array (
-		'ok' => 'OK',
-		'cancel' => 'Annuler',
+		'Insert custom element' => 'Insérer un élément personalisé',
 	),
 	'es' => Array (
-		'ok' => 'Aceptar',
-		'cancel' => 'Cancelar',
 	),
 	'nl' => Array (
-		'ok' => 'OK',
-		'cancel' => 'Annuleren',
 	),
 	'cz' => Array (
 	),
@@ -41,8 +31,6 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
-		'ok' => 'OK',
-		'cancel' => 'Peruuta',
 	),
 	'tr' => Array (
 	),
@@ -51,8 +39,6 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
-		'ok' => 'ÎÊ',
-		'cancel' => 'Îòìåíà',
 	),
 	'ro' => Array (
 	),
@@ -81,8 +67,6 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
-		'ok' => 'OK',
-		'cancel' => 'Cancelar',
 	),
 	'et' => Array (
 	),

@@ -6,6 +6,7 @@ RTE.default {
 	showStatusBar =  0
 	showButtons =  bold,italic,underline,textindicator,copy,cut,paste,undo,redo,about
 	hideButtons = 
+	hideTableOperationsInToolbar = 0
 	disableContextMenu = 0
 	disableSelectColor = 0
 	disableTYPO3Browsers = 0
@@ -43,7 +44,6 @@ RTE.default {
 			## ALLOWED P & DIV ATTRIBUTES
 		keepPDIVattribs = class, style
 
-
 			## ALLOWED CLASSES
 		allowedClasses = _
 
@@ -67,6 +67,9 @@ RTE.default {
 				## REMAP B AND I TAGS
 			tags.b.remap = strong
 			tags.i.remap = em
+
+				## PROTECT CUSTOM TAGS
+			keepNonMatchedTags = protect
 		}
 	}
 }

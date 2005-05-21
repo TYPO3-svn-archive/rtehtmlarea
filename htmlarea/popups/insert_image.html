@@ -2,16 +2,14 @@
 <head>
 	<title>Insert Image</title>
 	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<!--<link rel="stylesheet" href="../htmlarea.css" />-->
 	<script type="text/javascript" src="popup.js"></script>
 	<script type="text/javascript">
 		HTMLArea = window.opener.HTMLArea;
 		_editor_CSS = window.opener._editor_CSS;
 		__dlg_loadStyle(_editor_CSS);
-		var i18n = window.opener.HTMLArea.I18N.dialogs;
 
 		function Init() {
-			__dlg_translate(i18n);
+			__dlg_translate(window.opener.HTMLArea.I18N.dialogs);
 			__dlg_init();
 			var param = window.dialogArguments;
 			if (param) {
@@ -21,7 +19,7 @@
 				document.getElementById("f_align").value = param["f_align"];
 				document.getElementById("f_vert").value = param["f_vert"];
 				document.getElementById("f_horiz").value = param["f_horiz"];
-				document.getElementById("f_style").value = param["f_float"];
+				document.getElementById("f_float").value = param["f_float"];
 				window.ipreview.location.replace(param.f_url);
 			}
 			document.getElementById("f_url").focus();

@@ -1,3 +1,22 @@
+2005-05-21  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.5.0
+	* Using TYPO3 classes to access language files.
+	* Correcting character set conversion for the front end editor in some configurations.
+	* Update to Brazilian Portuguese and Finnish translations.
+	* Use doubleval in place of floatval in SpellChecker plugin.
+	* Use XMLHttpRequest to asynchronously download required scripts.
+	* Add troubleshooting log and extension configuration variable to enable logging.
+	* Multiple changes to support Safari 1.3. Although the editor loads in Safari 1.3, it does not currently execute correctly due to some bugs in Safari edit mode.
+	* Restructure the tool bar as an unordered list of label, select and button elements so that it can be walked through with the tab key. The list, including the button icons, is css-styled through the editor skin.
+	* Restructure the context menu as an unordered list of button elements. The context menu, including the button icons, is css-styled through the editor skin.
+	* Show in the context menu all table operations enabled in the given context.
+	* Each of the table operations becomes a configurable tool bar element like all other tool bar elements.
+	* New RTE Page TSConfig property: hideTableOperationsInToolbar. If set, the table operations buttons will not be displayed in the tool bar, but will appear in the context menu, when enabled in the given context.
+	* Method TS_transform_db of class t3lib_parsehtml_proc is modified in order to replace true line breaks with spaces, instead of eliminating them. Thanks to Johannes Bornhold.
+	* New htmlArea plugin UserElements to enable the "user" button.
+	* Add the title attribute on the TYPO3 link insertion/modification dialog.
+	* New toggleborders button to show table borders. Imported from Xinha.
+
 2005-04-18  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.4.70
 	* Correction to problem in method TS_transfrom_db.

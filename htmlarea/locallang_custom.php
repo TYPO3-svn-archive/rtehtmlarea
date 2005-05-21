@@ -82,6 +82,7 @@ $LOCAL_LANG = Array (
 	),
 	'br' => Array (
 		'style' => 'Estilo:',
+		'text_style' => 'Texto:',
 	),
 	'et' => Array (
 	),
@@ -102,6 +103,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

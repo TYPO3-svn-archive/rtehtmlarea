@@ -95,6 +95,10 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'Default' => 'Padrão',
+		'Undefined' => 'Não definido',
+		'InlineCSSStyleTooltip' => 'Aplique o estilo no texto seleconado',
+		'You have to select some text' => 'Você deve selecionar algum texto',
 	),
 	'et' => Array (
 	),
@@ -115,6 +119,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

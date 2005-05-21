@@ -7,24 +7,20 @@
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 
-RemoveFormat.I18N = RemoveFormat_langArray;
-
-function RemoveFormat(editor) {
+RemoveFormat = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
 	var self = this;
-	var i18n = RemoveFormat.I18N;
-
 	cfg.registerButton({
-                id       : "removeformat",
-                tooltip  : i18n["RemoveFormatTooltip"],
-                image    : editor.imgURL("ed_clean.gif", "RemoveFormat"),
-                textMode : false,
-                action   : function(editor) {
-                                self.buttonPress(editor);
-                           }
+		id 		: "RemoveFormat",
+		tooltip 	: RemoveFormat_langArray["RemoveFormatTooltip"],
+		image 	: editor.imgURL("ed_clean.gif", "RemoveFormat"),
+		textMode 	: false,
+		action 	: function(editor) { self.buttonPress(editor); }
             });
 };
+
+RemoveFormat.I18N = RemoveFormat_langArray;
 
 RemoveFormat._pluginInfo = {
 	name          : "RemoveFormat",

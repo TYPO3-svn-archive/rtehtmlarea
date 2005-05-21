@@ -231,6 +231,27 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'Substitute this occurrence?' => 'Substituir essa ocorrência?',
+		'Enter the text you want to find' => 'Insira o texto que você quer encontrar',
+		'Inform a replacement word' => 'Isso excluirá todas as ocorrências.',
+		'found items' => 'itens encontrados',
+		'replaced items' => 'itens substituídos',
+		'found item' => 'item encontrado',
+		'replaced item' => 'item substituído',
+		'not found' => 'não encontrado',
+		'Find and Replace' => 'Localizar e Substituir',
+		'Options' => 'Opções:',
+		'Whole words only' => 'Palavras inteiras apenas',
+		'Case sensitive search' => 'Localização sensível a caixa',
+		'Substitute all occurrences' => 'Substituir todas as ocorrências',
+		'Search for:' => 'Procurar por:',
+		'Replace with:' => 'Substituir com:',
+		'Actions' => 'Ações:',
+		'Clear' => 'Limpar',
+		'Highlight' => 'Destacar',
+		'Undo' => 'Voltar',
+		'Next' => 'Próximo',
+		'Done' => 'Finalizado',
 	),
 	'et' => Array (
 	),
@@ -251,6 +272,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

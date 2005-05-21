@@ -1,42 +1,31 @@
-// Context Menu Plugin for HTMLArea-3.0
-// Sponsored by www.americanbible.org
-// Implementation by Mihai Bazon, http://dynarch.com/mishoo/
-//
-// (c) dynarch.com 2003.
-// Distributed under the same terms as HTMLArea itself.
+// Context Menu Plugin for TYPO3 htmlArea RTE
+// Implementation by Mihai Bazon, http://dynarch.com/mishoo/. Sponsored by www.americanbible.org
+// Substantially rewritten by Stanislas Rolland <stanislas.rolland(arobas)fructifor.com>. Sponsored by Fructifor Inc.
+// Copyright (c) 2003 dynarch.com
+// Copyright (c) 2004-2005 Stanislas Rolland
 // This notice MUST stay intact for use (see license.txt).
-//
-// $Id$
-// Change by Stanislas Rolland 2004-11-20
-// Test if cut, copy, paste options are enabled
-// Test if the justify options are enabled
-// Test if the createlink and insertimage are enabled
-// Disallow insert paragraph before/after tbody, tr and td elements
-// Assign language array generated from TYPO3 locallang file
-// Patch when window scrolling for Mozilla
 
-//HTMLArea.loadStyle("menu.css", "ContextMenu");
-ContextMenu.I18N = ContextMenu_langArray;
-
-function ContextMenu(editor) {
+ContextMenu = function(editor) {
 	this.editor = editor;
+	this.currentMenu = null;
 };
+
+ContextMenu.I18N = ContextMenu_langArray;
 
 ContextMenu._pluginInfo = {
 	name          : "ContextMenu",
 	version       : "1.5",
-	developer     : "Mihai Bazon",
+	developer     : "Mihai Bazon & Stanislas Rolland",
 	developer_url : "http://dynarch.com/mishoo/",
 	c_owner       : "dynarch.com",
-	sponsor       : "American Bible Society",
+	sponsor       : "American Bible Society & Fructifor Inc.",
 	sponsor_url   : "http://www.americanbible.org",
 	license       : "htmlArea"
 };
 
 ContextMenu.prototype.onGenerate = function() {
 	var self = this;
-	HTMLArea._addEvent(this.editor._doc, "contextmenu", function(ev) {self.popupMenu(ev); });
-	this.currentMenu = null;
+	HTMLArea._addEvent(this.editor._doc,"contextmenu",function(ev){self.popupMenu(ev);});
 };
 
 ContextMenu.prototype.getContextMenu = function(target) {
@@ -44,35 +33,28 @@ ContextMenu.prototype.getContextMenu = function(target) {
 	var editor = this.editor;
 	var config = editor.config;
 	var menu = [];
-	var tbo = this.editor.plugins.TableOperations;
-	if (tbo) tbo = tbo.instance;
-	var i18n = ContextMenu.I18N;
+	var tbo = this.editor.plugins["TableOperations"];
+	if(tbo) tbo = tbo.instance;
 
 	var selection = editor.hasSelectedText();
-	if (selection) {
-		if(editor._toolbarObjects['cut'] && editor._toolbarObjects['cut'].enabled)  {
-			menu.push([ i18n["Cut"], function() { editor.execCommand("cut"); }, null, config.btnList["cut"][1] ]);
+	if(selection) {
+		if(editor._toolbarObjects['Cut'] && editor._toolbarObjects['Cut'].enabled)  {
+			menu.push([ContextMenu.I18N["Cut"],function(){editor.execCommand("cut");},null,config.btnList["Cut"][1],"Cut"]);
 		}
-		if(editor._toolbarObjects['copy'] && editor._toolbarObjects['copy'].enabled) {
-			menu.push([ i18n["Copy"], function() { editor.execCommand("copy"); }, null, config.btnList["copy"][1] ]);
+		if(editor._toolbarObjects['Copy'] && editor._toolbarObjects['Copy'].enabled) {
+			menu.push([ContextMenu.I18N["Copy"],function(){editor.execCommand("copy");},null,config.btnList["Copy"][1],"Copy"]);
 		}
 	}
-	if(editor._toolbarObjects['paste'] && editor._toolbarObjects['paste'].enabled) {
-		menu.push([ i18n["Paste"], function() { editor.execCommand("paste"); }, null, config.btnList["paste"][1] ]);
+	if(editor._toolbarObjects['Paste'] && editor._toolbarObjects['Paste'].enabled) {
+		menu.push([ContextMenu.I18N["Paste"],function(){editor.execCommand("paste");},null,config.btnList["Paste"][1],"Paste"]);
 	}
 
-	var currentTarget = target;
-	var elmenus = [];
-	var tmp;
-
-	var link = null;
-	var table = null;
-	var tr = null;
-	var td = null;
-	var img = null;
+	var 	currentTarget = target,
+		elmenus = [],
+		tmp,tag,link = false,table = null,tr = null,td = null,img = null;
 
 	function tableOperation(opcode) {
-		tbo.buttonPress(editor, opcode);
+		tbo.buttonPress(editor,opcode);
 	};
 
 	function insertPara(currentTarget,after) {
@@ -83,11 +65,16 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		par.insertBefore(p, after ? el.nextSibling : el);
 		var sel = editor._getSelection();
 		var range = editor._createRange(sel);
-		if (!HTMLArea.is_ie) {
-			sel.removeAllRanges();
+		if(HTMLArea.is_gecko) {
 			range.selectNodeContents(p);
 			range.collapse(true);
-			sel.addRange(range);
+			if(HTMLArea.is_safari) {
+				sel.empty();
+				sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
+			} else {
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}
 		} else {
 			range.moveToElementText(p);
 			range.collapse(true);
@@ -95,173 +82,166 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		}
 	};
 
-	for (; target; target = target.parentNode) {
-		var tag = target.tagName;
-		if (!tag)
-			continue;
+	for(; target; target = target.parentNode) {
+		tag = target.tagName;
+		if(!tag) continue;
 		tag = tag.toLowerCase();
 		switch (tag) {
 		    case "img":
 			img = target;
-			if(editor._toolbarObjects['insertimage'] && editor._toolbarObjects['insertimage'].enabled)  {
+			if(editor._toolbarObjects["InsertImage"] && editor._toolbarObjects["InsertImage"].enabled)  {
 				elmenus.push(null,
-				     [ i18n["Image Properties"],
-				       function() {
-					       editor._insertImage(img);
-				       },
-				       i18n["Show the image properties dialog"],
-				       config.btnList["insertimage"][1] ]
+				     [ContextMenu.I18N["Image Properties"],
+				       function(){editor._insertImage(img);},ContextMenu.I18N["Show the image properties dialog"],
+				       config.btnList["InsertImage"][1],"InsertImage"]
 				);
 			}
 			break;
 		    case "a":
 			link = target;
-			if(editor._toolbarObjects['createlink'] && editor._toolbarObjects['createlink'].enabled)  {
+			if(editor._toolbarObjects["CreateLink"] && editor._toolbarObjects["CreateLink"].enabled)  {
 				elmenus.push(null,
-				     [ i18n["Modify Link"],
-				       function() { editor.execCommand("createlink", true); },
-				       i18n["Current URL is"] + ': ' + link.href,
-				       config.btnList["createlink"][1] ],
+					[ContextMenu.I18N["Modify Link"],
+						function(){editor.execCommand("CreateLink", true);},ContextMenu.I18N["Current URL is"] + ': ' + link.href,
+						config.btnList["CreateLink"][1],"CreateLink"],
+					[ContextMenu.I18N["Check Link"],
+						function(){window.open(link.href);},ContextMenu.I18N["Opens this link in a new window"],
+						null,"CreateLink"],
+				     [ContextMenu.I18N["Remove Link"],
+						function(){
+							if (confirm(ContextMenu.I18N["Please confirm that you want to unlink this element."] + "\n" +
+								ContextMenu.I18N["Link points to:"] + " " + link.href)) {
+									while(link.firstChild) link.parentNode.insertBefore(link.firstChild, link);
+									link.parentNode.removeChild(link);
+							}
+				       },ContextMenu.I18N["Unlink the current element"],null,"CreateLink"]
 
-				     [ i18n["Check Link"],
-				       function() { window.open(link.href); },
-				       i18n["Opens this link in a new window"] ],
-
-				     [ i18n["Remove Link"],
-				       function() {
-					       if (confirm(i18n["Please confirm that you want to unlink this element."] + "\n" +
-							   i18n["Link points to:"] + " " + link.href)) {
-						       while (link.firstChild)
-							       link.parentNode.insertBefore(link.firstChild, link);
-						       link.parentNode.removeChild(link);
-					       }
-				       },
-				       i18n["Unlink the current element"] ]
 				);
 			}
 			break;
 		    case "td":
 			td = target;
-			if (!tbo) break;
-			elmenus.push(null,
-					[ i18n["Cell Properties"],
-				       function() { tableOperation("TO-cell-prop"); },
-				       i18n["Show the Table Cell Properties dialog"],
-				       config.btnList["TO-cell-prop"][1] ],
-
-					[ i18n["Delete Cell"],
-  						function() { tableOperation("TO-cell-delete"); },
-				       	i18n["Delete the current cell"],
-  						config.btnList["TO-cell-delete"][1] ]
-				);
+			if(!tbo) break;
+			var cellPropEnabled = (editor._toolbarObjects['TO-cell-prop']  && editor._toolbarObjects['TO-cell-prop'].enabled);
+			var cellInsertBeforeEnabled = (editor._toolbarObjects['TO-cell-insert-before']  && editor._toolbarObjects['TO-cell-insert-before'].enabled);
+			var cellInsertAfterEnabled = (editor._toolbarObjects['TO-cell-insert-after']  && editor._toolbarObjects['TO-cell-insert-after'].enabled);
+			var cellDeleteEnabled = (editor._toolbarObjects['TO-cell-delete']  && editor._toolbarObjects['TO-cell-delete'].enabled);
+			var cellSplitEnabled = (editor._toolbarObjects['TO-cell-split']  && editor._toolbarObjects['TO-cell-split'].enabled);
+			if(cellPropEnabled || cellInsertBeforeEnabled || cellInsertAfterEnabled || cellDeleteEnabled || cellSplitEnabled) elmenus.push(null);
+			if(cellPropEnabled) elmenus.push([ContextMenu.I18N["Cell Properties"],
+				function(){tableOperation("TO-cell-prop");},ContextMenu.I18N["Show the Table Cell Properties dialog"],
+				config.btnList["TO-cell-prop"][1],"TO-cell-prop"]);
+			if(cellInsertBeforeEnabled) elmenus.push([ContextMenu.I18N["Insert cell before"],
+				function(){tableOperation("TO-cell-insert-before");},ContextMenu.I18N["Insert a new cell before the current one"],
+				config.btnList["TO-cell-insert-before"][1],"TO-cell-insert-before"]);
+			if(cellInsertAfterEnabled) elmenus.push([ContextMenu.I18N["Insert cell after"],
+				function(){tableOperation("TO-cell-insert-after");},ContextMenu.I18N["Insert a new cell after the current one"],
+				config.btnList["TO-cell-insert-after"][1],"TO-cell-insert-after"]);
+			if(cellDeleteEnabled) elmenus.push([ContextMenu.I18N["Delete Cell"],
+  				function(){tableOperation("TO-cell-delete");},ContextMenu.I18N["Delete the current cell"],
+  				config.btnList["TO-cell-delete"][1],"TO-cell-delete"]);
+			if(cellSplitEnabled) elmenus.push([ContextMenu.I18N["Split Cell"],
+  				function(){tableOperation("TO-cell-split");},ContextMenu.I18N["Split the current cell"],
+  				config.btnList["TO-cell-split"][1],"TO-cell-split"]);
 			break;
 		    case "tr":
 			tr = target;
-			if (!tbo) break;
-			elmenus.push(null,
-				     [ i18n["Row Properties"],
-				       function() { tableOperation("TO-row-prop"); },
-				       i18n["Show the Table Row Properties dialog"],
-				       config.btnList["TO-row-prop"][1] ],
-
-				     [ i18n["Insert Row Before"],
-				       function() { tableOperation("TO-row-insert-above"); },
-				       i18n["Insert a new row before the current one"],
-				       config.btnList["TO-row-insert-above"][1] ],
-
-				     [ i18n["Insert Row After"],
-				       function() { tableOperation("TO-row-insert-under"); },
-				       i18n["Insert a new row after the current one"],
-				       config.btnList["TO-row-insert-under"][1] ],
-
-				     [ i18n["Delete Row"],
-				       function() { tableOperation("TO-row-delete"); },
-				       i18n["Delete the current row"],
-				       config.btnList["TO-row-delete"][1] ]
-				);
+			if(!tbo) break;
+			var cellMergeEnabled = (editor._toolbarObjects['TO-cell-merge']  && editor._toolbarObjects['TO-cell-merge'].enabled);
+			var rowPropEnabled = (editor._toolbarObjects['TO-row-prop']  && editor._toolbarObjects['TO-row-prop'].enabled);
+			var rowInsertBeforeEnabled = (editor._toolbarObjects['TO-row-insert-above'] && editor._toolbarObjects['TO-row-insert-above'].enabled);
+			var rowInsertAfterEnabled = (editor._toolbarObjects['TO-row-insert-under'] && editor._toolbarObjects['TO-row-insert-under'].enabled);
+			var rowDeleteEnabled = (editor._toolbarObjects['TO-row-delete'] && editor._toolbarObjects['TO-row-delete'].enabled);
+			var rowSplitEnabled = (editor._toolbarObjects['TO-row-split'] && editor._toolbarObjects['TO-row-split'].enabled);
+			if(cellMergeEnabled) elmenus.push([ContextMenu.I18N["Merge Cells"],
+				function(){tableOperation("TO-cell-merge");},ContextMenu.I18N["Merge the selected cells"],
+				config.btnList["TO-cell-merge"][1],"TO-cell-merge"]);
+			if(rowPropEnabled || rowInsertBeforeEnabled || rowInsertAfterEnabled || rowDeleteEnabled || rowSplitEnabled) elmenus.push(null);
+			if(rowPropEnabled) elmenus.push([ContextMenu.I18N["Row Properties"],
+				function(){tableOperation("TO-row-prop");},ContextMenu.I18N["Show the Table Row Properties dialog"],
+				config.btnList["TO-row-prop"][1],"TO-row-prop"]);
+			if(rowInsertBeforeEnabled) elmenus.push([ContextMenu.I18N["Insert Row Before"],
+				function(){tableOperation("TO-row-insert-above");},ContextMenu.I18N["Insert a new row before the current one"],
+				config.btnList["TO-row-insert-above"][1],"TO-row-insert-above"]);
+			if(rowInsertAfterEnabled) elmenus.push([ContextMenu.I18N["Insert Row After"],
+				function(){tableOperation("TO-row-insert-under");},ContextMenu.I18N["Insert a new row after the current one"],
+				config.btnList["TO-row-insert-under"][1],"TO-row-insert-under"]);
+			if(rowDeleteEnabled) elmenus.push([ContextMenu.I18N["Delete Row"],
+				function(){tableOperation("TO-row-delete");},ContextMenu.I18N["Delete the current row"],
+				config.btnList["TO-row-delete"][1],"TO-row-delete"]);
+			if(rowSplitEnabled) elmenus.push([ContextMenu.I18N["Split Row"],
+  				function(){tableOperation("TO-row-split");},ContextMenu.I18N["Split the current row"],
+  				config.btnList["TO-row-split"][1],"TO-row-split"]);
 			break;
 		    case "table":
 			table = target;
-			if (!tbo) break;
-			elmenus.push(null,
-				     [ i18n["Table Properties"],
-				       function() { tableOperation("TO-table-prop"); },
-				       i18n["Show the Table Properties dialog"],
-				       config.btnList["TO-table-prop"][1] ],
-
-				     [ i18n["Insert Column Before"],
-				       function() { tableOperation("TO-col-insert-before"); },
-				       i18n["Insert a new column before the current one"],
-				       config.btnList["TO-col-insert-before"][1] ],
-
-				     [ i18n["Insert Column After"],
-				       function() { tableOperation("TO-col-insert-after"); },
-				       i18n["Insert a new column after the current one"],
-				       config.btnList["TO-col-insert-after"][1] ],
-
-				     [ i18n["Delete Column"],
-				       function() { tableOperation("TO-col-delete"); },
-				       i18n["Delete the current column"],
-				       config.btnList["TO-col-delete"][1] ]
-				);
+			if(!tbo) break;
+			var tablePropEnabled = (editor._toolbarObjects['TO-table-prop']  && editor._toolbarObjects['TO-table-prop'].enabled);
+			var colInsertBeforeEnabled = (editor._toolbarObjects['TO-col-insert-before'] && editor._toolbarObjects['TO-col-insert-before'].enabled);
+			var colInsertAfterEnabled = (editor._toolbarObjects['TO-col-insert-after'] && editor._toolbarObjects['TO-col-insert-after'].enabled);
+			var colDeleteEnabled = (editor._toolbarObjects['TO-col-delete'] && editor._toolbarObjects['TO-col-delete'].enabled);
+			var colSplitEnabled = (editor._toolbarObjects['TO-col-split'] && editor._toolbarObjects['TO-col-split'].enabled);
+			if(colInsertBeforeEnabled || colInsertAfterEnabled || colDeleteEnabled || colSplitEnabled) elmenus.push(null);
+			if(colInsertBeforeEnabled) elmenus.push([ContextMenu.I18N["Insert Column Before"],
+				function(){tableOperation("TO-col-insert-before");},ContextMenu.I18N["Insert a new column before the current one"],
+				config.btnList["TO-col-insert-before"][1],"TO-col-insert-before"]);
+			if(colInsertAfterEnabled) elmenus.push([ContextMenu.I18N["Insert Column After"],
+				function(){tableOperation("TO-col-insert-after");},ContextMenu.I18N["Insert a new column after the current one"],
+				config.btnList["TO-col-insert-after"][1],"TO-col-insert-after"]);
+			if(colDeleteEnabled) elmenus.push([ContextMenu.I18N["Delete Column"],
+				function(){tableOperation("TO-col-delete");},ContextMenu.I18N["Delete the current column"],
+				config.btnList["TO-col-delete"][1],"TO-col-delete"]);
+			if(colSplitEnabled) elmenus.push([ContextMenu.I18N["Split Column"],
+  				function(){tableOperation("TO-col-split");},ContextMenu.I18N["Split the current column"],
+  				config.btnList["TO-col-split"][1],"TO-col-split"]);
+			if(tablePropEnabled) elmenus.push(null,[ContextMenu.I18N["Table Properties"],
+				function(){tableOperation("TO-table-prop");},ContextMenu.I18N["Show the Table Properties dialog"],
+				config.btnList["TO-table-prop"][1],"TO-table-prop"]);
 			break;
 		    case "body":
-				var justifyLeftEnabled = (editor._toolbarObjects['justifyleft'] && editor._toolbarObjects['justifyleft'].enabled);
-				var justifyCenterEnabled = (editor._toolbarObjects['justifycenter'] && editor._toolbarObjects['justifycenter'].enabled);
-				var justifyRightEnabled = (editor._toolbarObjects['justifyright'] && editor._toolbarObjects['justifyright'].enabled);
-				var justifyFullEnabled = (editor._toolbarObjects['justifyfull'] && editor._toolbarObjects['justifyfull'].enabled);
-				if( justifyLeftEnabled || justifyCenterEnabled || justifyRightEnabled || justifyFullEnabled) {
-					elmenus.push(null);
-				}
-				if( justifyLeftEnabled ) {
-					elmenus.push([ i18n["Justify Left"],
-				       	function() { editor.execCommand("justifyleft"); }, null,
-				       	config.btnList["justifyleft"][1] ]);
-				}
-				if( justifyCenterEnabled ) {
-					elmenus.push([ i18n["Justify Center"],
-				       	function() { editor.execCommand("justifycenter"); }, null,
-				       	config.btnList["justifycenter"][1] ]);
-				}
-				if( justifyRightEnabled ) {
-					elmenus.push([ i18n["Justify Right"],
-				       	function() { editor.execCommand("justifyright"); }, null,
-				       	config.btnList["justifyright"][1] ]);
-				}
-				if( justifyFullEnabled ) {
-					elmenus.push([ i18n["Justify Full"],
-				       	function() { editor.execCommand("justifyfull"); }, null,
-				       	config.btnList["justifyfull"][1] ]);
-				}
+			var justifyLeftEnabled = (editor._toolbarObjects['JustifyLeft'] && editor._toolbarObjects['JustifyLeft'].enabled);
+			var justifyCenterEnabled = (editor._toolbarObjects['JustifyCenter'] && editor._toolbarObjects['JustifyCenter'].enabled);
+			var justifyRightEnabled = (editor._toolbarObjects['JustifyRight'] && editor._toolbarObjects['JustifyRight'].enabled);
+			var justifyFullEnabled = (editor._toolbarObjects['JustifyFull'] && editor._toolbarObjects['JustifyFull'].enabled);
+			if(justifyLeftEnabled || justifyCenterEnabled || justifyRightEnabled || justifyFullEnabled) elmenus.push(null);
+			if(justifyLeftEnabled) elmenus.push([ContextMenu.I18N["Justify Left"],
+				function(){editor.execCommand("JustifyLeft");},null,
+				config.btnList["JustifyLeft"][1],"JustifyLeft"]);
+			if(justifyCenterEnabled) elmenus.push([ContextMenu.I18N["Justify Center"],
+				function(){editor.execCommand("JustifyCenter");},null,
+				config.btnList["JustifyCenter"][1],"JustifyCenter"]);
+			if(justifyRightEnabled) elmenus.push([ContextMenu.I18N["Justify Right"],
+				function(){editor.execCommand("JustifyRight");},null,
+				config.btnList["JustifyRight"][1],"JustifyRight"]);
+			if(justifyFullEnabled) elmenus.push([ContextMenu.I18N["Justify Full"],
+				function(){editor.execCommand("JustifyFull");},null,
+				config.btnList["JustifyFull"][1],"JustifyFull"]);
 			break;
 		}
 	}
 
-	if (selection && !link)
-		menu.push(null, [ i18n["Make link"],
-				  function() { editor.execCommand("createlink", true); },
-				  i18n["Create a link"],
-				  config.btnList["createlink"][1] ]);
+	if(selection && !link) menu.push(null,[ContextMenu.I18N["Make link"],
+				  function(){editor.execCommand("CreateLink",true);},ContextMenu.I18N["Create a link"],
+				  config.btnList["CreateLink"][1],"CreateLink"]);
 
-	for (var i = 0; i < elmenus.length; ++i)
-		menu.push(elmenus[i]);
+	for(var i=0;i < elmenus.length;++i) menu.push(elmenus[i]);
 
-	if (!/html|body/i.test(currentTarget.tagName)) {
+	if(!/html|body/i.test(currentTarget.tagName)) {
 		table ? (tmp = table, table = null) : (tmp = currentTarget);
 		menu.push(null,
-		  [ i18n["Remove the"] + " &lt;" + tmp.tagName + "&gt; " + i18n["Element"],
+		  [ContextMenu.I18N["Remove the"] + " &lt;" + tmp.tagName.toLowerCase() + "&gt; " + ContextMenu.I18N["Element"],
 		    function() {
-			    if (confirm(i18n["Please confirm that you want to remove this element:"] + " " + tmp.tagName)) {
+			    if(confirm(ContextMenu.I18N["Please confirm that you want to remove this element:"] + " " + tmp.tagName.toLowerCase())) {
 				    var el = tmp;
 				    var p = el.parentNode;
 				    p.removeChild(el);
-				    if (HTMLArea.is_gecko) {
-					    if (p.tagName.toLowerCase() == "td" && !p.hasChildNodes())
+				    if(HTMLArea.is_gecko) {
+					    if(p.tagName.toLowerCase() == "td" && !p.hasChildNodes())
 						    p.appendChild(editor._doc.createElement("br"));
 					    editor.forceRedraw();
 					    editor.focusEditor();
 					    editor.updateToolbar();
-					    if (table) {
+					    if(table) {
 						    var save_collapse = table.style.borderCollapse;
 						    table.style.borderCollapse = "collapse";
 						    table.style.borderCollapse = "separate";
@@ -269,14 +249,11 @@ ContextMenu.prototype.getContextMenu = function(target) {
 					    }
 				    }
 			    }
-		    },
-		    i18n["Remove this node from the document"] ],
-		  [ i18n["Insert paragraph before"],
-			function() { insertPara(tmp,false); },
-			i18n["Insert a paragraph before the current node"] ],
-		  [ i18n["Insert paragraph after"],
-			function() { insertPara(tmp,true); },
-			i18n["Insert a paragraph after the current node"] ]
+		    },ContextMenu.I18N["Remove this node from the document"]],
+		  [ContextMenu.I18N["Insert paragraph before"],
+			function(){insertPara(tmp,false);},ContextMenu.I18N["Insert a paragraph before the current node"]],
+		  [ContextMenu.I18N["Insert paragraph after"],
+			function(){insertPara(tmp,true);},ContextMenu.I18N["Insert a paragraph after the current node"]]
 		);
 	}
 	return menu;
@@ -284,14 +261,13 @@ ContextMenu.prototype.getContextMenu = function(target) {
 
 ContextMenu.prototype.popupMenu = function(ev,target) {
 	var self = this;
-	if (!ev) var ev = window.event;
+	var editor = self.editor;
+	if(!ev) var ev = window.event;
 	if(!target) var target = (ev.target) ? ev.target : ev.srcElement;
-	var i18n = ContextMenu.I18N;
-	if (this.currentMenu)
-		this.currentMenu.parentNode.removeChild(this.currentMenu);
+	if(this.currentMenu) this.currentMenu.parentNode.removeChild(this.currentMenu);
 	function getPos(el) {
 		var r = { x: el.offsetLeft, y: el.offsetTop };
-		if (el.offsetParent) {
+		if(el.offsetParent) {
 			var tmp = getPos(el.offsetParent);
 			r.x += tmp.x;
 			r.y += tmp.y;
@@ -299,179 +275,152 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 		return r;
 	};
 	function documentClick(ev) {
-		ev || (ev = window.event);
-		if (!self.currentMenu) {
-			alert(i18n["How did you get here? (Please report!)"]);
+		if(!ev) var ev = window.event;
+		if(!self.currentMenu) {
+			alert(ContextMenu.I18N["How did you get here? (Please report!)"]);
 			return false;
 		}
-		var el = HTMLArea.is_ie ? ev.srcElement : ev.target;
-		for (; el != null && el != self.currentMenu; el = el.parentNode);
-		if (el == null)
+		var el = (ev.target) ? ev.target : ev.srcElement;
+		for(; el != null && el != self.currentMenu; el = el.parentNode);
+		if(el == null) { 
 			self.closeMenu();
-		//HTMLArea._stopEvent(ev);
-		//return false;
+			self.editor.updateToolbar();
+		}
+		
 	};
 	var keys = [];
 	function keyPress(ev) {
-		ev || (ev = window.event);
+		if(!ev) var ev = window.event;
 		HTMLArea._stopEvent(ev);
-		if (ev.keyCode == 27) {
+		if(ev.keyCode == 27) {
 			self.closeMenu();
 			return false;
 		}
 		var key = String.fromCharCode(HTMLArea.is_ie ? ev.keyCode : ev.charCode).toLowerCase();
-		for (var i = keys.length; --i >= 0;) {
+		for(var i = keys.length;--i >= 0;) {
 			var k = keys[i];
-			if (k[0].toLowerCase() == key)
-				k[1].__msh.activate();
+			if(k[0].toLowerCase() == key) k[1].__msh.activate();
 		}
 	};
 	self.closeMenu = function() {
 		self.currentMenu.parentNode.removeChild(self.currentMenu);
 		self.currentMenu = null;
-		HTMLArea._removeEvent(document, "mousedown", documentClick);
-		HTMLArea._removeEvent(self.editor._doc, "mousedown", documentClick);
-		if (keys.length > 0)
-			HTMLArea._removeEvent(self.editor._doc, "keypress", keyPress);
-		if (HTMLArea.is_ie)
-			self.iePopup.hide();
+		HTMLArea._removeEvent(document,"mousedown",documentClick);
+		HTMLArea._removeEvent(self.editor._doc,"mousedown",documentClick);
+		if(keys.length > 0) {HTMLArea._removeEvent(self.editor._doc,"keypress",keyPress);}
+		if(HTMLArea.is_ie) {self.iePopup.hide();}
 	};
 	var ifpos = getPos(self.editor._iframe);
 	var x = ev.clientX + ifpos.x;
 	var y = ev.clientY + ifpos.y;
 
-	var div;
-	var doc;
-	if (!HTMLArea.is_ie) {
+	var 	doc, list, separator = false;
+
+	if(!HTMLArea.is_ie) {
 		doc = document;
 	} else {
 		var popup = this.iePopup = window.createPopup();
 		doc = popup.document;
-		doc.open();
-//		doc.write("<html><head><style type='text/css'>@import url(" + _editor_url + "plugins/ContextMenu/menu.css); html, body { padding: 0px; margin: 0px; overflow: hidden; border: 0px; }</style></head><body unselectable='yes'></body></html>");
-		doc.write("<html><head><link rel='stylesheet' type='text/css' href='" + _editor_CSS + "' /><style type='text/css'>html, body { padding: 0px; margin: 0px; overflow: hidden; border: 0px; }</style></head><body unselectable='yes'></body></html>");
-		doc.close();
+		var head = doc.getElementsByTagName("head")[0];
+ 		var link = doc.createElement("link");
+		link.rel = "stylesheet";
+		link.type = "text/css";
+		if( _editor_CSS.indexOf("http") == -1 ) link.href = _typo3_host_url + _editor_CSS;
+			else link.href = _editor_CSS;
+		head.appendChild(link);
 	}
-	div = doc.createElement("div");
-	if (HTMLArea.is_ie)
-		div.unselectable = "on";
-	div.oncontextmenu = function() { return false; };
-	div.className = "htmlarea-context-menu";
-	if (!HTMLArea.is_ie)
-		div.style.left = div.style.top = "0px";
-	doc.body.appendChild(div);
 
-	var table = doc.createElement("table");
-	div.appendChild(table);
-	table.cellSpacing = 0;
-	table.cellPadding = 0;
-	var parent = doc.createElement("tbody");
-	table.appendChild(parent);
-
+	list = doc.createElement("ul");
+	list.className = "htmlarea-context-menu";
 	var options = this.getContextMenu(target);
-	for (var i = 0; i < options.length; ++i) {
+	for(var i=0;i < options.length;++i) {
 		var option = options[i];
-		var item = doc.createElement("tr");
-		parent.appendChild(item);
-		if (HTMLArea.is_ie)
-			item.unselectable = "on";
-		else item.onmousedown = function(ev) {
-			HTMLArea._stopEvent(ev);
-			return false;
-		};
-		if (!option) {
-			item.className = "separator";
-			var td = doc.createElement("td");
-			td.className = "icon";
-			var divAttribs = '>';
-			if (HTMLArea.is_ie) {
-				td.unselectable = "on";
-				divAttribs = " unselectable='on' style='height: 1px;'>&nbsp;";
-			}
-			td.innerHTML = "<div" + divAttribs + "</div>";
-			var td1 = td.cloneNode(true);
-			td1.className = "label";
-			item.appendChild(td);
-			item.appendChild(td1);
-		} else {
+		if(!option){
+			separator = true;
+		}else{
+			var item = doc.createElement("li");
+			list.appendChild(item);
 			var label = option[0];
-			item.className = "item";
+			if(separator) {
+				item.className += " separator";
+				separator = false;
+			}
 			item.__msh = {
 				item: item,
 				label: label,
 				action: option[1],
 				tooltip: option[2] || null,
 				icon: option[3] || null,
-				activate: function() {
+				activate: function(){
 					self.closeMenu();
 					self.editor.focusEditor();
 					this.action();
-				}
+				},
+				cmd: option[4] || null
 			};
 			label = label.replace(/_([a-zA-Z0-9])/, "<u>$1</u>");
-			if (label != option[0])
-				keys.push([ RegExp.$1, item ]);
+			if(label != option[0]) keys.push([ RegExp.$1, item ]);
 			label = label.replace(/__/, "_");
-			var td1 = doc.createElement("td");
-			if (HTMLArea.is_ie)
-				td1.unselectable = "on";
-			item.appendChild(td1);
-			td1.className = "icon";
-			if (item.__msh.icon)
-				td1.innerHTML = "<img align='middle' src='" + item.__msh.icon + "' />";
-			var td2 = doc.createElement("td");
-			if (HTMLArea.is_ie)
-				td2.unselectable = "on";
-			item.appendChild(td2);
-			td2.className = "label";
-			td2.innerHTML = label;
-			item.onmouseover = function() {
+			var button = doc.createElement("button");
+			button.className = "button";
+			if(item.__msh.cmd) {
+				button.className += " " + item.__msh.cmd;
+				if(typeof(editor.plugins["TYPO3Browsers"]) != "undefined" && (item.__msh.cmd == "CreateLink" || item.__msh.cmd == "InsertImage")) button.className += "-TYPO3Browsers";
+				button.innerHTML = label;
+			} else if(item.__msh.icon) {
+				button.innerHTML = "<img src='" + item.__msh.icon + "' />" + label;
+			} else {
+				button.innerHTML = label;
+			}
+			item.appendChild(button);
+			item.onmouseover = function(){
 				this.className += " hover";
-				self.editor._statusBarTree.innerHTML = this.__msh.tooltip || '&nbsp;';
+				editor._statusBarTree.innerHTML = this.__msh.tooltip || '&nbsp;';
 			};
-			item.onmouseout = function() { this.className = "item"; };
+			item.onmouseout = function(){this.className = this.className.replace(/hover/,"");};
 			item.oncontextmenu = function(ev) {
 				this.__msh.activate();
-				if (!HTMLArea.is_ie)
-					HTMLArea._stopEvent(ev);
+				if(!HTMLArea.is_ie) HTMLArea._stopEvent(ev);
 				return false;
 			};
-			item.onmouseup = function(ev) {
+			if(!HTMLArea.is_ie) item.onmousedown = function(ev){
+				HTMLArea._stopEvent(ev);
+				return false;
+			};
+			item.onmouseup = function(ev){
 				var timeStamp = (new Date()).getTime();
-				if (timeStamp - self.timeStamp > 500)
-					this.__msh.activate();
-				if (!HTMLArea.is_ie)
-					HTMLArea._stopEvent(ev);
+				if(timeStamp - self.timeStamp > 500) this.__msh.activate();
+				if(!HTMLArea.is_ie) HTMLArea._stopEvent(ev);
 				return false;
 			};
 		}
 	}
-
-	if (!HTMLArea.is_ie) {
-		var dx = x + div.offsetWidth - window.innerWidth - window.pageXOffset + 4;
-		var dy = y + div.offsetHeight - window.innerHeight - window.pageYOffset + 4;
-		if (dx > 0) x -= dx;
-		if (dy > 0) y -= dy;
-		div.style.left = x + "px";
-		div.style.top = y + "px";
+	doc.body.appendChild(list);
+	if(!HTMLArea.is_ie) {
+		var dx = x + list.offsetWidth - window.innerWidth - window.pageXOffset + 4;
+		var dy = y + list.offsetHeight - window.innerHeight - window.pageYOffset + 4;
+		if(dx > 0) x -= dx;
+		if(dy > 0) y -= dy;
+		list.style.left = x + "px";
+		list.style.top = y + "px";
 	} else {
 			// determine the size
-		var foobar = document.createElement("div");
+		list.style.left = "0px";
+		list.style.top = "0px";
+		var foobar = document.createElement("ul");
 		foobar.className = "htmlarea-context-menu";
-		foobar.innerHTML = div.innerHTML;
+		foobar.innerHTML = list.innerHTML;
 		document.body.appendChild(foobar);
-		var w = foobar.offsetWidth;
-		var h = foobar.offsetHeight;
+		var w = foobar.clientWidth;
+		var h = foobar.clientHeight;
 		document.body.removeChild(foobar);
-		this.iePopup.show(ev.screenX, ev.screenY, w, h);
+		this.iePopup.show(ev.screenX,ev.screenY,w,h);
 	}
-
-	this.currentMenu = div;
+	this.currentMenu = list;
 	this.timeStamp = (new Date()).getTime();
-
-	HTMLArea._addEvent(document, "mousedown", documentClick);
-	HTMLArea._addEvent(this.editor._doc, "mousedown", documentClick);
-	if (keys.length > 0) HTMLArea._addEvent(this.editor._doc, "keypress", keyPress);
+	HTMLArea._addEvent(document,"mousedown",documentClick);
+	HTMLArea._addEvent(editor._doc,"mousedown",documentClick);
+	if(keys.length > 0) HTMLArea._addEvent(editor._doc,"keypress",keyPress);
 	HTMLArea._stopEvent(ev);
 	return false;
 };

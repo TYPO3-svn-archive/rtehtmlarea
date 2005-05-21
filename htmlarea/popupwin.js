@@ -7,7 +7,7 @@
 // Distributed under the same terms as HTMLArea itself.
 // Version 1.10
 
-function PopupWin(editor, _title, handler, initFunction, width, height, _opener) {
+PopupWin = function(editor, _title, handler, initFunction, width, height, _opener) {
 	this.editor = editor;
 	this.handler = handler;
 	if (typeof initFunction == "undefined") {

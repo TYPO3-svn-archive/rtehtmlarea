@@ -7,34 +7,30 @@
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 
-CharacterMap.I18N = CharacterMap_langArray;
-
-function CharacterMap(editor) {
+CharacterMap = function(editor) {
 	this.editor = editor;
 	var cfg = this.editor.config;
 	var self = this;
-	var i18n = CharacterMap.I18N;
-        
 	cfg.registerButton({
-                id       : "insertcharacter",
-                tooltip  : i18n["CharacterMapTooltip"],
-                image    : editor.imgURL("ed_charmap.gif", "CharacterMap"),
-                textMode : false,
-                action   : function(editor) {
-					self.buttonPress(editor);
-				   }
+		id 		: "InsertCharacter",
+		tooltip 	: CharacterMap_langArray["CharacterMapTooltip"],
+		image 	: editor.imgURL("ed_charmap.gif", "CharacterMap"),
+		textMode 	: false,
+		action 	: function(editor) { self.buttonPress(editor); }
 	});
 };
 
+CharacterMap.I18N = CharacterMap_langArray;
+
 CharacterMap._pluginInfo = {
-	name          : "CharacterMap",
-	version       : "1.0",
-	developer     : "Holger Hees & Bernhard Pfeifer",
-	developer_url : "http://www.systemconcept.de/",
-	c_owner       : "Holger Hees & Bernhard Pfeifer",
-	sponsor       : "System Concept GmbH & Bernhard Pfeifer",
-	sponsor_url   : "http://www.systemconcept.de/",
-	license       : "htmlArea"
+	name 			: "CharacterMap",
+	version 		: "1.0",
+	developer 		: "Holger Hees & Bernhard Pfeifer",
+	developer_url 	: "http://www.systemconcept.de/",
+	c_owner 		: "Holger Hees & Bernhard Pfeifer",
+	sponsor 		: "System Concept GmbH & Bernhard Pfeifer",
+	sponsor_url 	: "http://www.systemconcept.de/",
+	license 		: "htmlArea"
 };
 
 CharacterMap.prototype.buttonPress = function(editor) {

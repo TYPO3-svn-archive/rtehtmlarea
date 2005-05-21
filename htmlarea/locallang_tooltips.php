@@ -365,6 +365,44 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'bold' => 'Negrito',
+		'italic' => 'Itálico',
+		'underline' => 'Sublinhado',
+		'strikethrough' => 'Cortado',
+		'subscript' => 'Sobescrito',
+		'superscript' => 'Sobrescrito',
+		'justifyleft' => 'Justificado à Esquerda',
+		'justifycenter' => 'Centralizado',
+		'justifyright' => 'Justificado à Direita',
+		'justifyfull' => 'Justificado à Esquerda e à Direita',
+		'insertorderedlist' => 'Lista Ordenada',
+		'insertunorderedlist' => 'Lista não ordenada',
+		'outdent' => 'Diminuir recuo',
+		'indent' => 'Aumentar recuo',
+		'forecolor' => 'Cor de Fonte',
+		'hilitecolor' => 'Cor de Fundo',
+		'inserthorizontalrule' => 'Linha Horizontal',
+		'createlink' => 'Inserir link',
+		'insertimage' => 'Inserir/Modificar Imagem',
+		'inserttable' => 'Inserir Tabela',
+		'htmlmode' => 'Mudar para Código-Fonte HTML',
+		'popupeditor' => 'Expandir o Editor',
+		'about' => 'Sobre esse editor',
+		'showhelp' => 'Ajuda utilizando este editor',
+		'textindicator' => 'Estilo corrente',
+		'undo' => 'Anular suas últimas ações',
+		'redo' => 'Refazer suas últimas ações',
+		'cut' => 'Cortar seleção',
+		'copy' => 'Copiar seleção',
+		'paste' => 'Colar da área de transferência',
+		'lefttoright' => 'Direção esquerda para direita',
+		'righttoleft' => 'Direção direita para esquerda',
+		'removeformat' => 'Remover formatação',
+		'print' => 'Imprimir o documento',
+		'killword' => 'Remover MSOffice tags',
+		'fontname' => 'Fonte',
+		'fontsize' => 'Tamanho de Fonte',
+		'formatblock' => 'Tipo de paragráfo',
 	),
 	'et' => Array (
 	),
@@ -385,6 +423,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

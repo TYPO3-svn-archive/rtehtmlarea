@@ -5,26 +5,26 @@
  e-mail: caugb@ibest.com.br
 \*---------------------------------------*/
 
-QuickTag.I18N = QuickTag_langArray;
-
-function QuickTag(editor) {
+QuickTag = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
 	var self = this;
-	var i18n = QuickTag.I18N;
-
 	cfg.registerButton({
-		id       : "inserttag",
-		tooltip  : i18n["Quick Tag Editor"],
-		image    : editor.imgURL("ed_quicktag.gif", "QuickTag"),
-		textMode : false,
-  		action   : function(editor) { self.buttonPress(editor); }
+		id		: "InsertTag",
+		tooltip	: QuickTag_langArray["Quick Tag Editor"],
+		image		: editor.imgURL("ed_quicktag.gif", "QuickTag"),
+		textMode	: false,
+  		action	: function(editor) { self.buttonPress(editor); },
+		context	: null,
+		hide		: false,
+		selection	: true
 		});
 };
 
+QuickTag.I18N = QuickTag_langArray;
+
 QuickTag.prototype.buttonPress = function(editor) { 
 	var self = this;
-	var i18n = QuickTag.I18N;
 	var sel = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,""); 
 	var param = new Object();
 	param.editor = editor;
@@ -32,7 +32,7 @@ QuickTag.prototype.buttonPress = function(editor) {
   	if(/\w/.test(sel)) {
     		editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param, 450, 108);
   	} else {
-		alert(i18n['You have to select some text']);
+		alert(QuickTag.I18N['You have to select some text']);
 	}
 };
 

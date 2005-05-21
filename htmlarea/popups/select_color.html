@@ -6,11 +6,10 @@
 		HTMLArea = window.opener.HTMLArea;
 		_editor_CSS = window.opener._editor_CSS;
 		__dlg_loadStyle(_editor_CSS);
-		var i18n = window.opener.HTMLArea.I18N.dialogs;
 
-function Init() {  // run on page load
-  __dlg_translate(i18n);  // <!-- this can be found in popup.js -->
-  __dlg_init();    // <!-- this can be found in popup.js -->
+function Init() {
+  __dlg_translate(window.opener.HTMLArea.I18N.dialogs);
+  __dlg_init();
 
   var color = window.dialogArguments;
   color = ValidateColor(color) || '000000';

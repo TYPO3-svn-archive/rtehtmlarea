@@ -5,21 +5,20 @@
  e-mail: caugb@ibest.com.br
 \*---------------------------------------*/
 
-FindReplace.I18N = FindReplace_langArray;
-
-function FindReplace(editor) {
+FindReplace = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
 	var self = this;
-	var i18n = FindReplace.I18N
 
-	cfg.registerButton("findreplace",
-				i18n["Find and Replace"], 
+	cfg.registerButton("FindReplace",
+				FindReplace_langArray["Find and Replace"], 
 				editor.imgURL("ed_find.gif", "FindReplace"), 
 				false,
 				function(editor) { self.buttonPress(editor); }
 	);
 };
+
+FindReplace.I18N = FindReplace_langArray;
 
 FindReplace.prototype.buttonPress = function(editor) { 
 	FindReplace.editor = editor;

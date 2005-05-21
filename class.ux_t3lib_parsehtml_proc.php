@@ -48,6 +48,8 @@ require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
  * Modification by Stanislas Rolland 2004-12-10 to allow style attribute on span tags
  * Modification by Stanislas Rolland 2005-02-10 to include hr in headListTags
  * Modification by Stanislas Rolland 2005-03-27 to avoid insertion of superfluous linebreaks by transform_db
+ * Modification by Stanislas Rolland 2005-04-06 to eliminate true linebreaks inside hx tags
+ * Modification by Johannes Bornhold 2005-05-09 convert linebreaks to spaces instead of deleting them
  */
 class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
@@ -227,6 +229,10 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						if (!$this->procOptions['preserveTables'] && !$css)	{
 							$blockSplit[$k]=$this->TS_transform_db($this->removeTables($blockSplit[$k]));
 						} else {
+// <Johannes Bornhold 2005-05-09 linebreaks are spaces>
+							$blockSplit[$k]=str_replace(chr(10),' ',$blockSplit[$k]).$lastBR;
+// </Johannes Bornhold 2005-05-09 linebreaks are spaces>
+
 							$blockSplit[$k]=str_replace(chr(10),'',$blockSplit[$k]).$lastBR;
 						}
 					break;
@@ -262,7 +268,9 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 							}
 						} else {
 // <Stanislas Rolland 2005-04-06 to eliminate true linebreaks inside hx tags>
-							$blockSplit[$k]=str_replace(chr(10),'',$blockSplit[$k]).$lastBR;
+// <Johannes Bornhold 2005-05-09 linebreaks are spaces>
+							$blockSplit[$k]=str_replace(chr(10),chr(32),$blockSplit[$k]).$lastBR;
+// </Johannes Bornhold 2005-05-09 linebreaks are spaces>
 							//$blockSplit[$k].=$lastBR;
 // </Stanislas Rolland 2005-04-06 to eliminate true linebreaks inside hx tags>
 						}
@@ -273,15 +281,61 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 				}
 			} else {	// NON-block:
 				if (strcmp(trim($blockSplit[$k]),''))	{
-					$blockSplit[$k]=$this->divideIntoLines($blockSplit[$k]).$lastBR;
+// <Johannes Bornhold 2005-05-09 linebreaks are spaces>
+					$blockSplit[$k]=$this->divideIntoLines(str_replace(chr(10),chr(32), $blockSplit[$k])).$lastBR;
+					//$blockSplit[$k]=$this->divideIntoLines($blockSplit[$k]).$lastBR;
+// </Johannes Bornhold 2005-05-09 linebreaks are spaces>
 				} else unset($blockSplit[$k]);
 			}
 		}
 		$this->TS_transform_db_safecounter++;
 
-		return implode('',$blockSplit);
+		if($this->procOptions['windows_remap'])  {
+			return $this->remap_chars(implode('',$blockSplit));
+		} else {
+			return implode('',$blockSplit);
+		}
 	}
 
+	function remap_chars($html) {
+		$replacements = array(
+		//	'129' => '',
+			'130' => '&sbquo;', 
+			'131' => '&fnof;', 
+			'132' => '&bdquo;', 
+			'133' => '&hellip;', 
+			'134' => '&dagger;', 
+			'135' => '&Dagger;', 
+			'136' => '&circ;', 
+			'137' => '&permil;', 
+			'138' => '&Scaron;', 
+			'139' => '&lsaquo;', 
+			'140' => '&OElig;', 
+		//	'141' => '',
+			'142' => '&Zcaron;', 
+		//	'143' => '',
+		//	'144' => '',
+			'145' => '&lsquo;', 
+			'146' => '&rsquo;', 
+			'147' => '&ldquo;', 
+			'148' => '&rdquo;', 
+			'149' => '&bull;', 
+			'150' => '&ndash;', 
+			'151' => '&mdash;', 
+			'152' => '&tilde;', 
+			'153' => '&trade;', 
+			'154' => '&scaron;', 
+			'155' => '&rsaquo;', 
+			'156' => '&oelig;', 
+		//	'157' => '',
+			'158' => '&zcaron;', 
+			'159' => '&Yuml;', 
+		);
+		foreach($replacements as $char => $entity) {
+			$html = str_replace(chr($char),$entity,$html);
+		}
+		return $html;
+	}
 }
 
 ?>

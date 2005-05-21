@@ -73,6 +73,7 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'tx_srspellcheck_pi1.list_type' => 'Corretor ortográfico para o RTE HTMLArea',
 	),
 	'et' => Array (
 	),
@@ -93,6 +94,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

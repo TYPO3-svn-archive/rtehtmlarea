@@ -1,7 +1,7 @@
 .quote { font-style: italic; color: #ee9; }
 .highlight { background-color: yellow; color: #000; }
 .deprecated { text-decoration: line-through; color: #aaa; }
-body { font-family : Verdana, sans-serif; font-size : 12px; margin: 0px; padding: 3px 0px 3px 3px; background-color: #ffffff; }
+
 span.quote { font-style: italic; color: #ee9; }
 span.highlight { background-color: yellow; color: #000; }
 span.deprecated { text-decoration: line-through; color: #aaa; }

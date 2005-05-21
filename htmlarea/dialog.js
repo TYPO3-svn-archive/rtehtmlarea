@@ -14,11 +14,9 @@
 // Though "Dialog" looks like an object, it isn't really an object.  Instead
 // it's just namespace for protecting global symbols.
 
-function Dialog(url, action, init, width, height, _opener, editor) {
-	if (typeof init == "undefined") {
-		init = window;	// pass this window object by default
-	}
-	Dialog._geckoOpenModal(url, action, init, (width?width:100) , (height?height:100), _opener, editor);
+Dialog = function(url, action, init, width, height, opener, editor) {
+	if (typeof(init) == "undefined" || !init) { var init = window; }
+	Dialog._open(url, action, init, (width?width:100), (height?height:100), opener, editor);
 };
 
 // should be a function, the return handler of the currently opened dialog.
@@ -31,7 +29,7 @@ Dialog._dialog = null;
 // the dialog will read it's args from this variable
 Dialog._arguments = null;
 
-Dialog._geckoOpenModal = function(url, action, init, width, height, _opener, editor) {
+Dialog._open = function(url, action, init, width, height, _opener, editor) {
 
 	var dlg = window.open(url, 'hadialog', "toolbar=no,location=no,directories=no,menubar=no,width=" + width + ",height=" + height + ",scrollbars=no,resizable=yes,modal=yes,dependent=yes");
 	if(Dialog._modal && !Dialog._modal.closed) {

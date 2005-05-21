@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for plugin CharacterMap of htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for plugin CharacterMap of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -15,7 +15,7 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
-		'CharacterMapTooltip' => 'Fügen Sie Sondereichen ein',
+		'CharacterMapTooltip' => 'Fügen Sie Sonderzeichen ein',
 		'Insert special character' => 'Fügen Sie Sonderzeichen ein',
 		'HTML value:' => 'HTML-Wert:',
 		'Cancel' => 'Abbrechen',
@@ -97,6 +97,10 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'CharacterMapTooltip' => 'Inserir caractere especial',
+		'Insert special character' => 'Inserir caractere especial',
+		'HTML value:' => 'Valor HTML:',
+		'Cancel' => 'Cancelar',
 	),
 	'et' => Array (
 	),
@@ -117,6 +121,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

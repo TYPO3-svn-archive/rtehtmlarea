@@ -1,24 +1,15 @@
-// Color Select Plugin for TYPO3 RTE HTMLArea-3.0 Copyright (c) 2004 Stanislas Rolland
-// Implementation by Stanislas Rolland.  Sponsored by http://www.fructifor.com
+// Color Select Plugin for TYPO3 htmlArea RTE 
+// Copyright (c) 2004-2005 Stanislas Rolland
+// Sponsored by http://www.fructifor.com
 // Using some initial code from TYPO3 RTE color selector http://typo3.org
 //
 // htmlArea v3.0 - Copyright (c) 2002 interactivetools.com, inc.
 // This notice MUST stay intact for use (see license.txt).
 //
-// A free WYSIWYG editor replacement for <textarea> fields.
-// For full source code and docs, visit http://www.interactivetools.com/
-//
-// Version 3.0 developed by Mihai Bazon for InteractiveTools.
-//   http://dynarch.com/mishoo
-//
 
-SelectColor.I18N = SelectColor_langArray;
-
-	// Object that encapsulates color selection
-function SelectColor(editor) {
+SelectColor = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var i18n = SelectColor.I18N;
 	var bl = SelectColor.btnList;
 	var self = this;
 
@@ -28,7 +19,7 @@ function SelectColor(editor) {
 		var id = "CO-" + btn[0];
 		cfg.registerButton(
 			id, 
-			i18n[id],
+			SelectColor_langArray[id],
 			editor.imgURL(id + ".gif", "SelectColor"),
 			false,
 			function(editor, id) { self.buttonPress(editor, id); },
@@ -36,6 +27,8 @@ function SelectColor(editor) {
 		);
 	}
 };
+
+SelectColor.I18N = SelectColor_langArray;
 
 SelectColor._pluginInfo = {
 	name          : "SelectColor",
@@ -57,7 +50,6 @@ SelectColor.btnList = [
 // This function gets called when some button from the SelectColor was pressed
 SelectColor.prototype.buttonPress = function(editor, button_id) {
 	this.editor = editor;
-	var i18n = SelectColor.I18N;
 	switch (button_id) {
 		case "CO-forecolor":
 			this.dialogSelectColor(button_id,"","");
@@ -74,7 +66,6 @@ SelectColor.prototype.buttonPress = function(editor, button_id) {
 SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opener) {
 	var editor = this.editor;
 	var self = this;
-	var i18n = SelectColor.I18N;
 	var windowWidth = 348;
 	var windowHeight = 220;
 
@@ -82,7 +73,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opene
 	switch (button_id) {
 	   case "CO-forecolor":
 	   case "CO-hilitecolor":
-		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"],
+		var dialog = new PopupWin(this.editor, SelectColor.I18N[button_id + "_title"],
 			function(dialog, params) {
 				var editor = dialog.editor;
 				self.processStyle(dialog, params, "", "");
@@ -96,21 +87,12 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opene
 			function (dialog) {
 				var editor = dialog.editor;
 				var doc = editor._doc;
-				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, SelectColor.I18N[button_id + "_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
-					var targ;
-					if(!e) {
-						var e = dialog.dialogWindow.event;
-					}
-					if (e.target) {
-						targ = e.target;
-					} else if (e.srcElement) {
-						targ = e.srcElement;
-					}
-					if (targ.nodeType == 3) { // defeat Safari bug
-						targ = targ.parentNode;
-					}
+					if(!e) { var e = dialog.dialogWindow.event; }
+					var targ = (e.target) ? e.target : e.srcElement;
+					if (targ.nodeType == 3) { targ = targ.parentNode; }
 					dialog.doc.getElementById(button_id).value=targ.bgColor;
 					dialog.callHandler();
 					return false;
@@ -124,14 +106,14 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opene
 				try {with (dialog.doc.getElementById(button_id+"Current").style) {
 					switch (button_id) {
 						case "CO-forecolor":
-							backgroundColor = HTMLArea._makeColor(doc.queryCommandValue("forecolor"));
+							backgroundColor = HTMLArea._makeColor(doc.queryCommandValue("ForeColor"));
 							break;
 						case "CO-hilitecolor":
 							backgroundColor = HTMLArea._makeColor(
-							doc.queryCommandValue(HTMLArea.is_ie ? "backcolor" : "hilitecolor"));
+							doc.queryCommandValue(((HTMLArea.is_ie || HTMLArea.is_safari) ? "BackColor" : "HiliteColor")));
 							if (/transparent/i.test(backgroundColor)) {
 								// Mozilla
-								backgroundColor = HTMLArea._makeColor(doc.queryCommandValue("backcolor"));
+								backgroundColor = HTMLArea._makeColor(doc.queryCommandValue("BackColor"));
 							}
 							break;
 					}
@@ -143,7 +125,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opene
 		windowWidth, windowHeight, editor._iframe.contentWindow);
 		break;
 	   case "color":
-		var dialog = new PopupWin(this.editor, i18n[button_id + "_title"], 
+		var dialog = new PopupWin(this.editor, SelectColor.I18N[button_id + "_title"], 
 			function(dialog,params) {
 				self.processStyle(dialog, params, element, field);
 				dialog.releaseEvents();
@@ -152,21 +134,12 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opene
 
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
-				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n[button_id + "_title"]);
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, SelectColor.I18N[button_id + "_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
-					var targ;
-					if(!e) {
-						var e = dialog.dialogWindow.event;
-					}
-					if (e.target) {
-						targ = e.target;
-					} else if (e.srcElement) {
-						targ = e.srcElement;
-					}
-					if (targ.nodeType == 3) { // defeat Safari bug
-						targ = targ.parentNode;
-					}
+					if(!e) { var e = dialog.dialogWindow.event; }
+					var targ = (e.target) ? e.target : e.srcElement;
+					if (targ.nodeType == 3) { targ = targ.parentNode; }
 					dialog.doc.getElementById(button_id).value=targ.bgColor;
 					dialog.callHandler();
 					return false;
@@ -183,7 +156,7 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opene
 		windowWidth, windowHeight, opener);
 		break;
 	   case "tag":
-		var dialog = new PopupWin(this.editor, i18n["color_title"], 
+		var dialog = new PopupWin(this.editor, SelectColor.I18N["color_title"], 
 			function(dialog,params) {
 				dialog.releaseEvents();
 				field._return(params["tag"]);
@@ -194,21 +167,12 @@ SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opene
 				// this function gets called when the dialog needs to be initialized
 			function (dialog) {
 				self.dialog = dialog;
-				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, i18n["color_title"]);
+				dialog.content.innerHTML = self.renderPopupSelectColor(button_id, dialog, SelectColor.I18N["color_title"]);
 				var colorTable = dialog.doc.getElementById("colorTable");
 				colorTable.onclick = function(e) {
-					var targ;
-					if(!e) {
-						var e = dialog.dialogWindow.event;
-					}
-					if (e.target) {
-						targ = e.target;
-					} else if (e.srcElement) {
-						targ = e.srcElement;
-					}
-					if (targ.nodeType == 3) { // defeat Safari bug
-						targ = targ.parentNode;
-					}
+					if(!e) { var e = dialog.dialogWindow.event; }
+					var targ = (e.target) ? e.target : e.srcElement;
+					if (targ.nodeType == 3) { targ = targ.parentNode; }
 					dialog.doc.getElementById(button_id).value=targ.bgColor;
 					dialog.callHandler();
 					return false;
@@ -234,7 +198,7 @@ SelectColor.prototype.processStyle = function(dialog, params, element, field) {
 		switch (i) {
 		    	case "CO-forecolor":
 				if(val) {
-					editor._doc.execCommand("forecolor", false, val);
+					editor._doc.execCommand("ForeColor", false, val);
 				} else {
 					var parentElement = editor.getParentElement();
 					parentElement.style.color = "";
@@ -242,10 +206,10 @@ SelectColor.prototype.processStyle = function(dialog, params, element, field) {
 				break;
 			case "CO-hilitecolor":
 				if(val) {
-					if( HTMLArea.is_ie) {
-						editor._doc.execCommand("backcolor", false, val);
+					if(HTMLArea.is_ie || HTMLArea.is_safari) {
+						editor._doc.execCommand("BackColor", false, val);
 					} else {
-						editor._doc.execCommand("hilitecolor", false, val);
+						editor._doc.execCommand("HiliteColor", false, val);
 					}
 				} else {
 					var parentElement = editor.getParentElement();
@@ -266,7 +230,6 @@ SelectColor.prototype.processStyle = function(dialog, params, element, field) {
 SelectColor.prototype.renderPopupSelectColor = function(sID,dialog,title) {
 	var editor = this.editor;
 	var cfg = editor.config;
-	var i18n = SelectColor.I18N;
 	var cfgColors = cfg.colors;
 	var colorDef;
 	var szID = sID + "Current";
@@ -283,7 +246,7 @@ SelectColor.prototype.renderPopupSelectColor = function(sID,dialog,title) {
 				onMouseover="className += \' buttonColor-hilite\';" \
 				onMouseout="className = \'buttonColor\';"> \
 			<span id="' + szID + '" class="chooser"></span> \
-			<span id="colorUnset" class="nocolor" title="' + i18n["no_color"] + '" \
+			<span id="colorUnset" class="nocolor" title="' + SelectColor.I18N["no_color"] + '" \
 				onMouseover="className += \' nocolor-hilite\';" \
 				onMouseout="className = \'nocolor\';" \
 			>&#x00d7;</span></span></td><td>';

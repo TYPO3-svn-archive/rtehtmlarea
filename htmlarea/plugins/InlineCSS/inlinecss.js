@@ -4,19 +4,15 @@
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 
-InlineCSS.I18N = InlineCSS_langArray;
-
-function InlineCSS(editor, args) {
+InlineCSS = function(editor,args) {
       this.editor = editor;     
       var cfg = editor.config;
 	var toolbar = cfg.toolbar;
 	var self = this;
-	var i18n = InlineCSS.I18N;
 	var editornumber = editor._typo3EditerNumber;
-
 	var obj = {
 		id		: "InlineCSS-class",
-		tooltip	: i18n["InlineCSSStyleTooltip"],
+		tooltip	: InlineCSS_langArray["InlineCSSStyleTooltip"],
 		options	: {"":""},
 		action	: function(editor) { self.onSelect(editor, this); },
 		refresh	: function(editor) { self.generate(editor); },
@@ -32,26 +28,26 @@ function InlineCSS(editor, args) {
 	cfg.registerDropdown(obj);
 };
 
+InlineCSS.I18N = InlineCSS_langArray;
+
 InlineCSS.parseStyleSheet = function(editor){
-	//var editor = this.editor;
 	var obj = editor.config.customSelects["InlineCSS-class"];
-	var i18n = InlineCSS.I18N;
-	var iframe = editor._iframe.contentWindow.document;
+	var iframe = editor._iframe.contentWindow ? editor._iframe.contentWindow.document : editor._iframe.contentDocument;
 	var newCssArray = new Array();
 	obj.loaded = true;
 	for(var i=0;i<iframe.styleSheets.length;i++){
 			// Mozilla
             if(HTMLArea.is_gecko){
-			try{ newCssArray = InlineCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].cssRules,newCssArray); }
+			try{ newCssArray = InlineCSS.applyCSSRule(editor,InlineCSS.I18N,iframe.styleSheets[i].cssRules,newCssArray); }
 			catch(e){ obj.loaded = false; }
 		} else {
 			try{
 					// @import StyleSheets (IE)
 				if(iframe.styleSheets[i].imports){
-					newCssArray = InlineCSS.applyCSSIEImport(editor,i18n,iframe.styleSheets[i].imports,newCssArray);
+					newCssArray = InlineCSS.applyCSSIEImport(editor,InlineCSS.I18N,iframe.styleSheets[i].imports,newCssArray);
 				}
 				if(iframe.styleSheets[i].rules){
-					newCssArray = InlineCSS.applyCSSRule(editor,i18n,iframe.styleSheets[i].rules,newCssArray);
+					newCssArray = InlineCSS.applyCSSRule(editor,InlineCSS.I18N,iframe.styleSheets[i].rules,newCssArray);
 				}
 			} catch(e) { obj.loaded = false; }
 		}
@@ -151,9 +147,14 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 					span.className = className;
 					span.appendChild(range.extractContents());
 					range.insertNode(span);
-					sel.removeRange(range);
+					if(HTMLArea.is_safari) {
+						sel.empty();
+						sel.setBaseAndExtent(rangeClone.startContainer,rangeClone.startOffset,rangeClone.endContainer,rangeClone.endOffset);
+					} else {
+						sel.removeRange(range);
+						sel.addRange(rangeClone);
+					}
 					range.detach();
-					sel.addRange(rangeClone);
 				} else {
 					var tagopen = '<span class="' + className + '">';
 					var tagclose = "</span>";
@@ -196,7 +197,7 @@ InlineCSS.prototype.onUpdateToolbar = function() {
 			this.updateValue(editor,obj);
 		} else {
 			if(obj.timeout) {
-				editor._iframe.contentWindow.clearTimeout(obj.timeout);
+				if(editor._iframe.contentWindow) { editor._iframe.contentWindow.clearTimeout(obj.timeout); } else { window.clearTimeout(obj.timeout); }
 				obj.timeout = null;
 			}
 			this.generate(editor);
@@ -212,7 +213,7 @@ InlineCSS.prototype.generate = function(editor) {
 	function getCSSArray(){
 		obj.cssArray = InlineCSS.parseStyleSheet(editor);
 		if( !obj.loaded && obj.parseCount<17 ) {
-			obj.timeout = editor._iframe.contentWindow.setTimeout(getCSSArray, 200);
+			obj.timeout = editor._iframe.contentWindow ? editor._iframe.contentWindow.setTimeout(getCSSArray, 200) : window.setTimeout(getCSSArray, 200);
 			obj.parseCount++ ;
 		} else {
 			obj.timeout = null;
@@ -235,7 +236,7 @@ InlineCSS.prototype.onMode = function(mode) {
 			this.updateValue(editor,obj);
 		} else {
 			if(obj.timeout) {
-				editor._iframe.contentWindow.clearTimeout(obj.timeout);
+				if(editor._iframe.contentWindow) { editor._iframe.contentWindow.clearTimeout(obj.timeout); } else { window.clearTimeout(obj.timeout); }
 				obj.timeout = null;
 			}
 			this.generate(editor);
@@ -248,7 +249,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 
 	if(!obj.loaded) {
 		if(obj.timeout) {
-			editor._iframe.contentWindow.clearTimeout(obj.timeout);
+			if(editor._iframe.contentWindow) { editor._iframe.contentWindow.clearTimeout(obj.timeout); } else { window.clearTimeout(obj.timeout); }
 			obj.timeout = null;
 		}
 		this.generate(editor);
@@ -267,11 +268,11 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 	if(selTrimmed) selTrimmed = selTrimmed.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 
 	var endPointsInSameBlock = false;
-	if(/\w/.test(selTrimmed)) {
+	if(/\w/.test(selTrimmed) == true) {
 		var sel = editor._getSelection();
 		var range = editor._createRange(sel);
 		if(HTMLArea.is_gecko) {
-			if(sel.rangeCount == 1) {
+			if(sel.rangeCount == 1 || HTMLArea.is_safari) {
 				var parentStart = range.startContainer;
 				var parentEnd = range.endContainer;
 				if( !(parentStart.nodeType == 1 && parentStart.tagName.toLowerCase() == "tr") ) {
@@ -300,11 +301,10 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
       
 	obj.lastTag = tagName;
 	obj.lastClass = className;
-	var i18n = InlineCSS.I18N;
 	while(select.options.length>0){
 		select.options[select.length-1] = null;
 	}
-	select.options[0]=new Option(i18n["Default"],'none');
+	select.options[0]=new Option(InlineCSS.I18N["Default"],'none');
 	if(cssArray){
 			// we are in span and 'all' tags only
 		if(cssArray['span']) {
@@ -332,7 +332,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 			}
 		}
 		if(select.selectedIndex == 0){
-			select.options[select.options.length]=new Option(i18n["Undefined"],className);
+			select.options[select.options.length]=new Option(InlineCSS.I18N["Undefined"],className);
 			select.selectedIndex=select.options.length-1;
 		}
 	}

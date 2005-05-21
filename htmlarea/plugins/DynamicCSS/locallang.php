@@ -88,6 +88,9 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'Default' => 'Padrão',
+		'Undefined' => 'Não definido',
+		'DynamicCSSStyleTooltip' => 'Aplique o estilo para o paragráfo que o contenha',
 	),
 	'et' => Array (
 	),
@@ -108,6 +111,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

@@ -8,6 +8,7 @@ RTE.default {
 	showStatusBar = 1
 	showButtons = *
 	hideButtons =
+	hideTableOperationsInToolbar = 0
 	disableContextMenu = 0
 	disableSelectColor = 0
 	disableTYPO3Browsers = 0
@@ -68,6 +69,9 @@ RTE.default {
 				## REMAP B AND I TAGS
 			tags.b.remap = strong
 			tags.i.remap = em
+
+				## PROTECT CUSTOM TAGS
+			keepNonMatchedTags = protect
 		}
 	}
 }

@@ -54,10 +54,11 @@ require_once (PATH_t3lib.'class.t3lib_div.php');
 $query_string = t3lib_div::getIndpEnv('QUERY_STRING');
 $popupname = t3lib_div::_GET('popupname');
 $src = t3lib_div::_GET('srcpath');
-
+$editorNo =  t3lib_div::_GET('editorNo');
 switch( $popupname ) {
 	case "link" : $title = "Insert/Modify Link"; break;
 	case "image" : $title = "Insert Image"; break;
+	case "user" : $title = "Insert Custom Element"; break;
 	default : $title = "Editor configuration problem!";
 }
 ?>
@@ -66,25 +67,21 @@ switch( $popupname ) {
 <title><?php echo $title;?></title>
 <script type="text/javascript" src="htmlarea/popups/popup.js"></script>
 <script type="text/javascript">
-	//var parent = window.opener;
-	HTMLArea = window.opener.HTMLArea;
-
+	/*<![CDATA[*/
+	var HTMLArea = window.opener.HTMLArea;
 	function Init() {
-		i18n = window.opener.HTMLArea.I18N.dialogs;
-  		__dlg_translate(i18n);
+  		__dlg_translate(HTMLArea.I18N.dialogs);
 		__dlg_init();
   		document.body.onkeypress = __dlg_close_on_esc;
-
-		//parent = window.opener;
-		//self.parent = window.opener;
 		setTimeout("idPopup.focus();",3000);
 	};
-
 <?php
-if ($popupname == "image") {
 	echo '
+	var editor = window.opener.RTEarea[' . $editorNo . ']["editor"];
+';
+	if ($popupname == "image") {
+		echo '
 	setTimeout("init_selectedImageRef();",100);
-
 	function init_selectedImageRef() {
 		if (window.opener._selectedImage) {
 			if (!idPopup.insertImagePropertiesInForm) {
@@ -94,10 +91,10 @@ if ($popupname == "image") {
 			idPopup.selectedImageRef = window.opener._selectedImage;
 			idPopup.insertImagePropertiesInForm();
 		}
+	}';
 	}
-';
-}
 ?>
+	/*]]>*/
 </script>
 </head>
 
@@ -105,9 +102,9 @@ if ($popupname == "image") {
 <table border="0px" cellspacing="0px" cellpadding="0" width="100%" height="100%">
 <tr><td>
 <?php
-echo '
-  <iframe id="idPopup" name="idPopup" target="idPopup" width="100%" height="100%" style="visibility: visible; border: none;" src="' . $src . '?' . $query_string . '"></iframe>
-';
+	echo '
+		<iframe id="idPopup" name="idPopup" target="idPopup" width="100%" height="100%" style="visibility: visible; border: none;" src="' . $src . '?' . $query_string . '"></iframe>
+	';
 ?>
 </td></tr></table>
 </body></html>

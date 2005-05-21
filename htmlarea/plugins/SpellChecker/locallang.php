@@ -369,6 +369,12 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'Spell Checker' => 'Corretor Ortográfico',
+		'CONFIRM_LINK_CLICK' => 'Por favor confirme que você quer abrir este link',
+		'Cancel' => 'Cancelar',
+		'Dictionary' => 'Dicionário',
+		'Finished list of mispelled words' => 'Finalizada a lista de palavras erradas',
+		'pliz weit ;-)' => 'calminha aí! ;-)',
 	),
 	'et' => Array (
 	),
@@ -389,6 +395,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>

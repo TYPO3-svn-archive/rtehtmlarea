@@ -11,7 +11,7 @@
 //
 // $Id$
 
-function getAbsolutePos(el) {
+getAbsolutePos = function(el) {
 	var r = { x: el.offsetLeft, y: el.offsetTop };
 	if (el.offsetParent) {
 		var tmp = getAbsolutePos(el.offsetParent);
@@ -21,7 +21,7 @@ function getAbsolutePos(el) {
 	return r;
 };
 
-function comboSelectValue(c, val) {
+comboSelectValue = function(c, val) {
 	var ops = c.getElementsByTagName("option");
 	for (var i = ops.length; --i >= 0;) {
 		var op = ops[i];
@@ -30,7 +30,7 @@ function comboSelectValue(c, val) {
 	c.value = val;
 };
 
-function __dlg_loadStyle(url) {
+__dlg_loadStyle = function(url) {
 	var head = document.getElementsByTagName("head")[0];
 	var link = document.createElement("link");
 	link.rel = "stylesheet";
@@ -38,7 +38,7 @@ function __dlg_loadStyle(url) {
 	head.appendChild(link);
 }
 
-function __dlg_init(bottom,noResize) {
+__dlg_init = function(bottom,noResize) {
 	var body = document.body;
 	window.focus();
 	window.dialogArguments = window.opener.Dialog._arguments;
@@ -74,7 +74,7 @@ function __dlg_init(bottom,noResize) {
 	HTMLArea._addEvent(document, "keypress", __dlg_close_on_esc);
 };
 
-function __dlg_translate(i18n) {
+__dlg_translate = function(i18n) {
 	var types = ["input", "option", "select", "legend", "span", "td", "button", "div", "h1", "h2", "a"];
 	for (var type = 0; type < types.length; ++type) {
 		var spans = document.getElementsByTagName(types[type]);
@@ -105,12 +105,12 @@ function __dlg_translate(i18n) {
 };
 
 // closes the dialog and passes the return info upper.
-function __dlg_close(val) {
+__dlg_close = function(val) {
 	if(window.opener && window.opener.Dialog) window.opener.Dialog._return(val);
 	window.close();
 };
 
-function __dlg_close_on_esc(ev) {
+__dlg_close_on_esc = function(ev) {
 	if(!ev) var ev = window.event;
 	if (ev.keyCode == 27) {
 		if(window.opener && window.opener.Dialog) window.opener.Dialog._return(null);

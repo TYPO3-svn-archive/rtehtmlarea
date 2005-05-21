@@ -79,6 +79,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
                 $this->TCEform = $pObj;
 		$this->LOCAL_LANG = $GLOBALS['TSFE']->readLLfile('EXT:' . $this->ID . '/locallang.php');
 		$this->client = $this->clientInfo();
+		$this->typoVersion = t3lib_div::int_from_ver($GLOBALS['TYPO_VERSION']);
 
 		/* =======================================
 		 * INIT THE EDITOR-SETTINGS
@@ -98,6 +99,8 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		$this->rtePathImageFile = $this->extHttpPath . 'rtehtmlarea_select_image.php';
 			// Get the Path to the script for create a link
 		$this->rtePathLinkFile = $this->extHttpPath . 'rtehtmlarea_browse_links.php';
+			// Get the Path to the script for inserting a user element
+		$this->rtePathUserFile = $this->extHttpPath . 'rtehtmlarea_user.php';
 			// Get the site URL
 		$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 			// Get the host URL
@@ -127,6 +130,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		$this->specConf = $specConf;
 			
 			// Language
+		$GLOBALS['TSFE']->initLLvars();
 		$this->language = $GLOBALS['TSFE']->lang;
 		if ($this->language=='default' || !$this->language)	{
 			$this->language='en';
@@ -134,16 +138,20 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			// Character set
 		$this->csObj = t3lib_div::makeInstance('t3lib_cs');
 		$this->charset = $GLOBALS['TSFE']->labelsCharset;
-		$this->OutputCharset  = $GLOBALS['TSFE']->siteCharset;
-
+		if($this->typoVersion >= 3007000 ) {
+			$this->OutputCharset  = $GLOBALS['TSFE']->metaCharset ? $GLOBALS['TSFE']->metaCharset : $GLOBALS['TSFE']->renderCharset;
+		} else {
+			$renderCharset = $GLOBALS['TSFE']->csConvObj->parse_charset($GLOBALS['TSFE']->config['config']['renderCharset'] ? $GLOBALS['TSFE']->config['config']['renderCharset'] : ($GLOBALS['TSFE']->TYPO3_CONF_VARS['BE']['forceCharset'] ? $GLOBALS['TSFE']->TYPO3_CONF_VARS['BE']['forceCharset'] : $GLOBALS['TSFE']->defaultCharSet));    // REndering charset of HTML page.
+			$metaCharset = $GLOBALS['TSFE']->csConvObj->parse_charset($GLOBALS['TSFE']->config['config']['metaCharset'] ? $GLOBALS['TSFE']->config['config']['metaCharset'] : $renderCharset);
+			$this->OutputCharset  = $metaCharset ? $metaCharset : $renderCharset;
+		}
 		/* =======================================
 		 * TOOLBAR CONFIGURATION
 		 * =======================================
 		 */
 			// htmlArea plugins list
 		$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginList , 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'], 1));
-		$hidePlugins = array();
-		$hidePlugins[] = 'TYPO3Browsers';
+		$hidePlugins = array('TYPO3Browsers', 'UserElements');
 		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
 		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 
@@ -187,7 +195,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			$this->spellCheckerCharset = trim($GLOBALS['TSFE']->config['config']['metaCharset']) ? trim($GLOBALS['TSFE']->config['config']['metaCharset']) : $this->spellCheckerCharset;
 
 				// Set the SpellChecker mode
-			$this->spellCheckerMode = isset($this->RTEsetup['default.']['HTMLAreaPspellMode']) ? trim($this->RTEsetup['default.']['HTMLAreaPspellMode']) : 'normal';
+			$this->spellCheckerMode = isset($this->thisConfig['HTMLAreaPspellMode']) ? trim($this->thisConfig['HTMLAreaPspellMode']) : 'normal';
 			if( !in_array($this->spellCheckerMode, $this->spellCheckerModes)) {
 				$this->spellCheckerMode = 'normal';
 			}
@@ -276,34 +284,39 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			// draw the textarea
 		$item = $this->triggerField($PA['itemFormElName']).'
 			<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $this->csObj->conv($GLOBALS['TSFE']->getLLL('Please wait',$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '</div>
-			<div id="editorWrap' . $pObj->RTEcounter . '" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
+			<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
 			<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($this->RTEdivStyle).'">'.t3lib_div::formatForTextarea($value).'</textarea>
-			</div>
+			</div>' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableDebugMode'] ? '<div id="HTMLAreaLog"></div>' : '') . '
 			';
 		return $item;
 	}
+
 
 	/**
 	 * Set the toolbar config
 	 *
 	 */
 	function setToolBar() {
-
 		if($this->client['BROWSER'] == 'gecko' && $this->client['VERSION'] == '1.3')  {
 			$this->defaultToolbarOrder = $this->TCEform->docLarge ? 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
 				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
 				subscript, superscript, lefttoright, righttoleft, bar, left, center, right, justifyfull, linebreak, 
 				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
 				insertcharacter, line, link, image, table, bar, findreplace, spellcheck, bar, chMode, inserttag, 
-				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about'
+				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
+				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
+				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
+				cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge'
 				: 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
 				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
 				subscript, superscript, linebreak, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
 				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
 				insertcharacter, line, link, image, table, linebreak, findreplace, spellcheck, bar, chMode, inserttag, 
-				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about';
+				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
+				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
+				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
+				cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge';
 		}
-
 		$toolbarOrder = $this->thisConfig['toolbarOrder'] ? $this->thisConfig['toolbarOrder'] : $this->defaultToolbarOrder;
 
 			// Getting rid of undefined buttons
@@ -328,14 +341,28 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			// Hiding buttons of disabled plugins
 		$hideButtons = array('space', 'bar', 'linebreak');
 		reset($this->pluginButton);
-		while(list($plugin, $button) = each($this->pluginButton) ) {
-			if(!$this->isPluginEnable($plugin)) $hideButtons[] = $button;
+		while(list($plugin, $buttonList) = each($this->pluginButton) ) {
+			if(!$this->isPluginEnable($plugin)) {
+				$buttonArray = t3lib_div::trimExplode(',',$buttonList,1);
+				foreach($buttonArray as $button) {
+					$hideButtons[] = $button;
+				}
+			}
 		}
+
 
 			// Hiding labels of disabled plugins
 		reset($this->pluginLabel);
 		while(list($plugin, $label) = each($this->pluginLabel) ) {
 			if(!$this->isPluginEnable($plugin)) $hideButtons[] = $label;
+		}
+
+			// Hiding buttons not implemented in Safari
+		if ($this->client['BROWSER'] == 'safari') {
+			reset($this->conf_toolbar_safari_hide);
+			while(list(, $button) = each($this->conf_toolbar_safari_hide) ) {
+				$hideButtons[] = $button;
+			}
 		}
 
 			// Hiding the buttons
@@ -446,6 +473,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			RTEarea['.$number.']["colors"] = '. $HTMLAreaJSColors;
 		}
 
+
 			// Setting the list of fonts if specified in the RTE config
 		if (is_array($this->RTEsetup['properties']['fonts.']) )  {
 			$HTMLAreaFontname = array();
@@ -534,13 +562,15 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		}
 
 
+
+
 		$HTMLAreaJSFontSize .= '};';
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["fontsize"] = '. $HTMLAreaJSFontSize;
 
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
-			initEditor('.$number.');
+			HTMLArea.initEditor('.$number.');
 		/*]]>*/';
 
 		return $registerRTEinJSString;
@@ -564,22 +594,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			OK=0;
 		}
 		';
-	}
-
-	/***************************
-	 *
-	 * OTHER FUNCTIONS:	(from the orginal RTE)
-	 *
-	 ***************************/
-	/**
-	 * @return	[type]		...
-	 
-	* @desc 
-	*/
-	function RTEtsConfigParams()	{
-		//$p = t3lib_BEfunc::getSpecConfParametersFromArray($this->specConf['rte_transform']['parameters']);
-		//return $this->elementParts[0].':'.$this->elementParts[1].':'.$this->elementParts[2].':'.$this->thePid.':'.$this->typeVal.':'.$this->tscPID.':'.$p['imgpath'];
-		return '';
 	}
 
 }

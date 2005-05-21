@@ -86,5 +86,7 @@ $LOCAL_LANG = Array (
 	),
 	'kr' => Array (
 	),
+	'eo' => Array (
+	),
 );
 ?>

@@ -12,7 +12,7 @@ defaultDictionary = en
 dictionaryList  = en
 
   # cat=basic; type=string; label=List of htmlArea plugins: The list of htmlArea plugins that may be enabled.
-HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS
+HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements
 
   # cat=basic/enable; type=boolean; label=Enable all editor options: If set, all optional features will be enabled in the default User and Page TSConfig. If not set, only minimal features will be enabled.
 enableAllOptions = 0
@@ -22,3 +22,6 @@ enableMozillaExtension = 0
 
   # cat=basic/enable; type=boolean; label=Force Aspell command mode: If set, the spellchecker will use the Aspell command interface. Presumably. PHP is compiled with pspell, but with an old version of Aspell. If set, PHP safe mode should NOT be enabled.
 forceCommandMode = 0
+
+  # cat=basic/enable; type=boolean; label=Enable troubleshooting mode: If set, a troubleshooting log will be displayed below the editing area.
+enableDebugMode = 0

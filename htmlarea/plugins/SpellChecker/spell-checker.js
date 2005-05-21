@@ -10,37 +10,36 @@
 //
 // $Id$
 
-SpellChecker.I18N = SpellChecker_langArray;
-
-function SpellChecker(editor) {
+SpellChecker = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var i18n = SpellChecker.I18N;
 	var self = this;
 
-	cfg.registerButton("spellcheck", 
-		i18n["SC-spell-check"],
+	cfg.registerButton("SpellCheck", 
+		SpellChecker_langArray["SC-spell-check"],
 		editor.imgURL("spell-check.gif", "SpellChecker"),
 		false,
 		function(editor,id) { self.buttonPress(editor, id); }
 	);
 };
 
+SpellChecker.I18N = SpellChecker_langArray;
+
 SpellChecker._pluginInfo = {
-	name          : "SpellChecker",
-	version       : "1.8",
-	developer     : "Mihai Bazon & Stanislas Rolland",
-	developer_url : "http://dynarch.com/mishoo/",
-	c_owner       : "Mihai Bazon & Stanislas Rolland",
-	sponsor       : "American Bible Society & Fructifor Inc.",
-	sponsor_url   : "http://www.americanbible.org",
-	license       : "htmlArea"
+	name 			: "SpellChecker",
+	version 		: "1.8",
+	developer 		: "Mihai Bazon & Stanislas Rolland",
+	developer_url 	: "http://dynarch.com/mishoo/",
+	c_owner 		: "Mihai Bazon & Stanislas Rolland",
+	sponsor 		: "American Bible Society & Fructifor Inc.",
+	sponsor_url 	: "http://www.americanbible.org",
+	license 		: "htmlArea"
 };
 
 SpellChecker.prototype.buttonPress = function(editor, id) {
 	var self = this;
 	switch (id) {
-	    case "spellcheck":
+	    case "SpellCheck":
 		SpellChecker.editor = editor;
 		SpellChecker.init = true;
 		SpellChecker.f_dictionary = _spellChecker_lang;
@@ -49,7 +48,7 @@ SpellChecker.prototype.buttonPress = function(editor, id) {
 		var param = new Object();
 		param.editor = editor;
 		param.HTMLArea = HTMLArea;
-    		editor._popupDialog("plugin://SpellChecker/spell-check-ui", null, param, 670, 500);
+    		editor._popupDialog("plugin://SpellChecker/spell-check-ui",null,param,670,500);
 		break;
 	}
 };

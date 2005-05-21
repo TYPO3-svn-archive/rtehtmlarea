@@ -5,15 +5,16 @@
  e-mail: kimastergeorge@gmail.com
 \*---------------------------------------*/
 
-InsertSmiley.I18N = InsertSmiley_langArray;
-
 var HTMLAreaeditor;
-function InsertSmiley(editor) {
+
+InsertSmiley = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
 	var self = this;
-	cfg.registerButton("insertsmiley", InsertSmiley.I18N["Insert Smiley"],  editor.imgURL("ed_smiley.gif", "InsertSmiley"), false, function(editor) { self.buttonPress(editor); });
+	cfg.registerButton("InsertSmiley", InsertSmiley_langArray["Insert Smiley"],  editor.imgURL("ed_smiley.gif", "InsertSmiley"), false, function(editor) { self.buttonPress(editor); });
 };
+
+InsertSmiley.I18N = InsertSmiley_langArray;
 
 InsertSmiley.prototype.buttonPress = function(editor) { 
 	var self = this;

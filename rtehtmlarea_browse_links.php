@@ -583,6 +583,7 @@ class tx_rtehtmlarea_browse_links {
 	var $thisConfig;		// RTE specific TSconfig
 	var $setTarget;			// Target (RTE specific)
 	var $setClass;			// Class (RTE specific)
+	var $setTitle;			// Title(RTE specific)
 	var $doc;				// Backend template object
 
 		// GPvars:	(Input variables from outside)
@@ -731,6 +732,9 @@ class tx_rtehtmlarea_browse_links {
 			$this->setTarget=$this->thisConfig['defaultLinkTarget'];
 		}
 
+			// Initializing the titlevalue (RTE)
+		$this->setTitle = $this->curUrlArray['title'];
+
 			// Creating backend template object:
 		$this->doc = t3lib_div::makeInstance('template');
 		$this->doc->docType= 'xhtml_trans';
@@ -739,15 +743,19 @@ class tx_rtehtmlarea_browse_links {
 			// BEGIN accumulation of header JavaScript:
 		$JScode = '';
 		$JScode.= '
+			var editor = parent.editor;
+			var HTMLArea = parent.HTMLArea;
 				// This JavaScript is primarily for RTE/Link. jumpToUrl is used in the other cases as well...
 			var add_href="'.($this->curUrlArray['href']?'&curUrl[href]='.rawurlencode($this->curUrlArray['href']):'').'";
 			var add_target="'.($this->setTarget?'&curUrl[target]='.rawurlencode($this->setTarget):'').'";
 			var add_class="'.($this->setClass?'&curUrl[class]='.rawurlencode($this->setClass):'').'";
+			var add_title="'.($this->setTitle?'&curUrl[title]='.rawurlencode($this->setTitle):'').'";
 			var add_params="'.($this->bparams?'&bparams='.rawurlencode($this->bparams):'').'";
 
 			var cur_href="'.($this->curUrlArray['href']?$this->curUrlArray['href']:'').'";
 			var cur_target="'.($this->setTarget?$this->setTarget:'').'";
 			var cur_class="'.($this->setClass?$this->setClass:'').'";
+			var cur_title="'.($this->setTitle?$this->setTitle:'').'";
 
 			function setTarget(value)	{
 				cur_target=value;
@@ -756,6 +764,10 @@ class tx_rtehtmlarea_browse_links {
 			function setClass(value)	{
 				cur_class=value;
 				add_class="&curUrl[class]="+escape(value);
+			}
+			function setTitle(value)	{
+				cur_title=value;
+				add_title="&curUrl[title]="+escape(value);
 			}
 			function setValue(value)	{
 				cur_href=value;
@@ -792,7 +804,7 @@ class tx_rtehtmlarea_browse_links {
 			}
 			function link_current()	{	//
 				if (cur_href!="http://" && cur_href!="mailto:")	{
-					var setValue = cur_href+" "+cur_target+" "+cur_class;
+					var setValue = cur_href+" "+cur_target+" "+cur_class+" "+cur_title;
 					if (setValue.substr(0,7)=="http://")	setValue = setValue.substr(7);
 					if (setValue.substr(0,7)=="mailto:")	setValue = setValue.substr(7);
 					updateValueInMainForm(setValue);
@@ -819,22 +831,25 @@ class tx_rtehtmlarea_browse_links {
 			$JScode.='
 				function link_typo3Page(id,anchor)	{
 					var theLink = \''.$this->siteURL.'?id=\'+id+(anchor?anchor:"");
-					parent.window.opener.renderPopup_addLink(theLink,cur_target,cur_class);
+					setTitle(document.ltargetform.anchor_title.value);
+					editor.renderPopup_addLink(theLink,cur_target,cur_class,cur_title);
 					return false;
 				}
 				function link_folder(folder)	{	//
 					var theLink = \''.$this->siteURL.'\'+folder;
-					parent.window.opener.renderPopup_addLink(theLink,cur_target,cur_class);
-
+					setTitle(document.ltargetform.anchor_title.value);
+					editor.renderPopup_addLink(theLink,cur_target,cur_class,cur_title);
 					return false;
 				}
 				function link_spec(theLink)	{	//
-					parent.window.opener.renderPopup_addLink(theLink,cur_target,cur_class);
+					setTitle(document.ltargetform.anchor_title.value);
+					editor.renderPopup_addLink(theLink,cur_target,cur_class,cur_title);
 					return false;
 				}
 				function link_current()	{	//
+					setTitle(document.ltargetform.anchor_title.value);
 					if (cur_href!="http://" && cur_href!="mailto:")	{
-						parent.window.opener.renderPopup_addLink(cur_href,cur_target,cur_class);
+						editor.renderPopup_addLink(cur_href,cur_target,cur_class,cur_title);
 					}
 					return false;
 
@@ -847,7 +862,7 @@ class tx_rtehtmlarea_browse_links {
 			function jumpToUrl(URL,anchor)	{	//
 				var add_act = URL.indexOf("act=")==-1 ? "&act='.$this->act.'" : "";
 				var add_mode = URL.indexOf("mode=")==-1 ? "&mode='.$this->mode.'" : "";
-				var theLocation = URL+add_act+add_mode+add_href+add_target+add_class+add_params'.($addPassOnParams?'+"'.$addPassOnParams.'"':'').'+(anchor?anchor:"");
+				var theLocation = URL+add_act+add_mode+add_href+add_target+add_class+add_title+add_params'.($addPassOnParams?'+"'.$addPassOnParams.'"':'').'+(anchor?anchor:"");
 				document.location = theLocation;
 				return false;
 			}
@@ -967,6 +982,7 @@ class tx_rtehtmlarea_browse_links {
 					$BE_USER->pushModuleData('rtehtmlarea_browse_links.php',$modData);
 				} else {
 					$this->expandFolder=$modData['expandFolder'];
+
 				}
 
 				$this->content=$this->main_file();
@@ -1024,7 +1040,7 @@ class tx_rtehtmlarea_browse_links {
 					';
 		$bgcolor=' class="bgColor4"';
 		$bgcolorA=' class="bgColor5"';
-		if (!$wiz)	$menu.='<td'.$bgcolor.'><a href="#" onclick="parent.window.opener.renderPopup_unLink();return false;">'.$GLOBALS['LANG']->getLL('removeLink',1).'</a></td>';
+		if (!$wiz)	$menu.='<td'.$bgcolor.'><a href="#" onclick="editor.renderPopup_unLink();return false;">'.$GLOBALS['LANG']->getLL('removeLink',1).'</a></td>';
 		if (in_array('page',$allowedItems))	$menu.='
 					<td'.($this->act=='page'?$bgcolorA:$bgcolor).'><a href="#" onclick="jumpToUrl(\'?act=page\');return false;">'.$GLOBALS['LANG']->getLL('page',1).'</a></td>';
 		if (in_array('file',$allowedItems))	$menu.='
@@ -1265,6 +1281,13 @@ class tx_rtehtmlarea_browse_links {
 									' . $this->classesAnchorJSOptions . '
 								</select>';
 			}
+				// Title:
+			$ltarget.='		</td>
+						</tr>
+						<tr>
+							<td>'.$GLOBALS['LANG']->getLL('anchor_title',1).':</td>
+							<td colspan="3">
+								<input type="text" name="anchor_title" value="' . $this->setTitle . '" ' . $GLOBALS['TBE_TEMPLATE']->formWidth(30) . ' />';
 
 				$ltarget.='		</td>
 						</tr>
@@ -1284,7 +1307,7 @@ class tx_rtehtmlarea_browse_links {
 			$ltarget='
 
 			<!--
-				Selecting class for email link:
+				Selecting class and title for email link:
 			-->
 				<form action="" name="ltargetform" id="ltargetform">
 					<table border="0" cellpadding="2" cellspacing="1" id="typo3-linkTarget">
@@ -1294,6 +1317,12 @@ class tx_rtehtmlarea_browse_links {
 								<select name="anchor_class" onchange="'.htmlspecialchars($selectClassJS).'">
 									' . $this->classesAnchorJSOptions . '
 								</select>
+						</td>
+						</tr>
+						<tr>
+							<td>'.$GLOBALS['LANG']->getLL('anchor_title',1).':</td>
+							<td colspan="3">
+								<input type="text" name="anchor_title" value="' . $this->setTitle . '" ' . $GLOBALS['TBE_TEMPLATE']->formWidth(30) . ' />
 						</td>
 						</tr>
 					</table>
@@ -1577,6 +1606,7 @@ class tx_rtehtmlarea_browse_links {
 			$ATag2='';
 			if (in_array('pages',$tablesArr))	{
 				$ficon=t3lib_iconWorks::getIcon('pages',$mainPageRec);
+
 				$ATag="<a href=\"#\" onclick=\"return insertElement('pages', '".$mainPageRec['uid']."', 'db', unescape('".rawurlencode($mainPageRec['title'])."'), '', '', '".$ficon."','',1);\">";
 				$ATag2="<a href=\"#\" onclick=\"return insertElement('pages', '".$mainPageRec['uid']."', 'db', unescape('".rawurlencode($mainPageRec['title'])."'), '', '', '".$ficon."','',0);\">";
 				$ATag_alt=substr($ATag,0,-4).",'',1);\">";
@@ -2009,6 +2039,7 @@ class tx_rtehtmlarea_browse_links {
 	 * @param	string		URL value.  The value is htmlspecialchars()'ed before output.
 	 * @return	string		HTML content, wrapped in a table.
 	 */
+
 	function printCurrentUrl($str)	{
 		return '
 

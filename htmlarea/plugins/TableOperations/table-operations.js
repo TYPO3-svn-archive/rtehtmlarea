@@ -1,55 +1,65 @@
 // Table Operations Plugin for HTMLArea-3.0
 // Implementation by Mihai Bazon.  Sponsored by http://www.bloki.com
-// Substantially rewritten by Stanislas Rolland <stanislas.rolland@fructifor.com>
-//
-// htmlArea v3.0 - Copyright (c) 2002 interactivetools.com, inc.
+// Substantially rewritten by Stanislas Rolland <stanislas.rolland@fructifor.com>. Sponsored by Fructifor Inc.
+// Copyright (c) 2002 interactivetools.com, inc.
+// Copyright (c) 2004-2005 Stanislas Rolland
+// Copyright (c) 2005 Xinha, http://xinha.gogo.co.nz/ for the original toggle borders function
 // This notice MUST stay intact for use (see license.txt).
-//
-// A free WYSIWYG editor replacement for <textarea> fields.
-// For full source code and docs, visit http://www.interactivetools.com/
-//
-
-TableOperations.I18N = TableOperations_langArray;
-
-function TableOperations(editor) {
+/*
+ * Initialize the plugin and register its buttons
+ */
+TableOperations = function(editor) {
 	this.editor = editor;
-
 	var cfg = editor.config;
-	var tt = TableOperations.I18N;
 	var bl = TableOperations.btnList;
 	var self = this;
-
-	// register the toolbar buttons provided by this plugin
-	var toolbar = ["linebreak"];
-	for (var i = 0; i < bl.length; ++i) {
+	var hideInToolbar = _tableOperations_hideInToolbar;
+	for(var i=0;i < bl.length;++i) {
 		var btn = bl[i];
-		if (!btn) {
-			toolbar.push("separator");
-		} else {
-			var id = "TO-" + btn[0];
-			cfg.registerButton(id, tt[id], editor.imgURL(btn[0] + ".gif", "TableOperations"), false,
-					   function(editor, id) {
-						   // dispatch button press event
-						   self.buttonPress(editor, id);
-					   }, btn[1]);
-			toolbar.push(id);
-		}
+		var id = "TO-" + btn[0];
+		cfg.registerButton(id,TableOperations_langArray[id],editor.imgURL(btn[0] + ".gif","TableOperations"),false,
+			function(editor,id) {self.buttonPress(editor,id);},btn[1],hideInToolbar);
 	}
-
-	// add a new line in the toolbar
-	cfg.toolbar.push(toolbar);
 };
-
+/*
+ * Set the language file for the plugin
+ */
+TableOperations.I18N = TableOperations_langArray;
+/*
+ * The information about the plugin
+ */
 TableOperations._pluginInfo = {
-	name          : "TableOperations",
-	version       : "3.0",
-	developer     : "Mihai Bazon & Stanislas Rolland",
-	developer_url : "http://dynarch.com/mishoo/",
-	c_owner       : "Mihai Bazon & Stanislas Rolland",
-	sponsor       : "Zapatec Inc. & Fructifor Inc.",
-	sponsor_url   : "http://www.bloki.com",
-	license       : "htmlArea"
+	name			: "TableOperations",
+	version 		: "3.0",
+	developer 		: "Mihai Bazon & Stanislas Rolland",
+	developer_url 	: "http://dynarch.com/mishoo/",
+	c_owner 		: "Mihai Bazon & Stanislas Rolland",
+	sponsor 		: "Zapatec Inc. & Fructifor Inc.",
+	sponsor_url 	: "http://www.bloki.com",
+	license 		: "htmlArea"
 };
+/*
+ * The list of buttons added by this plugin
+ */
+TableOperations.btnList = [
+	["toggle-borders",       null],
+	["table-prop",       "table"],
+	["row-prop",         "tr"],
+	["row-insert-above", "tr"],
+	["row-insert-under", "tr"],
+	["row-delete",       "tr"],
+	["row-split",        "td[rowSpan!=1]"],
+	["col-insert-before", "td"],
+	["col-insert-after",  "td"],
+	["col-delete",        "td"],
+	["col-split",         "td[colSpan!=1]"],
+	["cell-prop",          "td"],
+	["cell-insert-before", "td"],
+	["cell-insert-after",  "td"],
+	["cell-delete",        "td"],
+	["cell-merge",         "tr"],
+	["cell-split",         "td[colSpan!=1,rowSpan!=1]"]
+	];
 
 /************************
  * UTILITIES
@@ -62,7 +72,7 @@ TableOperations.prototype.getClosest = function(tagName) {
 	var ancestors = editor.getAllAncestors();
 	var ret = null;
 	tagName = ("" + tagName).toLowerCase();
-	for (var i = 0; i < ancestors.length; ++i) {
+	for(var i=0; i < ancestors.length;++i) {
 		var el = ancestors[i];
 		if (el.tagName.toLowerCase() == tagName) {
 			ret = el;
@@ -72,16 +82,13 @@ TableOperations.prototype.getClosest = function(tagName) {
 	return ret;
 };
 
-// this function requires the file PopupDiv/PopupWin to be loaded from browser
+// this function requires the file PopupWin to be loaded from browser
 TableOperations.prototype.dialogTableProperties = function() {
 	var editor = this.editor;
-	var i18n = TableOperations.I18N;
-	// retrieve existing values
+		// retrieve existing values
 	var table = this.getClosest("table");
-	// this.editor.selectNodeContents(table);
-	// this.editor.updateToolbar();
 
-	var dialog = new PopupWin(this.editor, i18n["Table Properties"], function(dialog, params) {
+	var dialog = new PopupWin(this.editor, TableOperations.I18N["Table Properties"], function(dialog, params) {
 		dialog.editor.focusEditor();
 		TableOperations.processStyle(params, table);
 		for (var i in params) {
@@ -152,18 +159,18 @@ TableOperations.prototype.dialogTableProperties = function() {
 
 		// this function gets called when the dialog needs to be initialized
 	function (dialog) {
-		TableOperations.buildTitle(dialog.doc, i18n, dialog.content, "Table Properties");
-		TableOperations.buildDescriptionFieldset(dialog.doc, table, i18n, dialog.content);
+		TableOperations.buildTitle(dialog.doc, TableOperations.I18N, dialog.content, "Table Properties");
+		TableOperations.buildDescriptionFieldset(dialog.doc, table, TableOperations.I18N, dialog.content);
 		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
 		if (obj && obj.loaded) {
 			var cssArray = obj.cssArray;
-			TableOperations.buildStylingFieldset(dialog.doc, table, i18n, dialog.content, cssArray);
+			TableOperations.buildStylingFieldset(dialog.doc, table, TableOperations.I18N, dialog.content, cssArray);
 		}
-		TableOperations.buildLayoutFieldset(dialog.doc, table, i18n, dialog.content);
-		TableOperations.buildAlignmentFieldset(dialog.doc, table, i18n, dialog.content, "floating");
-		TableOperations.buildSpacingFieldset(dialog.doc, table, i18n, dialog.content);
-		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, i18n, dialog.content);
-		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, i18n, dialog.content);
+		TableOperations.buildLayoutFieldset(dialog.doc, table, TableOperations.I18N, dialog.content);
+		TableOperations.buildAlignmentFieldset(dialog.doc, table, TableOperations.I18N, dialog.content, "floating");
+		TableOperations.buildSpacingFieldset(dialog.doc, table, TableOperations.I18N, dialog.content);
+		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, TableOperations.I18N, dialog.content);
+		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, TableOperations.I18N, dialog.content);
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement();
@@ -172,12 +179,11 @@ TableOperations.prototype.dialogTableProperties = function() {
 
 // this function requires the file PopupDiv/PopupWin to be loaded from browser
 TableOperations.prototype.dialogRowCellProperties = function(cell) {
-	var i18n = TableOperations.I18N;
 	// retrieve existing values
 	var element = this.getClosest(cell ? "td" : "tr");
 	var table = this.getClosest("table");
 	if(element) {
-	   var dialog = new PopupWin(this.editor, i18n[cell ? "Cell Properties" : "Row Properties"], function(dialog, params) {
+	   var dialog = new PopupWin(this.editor, TableOperations.I18N[cell ? "Cell Properties" : "Row Properties"], function(dialog, params) {
 		dialog.editor.focusEditor();
 		TableOperations.processStyle(params, element);
 		for (var i in params) {
@@ -219,18 +225,18 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 
 		// this function gets called when the dialog needs to be initialized
 	function (dialog) {
-		TableOperations.buildTitle(dialog.doc, i18n, dialog.content, (cell ? "Cell Properties" : "Row Properties"));
+		TableOperations.buildTitle(dialog.doc, TableOperations.I18N, dialog.content, (cell ? "Cell Properties" : "Row Properties"));
 		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
 		if (obj && obj.loaded) {
 			var cssArray = obj.cssArray;
-			TableOperations.buildStylingFieldset(dialog.doc, element, i18n, dialog.content, cssArray);
+			TableOperations.buildStylingFieldset(dialog.doc, element, TableOperations.I18N, dialog.content, cssArray);
 		} else {
 			TableOperations.insertSpace(dialog.doc,dialog.content);
 		}
-		TableOperations.buildLayoutFieldset(dialog.doc, element, i18n, dialog.content, "floating");
-		TableOperations.buildAlignmentFieldset(dialog.doc, element, i18n, dialog.content);
-		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, i18n, dialog.content);
-		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, i18n, dialog.content);
+		TableOperations.buildLayoutFieldset(dialog.doc, element, TableOperations.I18N, dialog.content, "floating");
+		TableOperations.buildAlignmentFieldset(dialog.doc, element, TableOperations.I18N, dialog.content);
+		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, TableOperations.I18N, dialog.content);
+		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, TableOperations.I18N, dialog.content);
 		dialog.addButtons("ok", "cancel");
 		dialog.modal = true;
 		//if(!HTMLArea.is_gecko) dialog.showAtElement();
@@ -241,10 +247,9 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
 
 // this function gets called when some button from the TableOperations toolbar
 // was pressed.
-TableOperations.prototype.buttonPress = function(editor, button_id) {
+TableOperations.prototype.buttonPress = function(editor,button_id) {
 	this.editor = editor;
 	var mozbr = HTMLArea.is_gecko ? "<br />" : "";
-	var i18n = TableOperations.I18N;
 
 	// helper function that clears the content in a table row
 	function clearRow(tr) {
@@ -391,8 +396,8 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		var index = cell.cellIndex;
 		var rows = cell.parentNode.parentNode.rows;
 		var lastColumn = true;
-		for (var i = rows.length; --i >= 0;) {
-			if(rows[i].cells.length > 1) { lastColumn = false; }
+		for(var i = rows.length; --i >= 0;) {
+			if(rows[i].cells.length > 1) lastColumn = false;
 		}
 		if(lastColumn) {   // this is the last column, delete the whole table
 			var row = cell.parentNode;
@@ -467,7 +472,7 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 		var rows = [];
 		var row = null;
 		var cells = null;
-		if (!HTMLArea.is_ie) {
+		if(HTMLArea.is_gecko && !HTMLArea.is_safari) {
 			try {
 				while (range = sel.getRangeAt(i++)) {
 					var td = range.startContainer.childNodes[range.startOffset];
@@ -481,16 +486,16 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 			} catch(e) {/* finished walking through selection */}
 			rows.push(cells);
 		} else {
-			// Internet Explorer
+			// Internet Explorer and Safari
 			var td = this.getClosest("td");
 			if (!td) {
-				alert(i18n["Please click into some cell"]);
+				alert(TableOperations.I18N["Please click into some cell"]);
 				break;
 			}
 			var tr = td.parentElement;
-			var no_cols = prompt(i18n["How many columns would you like to merge?"], 2);
+			var no_cols = prompt(TableOperations.I18N["How many columns would you like to merge?"], 2);
 			if (!no_cols) { break; }
-			var no_rows = prompt(i18n["How many rows would you like to merge?"], 2);
+			var no_rows = prompt(TableOperations.I18N["How many rows would you like to merge?"], 2);
 			if (!no_rows) { break; }
 			var cell_index = td.cellIndex;
 			while (no_rows-- > 0) {
@@ -506,14 +511,15 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 				if (!tr) { break; }
 			}
 		}
-		var HTML = "";
-		for (i = 0; i < rows.length; ++i) {
-			// i && (HTML += "<br />");
+		var cellHTML = "";
+		for(i=0; i < rows.length; ++i) {
+			// i && (cellHTML += "<br />");
 			var cells = rows[i];
-			for (var j = 0; j < cells.length; ++j) {
-				// j && (HTML += "&nbsp;");
+			if(!cells) continue;
+			for(var j=0; j < cells.length; ++j) {
+				// j && (cellHTML += "&nbsp;");
 				var cell = cells[j];
-				HTML += cell.innerHTML;
+				cellHTML += cell.innerHTML;
 				if(i || j) {
 					if(cell.parentNode.cells.length == 1) {
 						cell.parentNode.parentNode.removeChild(cell.parentNode);
@@ -523,11 +529,13 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 				}
 			}
 		}
-		var td = rows[0][0];
-		td.innerHTML = HTML;
-		td.rowSpan = rows.length;
-		td.colSpan = rows[0].length;
-		editor.selectNodeContents(td);
+		try {
+			var td = rows[0][0];
+			td.innerHTML = cellHTML;
+			td.rowSpan = rows.length;
+			td.colSpan = rows[0].length;
+			editor.selectNodeContents(td);
+		} catch(e) { }
 		editor.forceRedraw();
 		editor.focusEditor();
 		break;
@@ -542,42 +550,29 @@ TableOperations.prototype.buttonPress = function(editor, button_id) {
 	    case "TO-cell-prop":
 		this.dialogRowCellProperties(true);
 		break;
+	    case "TO-toggle-borders":
+		var tables = editor._doc.getElementsByTagName("table");
+		if(tables.length != 0){
+			if(!editor.borders) editor.borders = true;
+				else editor.borders = false;
+			for(var ix=0;ix < tables.length;ix++){
+				if(editor.borders){
+						// flashing the display forces moz to listen (JB:18-04-2005) - #102
+					if(HTMLArea.is_gecko){
+						tables[ix].style.display="none";
+						tables[ix].style.display="table";
+					}
+					HTMLArea._addClass(tables[ix],'showtableborders');
+				} else {
+					HTMLArea._removeClass(tables[ix],'showtableborders');
+				}
+			}
+		}
+		break;
 	    default:
 		alert("Button [" + button_id + "] not yet implemented");
 	}
 };
-
-// the list of buttons added by this plugin
-TableOperations.btnList = [
-	// table properties button
-	["table-prop",       "table"],
-	null,			// separator
-
-	// ROWS
-	["row-prop",         "tr"],
-	["row-insert-above", "tr"],
-	["row-insert-under", "tr"],
-	["row-delete",       "tr"],
-	["row-split",        "td[rowSpan!=1]"],
-	null,
-
-	// COLS
-	["col-insert-before", "td"],
-	["col-insert-after",  "td"],
-	["col-delete",        "td"],
-	["col-split",         "td[colSpan!=1]"],
-	null,
-
-	// CELLS
-	["cell-prop",          "td"],
-	["cell-insert-before", "td"],
-	["cell-insert-after",  "td"],
-	["cell-delete",        "td"],
-	["cell-merge",         "tr"],
-	["cell-split",         "td[colSpan!=1,rowSpan!=1]"]
-	];
-
-
 
 //// GENERIC CODE [style of any element; this should be moved into a separate
 //// file as it'll be very useful]

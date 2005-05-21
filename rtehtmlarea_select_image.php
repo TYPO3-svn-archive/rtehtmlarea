@@ -306,6 +306,8 @@ class tx_rtehtmlarea_select_image {
 </head>
 <script language="javascript" type="text/javascript">
 /*<![CDATA[*/
+	var editor = parent.editor;
+	var HTMLArea = parent.HTMLArea;
 	function insertImage(file,width,height)	{
 		var styleWidth, styleHeight;
 		styleWidth = parseInt(width);
@@ -320,7 +322,7 @@ class tx_rtehtmlarea_select_image {
 		} else {
 			styleHeight += "px";
 		}
-		parent.window.opener.renderPopup_insertImage(\'<img src="\'+file+\'" style="width: \'+styleWidth+\'; height: \'+styleHeight+\';" />\');
+		editor.renderPopup_insertImage(\'<img src="\'+file+\'" style="width: \'+styleWidth+\'; height: \'+styleHeight+\';" />\');
 	}
 /*]]>*/
 </script>
@@ -353,6 +355,8 @@ class tx_rtehtmlarea_select_image {
 		$this->doc->JScode='
 		<script language="javascript" type="text/javascript">
 		/*<![CDATA[*/
+			var editor = parent.editor;
+			var HTMLArea = parent.HTMLArea;
 			function jumpToUrl(URL,anchor)	{	//
 				var add_act = URL.indexOf("act=")==-1 ? "&act='.$this->act.'" : "";
 				var RTEtsConfigParams = "&RTEtsConfigParams='.rawurlencode(t3lib_div::_GP('RTEtsConfigParams')).'";
@@ -378,7 +382,7 @@ class tx_rtehtmlarea_select_image {
 				} else {
 					styleHeight += "px";
 				}
-				parent.window.opener.renderPopup_insertImage(\'<img src="\'+file+\'" style="width: \'+styleWidth+\'; height: \'+styleHeight+\';" />\');
+				editor.renderPopup_insertImage(\'<img src="\'+file+\'" style="width: \'+styleWidth+\'; height: \'+styleHeight+\';" />\');
 			}
 			function launchView(url) {
 				var thePreviewWindow="";
@@ -482,7 +486,7 @@ class tx_rtehtmlarea_select_image {
 							selectedImageRef.className = iClass;
 						}
 					}
-					parent.window.opener.edHidePopup();
+					HTMLArea.edHidePopup();
 				}
 				return false;
 			}
@@ -554,8 +558,8 @@ class tx_rtehtmlarea_select_image {
 			function openDragDrop()	{
 				var url = "rtehtmlarea_browse_links.php?mode=filedrag&bparams=|||"+escape("gif,jpg,jpeg,png");
 				//var url = "' . $BACK_PATH . 'browse_links.php?mode=filedrag&bparams=|||"+escape("gif,jpg,jpeg,png");
-				parent.window.opener.browserWin = window.open(url,"Typo3WinBrowser","height=350,width=600,status=0,menubar=0,resizable=1,scrollbars=1");
-				parent.window.opener.edHidePopup();
+				parent.opener.browserWin = window.open(url,"Typo3WinBrowser","height=350,width=600,status=0,menubar=0,resizable=1,scrollbars=1");
+				HTMLArea.edHidePopup();
 			}
 		
 			var selectedImageRef = getCurrentImageRef();	// Setting this to a reference to the image object.

@@ -107,6 +107,9 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'Path' => 'Caminho',
+		'TEXT_MODE' => 'Você está no MODE TEXTO. Use o botão [<>] para voltar ao modo Gráfico.',
+		'IE-sucks-full-screen' => 'O modo tela-cheia causa problemas com o Internet Explorer, por causa de falhas que nós não foram corrigidas. Você pode obter uma tela distorcida, falhas no editor e/ou travamentos aleatórios do navegador. Se o seu sistema é Windows 9x provavelmente você receberá um "General Protection Fault" e precisará reiniciar o computador. \\n\\n Você foi avisado. Por favor pressione OK se você ainda quiser tentar o modo tela-cheia.',
 	),
 	'et' => Array (
 	),
@@ -127,6 +130,8 @@ $LOCAL_LANG = Array (
 	'ba' => Array (
 	),
 	'kr' => Array (
+	),
+	'eo' => Array (
 	),
 );
 ?>
