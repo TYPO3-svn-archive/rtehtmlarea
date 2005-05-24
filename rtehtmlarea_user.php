@@ -73,7 +73,7 @@ $LANG->includeLLFile('EXT:rtehtmlarea/locallang_rtehtmlarea_user.php');
  * @package TYPO3
  * @subpackage tx_rte
  */
-class SC_rtehtmlarea_user {
+class tx_rtehtmlarea_user {
 	var $content;
 	var $modData;
 	var $siteUrl;
@@ -341,7 +341,7 @@ if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtml
 
 
 // Make instance:
-$SOBE = t3lib_div::makeInstance('SC_rtehtmlarea_user');
+$SOBE = t3lib_div::makeInstance('tx_rtehtmlarea_user');
 $SOBE->init();
 $SOBE->main();
 $SOBE->printContent();

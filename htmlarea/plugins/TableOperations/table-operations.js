@@ -133,15 +133,9 @@ TableOperations.prototype.dialogTableProperties = function() {
 				table.rules = (val != "not set") ? val : "";
 				break;
 			    case "f_class":
-				if(val != 'none'){
-					table.className = val;
-				} else if(table.className) {
-					if(HTMLArea.is_gecko) {
-						table.removeAttribute('class');
-					} else {
-						table.removeAttribute('className');
-					}
-				}
+				var cls = table.className.trim().split(" ");
+				for(var i = cls.length;i > 0;) if(!HTMLArea.reservedClassNames.test(cls[--i])) HTMLArea._removeClass(table,cls[i]);
+				if(val != 'none') HTMLArea._addClass(table,val);
 				break;
 			}
 		}
@@ -553,19 +547,11 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 	    case "TO-toggle-borders":
 		var tables = editor._doc.getElementsByTagName("table");
 		if(tables.length != 0){
-			if(!editor.borders) editor.borders = true;
-				else editor.borders = false;
-			for(var ix=0;ix < tables.length;ix++){
-				if(editor.borders){
-						// flashing the display forces moz to listen (JB:18-04-2005) - #102
-					if(HTMLArea.is_gecko){
-						tables[ix].style.display="none";
-						tables[ix].style.display="table";
-					}
-					HTMLArea._addClass(tables[ix],'showtableborders');
-				} else {
-					HTMLArea._removeClass(tables[ix],'showtableborders');
-				}
+			editor.borders = false;
+			for(var ix=0;ix < tables.length;ix++) editor.borders = editor.borders || /htmlarea-showtableborders/.test(tables[ix].className);
+			for(ix=0;ix < tables.length;ix++) {
+				if(!editor.borders) HTMLArea._addClass(tables[ix],'htmlarea-showtableborders');
+					else HTMLArea._removeClass(tables[ix],'htmlarea-showtableborders');
 			}
 		}
 		break;
@@ -752,6 +738,8 @@ TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
 	cssLabels[0] = i18n["Default"];
 	cssClasses[0] = "none";
 	var selected = el.className;
+	var cls = selected.split(" ");
+	for(var ia = cls.length; ia > 0;) if(!HTMLArea.reservedClassNames.test(cls[--ia])) selected = cls[ia];
 	var found = false, i = 1, cssClass;
 	if(cssArray[tagName]) {
 		for(cssClass in cssArray[tagName]){

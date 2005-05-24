@@ -1,3 +1,7 @@
+2005-05-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.5.1
+	* Correction to the behavior of the style selection lists.
+
 2005-05-21  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.5.0
 	* Using TYPO3 classes to access language files.

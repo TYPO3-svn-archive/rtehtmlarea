@@ -301,9 +301,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
       
 	obj.lastTag = tagName;
 	obj.lastClass = className;
-	while(select.options.length>0){
-		select.options[select.length-1] = null;
-	}
+	while(select.options.length>0) select.options[select.length-1] = null;
 	select.options[0]=new Option(InlineCSS.I18N["Default"],'none');
 	if(cssArray){
 			// we are in span and 'all' tags only
@@ -323,7 +321,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 		}
 	}
 	select.selectedIndex = 0;
-	if (typeof className != "undefined" && /\S/.test(className)) {
+	if (typeof className != "undefined" && /\S/.test(className) && !HTMLArea.reservedClassNames.test(className)) {
 		for (i = select.options.length; --i >= 0;) {
 			var option = select.options[i];
 			if (className == option.value) {

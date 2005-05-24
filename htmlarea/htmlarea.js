@@ -169,6 +169,7 @@ HTMLArea.RE_doctype = /(<!doctype((.|\n)*?)>)\n?/i;
 HTMLArea.RE_head    = /<head>((.|\n)*?)<\/head>/i;
 HTMLArea.RE_body    = /<body>((.|\n)*?)<\/body>/i;
 HTMLArea.Reg_body = new RegExp("<\/?(body)[^>]*>", "gi");
+HTMLArea.reservedClassNames = /htmlarea/;
 /*
  * Editor configuration object constructor
  */
@@ -758,12 +759,12 @@ HTMLArea.prototype.initIframe = function() {
 			head.appendChild(link0);
 		}
 		if(editor.config.pageStyle) {
-			var link1 = doc.getElementsByTagName("link")[1];
-			if(!link1) {
- 				link1 = doc.createElement("link");
-				link1.rel = "stylesheet";
-				link1.href = editor.config.pageStyle;
-				head.appendChild(link1);
+			var link = doc.getElementsByTagName("link")[1];
+			if(!link) {
+ 				link = doc.createElement("link");
+				link.rel = "stylesheet";
+				link.href = editor.config.pageStyle;
+				head.appendChild(link);
 			}
 		}
 	} else {
@@ -790,6 +791,7 @@ HTMLArea.prototype.initIframe = function() {
 
 		if(!editor.config.fullPage) {
 			doc.body.style.borderWidth = "0px";
+			doc.body.className = "htmlarea-content-body";
 			doc.body.innerHTML = editor._textArea.value;
 		}
 
@@ -1198,8 +1200,8 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 	var 	doc = editor._doc,
 		text = (editor._editMode == "textmode"),
 		selection = editor.hasSelectedText(),
-		ancestors = null,
-		i, cmd, inContext, match, k, ka, j, n, commandState;
+		ancestors = null, cls = new Array(),
+		txt, txtClass, i, ia, cmd, inContext, match, k, ka, j, n, commandState;
 	if(!text) {
 		ancestors = this.getAllAncestors();
 		if(this.config.statusBar && !noStatus) {
@@ -1211,7 +1213,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			}
 			this._statusBarTree.innerHTML = '';
 			this._statusBarTree.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": ")); // clear
-			for (i=ancestors.length;--i >= 0;) {
+			for(i=ancestors.length;--i >= 0;) {
 				var el = ancestors[i];
 				if(!el) continue;
 				var a = document.createElement("a");
@@ -1219,17 +1221,22 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 				a.el = el;
 				a.editor = this;
 				HTMLArea._addEvents(a, ["click", "contextmenu"], HTMLArea.statusBarHandler);
-				var txt = el.tagName.toLowerCase();
+				txt = el.tagName.toLowerCase();
 				a.title = el.style.cssText;
-				if (el.id) { txt += "#" + el.id; }
-				if (el.className && (el.className.indexOf("showtableborders") == -1)) { txt += "." + el.className; }
+				if(el.id) txt += "#" + el.id;
+				if(el.className) {
+					txtClass = "";
+					cls = el.className.trim().split(" ");
+					for(ia = cls.length; ia > 0;) if(!HTMLArea.reservedClassNames.test(cls[--ia])) txtClass = "." + cls[ia];
+					txt += txtClass;
+				}
 				a.appendChild(document.createTextNode(txt));
 				this._statusBarTree.appendChild(a);
-				if (i != 0) { this._statusBarTree.appendChild(document.createTextNode(String.fromCharCode(0xbb))); }
+				if(i != 0) this._statusBarTree.appendChild(document.createTextNode(String.fromCharCode(0xbb)));
 			}
 		}
 	}
-	for (i in this._toolbarObjects) {
+	for(i in this._toolbarObjects) {
 		var btn = this._toolbarObjects[i];
 		cmd = i;
 		inContext = true;
@@ -1237,7 +1244,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			inContext = false;
 			var context = btn.context;
 			var attrs = [];
-			if (/(.*)\[(.*?)\]/.test(context)) {
+			if(/(.*)\[(.*?)\]/.test(context)) {
 				context = RegExp.$1;
 				attrs = RegExp.$2.split(",");
 			}
@@ -2286,12 +2293,14 @@ HTMLArea._stopEvent = function(ev) {
  */
 HTMLArea._removeClass = function(el, className) {
 	if(!(el && el.className)) return;
-	var cls = el.className.split(" ");
+	var cls = el.className.trim().split(" ");
 	var ar = new Array();
-	for (var i = cls.length; i > 0;) {
-		if(cls[--i] != className) ar[ar.length] = cls[i];
-	}
+	for(var i = cls.length; i > 0;) if(cls[--i] != className) ar[ar.length] = cls[i];
 	el.className = ar.join(" ");
+	if(ar.length == 0) {
+		if(HTMLArea.is_gecko) el.removeAttribute('class');
+			else el.removeAttribute('className');
+	}
 };
 /*
  * Add a class name to the class attribute
