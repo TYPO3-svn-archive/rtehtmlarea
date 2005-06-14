@@ -1,3 +1,18 @@
+2005-06-14  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.5.3
+	* Correction for IE: when the collapsed borders attribute was set on a table, the table properties popup dialog did not reflect the set attribute: the checkbox was not checked.
+	* Correction: when TYPO3 is not installed in the web server's root path, the dynamiccss.css file was not properly included. Thanks to Johannes Bornhold for this correction.
+	* Correction for IE: on some Windows platforms, the display of the window status bar cannot be avoided unless the script is granted some privileges; in such cases, the height of the resized popup windows was insufficient; the resizing algorithm has been revised in order to correct this situation.
+	* Correction: Correction to misbehavior of mailto link popup when no anchor class is specified in Page TSConfig.
+	* Allow insertion of a file uploader on the File tab of the Insert/Modify link popup window (when TYPO3Browsers is used); the feature is enabled when property options.uploadFieldsInTopOfEB is set to 1 in User TSConfig. Thanks to Peter Niederlag for adding this feature.
+	* For TYPO3 3.7.0+: use the tab menu in TYPO3 Insert/Modify link popup window.
+	* Modify default Page TSConfig RTE configuration so as to remove Open Office <sdfield>-tags.
+	* New Page TSConfig properties: removeComments, removeTags, removeTagsAndContents.
+	* Correction for Mozilla/Firefox: when pasting in text by pressing the ctrl-v keys, the Mozilla extension installation was incorrectly triggered and/or failed.
+	* Correction: inserting a paragraph from the context menu when positioned in a table or a list produced incorrect result.
+	* New plugin/button allows to insert/edit acronyms and abbreviations. Not currently available in IE. Acronyms and abbreviations may be pre-defined with Acronym record type inserted on the TYPO3 site root.
+	* Transform abbr tags into acronym tags when IE is used.
+
 2005-05-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.5.1
 	* Correction to the behavior of the style selection lists.

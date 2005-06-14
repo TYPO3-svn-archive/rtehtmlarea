@@ -97,6 +97,7 @@ vertical-align: top;
 .htmlarea .toolbar .FindReplace { background-image: url("images/FindReplace/ed_find.gif"); }
 .htmlarea .toolbar .SpellCheck { background-image: url("images/SpellChecker/spell-check.gif"); }
 .htmlarea .toolbar .InsertTag { background-image: url("images/QuickTag/ed_quicktag.gif"); }
+.htmlarea .toolbar .Acronym { background-image: url("images/Acronym/ed_acronym.gif"); }
 .htmlarea .toolbar .RemoveFormat { background-image: url("images/RemoveFormat/ed_clean.gif"); }
 .htmlarea .toolbar .htmlmode { background-image: url("images/ed_html.gif"); }
 .htmlarea .toolbar .Copy, .htmlarea-context-menu .Copy  { background-image: url("images/ed_copy.gif");}
@@ -254,7 +255,6 @@ vertical-align: top;
  	font-size: 11px;
  	font-family: Tahoma,Verdana,sans-serif;
  	margin: 5px;
-
  	padding: 0px;
  	border-style: none;
 }
@@ -286,6 +286,7 @@ vertical-align: top;
  	padding: 0px;
  	margin: 0px;
  	border-style: none;
+ 	background-color: #e4e0db;
 }
 .popupwin form p {
  	margin-top: 5px;
@@ -423,7 +424,6 @@ vertical-align: top;
 .popupwin .long-label {
  	text-align: left;
  	width: 16em;
-
 }
 /* Selectors for the SpellChecker plugin */
 .popupwin #b_recheck {

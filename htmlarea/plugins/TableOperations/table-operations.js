@@ -902,12 +902,12 @@ TableOperations.buildBordersFieldset = function(w,doc,editor,el,i18n,content,fie
 		fieldset.appendChild(label);
 		borderFields.push(label);
 		var input = doc.createElement("input");
-		input.className ="checkbox";
+		input.className = "checkbox";
 		input.type = "checkbox";
 		input.name = "f_st_borderCollapse";
 		input.id = "f_st_borderCollapse";
-		var val = (/collapse/i.test(el.style.borderCollapse));
-		input.checked = val ? 1 : 0;
+		input.defaultChecked = /collapse/i.test(el.style.borderCollapse);
+		input.checked = input.defaultChecked;
 		fieldset.appendChild(input);
 		borderFields.push(input);
 		TableOperations.insertSpace(doc, fieldset, borderFields);

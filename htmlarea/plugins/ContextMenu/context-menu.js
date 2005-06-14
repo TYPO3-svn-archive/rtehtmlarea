@@ -51,7 +51,7 @@ ContextMenu.prototype.getContextMenu = function(target) {
 
 	var 	currentTarget = target,
 		elmenus = [],
-		tmp,tag,link = false,table = null,tr = null,td = null,img = null;
+		tmp,tag,link = false,table = null,tr = null,td = null,img = null,list = null;
 
 	function tableOperation(opcode) {
 		tbo.buttonPress(editor,opcode);
@@ -198,6 +198,11 @@ ContextMenu.prototype.getContextMenu = function(target) {
 				function(){tableOperation("TO-table-prop");},ContextMenu.I18N["Show the Table Properties dialog"],
 				config.btnList["TO-table-prop"][1],"TO-table-prop"]);
 			break;
+		    case "ol":
+		    case "ul":
+		    case "dl":
+			list = target;
+			break;
 		    case "body":
 			var justifyLeftEnabled = (editor._toolbarObjects['JustifyLeft'] && editor._toolbarObjects['JustifyLeft'].enabled);
 			var justifyCenterEnabled = (editor._toolbarObjects['JustifyCenter'] && editor._toolbarObjects['JustifyCenter'].enabled);
@@ -227,7 +232,15 @@ ContextMenu.prototype.getContextMenu = function(target) {
 	for(var i=0;i < elmenus.length;++i) menu.push(elmenus[i]);
 
 	if(!/html|body/i.test(currentTarget.tagName)) {
-		table ? (tmp = table, table = null) : (tmp = currentTarget);
+		if(table) {
+			tmp = table;
+			table = null;
+		} else if(list) {
+			tmp = list;
+			list = null;
+		} else {
+			tmp = currentTarget;
+		}
 		menu.push(null,
 		  [ContextMenu.I18N["Remove the"] + " &lt;" + tmp.tagName.toLowerCase() + "&gt; " + ContextMenu.I18N["Element"],
 		    function() {

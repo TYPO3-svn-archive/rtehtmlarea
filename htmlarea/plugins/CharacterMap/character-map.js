@@ -37,7 +37,7 @@ CharacterMap.prototype.buttonPress = function(editor) {
 	var self = this;
 	var param = new Object();
 	param.editor = editor;
-	editor._popupDialog( "plugin://CharacterMap/select_character", function(entity) { self.insertChar(entity); }, param, 485, 320);
+	editor._popupDialog( "plugin://CharacterMap/select_character", function(entity) { self.insertChar(entity); }, param, 485, 330);
 };
 
 CharacterMap.prototype.insertChar = function(entity) { 

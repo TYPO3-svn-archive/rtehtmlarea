@@ -114,5 +114,5 @@ RemoveFormat.prototype.buttonPress = function(editor){
 		} else {
 			return false;
 		}
-	}, null, 290, 255);
+	}, null, 285, 265);
 };

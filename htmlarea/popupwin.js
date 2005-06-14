@@ -206,10 +206,9 @@ PopupWin.prototype.showAtElement = function() {
 	var HTMLArea = this.HTMLArea;
 	var self = this;
 	var body = self.doc.body;
-
+		// resize if allowed
 	if (self.dialogWindow.sizeToContent) {
 		setTimeout( function() {
-				// resize if allowed
 			try {
 				self.dialogWindow.sizeToContent();
 			} catch(e) { };
@@ -221,13 +220,27 @@ PopupWin.prototype.showAtElement = function() {
 			} catch(e) { };
 		}, 25);
 	} else {
-			// resize if allowed
-		var w = self.content.offsetWidth + 4;
-		var h = self.content.offsetHeight + 4;
-		self.dialogWindow.resizeTo(w + 8, h + 35);
-		var ch = body.clientHeight;
-		var cw = body.clientWidth;
-		window.resizeBy(w - cw, h - ch);
+		//var div = self.doc.createElement("div");
+		//div.style.height = "5px";
+		//body.appendChild(div);
+		var w = body.scrollWidth;
+		if (document.documentElement && document.documentElement.clientHeight) var h = self.doc.documentElement.clientHeight;
+			else var h = body.clientHeight;
+		if(h < body.scrollHeight) h = body.scrollHeight;
+		if(h < body.offsetHeight) h = body.offsetHeight;
+		//var w = self.content.offsetWidth + 4;
+		//var h = self.content.offsetHeight + 4;
+		self.dialogWindow.resizeTo(w + 12, h);
+		//var ch = body.clientHeight;
+		//var cw = body.clientWidth;
+		if (document.documentElement && document.documentElement.clientHeight) {
+			var ch = self.doc.documentElement.clientHeight;
+			var cw = self.doc.documentElement.clientWidth;
+		} else {
+			var ch = body.clientHeight;
+			var cw = body.clientWidth;
+		}
+		self.dialogWindow.resizeBy(w - cw, h - ch);
 			// center on parent if allowed
 		var W = body.offsetWidth;
 		var H = 2 * body.offsetHeight - ch;

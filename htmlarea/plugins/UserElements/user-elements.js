@@ -18,6 +18,7 @@ UserElements = function(editor) {
 };
 UserElements.I18N = UserElements_langArray;
 
+/*
 UserElements.prototype.buttonPress = function(editor) { 
 	var sel = editor.getSelectedHTML();
 	if(/\w/.test(sel)) {
@@ -27,6 +28,7 @@ UserElements.prototype.buttonPress = function(editor) {
 	var param = /\w/.test(sel) ? {fr_pattern: sel} : null;
 	editor._popupDialog("plugin://UserElements/user_elements",null,param,420,220);
 };
+*/
 
 UserElements._pluginInfo = {
 	name			: "UserElements",

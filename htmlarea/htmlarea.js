@@ -86,11 +86,12 @@ HTMLArea.I18N = HTMLArea_langArray;
  * Get a script using asynchronous XMLHttpRequest
  */
 HTMLArea.MSXML_XMLHTTP_PROGIDS = new Array("MSXML2.XMLHTTP.5.0", "MSXML2.XMLHTTP.4.0", "MSXML2.XMLHTTP.3.0", "MSXML2.XMLHTTP", "Microsoft.XMLHTTP");
-HTMLArea._getScript = function (url,i) {
+HTMLArea._getScript = function (url,i,asynchronous) {
+	if(typeof(asynchronous) == "undefined") var asynchronous = true;
 	if(window.XMLHttpRequest && !window.ActiveXObject) {
 		var request = new XMLHttpRequest();
-		request.open("GET", url, true);
-		request.onreadystatechange = XMLHTTPResponseHandler;
+		request.open("GET", url, asynchronous);
+		if(asynchronous) request.onreadystatechange = XMLHTTPResponseHandler;
 		request.send(null);
 	} else if(window.ActiveXObject) {
 		var request = null;
@@ -102,10 +103,14 @@ HTMLArea._getScript = function (url,i) {
 			} catch (e) {}
 		}
 		if(request) {
-			request.open("GET", url, true);
-			request.onreadystatechange = XMLHTTPResponseHandler;
+			request.open("GET", url, asynchronous);
+			if(asynchronous) request.onreadystatechange = XMLHTTPResponseHandler;
 			request.send();
 		}
+	}
+	if(!asynchronous) {
+		if(request && request.status == 200) return request.responseText;
+			else return '';
 	}
 	function XMLHTTPResponseHandler() {
 		if (request.readyState != 4) return;
@@ -140,25 +145,6 @@ HTMLArea.init = function() {
 			}
 		};
 		checkInitialLoad();
-	} else {
-		var head = document.getElementsByTagName("head")[0];
-		var i = 0;
-		function loadNextScript() {
-			if(i > 0 && !/loaded|complete/.test(window.event.srcElement.readyState)) return;
-			if(i < HTMLArea._scripts.length) {
-				var script = document.createElement("script");
-				script.type = "text/javascript";
-				script.language = "javascript";
-				script.src = HTMLArea._scripts[i];
-				script.onreadystatechange = loadNextScript;
-				head.appendChild(script);
-				HTMLArea._appendToLog("[HTMLArea::init]: Script " + HTMLArea._scripts[i] + " being loaded.");
-				i++;
-			} else {
-				HTMLArea.onload();
-			}
-		};
-		loadNextScript();
 	}
 };
 /*
@@ -203,6 +189,10 @@ HTMLArea.Config = function () {
 	this.makeLinkShowsTarget = true;
 		// remove tags (these have to be a regexp, or null if this functionality is not desired)
 	this.htmlRemoveTags = null;
+		// remove tags and any contents (these have to be a regexp, or null if this functionality is not desired)
+	this.htmlRemoveTagsAndContents = null;
+		// remove comments
+	this.htmlRemoveComments = false;
 		// custom tags (these have to be a regexp, or null if this functionality is not desired)
 	this.customTags = /rougegras/ig;
 		// BaseURL included in the iframe document
@@ -238,7 +228,6 @@ HTMLArea.Config = function () {
 	function cut_copy_paste(e, cmd, obj) { e.execCommand(cmd); };
 		// The default list of buttons
 	this.btnList = {
-//		Bold: ["Bold",["ed_all.gif",2,3],false,function(e){e.execCommand("Bold");}],
 		Bold: ["Bold","ed_format_bold",false,function(e){e.execCommand("Bold");}],
 		Italic: ["Italic","ed_format_italic",false,function(e){e.execCommand("Italic");}],
 		Underline: ["Underline","ed_format_underline",false,function(e){e.execCommand("Underline");}],
@@ -571,7 +560,7 @@ HTMLArea.prototype._createToolbar = function () {
 	this._htmlArea.appendChild(toolbar);
 };
 /*
- * Handle toolbar element events and emulate nice flat toolbar buttons
+ * Handle toolbar element events
  */
 HTMLArea.toolBarButtonHandler = function(ev) {
 	if(!ev) var ev = window.event;
@@ -855,7 +844,7 @@ HTMLArea.prototype.initIframe = function() {
 			// add unload handler
 		HTMLArea._addEvent((editor._iframe.contentWindow ? editor._iframe.contentWindow : editor._iframe.contentDocument), "unload", function(ev) { editor.removeEditorEvents(ev); });
 			// set killWordOnPaste and intercept paste, dragdrop and drop events for wordClean
-		if(editor.config.killWordOnPaste) HTMLArea._addEvents((HTMLArea.is_ie ? editor._doc.body : editor._doc),["paste","dragdrop","drop"],editor.killWordOnPasteHandler);
+		if(editor.config.killWordOnPaste) HTMLArea._addEvents((HTMLArea.is_ie ? editor._doc.body : doc),["paste","dragdrop","drop"],editor.killWordOnPasteHandler);
 
 		setTimeout( function() {
 				// check if any plugins have registered refresh handlers
@@ -1191,7 +1180,6 @@ HTMLArea.prototype.redo = function() {
 		if(this._undoPos < this._undoQueue.length - 1) this.setHTML(this._undoQueue[++this._undoPos].text);
 	}
 };
-
 /*
  * Update the enabled/disabled/active state of the toolbar elements
  */
@@ -1466,6 +1454,81 @@ HTMLArea.prototype.getAllAncestors = function() {
 	}
 	a.push(this._doc.body);
 	return a;
+};
+/*
+ * Get the deepest ancestor of the selection that is of the specified type
+ * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
+ */
+HTMLArea.prototype._getFirstAncestor = function(sel,types) {
+	var prnt = this._activeElement(sel);
+	if(prnt == null) {
+		try { prnt = (HTMLArea.is_ie ? this._createRange(sel).parentElement() : this._createRange(sel).commonAncestorContainer); }
+			catch(e) { return null; }
+	}
+	if(typeof(types) == 'string') types = [types];
+
+	while(prnt) {
+		if(prnt.nodeType == 1) {
+			if(types == null) return prnt;
+			for(var i = 0; i < types.length; i++) if(prnt.tagName.toLowerCase() == types[i]) return prnt;
+			if(prnt.tagName.toLowerCase() == 'body') break;
+			if(prnt.tagName.toLowerCase() == 'table') break;
+		}
+		prnt = prnt.parentNode;
+	}
+	return null;
+}
+/*
+ * Get the selected element, if any.  That is, the element that you have last selected in the "path"
+ * at the bottom of the editor, or a "control" (eg image)
+ *
+ * @returns null | element
+ * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
+ */
+HTMLArea.prototype._activeElement = function(sel) {
+	if(sel == null) return null;
+	if(this._selectionEmpty(sel)) return null;
+	if(HTMLArea.is_ie) {
+		if(sel.type.toLowerCase() == "control") {
+			return sel.createRange().item(0);
+		} else {
+			// If it's not a control, then we need to see if the selection is the _entire_ text of a parent node
+			// (this happens when a node is clicked in the tree)
+			var range = sel.createRange();
+			var p_elm = this.getParentElement(sel);
+			if(p_elm.innerHTML == range.htmlText) return p_elm;
+			/*
+			if(p_elm) {
+				var p_rng = this._doc.body.createTextRange();
+				p_rng.moveToElementText(p_elm);
+				if(p_rng.isEqual(range)) return p_elm;
+			}
+			if(range.parentElement()) {
+				var prnt_range = this._doc.body.createTextRange();
+				prnt_range.moveToElementText(range.parentElement());
+				if(prnt_range.isEqual(range)) return range.parentElement();
+			}
+			*/
+			return null;
+    		}
+	} else {
+		// For Mozilla we just see if the selection is not collapsed (something is selected)
+		// and that the anchor (start of selection) is an element.  This might not be totally
+		// correct, we possibly should do a simlar check to IE?
+		if(!sel.isCollapsed) {
+			if(sel.anchorNode.nodeType == 1) return sel.anchorNode;
+		}
+	return null;
+	}
+};
+HTMLArea.prototype._selectionEmpty = function(sel) {
+	if(!sel) return true;
+	if(HTMLArea.is_ie) {
+		return this._createRange(sel).htmlText == '';
+	} else if(typeof sel.isCollapsed != 'undefined') {
+		return sel.isCollapsed;
+	}
+	return true;
 };
 /* 
  * Insert HTML source code at the current position.
@@ -1841,12 +1904,12 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	    case "Copy":
 	    case "Paste":
 		try {
-			this._doc.execCommand(cmdID, UI, param);
-			if(this.config.killWordOnPaste) HTMLArea._wordClean(editor._doc.body);
+			editor._doc.execCommand(cmdID,false,null);
+			if(cmdID == "Paste" && this.config.killWordOnPaste) HTMLArea._wordClean(editor._doc.body);
 		} catch (e) {
 			if(HTMLArea.is_gecko && !HTMLArea.is_safari) {
 				if(this.config.enableMozillaExtension) {
-					if(typeof HTMLArea.I18N.msg["Moz-Extension"] == "undefined") {
+					if(typeof(HTMLArea.I18N.msg["Moz-Extension"]) == "undefined") {
 						HTMLArea.I18N.msg["Moz-Extension"] =
 							"Unprivileged scripts cannot access the clipboard programatically " +
 							"for security reasons.  Click OK to install a component that will " +
@@ -1854,19 +1917,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 					}
 					if(confirm(HTMLArea.I18N.msg["Moz-Extension"])) {
 						if(InstallTrigger.enabled()) {
-							function mozillaInstallCallback(url,returnCode) {
-								if(returnCode == 0) { 
-									alert(HTMLArea.I18N.msg["Moz-Extension-Success"]);
-									return; 
-								} else {
-									alert(HTMLArea.I18N.msg["Moz-Extension-Failure"]);
-									HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install return code was: " + returnCode + ".");
-									return; 
-								}
-							};
-							var xpi = new Object();
-							xpi["TYPO3 htmlArea RTE Preferences"] = "../uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi";
-  							InstallTrigger.install(xpi, mozillaInstallCallback);
+  							InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
 						} else {
 							alert(HTMLArea.I18N.msg["Moz-Extension-Install-Not-Enabled"]);
 							HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
@@ -1874,7 +1925,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 						}
 					}
 				} else {
-					if (typeof HTMLArea.I18N.msg["Moz-Clipboard"] == "undefined") {
+					if (typeof(HTMLArea.I18N.msg["Moz-Clipboard"]) == "undefined") {
 						HTMLArea.I18N.msg["Moz-Clipboard"] =
 							"Unprivileged scripts cannot access Cut/Copy/Paste programatically " +
 							"for security reasons.  Click OK to see a technical note at mozilla.org " +
@@ -1903,7 +1954,18 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	this.updateToolbar();
 	return false;
 };
-
+HTMLArea._mozillaInstallCallback = function(url,returnCode) {
+	if(returnCode == 0) { 
+		alert(HTMLArea.I18N.msg["Moz-Extension-Success"]);
+		return; 
+	} else {
+		alert(HTMLArea.I18N.msg["Moz-Extension-Failure"]);
+		HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install return code was: " + returnCode + ".");
+		return; 
+	}
+};
+HTMLArea._mozillaXpi = new Object();
+HTMLArea._mozillaXpi["TYPO3 htmlArea RTE Preferences"] = _typo3_host_url + "/uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi";
 /*
 * A generic event handler for things that happen in the IFRAME's document.
 * This function also handles key bindings.
@@ -1961,7 +2023,13 @@ HTMLArea._editorEvent = function(ev) {
 		    case 'j': cmd = "JustifyFull"; break;
 		    case 'z': cmd = "Undo"; break;
 		    case 'y': cmd = "Redo"; break;
-		    case 'v': if(HTMLArea.is_ie || editor.config.htmlareaPaste) cmd = "Paste"; break;
+		    case 'v': 
+				if(HTMLArea.is_ie || HTMLArea.is_safari) {
+					 cmd = "Paste";
+				} else {
+					if(editor.config.killWordOnPaste) setTimeout(function() { HTMLArea._wordClean(editor._doc.body);},50);
+				}
+				break;
 		    case 'n': cmd = "FormatBlock"; value = (HTMLArea.is_ie || HTMLArea.is_safari) ? "<p>" : "p"; break;
 		    case '0': cmd = "killword"; break;
 
@@ -2281,8 +2349,8 @@ HTMLArea._removeEvents = function(el,evs,func) {
  */
 HTMLArea._stopEvent = function(ev) {
 	if(ev.stopPropagation) {
-		ev.preventDefault();
 		ev.stopPropagation();
+		ev.preventDefault();
 	} else {
 		ev.cancelBubble = true;
 		ev.returnValue = false;
@@ -2320,15 +2388,18 @@ HTMLArea._hasClass = function(el, className) {
 	}
 	return false;
 };
-
-HTMLArea._blockTags = " body form textarea fieldset ul ol dl li div p h1 h2 h3 h4 h5 h6 quote pre table thead tbody tfoot tr td iframe address object ";
+HTMLArea.RE_blockTags = /^(body|p|h1|h2|h3|h4|h5|h6|ul|ol|pre|dl|div|noscript|blockquote|form|hr|table|fieldset|address|td|tr|th|li|tbody|thead|tfoot|iframe|object)$/;
+//HTMLArea._blockTags = " body form textarea fieldset ul ol dl li div p h1 h2 h3 h4 h5 h6 quote pre table thead tbody tfoot tr td iframe address object ";
 HTMLArea.isBlockElement = function(el) {
-	return el && el.nodeType == 1 && (HTMLArea._blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
+	return el && el.nodeType == 1 && HTMLArea.RE_blockTags.test(el.tagName.toLowerCase());
+//	return el && el.nodeType == 1 && (HTMLArea._blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
 };
 HTMLArea._closingTags = " p span a li ol ul td tr table div em i strong b code cite blockquote q dfn abbr acronym font center object tt style script title head ";
-HTMLArea._noClosingTag = " img br hr param input ";
+//HTMLArea._noClosingTag = " img br hr param input area base";
+HTMLArea.RE_noClosingTag = /^(img|br|hr|input|area|base|link|meta|param)$/;
 HTMLArea.needsClosingTag = function(el) {
-	return el && el.nodeType == 1 && (HTMLArea._closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
+//	return el && el.nodeType == 1 && (HTMLArea._closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
+	return el && el.nodeType == 1 && !HTMLArea.RE_noClosingTag.test(el.tagName.toLowerCase());
 };
 
 // Performs HTML encoding of some given string
@@ -2360,6 +2431,7 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 		var closed, i;
 		var root_tag = (root.nodeType == 1) ? root.tagName.toLowerCase() : '';
 		if(root_tag == 'br' && !root.nextSibling && !root.previousSibling ) break;
+		if(editor.config.htmlRemoveTagsAndContents && editor.config.htmlRemoveTagsAndContents.test(root_tag)) break;
 		var custom_tag = (editor.config.customTags && editor.config.customTags.test(root_tag));
 		if(outputRoot) outputRoot = !(editor.config.htmlRemoveTags && editor.config.htmlRemoveTags.test(root_tag));
 		if((HTMLArea.is_ie || HTMLArea.is_safari) && root_tag == "head") {
@@ -2426,7 +2498,7 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 		html = "<![CDATA[" + root.data + "]]>";
 		break;
 	    case 8: // COMMENT_NODE
-		html = "<!--" + root.data + "-->";
+		if(!editor.config.htmlRemoveComments) html = "<!--" + root.data + "-->";
 		break;
 	}
 	return html;
@@ -2846,6 +2918,9 @@ HTMLArea.initEditor = function(editornumber) {
 			editor.config.statusBar = RTEarea[editornumber]["statusBar"] ? RTEarea[editornumber]["statusBar"] : false;
 			editor.config.killWordOnPaste = RTEarea[editornumber]["enableWordClean"] ? true : false;
 			editor.config.htmlareaPaste = RTEarea[editornumber]["enableWordClean"] ? true : false;
+			editor.config.htmlRemoveTags = RTEarea[editornumber]["htmlRemoveTags"] ? RTEarea[editornumber]["htmlRemoveTags"] : null;
+			editor.config.htmlRemoveTagsAndContents = RTEarea[editornumber]["htmlRemoveTagsAndContents"] ? RTEarea[editornumber]["htmlRemoveTagsAndContents"] : null;
+			editor.config.htmlRemoveComments = RTEarea[editornumber]["htmlRemoveComments"] ? true : false;
 
 			editor.onGenerate = function () {
 				document.getElementById('pleasewait' + editornumber).style.display='none';

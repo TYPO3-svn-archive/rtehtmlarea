@@ -59,16 +59,18 @@ switch( $popupname ) {
 	case "link" : $title = "Insert/Modify Link"; break;
 	case "image" : $title = "Insert Image"; break;
 	case "user" : $title = "Insert Custom Element"; break;
+	case "acronym" : $title = "Insert/Modify Acronym"; break;
 	default : $title = "Editor configuration problem!";
 }
 ?>
-<html style="width: 550px; height: 350px;">
+<html >
 <head>
 <title><?php echo $title;?></title>
 <script type="text/javascript" src="htmlarea/popups/popup.js"></script>
 <script type="text/javascript">
 	/*<![CDATA[*/
 	var HTMLArea = window.opener.HTMLArea;
+	var _editor_CSS = window.opener._editor_CSS;
 	function Init() {
   		__dlg_translate(HTMLArea.I18N.dialogs);
 		__dlg_init();
@@ -98,7 +100,7 @@ switch( $popupname ) {
 </script>
 </head>
 
-<body style="background:ButtonFace; margin:0px; padding:0px; width: 550px; height: 350px; border: none;" onload="Init();">
+<body style="background:ButtonFace; margin:0px; padding:0px; border: none;" onload="Init();">
 <table border="0px" cellspacing="0px" cellpadding="0" width="100%" height="100%">
 <tr><td>
 <?php

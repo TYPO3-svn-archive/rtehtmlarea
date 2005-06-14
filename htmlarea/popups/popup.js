@@ -40,13 +40,12 @@ __dlg_loadStyle = function(url) {
 
 __dlg_init = function(bottom,noResize) {
 	var body = document.body;
-	window.focus();
+	//window.focus();
 	window.dialogArguments = window.opener.Dialog._arguments;
+		// resize if allowed
 	if (!document.all) {
-			// resize to contents if allowed
 		if(!noResize) {
 			setTimeout( function() {
-					// resize if allowed
 				try {
 					window.sizeToContent();
 				} catch(e) { };
@@ -59,10 +58,20 @@ __dlg_init = function(bottom,noResize) {
 			}, 25);
 		}
 	} else {
-			// resize if allowed
-		var w = body.scrollWidth + 4;
-		var h = body.scrollHeight + 4;
-		window.resizeTo(w + 8, h + 25);
+		var w = body.scrollWidth;
+		if (document.documentElement && document.documentElement.clientHeight) var h = document.documentElement.clientHeight;
+			else var h = document.body.clientHeight;
+		if(h < body.scrollHeight) h = body.scrollHeight;
+		if(h < body.offsetHeight) h = body.offsetHeight;
+		window.resizeTo(w + 12, h);
+		if (document.documentElement && document.documentElement.clientHeight) {
+			var ch = document.documentElement.clientHeight;
+			var cw = document.documentElement.clientWidth;
+		} else {
+			var ch = body.clientHeight;
+			var cw = body.clientWidth;
+		}
+		window.resizeBy(w - cw, h - ch);
 			// center on parent if allowed
 		var W = body.offsetWidth;
 		var H = body.offsetHeight;
@@ -75,33 +84,28 @@ __dlg_init = function(bottom,noResize) {
 };
 
 __dlg_translate = function(i18n) {
-	var types = ["input", "option", "select", "legend", "span", "td", "button", "div", "h1", "h2", "a"];
-	for (var type = 0; type < types.length; ++type) {
+	var types = ["input", "label", "option", "select", "legend", "span", "td", "button", "div", "h1", "h2", "a"];
+	for(var type = 0; type < types.length; ++type) {
 		var spans = document.getElementsByTagName(types[type]);
-		for (var i = spans.length; --i >= 0;) {
+		for(var i = spans.length; --i >= 0;) {
 			var span = spans[i];
-			if (span.firstChild && span.firstChild.data) {
+			if(span.firstChild && span.firstChild.data) {
 				var txt = i18n[span.firstChild.data];
-				if (txt) {
-					span.firstChild.data = txt;
-				}
+				if (txt) span.firstChild.data = txt;
 			}
-			if (span.title) {
+			if(span.title) {
 				var txt = i18n[span.title];
-				if (txt) {
-					span.title = txt;
-				}
+				if (txt) span.title = txt;
 			}
 				// resetting the selected option for Mozilla	 
-			if (types[type] == "option" && span.selected ) { 	 
+			if(types[type] == "option" && span.selected ) { 	 
 				span.selected = false;
 				span.selected = true;
 			}
 		}
 	}
 	var txt = i18n[document.title];
-	if (txt)
-		document.title = txt;
+	if(txt) document.title = txt;
 };
 
 // closes the dialog and passes the return info upper.

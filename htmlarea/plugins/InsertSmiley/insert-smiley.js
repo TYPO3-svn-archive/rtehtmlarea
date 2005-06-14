@@ -26,7 +26,7 @@ InsertSmiley.prototype.buttonPress = function(editor) {
 		param.editor_url = document.URL;
 		param.editor_url = param.editor_url.replace(/^(.*\/).*\/.*$/g, "$1");
 	}
-  	editor._popupDialog("plugin://InsertSmiley/insertsmiley", function(p) { self.setTag(p); }, param, 250, 210);
+  	editor._popupDialog("plugin://InsertSmiley/insertsmiley", function(p) { self.setTag(p); }, param, 250, 220);
 };
 
 InsertSmiley.prototype.setTag = function(param) {

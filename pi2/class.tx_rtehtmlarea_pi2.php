@@ -151,7 +151,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		 */
 			// htmlArea plugins list
 		$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginList , 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'], 1));
-		$hidePlugins = array('TYPO3Browsers', 'UserElements');
+		$hidePlugins = array('TYPO3Browsers', 'UserElements', 'Acronym');
 		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
 		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 
@@ -228,16 +228,17 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 				list($extKey,$local) = explode('/',substr($filename,4),2);
 				$filename='';
 				if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
-					$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
+					$filename = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($extKey).$local;
+					//$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
 				}
 			} elseif (substr($filename,0,1) != '/') {
 				$filename = $this->siteURL.$filename;
 			}
 			$additionalCode_loadCSS = '
-				<link rel="alternate stylesheet" type="text/css" href="' . $filename . '" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . $filename . '" />';
 		} else {
 			$additionalCode_loadCSS = '
-				<link rel="alternate stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css" />';
 		}
 
 			// Loading the editor skin
@@ -246,7 +247,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			list($extKey,$local) = explode('/',substr($skinFilename,4),2);
 			$skinFilename='';
 			if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
-				$skinFilename = $this->httpTypo3Path.t3lib_extMgm::siteRelPath($extKey).$local;
+				$skinFilename = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($extKey).$local;
 			}
 		} elseif (substr($skinFilename,0,1) != '/') {
 			$skinFilename = $this->siteURL.$skinFilename;
@@ -254,7 +255,9 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 
 		$this->editorCSS = $skinFilename;
 		$additionalCode_loadCSS .= '
-			<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . dirname($this->editorCSS) . '/htmlarea-edited-content.css" />';
+		$additionalCode_loadCSS .= '
+		<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
 
 			// Loading CSS, JavaScript files and code
 		$GLOBALS['TSFE']->additionalHeaderData['htmlArea'] = $additionalCode_loadCSS . $this->loadJSfiles() . '<script type="text/javascript">' . $this->loadJScode() . '</script>'; 
@@ -393,6 +396,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
 			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
+			RTEarea['.$number.']["htmlRemoveComments"] = ' . (trim($this->thisConfig['removeComments'])?'true':'false') . ';
 			RTEarea['.$number.']["disableEnterParagraphs"] = ' . (trim($this->thisConfig['disableEnterParagraphs'])?'true':'false') . ';
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
@@ -417,6 +421,18 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 				["' . $conf['name'] . '" , "' . $conf['value'] . '"]';
 			}
 		}
+
+			// Setting the list of tags to be removed if specified in the RTE config
+		if (trim($this->thisConfig['removeTags']))  {
+			$registerRTEinJSString .= '
+		RTEarea['.$number.']["htmlRemoveTags"] = /' . implode('|', t3lib_div::trimExplode(',', $this->thisConfig['removeTags'])) . '/i;';
+		}
+			// Setting the list of tags to be removed with their contents if specified in the RTE config
+		if (trim($this->thisConfig['removeTagsAndContents']))  {
+			$registerRTEinJSString .= '
+		RTEarea['.$number.']["htmlRemoveTagsAndContents"] = /' . implode('|', t3lib_div::trimExplode(',', $this->thisConfig['removeTagsAndContents'])) . '/i;';
+		}
+
 			// Setting the pageStyle
 		if(trim($this->thisConfig['contentCSS'])) {
 			$filename = trim($this->thisConfig['contentCSS']);

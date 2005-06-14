@@ -84,7 +84,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		bold, italic, underline, bar, strikethrough, subscript, superscript, bar,
 		lefttoright, righttoleft, bar, left, center, right, justifyfull, bar, 
 		orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, 
-		emoticon, insertcharacter, line, link, image, table, user, bar, findreplace, spellcheck, bar, 
+		emoticon, insertcharacter, line, link, image, table, user, acronym, bar, findreplace, spellcheck, bar, 
 		chMode, inserttag, removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
 		toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 		columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
@@ -132,6 +132,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'spellcheck' => 'SpellCheck',
 		'removeformat' => 'RemoveFormat',
 		'inserttag' => 'InsertTag',
+		'acronym' => 'Acronym',
 		'blockstylelabel' => 'I[style]',	
 		'blockstyle' => 'DynamicCSS-class',
 		'textstylelabel' => 'I[text_style]',
@@ -187,7 +188,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'7' =>	'36 pt',
 		);
 
-	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements';
+	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements, Acronym';
 
 	var $pluginButton = array(
 		'InlineCSS' 	=> 'textstyle',
@@ -202,6 +203,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 							columninsertbefore, columninsertafter, columndelete, columnsplit,
 							cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge',
 		'UserElements' 	=> 'user',
+		'Acronym' 	=> 'acronym',
 		);
 	var $pluginLabel = array(
 		'InlineCSS' 	=> 'textstylelabel',
@@ -216,6 +218,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	var $rtePathImageFile;			// Path to the php-file for selection images
 	var $rtePathLinkFile;			// Path to the php-file for create a link
 	var $rtePathColorFile;			// Path to the php-file for the color picker
+	var $rtePathUserFile;			// Path to the php-file for user element
+	var $rtePathAcronymFile;			// Path to the php-file for acronym
 	var $siteURL;				// TYPO3 site url
 	var $hostURL;				// TYPO3 host url
 	var $typoVersion;				// Typo3 version
@@ -348,6 +352,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->rtePathLinkFile = $this->extHttpPath . 'rtehtmlarea_browse_links.php';
 				// Get the Path to the script for inserting a user element
 			$this->rtePathUserFile = $this->extHttpPath . 'rtehtmlarea_user.php';
+				// Get the Path to the script for inserting an acronym
+			$this->rtePathAcronymFile = $this->extHttpPath . 'rtehtmlarea_acronym.php';
 				// Get the site URL
 			$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 				// Get the host URL
@@ -380,6 +386,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			if ($this->language=='default' || !$this->language)	{
 				$this->language='en';
 			}
+			$this->contentLanguageUid = $row['sys_language_uid'] ? $row['sys_language_uid'] : 0;
+
 				// Character set
 			$this->csObj = t3lib_div::makeInstance('t3lib_cs');
 			$this->charset = $LANG->csConvObj->charSetArray[$this->language];
@@ -395,6 +403,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginList , 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'], 1));
 			$hidePlugins = array();
 			if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
+			if ($this->client['BROWSER'] == 'msie') $hidePlugins[] = 'Acronym';
 			$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 
 				// Toolbar
@@ -408,7 +417,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 * =======================================
 			 */
 
-			if( $this->isPluginEnable('SpellChecker') ) {
+			if( $this->isPluginEnable('SpellChecker')) {
 					// Set the language of the content for the SpellChecker
 				$this->spellCheckerLanguage = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['defaultDictionary'];
 				if($row['sys_language_uid']) {
@@ -433,7 +442,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$this->spellCheckerCharset = $this->csObj->$charSetArray[$this->spellCheckerTypo3Language];
 				$this->spellCheckerCharset = $this->spellCheckerCharset ? $this->spellCheckerCharset : 'iso-8859-1';
 				$this->spellCheckerCharset = trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) ? trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) : $this->spellCheckerCharset;
-
 
 					// Set the SpellChecker mode
 				$this->spellCheckerMode = isset($BE_USER->userTS['options.']['HTMLAreaPspellMode']) ? trim($BE_USER->userTS['options.']['HTMLAreaPspellMode']) : 'normal';
@@ -470,18 +478,17 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 					list($extKey,$local) = explode('/',substr($filename,4),2);
 					$filename='';
 					if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
-						$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
+						$filename = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($extKey).$local;
+						//$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
 					}
 				} elseif (substr($filename,0,1) != '/') {
-
-
 					$filename = $this->siteURL.$filename;
 				}
 				$pObj->additionalCode_pre['loadCSS'] = '
-					<link rel="alternate stylesheet" type="text/css" href="' . $filename . '" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . $filename . '" />';
 			} else {
 				$pObj->additionalCode_pre['loadCSS'] = '
-					<link rel="alternate stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css" />';
 			}
 
 				// Loading the editor skin
@@ -497,7 +504,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			}
 			$this->editorCSS = $skinFilename;
 			$pObj->additionalCode_pre['loadCSS'] .= '
-				<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . dirname($this->editorCSS) . '/htmlarea-edited-content.css" />';
+			$pObj->additionalCode_pre['loadCSS'] .= '
+		<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
 
 				// Loading JavaScript files and code
 			$pObj->additionalCode_pre['loadJSfiles'] = $this->loadJSfiles();
@@ -517,6 +526,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				// change <em> to <i>
 				$value = preg_replace("/<(\/?)em>/i", "<$1i>", $value);
 			}
+			if ($this->client['BROWSER'] == 'msie') {
+				// change <abbr> to <acronym>
+				$value = preg_replace("/<(\/?)abbr/i", "<$1acronym", $value);
+			}
 
 				// Register RTE windows:
 			$pObj->RTEwindows[] = $PA['itemFormElName'];
@@ -525,7 +538,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			if (basename(PATH_thisScript) == 'wizard_rte.php') {
 				$height = 'window.innerHeight';
 				$width = 'window.innerWidth';
-				
 				if ($this->client['BROWSER'] == 'msie') {
 					$height = 'document.body.offsetHeight';
 					$width = 'document.body.offsetWidth';
@@ -568,7 +580,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
 				subscript, superscript, lefttoright, righttoleft, bar, left, center, right, justifyfull, linebreak, 
 				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
-				insertcharacter, line, link, image, table, user, bar, findreplace, spellcheck, bar, chMode, inserttag, 
+				insertcharacter, line, link, image, table, user, acronym, bar, findreplace, spellcheck, bar, chMode, inserttag, 
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
 				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
@@ -577,7 +589,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
 				subscript, superscript, linebreak, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
 				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
-				insertcharacter, line, link, image, table, user, linebreak, findreplace, spellcheck, bar, chMode, inserttag, 
+				insertcharacter, line, link, image, table, user, acronym, linebreak, findreplace, spellcheck, bar, chMode, inserttag, 
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
 				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
@@ -594,6 +606,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$pList = is_array($this->specConf['richtext']['parameters']) ? implode(',',$this->specConf['richtext']['parameters']) : '*';
 		if ($pList != '*') {	// If not all
 			$show = $this->specConf['richtext']['parameters'];
+
 			if ($this->thisConfig['showButtons'])	{
 				if($this->thisConfig['showButtons'] != '*') {
 					$show = array_unique(array_merge($show,t3lib_div::trimExplode(',',$this->thisConfig['showButtons'],1)));
@@ -766,7 +779,8 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			var extHttpPath = "'.$this->extHttpPath.'";
 			var rtePathImageFile = "'.$this->rtePathImageFile.'";
 			var rtePathLinkFile = "' . $this->rtePathLinkFile . '";
-			var rtePathUserFile = "' . $this->rtePathUserFile . '";'
+			var rtePathUserFile = "' . $this->rtePathUserFile . '";
+			var rtePathAcronymFile = "' . $this->rtePathAcronymFile . '";'
 			. $loadPluginCode .  '
 			HTMLArea.init();
 		/*]]>*/
@@ -787,6 +801,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["number"] = '.$number.';
 			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
 			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
+			RTEarea['.$number.']["htmlRemoveComments"] = ' . (trim($this->thisConfig['removeComments'])?'true':'false') . ';
 			RTEarea['.$number.']["disableEnterParagraphs"] = ' . (trim($this->thisConfig['disableEnterParagraphs'])?'true':'false') . ';
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
@@ -807,11 +822,21 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			reset($this->RTEsetup['properties']['classes.']);
 			while(list($className,$conf)=each($this->RTEsetup['properties']['classes.']))      {
 				$className=substr($className,0,-1);
-
 				$HTMLAreaClassname[$className] = '
 				["' . $conf['name'] . '" , "' . $conf['value'] . '"]';
 			}
 		}
+			// Setting the list of tags to be removed if specified in the RTE config
+		if (trim($this->thisConfig['removeTags']))  {
+			$registerRTEinJSString .= '
+		RTEarea['.$number.']["htmlRemoveTags"] = /' . implode('|', t3lib_div::trimExplode(',', $this->thisConfig['removeTags'])) . '/i;';
+		}
+			// Setting the list of tags to be removed with their contents if specified in the RTE config
+		if (trim($this->thisConfig['removeTagsAndContents']))  {
+			$registerRTEinJSString .= '
+		RTEarea['.$number.']["htmlRemoveTagsAndContents"] = /' . implode('|', t3lib_div::trimExplode(',', $this->thisConfig['removeTagsAndContents'])) . '/i;';
+		}
+
 			// Setting the pageStyle
 		if(trim($this->thisConfig['contentCSS'])) {
 			$filename = trim($this->thisConfig['contentCSS']);
@@ -957,11 +982,14 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				"' . $FontSizeLabel . '" : "' . $FontSizeItem . '"';
 			$HTMLAreaFontSizeIndex++;
 		}
-
-
 		$HTMLAreaJSFontSize .= '};';
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["fontsize"] = '. $HTMLAreaJSFontSize;
+
+		if ($this->isPluginEnable('Acronym')) {
+		$registerRTEinJSString .= '
+			RTEarea['.$number.']["acronymUrl"] = "'.$this->buildJSAcronymFile().'";';
+		}
 
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
@@ -1045,6 +1073,63 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	}
 
 	/**
+	 * Return an acronym array for the Acronym plugin
+	 *
+	 * @return string		acronym array
+	 */
+	function buildJSAcronymArray() { 
+		global $TSFE, $LANG;
+
+		$acronymIndex = 0;
+		$abbraviationIndex = 0;
+		$JSAcronymArray .= 'acronyms = { ' . chr(10);
+		$JSAbbreviationArray .= 'abbreviations = { ' . chr(10);
+		$table = 'tx_rtehtmlarea_acronym';
+		if($this->contentLanguageUid > -1) {
+			$whereClause = '(sys_language_uid="'.$this->contentLanguageUid . '" OR sys_language_uid="-1")';
+		} else {
+			$whereClause = '1 = 1';
+		}
+		$whereClause .= t3lib_BEfunc::BEenableFields($table);
+		$whereClause .= t3lib_BEfunc::deleteClause($table);
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('type,term,acronym', $table, $whereClause);
+		while($acronymRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))    {
+			if($acronymRow['type'] == 1) $JSAcronymArray .= (($acronymIndex++)?',':'') . '"' . $acronymRow['acronym'] . '" : "' . $acronymRow['term'] . '"' . chr(10);
+			if($acronymRow['type'] == 2) $JSAbbreviationArray .= (($AbbreviationIndex++)?',':'') . '"' . $acronymRow['acronym'] . '" : "' . $acronymRow['term'] . '"' . chr(10);
+		}
+		$JSAcronymArray .= '} ' . chr(10);
+		$JSAbbreviationArray .= '} ' . chr(10);
+
+/*
+		if(is_object($TSFE)) {
+			$JSLanguageArray .= $TSFE->csConvObj->conv(' }' . chr(10), 'iso-8859-1', $this->OutputCharset);
+		} else {
+			$JSLanguageArray .= $LANG->csConvObj->conv(' }' . chr(10), 'iso-8859-1', $this->OutputCharset);
+		}
+*/
+		return $JSAcronymArray . $JSAbbreviationArray;
+	}
+
+	/**
+	 * Return a file name containing the acronym array for the Acronym plugin
+
+	 *
+	 * @return string		filename
+	 */
+	function buildJSAcronymFile() { 
+		$contents = $this->buildJSAcronymArray() . chr(10);
+		$relFilename = 'typo3temp/' . $this->ID . '_acronyms_' . $this->contentLanguageUid . '_' . md5($contents) . '.js';
+		$outputFilename = PATH_site . $relFilename;
+		if(!file_exists($outputFilename)) {
+			$outputHandle = fopen($outputFilename,'wb');
+			fwrite($outputHandle, $contents);
+			fclose($outputHandle);
+		}
+		return $this->httpTypo3Path . $relFilename;
+
+	}
+
+	/**
 	 * Return a file name containing the main JS language array for HTMLArea
 	 *
 	 * @return string		filename
@@ -1052,6 +1137,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	function buildJSMainLangFile() { 
 		$contents = $this->buildJSMainLangArray() . chr(10);
 		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
+
 		while( list(,$plugin) = each($pluginArray) ) {
 			if ($this->isPluginEnable($plugin)) {
 				$contents .= $this->buildJSLangArray($plugin) . chr(10);

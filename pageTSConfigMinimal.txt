@@ -1,6 +1,9 @@
 RTE.default {
 		## Default RTE configuration
 	enableWordClean = 1
+	removeComments = 0
+	removeTags =
+	removeTagsAndContents =
 	useCSS = 1
 	defaultLinkTarget =
 	showStatusBar =  0
@@ -36,7 +39,7 @@ RTE.default {
 		allowTagsOutside = img,hr
 
 			## TAGS ALLOWED
-		allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, link, img, nobr, hr, center, font, tt, q, cite, abbr, acronym
+		allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, link, img, nobr, hr, center, font, tt, q, cite, abbr, acronym, sdfield
 
 			## TAGS DENIED
 		denyTags >
@@ -67,6 +70,9 @@ RTE.default {
 				## REMAP B AND I TAGS
 			tags.b.remap = strong
 			tags.i.remap = em
+
+				## REMOVE OPEN OFFICE META TAGS
+			removeTags = sdfield
 
 				## PROTECT CUSTOM TAGS
 			keepNonMatchedTags = protect

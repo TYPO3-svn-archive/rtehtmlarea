@@ -12,7 +12,7 @@ defaultDictionary = en
 dictionaryList  = en
 
   # cat=basic; type=string; label=List of htmlArea plugins: The list of htmlArea plugins that may be enabled.
-HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements
+HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements, Acronym
 
   # cat=basic/enable; type=boolean; label=Enable all editor options: If set, all optional features will be enabled in the default User and Page TSConfig. If not set, only minimal features will be enabled.
 enableAllOptions = 0
