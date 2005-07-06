@@ -1,3 +1,13 @@
+2005-07-06  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.5.4
+	* Correction: one label of plugin RemoveFormat was not localized.
+	* Correction: custom skins prevented correct loading of the RTE.
+	* Correction for IE: incorrect display of the current class in the paragraph style selector in some configurations.
+	* Correction for IE: the border handles of images and tables could not be selected for resizing.
+	* Correction for IE: table, img, ol and ul elements may be correctly selected through the editor status bar.
+	* Correction for IE: incorrect positioning of some popup window.
+	* Correction for IE: incorrect behavior of the InlineCSS text style selector when Arabic text was selected.
+
 2005-06-14  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.5.3
 	* Correction for IE: when the collapsed borders attribute was set on a table, the table properties popup dialog did not reflect the set attribute: the checkbox was not checked.

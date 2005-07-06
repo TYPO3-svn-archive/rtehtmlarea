@@ -20,7 +20,7 @@ if (typeof(_editor_url) == "string") {
 if (typeof(_editor_skin) == "string") _editor_skin = _editor_skin.replace(/\x2f*$/, '/');
 	else var _editor_skin = _editor_url + "skins/default/";
 if (typeof(_editor_CSS) != "string") var _editor_CSS = _editor_url + "skins/default/htmlarea.css";
-if (typeof(_editor_edited_content_CSS) != "string") var _editor_edited_content_CSS = _typo3_host_url + _editor_skin + "htmlarea-edited-content.css";
+if (typeof(_editor_edited_content_CSS) != "string") var _editor_edited_content_CSS = _editor_skin + "htmlarea-edited-content.css";
 if (typeof(_editor_lang) == "string") { _editor_lang = _editor_lang ? _editor_lang.toLowerCase() : "en"; }
 /*
  * HTMLArea object constructor.
@@ -288,7 +288,7 @@ HTMLArea.Config = function () {
  *	selection	: false		// will be disabled if there is no selection
  *    });
  */
-HTMLArea.Config.prototype.registerButton = function(id,tooltip,image,textMode,action,context,hide) {
+HTMLArea.Config.prototype.registerButton = function(id,tooltip,image,textMode,action,context,hide,selection) {
 	var the_id;
 	switch (typeof(id)) {
 		case "string": the_id = id; break;
@@ -1359,8 +1359,18 @@ HTMLArea.statusBarHandler = function (ev) {
 	var target = (ev.target) ? ev.target : ev.srcElement;
 	var editor = target.editor;
 	target.blur();
-	if(HTMLArea.is_gecko) editor.selectNode(target.el);
-		else editor.selectNodeContents(target.el);
+	if(HTMLArea.is_gecko) {
+		editor.selectNode(target.el);
+	} else { 
+		var tagname = target.el.tagName.toLowerCase();
+		if(tagname == "table" || tagname == "img") {
+			var range = editor._doc.body.createControlRange();
+			range.addElement(target.el);
+			range.select();
+		} else {
+			editor.selectNode(target.el);
+		}
+	}
 	editor.updateToolbar(true);
 	switch (ev.type) {
 		case "click" : return false;
@@ -1420,13 +1430,16 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 /*
  * Get the deepest node that contains both endpoints of the current selection.
  */
-HTMLArea.prototype.getParentElement = function() {
-	var sel = this._getSelection();
+HTMLArea.prototype.getParentElement = function(sel) {
+	if(!sel) var sel = this._getSelection();
 	var range = this._createRange(sel);
 	if(HTMLArea.is_ie) {
 		switch(sel.type) {
 			case "Text":
-			case "None": return range.parentElement();
+			case "None":
+				var el = range.parentElement();
+				if(el.nodeName.toLowerCase() == "li" && range.htmlText.replace(/\s/g,"") == el.parentNode.outerHTML.replace(/\s/g,"")) return el.parentNode;
+				return el;
 			case "Control": return range.item(0);
 			default: return this._doc.body;
 		}
@@ -1497,18 +1510,6 @@ HTMLArea.prototype._activeElement = function(sel) {
 			var range = sel.createRange();
 			var p_elm = this.getParentElement(sel);
 			if(p_elm.innerHTML == range.htmlText) return p_elm;
-			/*
-			if(p_elm) {
-				var p_rng = this._doc.body.createTextRange();
-				p_rng.moveToElementText(p_elm);
-				if(p_rng.isEqual(range)) return p_elm;
-			}
-			if(range.parentElement()) {
-				var prnt_range = this._doc.body.createTextRange();
-				prnt_range.moveToElementText(range.parentElement());
-				if(prnt_range.isEqual(range)) return range.parentElement();
-			}
-			*/
 			return null;
     		}
 	} else {
@@ -1608,7 +1609,6 @@ HTMLArea.prototype.selectNode = function(node) {
 	editor.focusEditor();
 	editor.forceRedraw();
 	if(HTMLArea.is_ie) {
-			//FIXME: IE fails to select the full contents of table, ol and ul
 		var range = editor._doc.body.createTextRange();
 		range.moveToElementText(node);
 		range.select();
@@ -1661,11 +1661,12 @@ HTMLArea.prototype.getSelectedHTML = function() {
 	var range = this._createRange(sel);
 	if(HTMLArea.is_ie) {
 		if(sel.type.toLowerCase() == "control") {
-			this.selectNodeContents(range(0));
-			sel = this._getSelection();
-			range = this._createRange(sel);
+			var r1 = this._doc.body.createTextRange();
+			r1.moveToElementText(range(0));
+			return r1.htmlText;
+		} else {
+			return range.htmlText;
 		}
-		return range.htmlText;
 	} else {
 		var cloneContents = "";
 		try {cloneContents = range.cloneContents();} catch(e) { }
@@ -1854,14 +1855,13 @@ HTMLArea.prototype._insertTable = function() {
 				var td = doc.createElement("td");
 				if(cellwidth) td.style.width = cellwidth + "%";
 				tr.appendChild(td);
-				// Mozilla likes to see something inside the cell.
-				(HTMLArea.is_gecko) && td.appendChild(doc.createElement("br"));
 			}
 		}
 		editor.focusEditor();
 		if(HTMLArea.is_ie) range.pasteHTML(table.outerHTML);
 			else editor.insertNodeAtSelection(table);
 		editor.forceRedraw();
+		if(HTMLArea.is_gecko && !HTMLArea.is_safari) editor.setMode("wysiwyg");
 		editor.updateToolbar();
 		return true;
 	}, null,520,230);
@@ -2375,7 +2375,7 @@ HTMLArea._removeClass = function(el, className) {
  */
 HTMLArea._addClass = function(el, className) {
 	HTMLArea._removeClass(el, className);
-	el.className += " " + className;
+	el.className += (el.className ? (" " + className) : className);
 };
 /*
  * Check if a class name is in the class attribute
@@ -2389,24 +2389,11 @@ HTMLArea._hasClass = function(el, className) {
 	return false;
 };
 HTMLArea.RE_blockTags = /^(body|p|h1|h2|h3|h4|h5|h6|ul|ol|pre|dl|div|noscript|blockquote|form|hr|table|fieldset|address|td|tr|th|li|tbody|thead|tfoot|iframe|object)$/;
-//HTMLArea._blockTags = " body form textarea fieldset ul ol dl li div p h1 h2 h3 h4 h5 h6 quote pre table thead tbody tfoot tr td iframe address object ";
-HTMLArea.isBlockElement = function(el) {
-	return el && el.nodeType == 1 && HTMLArea.RE_blockTags.test(el.tagName.toLowerCase());
-//	return el && el.nodeType == 1 && (HTMLArea._blockTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
-};
-HTMLArea._closingTags = " p span a li ol ul td tr table div em i strong b code cite blockquote q dfn abbr acronym font center object tt style script title head ";
-//HTMLArea._noClosingTag = " img br hr param input area base";
+HTMLArea.isBlockElement = function(el) { return el && el.nodeType == 1 && HTMLArea.RE_blockTags.test(el.nodeName.toLowerCase()); };
+HTMLArea.RE_closingTags = /^(p|span|a|li|ol|ul|td|tr|tbody|thead|tfoot|table|div|em|i|strong|b|code|cite|blockquote|q|dfn|abbr|acronym|font|center|object|tt|style|script|title|head)$/;
 HTMLArea.RE_noClosingTag = /^(img|br|hr|input|area|base|link|meta|param)$/;
-HTMLArea.needsClosingTag = function(el) {
-//	return el && el.nodeType == 1 && (HTMLArea._closingTags.indexOf(" " + el.tagName.toLowerCase() + " ") != -1);
-	return el && el.nodeType == 1 && !HTMLArea.RE_noClosingTag.test(el.tagName.toLowerCase());
-};
-
-// Performs HTML encoding of some given string
-HTMLArea.htmlEncode = function(value) {
-  return value.replace(/&/ig,'&amp;').replace(/\"/ig,'&quot;').replace(/</ig,'&lt;').replace(/>/ig,'&gt;');
-}
-
+HTMLArea.needsClosingTag = function(el) { return el && el.nodeType == 1 && !HTMLArea.RE_noClosingTag.test(el.tagName.toLowerCase()); };
+HTMLArea.htmlEncode = function(value) { return value.replace(/&/ig,'&amp;').replace(/\"/ig,'&quot;').replace(/</ig,'&lt;').replace(/>/ig,'&gt;'); }
 /*
  * Retrieve the HTML code from the given node.
  * This is a replacement for getting innerHTML, using standard DOM calls.

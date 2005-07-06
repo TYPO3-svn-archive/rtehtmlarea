@@ -131,7 +131,7 @@ DynamicCSS.prototype.onSelect = function(editor, obj) {
 
 	editor.focusEditor();
     	var parent = editor.getParentElement();
-	while(parent && !HTMLArea.isBlockElement(parent)) parent = parent.parentNode;
+	while(typeof(parent) != "undefined" && !HTMLArea.isBlockElement(parent) && parent.nodeName.toLowerCase() != "img") parent = parent.parentNode;
 	var cls = parent.className.trim().split(" ");
 	for(var i = cls.length; i > 0;) if(!HTMLArea.reservedClassNames.test(cls[--i])) HTMLArea._removeClass(parent,cls[i]);
 	if(className != 'none'){
@@ -217,7 +217,7 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 	var tagName = "body";
 	var className = "";
 	var parent = editor.getParentElement();
-	while (parent && !HTMLArea.isBlockElement(parent)) parent = parent.parentNode;
+	while(typeof(parent) != "undefined" && !HTMLArea.isBlockElement(parent) && parent.nodeName.toLowerCase() != "img") parent = parent.parentNode;
 	if(parent) {
 		tagName = parent.nodeName.toLowerCase();
 		className = parent.className;

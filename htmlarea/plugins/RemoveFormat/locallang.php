@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for plugin RemoveFormat of htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for plugin RemoveFormat of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -15,6 +15,7 @@ $LOCAL_LANG = Array (
 		'Cleaning options' => 'Type of formatting to remove',
 		'Formatting:' => 'HTML Formatting:',
 		'MS Word Formatting:' => 'MS Word Formatting:',
+		'Images:' => 'Images:',
 		'All HTML:' => 'All HTML tags:',
 		'Select the type of formatting you wish to remove.' => 'Select the type of formatting to remove.',
 		'OK' => 'OK',
@@ -61,6 +62,7 @@ $LOCAL_LANG = Array (
 		'Cleaning options' => 'Type de formatage à enlever',
 		'Formatting:' => 'Formatage HTML:',
 		'MS Word Formatting:' => 'Formatage MS Word:',
+		'Images:' => 'Images:',
 		'All HTML:' => 'Toutes les balises HTML:',
 		'Select the type of formatting you wish to remove.' => 'Choisissez le type de formatage à enlever.',
 		'OK' => 'OK',

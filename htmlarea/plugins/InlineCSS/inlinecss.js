@@ -133,7 +133,7 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 	var selectedHTML = editor.getSelectedHTMLContents();
 	if(selectedHTML) selTrimmed = selectedHTML.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 	var parent = editor.getParentElement();
-	if(/\w/.test(selTrimmed)) {
+	if( (HTMLArea.is_gecko && /\w/.test(selTrimmed) == true) || (HTMLArea.is_ie && /\S/.test(selTrimmed) == true) ) {
 		var sel = editor._getSelection();
 		var range = editor._createRange(sel);
 		if( className != 'none' ) {
@@ -268,7 +268,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 	if(selTrimmed) selTrimmed = selTrimmed.replace(/(<[^>]*>|&nbsp;|\n|\r)/g,"");
 
 	var endPointsInSameBlock = false;
-	if(/\w/.test(selTrimmed) == true) {
+	if( (HTMLArea.is_gecko && /\w/.test(selTrimmed) == true) || (HTMLArea.is_ie && /\S/.test(selTrimmed) == true) ) {
 		var sel = editor._getSelection();
 		var range = editor._createRange(sel);
 		if(HTMLArea.is_gecko) {
@@ -334,7 +334,7 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 			select.selectedIndex=select.options.length-1;
 		}
 	}
-	select.disabled = !(select.options.length>1) || !(/\w/.test(selTrimmed)) || !(endPointsInSameBlock);
+	select.disabled = !(select.options.length>1) || !endPointsInSameBlock || !((HTMLArea.is_gecko && /\w/.test(selTrimmed) == true) || (HTMLArea.is_ie && /\S/.test(selTrimmed) == true)) ;
 	select.className = "";
 	if(select.disabled) select.className = "buttonDisabled";
 };
