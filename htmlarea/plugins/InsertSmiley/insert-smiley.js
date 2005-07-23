@@ -10,14 +10,19 @@ var HTMLAreaeditor;
 InsertSmiley = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var self = this;
-	cfg.registerButton("InsertSmiley", InsertSmiley_langArray["Insert Smiley"],  editor.imgURL("ed_smiley.gif", "InsertSmiley"), false, function(editor) { self.buttonPress(editor); });
+	var actionHandlerFunctRef = InsertSmiley.actionHandler(this);
+	cfg.registerButton("InsertSmiley", InsertSmiley_langArray["Insert Smiley"],  editor.imgURL("ed_smiley.gif", "InsertSmiley"), false, actionHandlerFunctRef);
 };
 
 InsertSmiley.I18N = InsertSmiley_langArray;
 
+InsertSmiley.actionHandler = function(instance) {
+	return (function(editor) {
+		instance.buttonPress(editor);
+	});
+};
+
 InsertSmiley.prototype.buttonPress = function(editor) { 
-	var self = this;
 	var sel = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,""); 
 	var param = new Object();
 	param.editor = editor;
@@ -26,15 +31,17 @@ InsertSmiley.prototype.buttonPress = function(editor) {
 		param.editor_url = document.URL;
 		param.editor_url = param.editor_url.replace(/^(.*\/).*\/.*$/g, "$1");
 	}
-  	editor._popupDialog("plugin://InsertSmiley/insertsmiley", function(p) { self.setTag(p); }, param, 250, 220);
+	var setTagHandlerFunctRef = InsertSmiley.setTagHandler(this);
+  	editor._popupDialog("plugin://InsertSmiley/insertsmiley", setTagHandlerFunctRef, param, 250, 220);
 };
 
-InsertSmiley.prototype.setTag = function(param) {
-	var editor = this.editor;
-	if(param && typeof param.imgURL != "undefined") {
-		editor.focusEditor();
-		editor.insertHTML("<img src=\"" + param.imgURL + "\" alt=\"Smiley\" />");
-	}
+InsertSmiley.setTagHandler = function(instance) {
+	return (function(param) {
+		if(param && typeof(param.imgURL) != "undefined") {
+			instance.editor.focusEditor();
+			instance.editor.insertHTML("<img src=\"" + param.imgURL + "\" alt=\"Smiley\" />");
+		}
+	});
 };
 
 InsertSmiley._pluginInfo = {

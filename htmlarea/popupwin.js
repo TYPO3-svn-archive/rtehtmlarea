@@ -10,9 +10,7 @@
 PopupWin = function(editor, _title, handler, initFunction, width, height, _opener) {
 	this.editor = editor;
 	this.handler = handler;
-	if (typeof initFunction == "undefined") {
-		initFunction = window;	// pass this window object by default
-	}
+	if (typeof initFunction == "undefined") initFunction = window;	// pass this window object by default
 	this._geckoOpenModal(editor, _title, handler, initFunction, width, height, _opener);
 };
 
@@ -37,7 +35,6 @@ PopupWin.prototype._geckoOpenModal = function(editor, _title, handler, initFunct
 	if(Dialog._modal && !Dialog._modal.closed) Dialog._dialog = this;
 	var doc = this.dialogWindow.document;
 	this.doc = doc;
-	var self = this;
 
 	if (doc.all) {
 		doc.open();
@@ -68,15 +65,15 @@ PopupWin.prototype._geckoOpenModal = function(editor, _title, handler, initFunct
 	body.id = "--HA-body";
 	var content = doc.createElement("div");
 	content.className = "content";
-	self.content = content;
+	this.content = content;
 	body.appendChild(content);
 	if(!doc.all) html.appendChild(body);
-	self.element = body;
+	this.element = body;
 
-	initFunction(self);
+	initFunction(this);
 
 	this.captureEvents();
-	self.dialogWindow.focus();
+	this.dialogWindow.focus();
 };
 
 	// Close the popup when escape is hit

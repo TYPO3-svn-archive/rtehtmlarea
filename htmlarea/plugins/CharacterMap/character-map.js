@@ -10,13 +10,13 @@
 CharacterMap = function(editor) {
 	this.editor = editor;
 	var cfg = this.editor.config;
-	var self = this;
+	var actionHandlerFunctRef = CharacterMap.actionHandler(this);
 	cfg.registerButton({
 		id 		: "InsertCharacter",
 		tooltip 	: CharacterMap_langArray["CharacterMapTooltip"],
 		image 	: editor.imgURL("ed_charmap.gif", "CharacterMap"),
 		textMode 	: false,
-		action 	: function(editor) { self.buttonPress(editor); }
+		action 	: actionHandlerFunctRef
 	});
 };
 
@@ -33,16 +33,25 @@ CharacterMap._pluginInfo = {
 	license 		: "htmlArea"
 };
 
+CharacterMap.actionHandler = function(instance) {
+	return (function(editor) {
+		instance.buttonPress(editor);
+	});
+};
+
 CharacterMap.prototype.buttonPress = function(editor) {
 	var self = this;
 	var param = new Object();
 	param.editor = editor;
-	editor._popupDialog( "plugin://CharacterMap/select_character", function(entity) { self.insertChar(entity); }, param, 485, 330);
+	var insertCharHandlerFunctRef = CharacterMap.insertCharHandler(this);
+	editor._popupDialog( "plugin://CharacterMap/select_character", insertCharHandlerFunctRef, param, 485, 330);
 };
 
-CharacterMap.prototype.insertChar = function(entity) { 
-	if (typeof entity != "undefined") {
-		this.editor.focusEditor();
-		this.editor.insertHTML(entity);
-	}
+CharacterMap.insertCharHandler = function(instance) {
+	return (function(entity) {
+		if (typeof(entity) != "undefined") {
+			instance.editor.focusEditor();
+			instance.editor.insertHTML(entity);
+		}
+	});
 };

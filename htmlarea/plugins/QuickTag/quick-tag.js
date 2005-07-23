@@ -8,13 +8,13 @@
 QuickTag = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var self = this;
+	var actionHandlerFunctRef = QuickTag.actionHandler(this);
 	cfg.registerButton({
 		id		: "InsertTag",
 		tooltip	: QuickTag_langArray["Quick Tag Editor"],
 		image		: editor.imgURL("ed_quicktag.gif", "QuickTag"),
 		textMode	: false,
-  		action	: function(editor) { self.buttonPress(editor); },
+  		action	: actionHandlerFunctRef,
 		context	: null,
 		hide		: false,
 		selection	: true
@@ -23,29 +23,37 @@ QuickTag = function(editor) {
 
 QuickTag.I18N = QuickTag_langArray;
 
-QuickTag.prototype.buttonPress = function(editor) { 
-	var self = this;
+QuickTag.actionHandler = function(instance) {
+	return (function(editor) {
+		instance.buttonPress(editor);
+	});
+};
+
+QuickTag.prototype.buttonPress = function(editor) {
 	var sel = editor.getSelectedHTML().replace(/(<[^>]*>|&nbsp;|\n|\r)/g,""); 
 	var param = new Object();
 	param.editor = editor;
 
   	if(/\w/.test(sel)) {
-    		editor._popupDialog("plugin://QuickTag/quicktag", function(p) { self.setTag(p); }, param, 450, 108);
+		var setTagHandlerFunctRef = QuickTag.setTagHandler(this);
+    		editor._popupDialog("plugin://QuickTag/quicktag", setTagHandlerFunctRef, param, 450, 108);
   	} else {
 		alert(QuickTag.I18N['You have to select some text']);
 	}
 };
 
-QuickTag.prototype.setTag = function(param) { 
-	if(param && typeof param.tagopen != "undefined") {
-		this.editor.focusEditor();
-		this.editor.surroundHTML(param.tagopen,param.tagclose);
-	}
+QuickTag.setTagHandler = function(instance) {
+	return (function(param) {
+		if(param && typeof(param.tagopen) != "undefined") {
+			instance.editor.focusEditor();
+			instance.editor.surroundHTML(param.tagopen,param.tagclose);
+		}
+	});
 };
 
 QuickTag._pluginInfo = {
 	name          : "QuickTag",
-	version       : "1.0 - beta",
+	version       : "1.0",
 	developer     : "Cau Guanabara",
 	developer_url : "mailto:caugb@ibest.com.br",
 	c_owner       : "Cau Guanabara",

@@ -5,25 +5,23 @@
 // This notice MUST stay intact for use (see license.txt).
 
 TYPO3Browsers = function(editor,args) {
-      this.editor = editor;     
-      var cfg = editor.config;
-	var toolbar = cfg.toolbar;
-	var self = this;
-	this.editor.config.btnList.InsertImage[1] = this.editor.imgURL("ed_image.gif", "TYPO3Browsers");
-	this.editor.config.btnList.CreateLink[1] = this.editor.imgURL("ed_link.gif", "TYPO3Browsers");
+	this.editor = editor;
+	var cfg = this.editor.config;
+	cfg.btnList.InsertImage[1] = this.editor.imgURL("ed_image.gif", "TYPO3Browsers");
+	cfg.btnList.CreateLink[1] = this.editor.imgURL("ed_link.gif", "TYPO3Browsers");
 };
 
 TYPO3Browsers.I18N = TYPO3Browsers_langArray;
 
 TYPO3Browsers._pluginInfo = {
-	name 			: "TYPO3Browsers",
-	version 		: "1.0",
-	developer 		: "Stanislas Rolland",
+	name		: "TYPO3Browsers",
+	version		: "1.0",
+	developer	: "Stanislas Rolland",
 	developer_url 	: "http://www.fructifor.com/",
-	c_owner 		: "Stanislas Rolland",
-	sponsor 		: "Fructifor Inc.",
+	c_owner		: "Stanislas Rolland",
+	sponsor		: "Fructifor Inc.",
 	sponsor_url 	: "http://www.fructifor.com",
-	license 		: "htmlArea"
+	license		: "htmlArea"
 };
 
 TYPO3Browsers.prototype.onGenerate = function() {

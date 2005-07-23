@@ -1,22 +1,20 @@
 // Remove Format Plugin for HTMLArea-3.0
 // Sponsored by www.fructifor.com
 // Implementation by Stanislas Rolland, http://www.fructifor.com/
-// Reusing code from anonymous source and from
-//
-// (c) Stanislas Rolland, 2004.
+// (c) 2004-2005, Stanislas Rolland.
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 
 RemoveFormat = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var self = this;
+	var actionHandlerFunctRef = RemoveFormat.actionHandler(this);
 	cfg.registerButton({
-		id 		: "RemoveFormat",
-		tooltip 	: RemoveFormat_langArray["RemoveFormatTooltip"],
-		image 	: editor.imgURL("ed_clean.gif", "RemoveFormat"),
-		textMode 	: false,
-		action 	: function(editor) { self.buttonPress(editor); }
+		id		: "RemoveFormat",
+		tooltip		: RemoveFormat_langArray["RemoveFormatTooltip"],
+		image		: editor.imgURL("ed_clean.gif", "RemoveFormat"),
+		textMode	: false,
+		action		: actionHandlerFunctRef
             });
 };
 
@@ -24,7 +22,7 @@ RemoveFormat.I18N = RemoveFormat_langArray;
 
 RemoveFormat._pluginInfo = {
 	name          : "RemoveFormat",
-	version       : "1.0",
+	version       : "1.1",
 	developer     : "Stanislas Rolland",
 	developer_url : "mailto:stanislas.rolland@fructifor.com",
 	sponsor       : "Fructifor Inc.",
@@ -32,10 +30,19 @@ RemoveFormat._pluginInfo = {
 	license       : "htmlArea"
 };
 
+RemoveFormat.actionHandler = function(instance) {
+	return (function(editor) {
+		instance.buttonPress(editor);
+	});
+};
+
 RemoveFormat.prototype.buttonPress = function(editor){
+	var applyRequestFunctRef = RemoveFormat.applyRequest(this, editor);
+	editor._popupDialog("plugin://RemoveFormat/removeformat", applyRequestFunctRef, null, 285, 265);
+};
 
-	editor._popupDialog( "plugin://RemoveFormat/removeformat", function( param){
-
+RemoveFormat.applyRequest = function(instance,editor){
+	return(function(param) {
 		editor.focusEditor();
 
 		if (param) {
@@ -49,8 +56,7 @@ RemoveFormat.prototype.buttonPress = function(editor){
 			if(html) {
 
 				if (param["html_all"]== true) {
-					html = "<p>" + html.replace(/<[\!]*?[^<>]*?>/g, "") + "</p>";
-
+					html = html.replace(/<[\!]*?[^<>]*?>/g, "");
 				}
  
 				if (param["formatting"] == true) {
@@ -73,7 +79,7 @@ RemoveFormat.prototype.buttonPress = function(editor){
 					reg3 = new RegExp("(\r\n|\n|\r)", "g"); 
 					html = html.replace(reg3, " ");
 						//clean up tags
-					reg4 = new RegExp("<(b[^r]|strong|i|em|p|li|ul) [^>]*>", "gi")
+					reg4 = new RegExp("<(b[^r]|strong|i|em|p|li|ul) [^>]*>", "gi");
 					html = html.replace(reg4, "<$1>");
 						// keep tags, strip attributes
 					html = html.replace(/ style=\"[^>]*\"/gi, "");
@@ -101,7 +107,7 @@ RemoveFormat.prototype.buttonPress = function(editor){
 						html = html.replace(/<([a-z][a-z]*)><\1>/gi, "<$1>").
 							replace(/<\/([a-z][a-z]*)><\/\1>/gi, "<\/$1>");
 							// remove double spaces
-						html = html.replace(/  */gi, " ");
+						html = html.replace(/\x20*/gi, " ");
 					}
 				}
 
@@ -114,5 +120,5 @@ RemoveFormat.prototype.buttonPress = function(editor){
 		} else {
 			return false;
 		}
-	}, null, 285, 265);
+	});
 };

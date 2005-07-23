@@ -8,12 +8,12 @@
 Acronym = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var self = this;
+	var actionHandlerFunctRef = Acronym.actionHandler(this);
 	cfg.registerButton("Acronym",
 				Acronym_langArray["Insert/Modify Acronym"], 
 				editor.imgURL("ed_acronym.gif", "Acronym"), 
 				false,
-				function(editor) {self.buttonPress(editor);}
+				actionHandlerFunctRef
 	);
 };
 Acronym.I18N = Acronym_langArray;
@@ -29,10 +29,16 @@ Acronym._pluginInfo = {
 	license		: "htmlArea"
 };
 
+Acronym.actionHandler = function(instance) {
+	return (function(editor) {
+		instance.buttonPress(editor);
+	});
+};
+
 Acronym.prototype.buttonPress = function(editor) {
 	var editorNo = editor._doc._editorNo;
 	var backreturn;
 	var addUrlParams = "?" + conf_RTEtsConfigParams;
-	editor._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNo + "&popupname=acronym&srcpath="+encodeURI(rtePathAcronymFile),null,null,570,300);
+	editor._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNo + "&popupname=acronym&srcpath=" + encodeURI(rtePathAcronymFile), null, null, 570, 300);
 	return false;
 };

@@ -8,23 +8,17 @@
 FindReplace = function(editor) {
 	this.editor = editor;
 	var cfg = editor.config;
-	var actionHandlerFunctRef = FindReplace.actionHandler(this);
+	var self = this;
 
 	cfg.registerButton("FindReplace",
 				FindReplace_langArray["Find and Replace"], 
 				editor.imgURL("ed_find.gif", "FindReplace"), 
 				false,
-				actionHandlerFunctRef
+				function(editor) { self.buttonPress(editor); }
 	);
 };
 
 FindReplace.I18N = FindReplace_langArray;
-
-FindReplace.actionHandler = function(instance) {
-	return (function(editor) {
-		instance.buttonPress(editor);
-	});
-};
 
 FindReplace.prototype.buttonPress = function(editor) { 
 	FindReplace.editor = editor;

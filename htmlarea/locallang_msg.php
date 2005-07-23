@@ -9,19 +9,20 @@ $LOCAL_LANG = Array (
 	'default' => Array (
 		'Path' => 'Path',
 		'TEXT_MODE' => 'You are in TEXT MODE.  Use the [<>] button to switch back to WYSIWYG.',
-		'IE-sucks-full-screen' => 'The full screen mode is known to cause problems with Internet Explorer, due to browser bugs that we weren\'t able to workaround. You might experience garbage display, lack of editor functions and/or random browser crashes. If your system is Windows 9x it\'s very likely that you\'ll get a \'General Protection Fault\' and need to reboot.\\n\\n You have been warned. Please press OK if you still want to try the full screen editor.',
 		'Moz-Clipboard' => 'Unprivileged scripts cannot access Cut/Copy/Paste programatically for security reasons. Click OK to see a technical note at mozilla.org which shows you how to allow a script to access the clipboard.',
-		'Moz-Extension' => 'For security reasons, unprivileged applications cannot access the clipboard. Click OK to install a component that will enable applications from this TYPO3 site to access the clipboard and perform copy, cut and paste operations.',
+		'Moz-Extension' => 'For security reasons, unprivileged applications cannot access the clipboard. Click OK to install a component that will enable applications from this site to access the clipboard and perform copy, cut and paste operations.',
 		'Moz-Extension-Success' => 'The installation was successful. You need to exit and restart your browser for the change to take effect.',
 		'Moz-Extension-Failure' => 'Sorry, the installation failed.',
-		'Moz-Extension-Install-Not-Enabled' => 'The installation cannot be performed. Please change your browser preferences in order to allow installation of sofware from this TYPO3 site.',
+		'Moz-Extension-Install-Not-Enabled' => 'The installation cannot be performed. Please change your browser preferences in order to allow installation of sofware from this site.',
+		'Allow-Clipboard-Helper-Extension' => 'For security reasons, unprivileged applications cannot access the clipboard. Click OK to install a component that will enable you to specify the sites or pages that will be allowed to access the clipboard and perform copy, cut and paste operations.',
+		'Mozilla-Org-Install-Not-Enabled' => 'The installation cannot be performed. Please change your browser preferences in order to allow installation of sofware from http://ftp.mozilla.org.',
+		'Allow-Clipboard-Helper-Extension-Success' => 'The installation was successful. You need to exit and restart your browser for the change to take effect. Afterwards, use the AllowClipboard Helper from the tools menu to allow specific sites to use the clipboard.',
 	),
 	'dk' => Array (
 	),
 	'de' => Array (
 		'Path' => 'Pfad',
 		'TEXT_MODE' => 'Sie befinden sich im TEXT-MODUS.  Benutzen Sie den [<>]-Knopf, um zurьck in den WYSIWYG-Modus zu wechseln.',
-		'IE-sucks-full-screen' => 'Der Vollbild-Modus verursacht hдufig Probleme mit dem Internet Explorer. Schuld daran sind Browser-Fehler, die nicht umgangen werden konnten. Sie haben mцglicherweise einen fehlerhaften Bildschirmaufbau, oder es fehlen Editor-Funktionen. AuЯerdem kann hin und wieder der Browser abstьrzen. Wenn Sie Windows 9x einsetzen, ist es sehr wahrscheinlich, dass Sie einen Allgemeinen Schutzfehler erhalten und neu starten mьssen. Nun sind Sie gewarnt! Bitte drьcken Sie OK, wenn Sie trotzdem in den Vollbild-Modus wechseln mцchten.',
 		'Moz-Clipboard' => 'Unprivilegierte Skripte kцnnen aus Sicherheitsgrьnden Ausschneiden/Kopieren/Einfьgen nicht nutzen. Klicken Sie auf OK, um  einen technischen Hinweis von mozilla.org (auf englisch) zu lesen , der Ihnen zeigt, wie Sie Skripten den Zugriff  auf die Zwischenablage ermцglichen.',
 	),
 	'no' => Array (
@@ -29,17 +30,19 @@ $LOCAL_LANG = Array (
 	'it' => Array (
 		'Path' => 'Percorso',
 		'TEXT_MODE' => 'Sei in MODALITA\' TESTO',
-		'IE-sucks-full-screen' => 'La modalitа a schermo intero puт creare problemi in Internet Explorer, a causa di alcuni bug nel browser che non siamo riusciti ad aggirare. Si possono verificare problemi di visualizzazione, riduzione di funzionalitа dell\'editor e/o crash del browser. Se il tuo sistema operativo и windows 9x и molto probabile che si verifichi un \'General Protection Fault\' e ci sia la necessitа di riavviare il computer.\\n\\n Sei stato messo al corrente di questo problema. Premi OK se vuoi ancora provare l\'editor a schermo intero.',
 		'Moz-Clipboard' => 'Scripts senza l\'autorizzazione non possono utilizzare le funzioni Taglia/Copia/Incolla. Clicca OK per visualizzare una nota tecnica in mozilla.org che ti mostrerа come permettere ad uno script di accedere alla clipboard.',
 	),
 	'fr' => Array (
 		'Path' => 'Chemin',
 		'TEXT_MODE' => 'Vous кtes en mode source HTML. Utilisez le bouton [<>] pour revenir au mode WYSIWIG.',
 		'Moz-Clipboard' => 'Pour des raisons de sйcuritй, les scripts sans privilиges ne peuvent utiliser Couper/Copier/Coller par programmation. Cliquez sur OK pour voir la note technique de mozilla.org qui vous indiquera comment accorder au script l\'accиs au presse-papiers.',
-		'Moz-Extension' => 'Pour des raisons de sйcuritй, les applications sans privilиges ne peuvent accйder au presse-papiers. Cliquez sur OK pour installer une composante qui permettra aux applications de ce site TYPO3 d\'accйder au presse-papiers et de rйaliser les opйrations couper, copier et coller.',
+		'Moz-Extension' => 'Pour des raisons de sйcuritй, les applications sans privilиges ne peuvent accйder au presse-papiers. Cliquez sur OK pour installer une composante qui permettra aux applications de ce site d\'accйder au presse-papiers et de rйaliser les opйrations couper, copier et coller.',
 		'Moz-Extension-Success' => 'L\'installation a rйussi. Veuillez quitter et redйmarrer votre fureteur pour que les changements puissent prendre effet.',
 		'Moz-Extension-Failure' => 'Dйsolй, l\'installation a йchouй.',
-		'Moz-Extension-Install-Not-Enabled' => 'L\'installation ne peut pas кtre effectuйe. Veuillez modifier les prйfйrences de votre fureteur de faзon а permettre l\'installation de logiciel en provenance de ce site TYPO3.',
+		'Moz-Extension-Install-Not-Enabled' => 'L\'installation ne peut pas кtre effectuйe. Veuillez modifier les prйfйrences de votre fureteur de faзon а permettre l\'installation de logiciel en provenance de ce site.',
+		'Allow-Clipboard-Helper-Extension' => 'Pour des raisons de sйcuritй, les applications sans privilиges ne peuvent accйder au presse-papiers. Cliquez sur OK pour installer une composante qui vous permettra de spйcifier les sites ou pages qui pourront accйder au presse-papiers et rйaliser les opйrations couper, copier et coller.',
+		'Mozilla-Org-Install-Not-Enabled' => 'L\'installation ne peut pas кtre effectuйe. Veuillez modifier les prйfйrences de votre fureteur de faзon а permettre l\'installation de logiciel en provenance de http://ftp.mozilla.org.',
+		'Allow-Clipboard-Helper-Extension-Success' => 'L\'installation a rйussi. Veuillez quitter et redйmarrer votre fureteur pour que les changements puissent prendre effet. Utilisez ensuite l\'option AllowClipboard Helper du menu Outils pour permettre aux sites de votre choix d\'utiliser le presse-papiers.',
 	),
 	'es' => Array (
 		'Path' => 'Vнa',
@@ -48,7 +51,6 @@ $LOCAL_LANG = Array (
 	'nl' => Array (
 		'Path' => 'Pad',
 		'TEXT_MODE' => 'U bent in de TEKST MODE. Gebruik de [<>] knop om terug te schakelen naar WYSIWYG.',
-		'IE-sucks-full-screen' => 'De volledige scherm modus in combinatie met Internet Explorer levert problemen op door fouten die wij niet hebben kunnen omzijlen. U ziet mogelijk een verkeerde weergave, beperkte functies en/of willekeurige vastlopen van de browser. Als u een windows 9x systeem gebruikt, dan is het zeer waarschijnlijk dat u een \'Algemene toepassingsfout\' zult  krijgen en opnieuw zult moeten opstarten.\\n\\n U bent dus gewaarschuwd. Druk op OK als u toch wil proberen in volledige scherm modes te werken.',
 		'Moz-Clipboard' => 'Niet geautoriseerde scripts kunnen vanwege veiligheidsredenen geen geautomatiseerde toegang krijgen tot knippen, kopieren en plakken. Klik OK om een technische beschrijving op mozilla.org te lezen over goe een script toegang gegeven kan worden tot het klembord.',
 		'Moz-Extension' => 'In verband met de veiligheid kunnen niet geautoriseerde applicaties geen toegang krijgen tot het clipboard. Klik op OK om een component te installeren welke toegang mag krijgen tot het clipboard van deze TYPO3 site.',
 	),
@@ -61,7 +63,6 @@ $LOCAL_LANG = Array (
 	'fi' => Array (
 		'Path' => 'Polku',
 		'TEXT_MODE' => 'Olet TEXT MODE tilassa. Kдytд [<>] nдppдintд siirtyksesi takaisin WYSIWYG tilaan.',
-		'IE-sucks-full-screen' => 'Koko ikkuna tilan tiedetддn aiheuttavan ongelmia Internet Explorerissa, koska selaimessa olevia virheitд emme ole kyenneet ohjelmallisesti korjaamaan. Voit saada roskaa nдytцlle, muokkaimen toimintoja voi puuttua ja satunnaisesti voi ohjelma kaatua. Jos jдrjestelmдsi on Windows 9x on todennдkцistд ettд saat \'Yleinen jдrjestelmд virhe\'/\'General Protection Fault\' virheilmoituksen ja sinun on kдynnistettдvд laitteistosi uudestaan.\\n\\nOlemme varoittaneet Sinua. Ole hyvд ja paina OK jos kaikesta huolimatta haluat kokeilla tдyden nдytцn muokkausta.',
 		'Moz-Clipboard' => 'Etuoikeudettomat skriptit eivдt voi kдyttдд leikkaa/kopioi/liitд toimintoja ohjelmallisesti turvallisuussyistд. Nдpsдytд OKta nдhdдksesi teknisen huomautuksen mozilla.org sivuilla, joka nдyttдд sinulle kuinka voit sallia skriptin kдyttдvдn leikepцytдд.',
 		'Moz-Extension' => 'Turvallisuud syistд, eivдt etuoikeudettomat sovellukset saa kдyttдд leikepцytдд. Nдpsдytд OK asentaaksesi komponentin joka oikeuttaa sovellutusten kдyttдд tдtд Typo3 sivustoa leikepцydдn kдsittelyssд ja suoritta kopiointi, leikkaa ja liitд komentoja.',
 		'Moz-Extension-Success' => 'Installointi onnistui. Sinun tulee kдynnistдд selain uudestaan, jotta muutokset tulisivat voimaan.',
@@ -77,7 +78,6 @@ $LOCAL_LANG = Array (
 	'ru' => Array (
 		'Path' => 'Путь',
 		'TEXT_MODE' => 'Вы работает в текстовом режиме. Чтобы перейти в визуальный режим, нажмите [<>]',
-		'IE-sucks-full-screen' => 'В полноэкранной режиме могут быть некоторые проблемы с Internet Explorer, которые разработчикам не удалось обойти. Возможные неприятности: "мусор" на экране, отсутствие некоторых функций редактора или "падение" броузера. Если Вы используете Windows 9x, то, вероятнее всего, Вы получе сообщение о критической ошибке в программе, и Вам придётся перезагрузить компьютер.\\n\\nЕсли вышеописаное Вас не пугает, нажмите ОК для перхода в полноэкранный режим.',
 		'Moz-Clipboard' => 'Обычные (непривелигированые) скрипты не могут работать с буфером обмена (выполнять копирование/вырезание/вставку) из-за встроеной системы безопасности броузера. Нажмите ОК, чтобы узнать (на английском языке) как разрешить использование буфера обмена.',
 	),
 	'ro' => Array (
@@ -109,7 +109,6 @@ $LOCAL_LANG = Array (
 	'br' => Array (
 		'Path' => 'Caminho',
 		'TEXT_MODE' => 'Vocк estб no MODE TEXTO. Use o botгo [<>] para voltar ao modo Grбfico.',
-		'IE-sucks-full-screen' => 'O modo tela-cheia causa problemas com o Internet Explorer, por causa de falhas que nуs nгo foram corrigidas. Vocк pode obter uma tela distorcida, falhas no editor e/ou travamentos aleatуrios do navegador. Se o seu sistema й Windows 9x provavelmente vocк receberб um "General Protection Fault" e precisarб reiniciar o computador. \\n\\n Vocк foi avisado. Por favor pressione OK se vocк ainda quiser tentar o modo tela-cheia.',
 	),
 	'et' => Array (
 	),

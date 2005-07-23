@@ -1,14 +1,12 @@
 // Spell Checker Plugin for HTMLArea-3.0
 // Sponsored by www.americanbible.org
 // Implementation by Mihai Bazon, http://dynarch.com/mishoo/
-//
 // (c) dynarch.com 2003.
 // (c) 2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
 // Modified to use the standard dialog API 
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 //
-// $Id$
 
 // internationalization file was already loaded in parent ;-)
 var SpellChecker = window.opener.SpellChecker;
@@ -88,12 +86,10 @@ function replaceClicked() {
 	replaceWord(currentElement);
 	var start = currentElement.__msh_id;
 	var index = start;
-	do {
+	do { 
 		++index;
-		if (index == wrongWords.length) {
-			index = 0;
-		}
-	} while ((index != start) && wrongWords[index].__msh_fixed);
+		if (index == wrongWords.length) index = 0;
+	}while((index != start) && wrongWords[index].__msh_fixed);
 	if (index == start) {
 		index = 0;
 		alert(i18n["Finished list of mispelled words"]);
@@ -179,11 +175,14 @@ function initDocument() {
 	select.onchange = function() {
 		document.getElementById("v_replacement").value = this.value;
 	};
+	HTMLArea._addEvent(select, "dblclick", replaceClicked);
+/*
 	if (HTMLArea.is_ie) {
 		select.attachEvent("ondblclick", replaceClicked);
 	} else {
 		select.addEventListener("dblclick", replaceClicked, true);
 	}
+*/
 
 	document.getElementById("b_replace").onclick = replaceClicked;
 	// document.getElementById("b_learn").onclick = learnClicked;
@@ -265,10 +264,8 @@ function wordClicked(scroll) {
 		txt2 = i18n["were found."];
 	}
 	var suggestions = suggested_words[this.__msh_origWord];
-	if (suggestions)
-		suggestions = suggestions.split(/,/);
-	else
-		suggestions = [];
+	if (suggestions) suggestions = suggestions.split(/,/);
+		else suggestions = [];
 	var select = document.getElementById("v_suggestions");
 	document.getElementById("statusbar").innerHTML = txt + " " + i18n["of the word"] +
 		' "<b>' + currentElement.__msh_origWord + '</b>"' + " " + txt2;
@@ -307,9 +304,6 @@ function displayInfo() {
 	if (!info)
 		alert(i18n["No information available"]);
 	else {
-	// 2004-09-08 Stanislas Rolland: Change
-	// 2004-09-8 Stanislas Rolland: Modified in order to translate the document information
-	//
 		var txt = i18n["Document information"] + "\n" ;
 		for (var i in info) {
 			txt += "\n" + i18n[i] + " : " + info[i];
@@ -329,17 +323,14 @@ function finishedSpellChecking() {
 	suggested_words = frame.contentWindow.suggested_words;
 
 	document.getElementById("status").innerHTML = i18n["HTMLArea Spell Checker"]; 
-		// 2004-09-08 Stanislas Rolland: Change
-		// 2004-09-08 Stanislas Rolland: Took out Info Reference because irrelevant in the context of Typo3
-		// 
 	var doc = frame.contentWindow.document;
 	var spans = doc.getElementsByTagName("span");
 	var sps = [];
 	var id = 0;
-		for (var i = 0; i < spans.length; ++i) {
-                var el = spans[i];
-                if (/HA-spellcheck-error/.test(el.className)) {
-                        sps.push(el);
+	for (var i = 0; i < spans.length; ++i) {
+		var el = spans[i];
+		if (/HA-spellcheck-error/.test(el.className)) {
+			sps.push(el);
 			el.__msh_wordClicked = wordClicked;
 			el.onclick = function(ev) {
 				ev || (ev = window.event);
@@ -356,10 +347,10 @@ function finishedSpellChecking() {
 			} else {
 				allWords[txt].push(el);
 			}
-                } else if (/HA-spellcheck-fixed/.test(el.className)) {
+		} else if (/HA-spellcheck-fixed/.test(el.className)) {
 			fixedWords.push(el);
 		}
-        }
+	}
 	wrongWords = sps;
 	if (sps.length == 0) {
 		if (!modified) {

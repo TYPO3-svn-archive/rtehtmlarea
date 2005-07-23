@@ -88,7 +88,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		chMode, inserttag, removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
 		toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 		columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
-		cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge';
+		cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge';
 			
 		// Conversion array: TYPO3 button names to htmlArea button names
 	var $conf_toolbar_convert = array (
@@ -201,7 +201,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		'CharacterMap' 	=> 'insertcharacter',
 		'TableOperations'	=> 'table, toggleborders, tableproperties, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit,
 							columninsertbefore, columninsertafter, columndelete, columnsplit,
-							cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge',
+							cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge',
 		'UserElements' 	=> 'user',
 		'Acronym' 	=> 'acronym',
 		);
@@ -459,8 +459,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			 * =======================================
 			 */
 
-			$RTEWidth = 460+($pObj->docLarge ? 150 : 0);
-			$RTEHeight = 380;
+			$RTEWidth = isset($BE_USER->userTS['options.']['RTESmallWidth']) ? $BE_USER->userTS['options.']['RTESmallWidth'] : '460';
+			$RTEHeight = isset($BE_USER->userTS['options.']['RTESmallHeight']) ? $BE_USER->userTS['options.']['RTESmallHeight'] : '380';
+			$RTEWidth  = $RTEWidth + ($pObj->docLarge ? (isset($BE_USER->userTS['options.']['RTELargeWidthIncrement']) ? $BE_USER->userTS['options.']['RTELargeWidthIncrement'] : '150') : 0);
+			$RTEHeight = $RTEHeight + ($pObj->docLarge ?  (isset($BE_USER->userTS['options.']['RTELargeHeightIncrement']) ? $BE_USER->userTS['options.']['RTELargeHeightIncrement'] : 0) : 0);
 			$editorWrapWidth = $RTEWidth . 'px';
 			$editorWrapHeight = $RTEHeight . 'px';
 			$this->RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'position:relative; left:0px; top:0px; height:' . $RTEHeight . 'px; width:'.$RTEWidth.'px; border: 1px solid black; padding: 2px 0px 2px 2px;';
@@ -479,7 +481,6 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 					$filename='';
 					if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
 						$filename = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($extKey).$local;
-						//$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
 					}
 				} elseif (substr($filename,0,1) != '/') {
 					$filename = $this->siteURL.$filename;
@@ -504,7 +505,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			}
 			$this->editorCSS = $skinFilename;
 			$pObj->additionalCode_pre['loadCSS'] .= '
-		<link rel="alternate stylesheet" type="text/css" href="' . dirname($this->editorCSS) . '/htmlarea-edited-content.css" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . ((substr($this->editorCSS,0,1) == '/')?substr($this->siteURL,0,-1):'') . dirname($this->editorCSS) . '/htmlarea-edited-content.css" />';
 			$pObj->additionalCode_pre['loadCSS'] .= '
 		<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
 
@@ -584,7 +585,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
 				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
-				cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge'
+				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge'
 				: 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
 				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
 				subscript, superscript, linebreak, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
@@ -593,7 +594,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
 				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
-				cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge';
+				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge';
 		}
 
 		$toolbarOrder = $this->thisConfig['toolbarOrder'] ? $this->thisConfig['toolbarOrder'] : $this->defaultToolbarOrder;
@@ -657,6 +658,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			// Adding the always show buttons
 		$show = array_unique(array_merge($show, $this->conf_toolbar_show));
 		$toolbarOrder = array_unique(array_merge($toolbarOrder, $this->conf_toolbar_show));
+		reset($this->conf_toolbar_show);
 		while(list(,$button) = each($this->conf_toolbar_show)) {
 			if(!in_array($button, $this->toolbarOrderArray)) $this->toolbarOrderArray[] = $button;
 		}
@@ -702,8 +704,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$this->conf_toolbar_convert['bgcolor'] = 'CO-hilitecolor';
 		}
 	}
+
 	
 	/**
+
 	 * Convert the names for typo3 Buttons into the names for HTML-Area.
 	 * HTML-Area and Typo3 use differens names for the button. This function
 	 * convert the names
@@ -742,8 +746,10 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			var _editor_lang = "' . $this->language . '";
 			var _editor_CSS = "' . $this->editorCSS . '";
 			var _editor_skin = "' . dirname($this->editorCSS) . '";
+			var _editor_edited_content_CSS = "' .  ((substr($this->editorCSS,0,1) == '/')?substr($this->siteURL,0,-1):'') . dirname($this->editorCSS) . '/htmlarea-edited-content.css";
 			var _typo3_host_url = "' . $this->hostURL . '";
 			var _editor_debug_mode = ' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableDebugMode'] ? 'true' : 'false') . ';
+			var _editor_compressed_scripts = ' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableCompressedScripts'] ? 'true' : 'false') . ';
 			var _spellChecker_lang = "' . $this->spellCheckerLanguage . '";
 			var _spellChecker_charset = "' . $this->spellCheckerCharset . '";
 			var _spellChecker_mode = "' . $this->spellCheckerMode . '";
@@ -753,7 +759,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		/*]]>*/
 		</script>
 		<script type="text/javascript" src="' . $this->buildJSMainLangFile() . '"></script>
-		<script type="text/javascript" src="' . $this->extHttpPath . 'htmlarea/htmlarea.js"></script>
+		<script type="text/javascript" src="' . $this->extHttpPath . 'htmlarea/htmlarea' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableCompressedScripts']?'-compressed':'') .'.js"></script>
 		';
 	}
 
@@ -1140,6 +1146,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 
 		while( list(,$plugin) = each($pluginArray) ) {
 			if ($this->isPluginEnable($plugin)) {
+
 				$contents .= $this->buildJSLangArray($plugin) . chr(10);
 			}
 		}

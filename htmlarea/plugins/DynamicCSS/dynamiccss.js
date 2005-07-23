@@ -7,83 +7,95 @@
 // This notice MUST stay intact for use (see license.txt).
 
 DynamicCSS = function(editor,args) {
-      this.editor = editor;     
-      var cfg = editor.config;
+	this.editor = editor; 
+	var cfg = editor.config;
 	var toolbar = cfg.toolbar;
-	var self = this;
-	var editornumber = editor._typo3EditerNumber;
+	var editornumber = editor._editorNumber;
 
 	var obj = {
-		id		: "DynamicCSS-class",
-		tooltip	: DynamicCSS_langArray["DynamicCSSStyleTooltip"],
-		options	: {"":""},
-		action	: function(editor) { self.onSelect(editor, this); },
-		refresh	: function(editor) { self.generate(editor); },
-		context	: "*",
-		cssArray	: new Array(),
-		parseCount	: 1,
-		loaded	: false,
-		timeout	: null,
-		lastTag	: "",
-		lastClass	: "",
+		id			: "DynamicCSS-class",
+		tooltip			: DynamicCSS_langArray["DynamicCSSStyleTooltip"],
+		options			: {"":""},
+		action			: null,
+		refresh			: null,
+		context			: "*",
+		cssArray		: new Array(),
+		parseCount		: 1,
+		loaded			: false,
+		timeout			: null,
+		lastTag			: "",
+		lastClass		: "",
 		showTagFreeClasses	: RTEarea[editornumber]["showTagFreeClasses"]
-		};
+	};
+	var actionHandlerFunctRef = DynamicCSS.actionHandler(this, obj);
+	obj.action = actionHandlerFunctRef;
+	var refreshHandlerFunctRef = DynamicCSS.refreshHandler(this);
+	obj.refresh = refreshHandlerFunctRef;
+
 	cfg.registerDropdown(obj);
+};
+
+DynamicCSS.actionHandler = function(instance,obj) {
+	return (function(editor) {
+		instance.onSelect(editor, obj);
+	});
+};
+
+DynamicCSS.refreshHandler = function(instance) {
+	return (function(editor) {
+		instance.generate(editor);
+	});
 };
 
 DynamicCSS.I18N = DynamicCSS_langArray;
 
-DynamicCSS.parseStyleSheet = function(editor){
+DynamicCSS.parseStyleSheet = function(editor) {
 	var obj = editor.config.customSelects["DynamicCSS-class"];
 	var iframe = editor._iframe.contentWindow ? editor._iframe.contentWindow.document : editor._iframe.contentDocument;
 	var newCssArray = new Array();
 	obj.loaded = true;
-	for(var i=0;i<iframe.styleSheets.length;i++){
+	for (var i = 0; i < iframe.styleSheets.length; i++) {
 			// Mozilla
             if(HTMLArea.is_gecko){
-			try{ newCssArray = DynamicCSS.applyCSSRule(editor,DynamicCSS.I18N,iframe.styleSheets[i].cssRules,newCssArray); }
-			catch(e){ obj.loaded = false; }
+			try { newCssArray = DynamicCSS.applyCSSRule(editor,DynamicCSS.I18N,iframe.styleSheets[i].cssRules,newCssArray); }
+			catch (e) { obj.loaded = false; }
 		} else {
 			try{
 					// @import StyleSheets (IE)
-				if(iframe.styleSheets[i].imports){
-					newCssArray = DynamicCSS.applyCSSIEImport(editor,DynamicCSS.I18N,iframe.styleSheets[i].imports,newCssArray);
-				}
-				if(iframe.styleSheets[i].rules){
-					newCssArray = DynamicCSS.applyCSSRule(editor,DynamicCSS.I18N,iframe.styleSheets[i].rules,newCssArray);
-				}
-			} catch(e) { obj.loaded = false; }
+				if (iframe.styleSheets[i].imports) newCssArray = DynamicCSS.applyCSSIEImport(editor,DynamicCSS.I18N,iframe.styleSheets[i].imports,newCssArray);
+				if (iframe.styleSheets[i].rules) newCssArray = DynamicCSS.applyCSSRule(editor,DynamicCSS.I18N,iframe.styleSheets[i].rules,newCssArray);
+			} catch (e) { obj.loaded = false; }
 		}
 	}
 	return newCssArray;
 };
 
 DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
-	var	cssElements = new Array(),
+	var cssElements = new Array(),
 		cssElement = new Array(),
 		newCssArray = new Array(),
 		tagName, className, rule, k,
 		obj = editor.config.customSelects["DynamicCSS-class"];
 	newCssArray = cssArray;
-	for(rule=0;rule<cssRules.length;rule++){
+	for (rule = 0; rule < cssRules.length; rule++) {
 			// StyleRule
-		if(cssRules[rule].selectorText){
-			if(cssRules[rule].selectorText.search(/:+/)==-1){
+		if (cssRules[rule].selectorText) {
+			if (cssRules[rule].selectorText.search(/:+/) == -1) {
 					// split equal Styles e.g. head, body {border:0px}
 				cssElements = cssRules[rule].selectorText.split(",");
-				for(k=0;k<cssElements.length;k++){
+				for (k = 0; k < cssElements.length; k++) {
 					cssElement = cssElements[k].split(".");
 					tagName=cssElement[0].toLowerCase().trim();
 					className=cssElement[1];
-					if(!tagName) tagName = "all";
-					if((tagName != "all" || obj["showTagFreeClasses"] == true) && !HTMLArea.reservedClassNames.test(className)) {
-						if(!newCssArray[tagName]) newCssArray[tagName]=new Array();
-						if(className){
-							if(tagName=='all') cssName=className;
-							else cssName='<'+className+'>';
+					if (!tagName) tagName = "all";
+					if ((tagName != "all" || obj["showTagFreeClasses"] == true) && !HTMLArea.reservedClassNames.test(className)) {
+						if (!newCssArray[tagName]) newCssArray[tagName]=new Array();
+						if (className) {
+							if (tagName=='all') cssName=className;
+								else cssName='<'+className+'>';
 						} else {
 							className='none';
-							if(tagName=='all') cssName=i18n["Default"];
+							if (tagName=='all') cssName=i18n["Default"];
 								else cssName='<'+i18n["Default"]+'>';
 						}
 						newCssArray[tagName][className]=cssName;
@@ -92,14 +104,14 @@ DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 			}
 		}
 			// ImportRule (Mozilla)
-		else if(cssRules[rule].styleSheet){
-			newCssArray = DynamicCSS.applyCSSRule(editor,i18n,cssRules[rule].styleSheet.cssRules,newCssArray);
+		else if (cssRules[rule].styleSheet){
+			newCssArray = DynamicCSS.applyCSSRule(editor, i18n, cssRules[rule].styleSheet.cssRules, newCssArray);
 		}
 	}
 	return newCssArray;
 };
 
-DynamicCSS.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
+DynamicCSS.applyCSSIEImport = function(editor,i18n,cssIEImport,cssArray){
 	var newCssArray = new Array();
 	newCssArray = cssArray;
 	for(var i=0;i<cssIEImport.length;i++){
@@ -186,15 +198,44 @@ DynamicCSS.prototype.generate = function(editor) {
 	}
 };
 
+/*
+DynamicCSS.prototype.generate = function(editor) {
+	var obj = editor.config.customSelects["DynamicCSS-class"];
+        // Let us load the style sheets
+	if(obj.loaded) this.updateValue(editor,obj);
+		else this.getCSSArray(editor);
+}
+
+DynamicCSS.prototype.getCSSArray = function(editor) {
+	var obj = editor.config.customSelects["DynamicCSS-class"];
+	obj.cssArray = DynamicCSS.parseStyleSheet(editor);
+	if( !obj.loaded && obj.parseCount<17 ) {
+		var getCSSArrayLaterFunctRef = DynamicCSS.getCSSArrayLater(editor, this);
+		obj.timeout = editor._iframe.contentWindow ? editor._iframe.contentWindow.setTimeout(getCSSArrayLaterFunctRef, 200) : window.setTimeout(getCSSArrayLaterFunctRef, 200);
+		obj.parseCount++ ;
+	} else {
+		obj.timeout = null;
+		obj.loaded = true;
+		this.updateValue(editor,obj);
+	}
+}
+
+DynamicCSS.getCSSArrayLater = function(editor,instance) {
+	return (function() {
+		instance.getCSSArray(editor);
+	});
+}
+*/
+
 DynamicCSS.prototype.onMode = function(mode) {
 	var editor = this.editor;
-	if(mode == 'wysiwyg'){
+	if (mode == 'wysiwyg'){
 		var obj = editor.config.customSelects["DynamicCSS-class"];
-		if(obj.loaded) { 
+		if (obj.loaded) { 
 			this.updateValue(editor,obj);
 		} else {
 			if(obj.timeout) {
-				if(editor._iframe.contentWindow) editor._iframe.contentWindow.clearTimeout(obj.timeout);
+				if (editor._iframe.contentWindow) editor._iframe.contentWindow.clearTimeout(obj.timeout);
 					else window.clearTimeout(obj.timeout);
 				obj.timeout = null;
 			}

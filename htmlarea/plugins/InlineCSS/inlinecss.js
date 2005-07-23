@@ -8,14 +8,13 @@ InlineCSS = function(editor,args) {
       this.editor = editor;     
       var cfg = editor.config;
 	var toolbar = cfg.toolbar;
-	var self = this;
 	var editornumber = editor._typo3EditerNumber;
 	var obj = {
 		id		: "InlineCSS-class",
 		tooltip	: InlineCSS_langArray["InlineCSSStyleTooltip"],
 		options	: {"":""},
-		action	: function(editor) { self.onSelect(editor, this); },
-		refresh	: function(editor) { self.generate(editor); },
+		action	: null,
+		refresh	: null,
 		context	: "*",
 		cssArray	: new Array(),
 		parseCount	: 1,
@@ -24,9 +23,27 @@ InlineCSS = function(editor,args) {
 		lastTag	: "",
 		lastClass	: "",
 		classesCharacter : RTEarea[editornumber]["classesCharacter"]
-		};
+	};
+
+	var actionHandlerFunctRef = InlineCSS.actionHandler(this, obj);
+	obj.action = actionHandlerFunctRef;
+	var refreshHandlerFunctRef = InlineCSS.refreshHandler(this);
+	obj.refresh = refreshHandlerFunctRef;
+
 	cfg.registerDropdown(obj);
-};
+}
+
+InlineCSS.actionHandler = function(instance,obj) {
+	return (function(editor) {
+		instance.onSelect(editor, obj);
+	});
+}
+
+InlineCSS.refreshHandler = function(instance) {
+	return (function(editor) {
+		instance.generate(editor);
+	});
+}
 
 InlineCSS.I18N = InlineCSS_langArray;
 
@@ -53,7 +70,7 @@ InlineCSS.parseStyleSheet = function(editor){
 		}
 	}
 	return newCssArray;
-};
+}
 
 InlineCSS.applyCSSRule = function(editor,i18n,cssRules,cssArray){
 	var cssElements = new Array();
@@ -95,7 +112,7 @@ InlineCSS.applyCSSRule = function(editor,i18n,cssRules,cssArray){
 		}
 	}
 	return newCssArray;
-};
+}
 
 InlineCSS.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
 	var newCssArray = new Array();
@@ -110,7 +127,7 @@ InlineCSS.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
 		}
 	}
 	return newCssArray;
-};
+}
 
 InlineCSS._pluginInfo = {
 	name          : "InlineCSS",
@@ -181,13 +198,13 @@ InlineCSS.prototype.onSelect = function(editor, obj) {
 		editor.updateToolbar();
 		alert(InlineCSS.I18N['You have to select some text']);
 	}
-};
+}
 
 InlineCSS.prototype.onGenerate = function() {
 	var editor = this.editor;
 	var obj = editor.config.customSelects["InlineCSS-class"];
 	if(HTMLArea.is_gecko) this.generate(editor);
-};
+}
 
 InlineCSS.prototype.onUpdateToolbar = function() {
 	var editor = this.editor;
@@ -203,30 +220,34 @@ InlineCSS.prototype.onUpdateToolbar = function() {
 			this.generate(editor);
 		}
 	}
-};
+}
 
 InlineCSS.prototype.generate = function(editor) {
 	var obj = editor.config.customSelects["InlineCSS-class"];
-	var self = this;
-
         // Let us load the style sheets
-	function getCSSArray(){
-		obj.cssArray = InlineCSS.parseStyleSheet(editor);
-		if( !obj.loaded && obj.parseCount<17 ) {
-			obj.timeout = editor._iframe.contentWindow ? editor._iframe.contentWindow.setTimeout(getCSSArray, 200) : window.setTimeout(getCSSArray, 200);
-			obj.parseCount++ ;
-		} else {
-			obj.timeout = null;
-			obj.loaded = true;
-			self.updateValue(editor,obj);
-		}
-	};
-	if(obj.loaded) {
-		self.updateValue(editor,obj);
+	if(obj.loaded) this.updateValue(editor,obj);
+		else this.getCSSArray(editor);
+}
+
+InlineCSS.prototype.getCSSArray = function(editor) {
+	var obj = editor.config.customSelects["InlineCSS-class"];
+	obj.cssArray = InlineCSS.parseStyleSheet(editor);
+	if( !obj.loaded && obj.parseCount<17 ) {
+		var getCSSArrayLaterFunctRef = InlineCSS.getCSSArrayLater(editor, this);
+		obj.timeout = editor._iframe.contentWindow ? editor._iframe.contentWindow.setTimeout(getCSSArrayLaterFunctRef, 200) : window.setTimeout(getCSSArrayLaterFunctRef, 200);
+		obj.parseCount++ ;
 	} else {
-		getCSSArray();
+		obj.timeout = null;
+		obj.loaded = true;
+		this.updateValue(editor, obj);
 	}
-};
+}
+
+InlineCSS.getCSSArrayLater = function(editor,instance) {
+	return (function() {
+		instance.getCSSArray(editor);
+	});
+}
 
 InlineCSS.prototype.onMode = function(mode) {
 	var editor = this.editor;
@@ -242,7 +263,7 @@ InlineCSS.prototype.onMode = function(mode) {
 			this.generate(editor);
 		}
 	}
-};
+}
 
 InlineCSS.prototype.updateValue = function(editor,obj) {
 	var cssClass, i;
@@ -337,4 +358,4 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 	select.disabled = !(select.options.length>1) || !endPointsInSameBlock || !((HTMLArea.is_gecko && /\w/.test(selTrimmed) == true) || (HTMLArea.is_ie && /\S/.test(selTrimmed) == true)) ;
 	select.className = "";
 	if(select.disabled) select.className = "buttonDisabled";
-};
+}

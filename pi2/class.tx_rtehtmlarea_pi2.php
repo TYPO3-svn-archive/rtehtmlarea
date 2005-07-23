@@ -255,7 +255,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 
 		$this->editorCSS = $skinFilename;
 		$additionalCode_loadCSS .= '
-		<link rel="alternate stylesheet" type="text/css" href="' . dirname($this->editorCSS) . '/htmlarea-edited-content.css" />';
+		<link rel="alternate stylesheet" type="text/css" href="' .  ((substr($this->editorCSS,0,1) == '/')?substr($this->siteURL,0,-1):'') . dirname($this->editorCSS) . '/htmlarea-edited-content.css" />';
 		$additionalCode_loadCSS .= '
 		<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
 
@@ -309,7 +309,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
 				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
-				cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge'
+				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge'
 				: 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
 				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
 				subscript, superscript, linebreak, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
@@ -318,7 +318,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
 				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
-				cellproperties, cellinsertbefore, columninsertafter, celldelete, cellsplit, cellmerge';
+				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge';
 		}
 		$toolbarOrder = $this->thisConfig['toolbarOrder'] ? $this->thisConfig['toolbarOrder'] : $this->defaultToolbarOrder;
 
@@ -374,6 +374,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			// Adding the always show buttons
 		$show = array_unique(array_merge($show, $this->conf_toolbar_show));
 		$toolbarOrder = array_unique(array_merge($toolbarOrder, $this->conf_toolbar_show));
+		reset($this->conf_toolbar_show);
 		while(list(,$button) = each($this->conf_toolbar_show)) {
 			if(!in_array($button, $this->toolbarOrderArray)) $this->toolbarOrderArray[] = $button;
 		}
