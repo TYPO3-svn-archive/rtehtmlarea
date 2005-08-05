@@ -124,7 +124,7 @@ class tx_rtehtmlarea_acronym {
 				if(abbrType == "acronym") document.acronymForm.acronym.checked = true;
 					else  document.acronymForm.abbreviation.checked = true;
 				var acronymUrl = parent.window.opener.RTEarea[editor._doc._editorNo]["acronymUrl"];
-				var abbrData = HTMLArea._getScript(acronymUrl, 0, false);
+				var abbrData = HTMLArea._getScript(0, false, acronymUrl);
 				if(abbrData) eval(abbrData);
 				setType();
 				HTMLArea._addEvents(document.acronymForm.title,["keypress", "keydown", "dragdrop", "drop", "paste", "change"],function(ev) { document.acronymForm.termSelector.selectedIndex=-1; document.acronymForm.acronymSelector.selectedIndex=-1; });
@@ -148,6 +148,8 @@ class tx_rtehtmlarea_acronym {
 				}
 				if(acronymSelector.options.length == 1) {
 					document.getElementById("selector").style.display = "none";
+				} else {
+					document.getElementById("selector").style.display = "block";
 				}
 			};
 

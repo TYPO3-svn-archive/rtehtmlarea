@@ -61,12 +61,12 @@ RemoveFormat.applyRequest = function(instance,editor){
  
 				if (param["formatting"] == true) {
 						// remove font, b, strong, i, em, u, strike, span and other tags
-					reg1 = new RegExp("<\/?(abbr|acronym|b[^r]|big|cite|code|em|font|i|q|s|samp|small|span|strike|strong|sub|sup|u|var)[^>]*>", "gi"); 
-					html = html.replace(reg1, ""); 
+					var regF1 = new RegExp("<\/?(abbr|acronym|b[^r]|big|cite|code|em|font|i|q|s|samp|small|span|strike|strong|sub|sup|u|var)[^>]*>", "gi"); 
+					html = html.replace(regF1, ""); 
 						// keep tags, strip attributes
-					html = html.replace(/ style=\"[^>]*\"/gi, "");
-					reg2 = new RegExp(" (class|align)=\[^\s|>]*", "gi"); 
-					html = html.replace(reg2, "");
+					var regF2 = new RegExp(" style=\"[^>]*\"", "gi");
+					var regF3 = new RegExp(" (class|align)=\[^\s|>]*", "gi");
+					html = html.replace(regF2, "").replace(regF3, "");
 				}
 
 				if (param["images"] == true) {
@@ -76,18 +76,17 @@ RemoveFormat.applyRequest = function(instance,editor){
 
 				if (param["ms_formatting"] == true) {
 						// make one line
-					reg3 = new RegExp("(\r\n|\n|\r)", "g"); 
-					html = html.replace(reg3, " ");
+					var regMS1 = new RegExp("(\r\n|\n|\r)", "g"); 
+					html = html.replace(regMS1, " ");
 						//clean up tags
-					reg4 = new RegExp("<(b[^r]|strong|i|em|p|li|ul) [^>]*>", "gi");
-					html = html.replace(reg4, "<$1>");
+					var regMS2 = new RegExp("<(b[^r]|strong|i|em|p|li|ul) [^>]*>", "gi");
+					html = html.replace(regMS2, "<$1>");
 						// keep tags, strip attributes
-					html = html.replace(/ style=\"[^>]*\"/gi, "");
-					reg5 = new RegExp(" (class|align)=\[^\s|>]*", "gi"); 
-					html = html.replace(reg5, "");
+					var regMS3 = new RegExp(" style=\"[^>]*\"", "gi");
+					var regMS4 = new RegExp(" (class|align)=\[^\s|>]*", "gi");
+					html = html.replace(regMS3, "").replace(regMS4, "");
 						// mozilla doesn't like <em> tags
-					html = html.replace(/<em>/gi, "<i>").
-						replace(/<\/em>/gi, "</i>");
+					html = html.replace(/<em>/gi, "<i>").replace(/<\/em>/gi, "</i>");
 						// kill unwanted tags: span, div, ?xml:, st1:, [a-z]: 
 					html = html.replace(/<\/?span[^>]*>/gi, "").
 						replace(/<\/?div[^>]*>/gi, "").
@@ -98,16 +97,19 @@ RemoveFormat.applyRequest = function(instance,editor){
 					html = html.replace(/<!--[^>]*>/gi, "");
 						// remove double tags
 					oldlen = html.length + 1;
+					var reg6 = new RegExp("<([a-z][a-z]*)> *<\/\1>", "gi");
+					var reg7 = new RegExp("<([a-z][a-z]*)> *<\/?([a-z][^>]*)> *<\/\1>", "gi");
+					var reg8 = new RegExp("<([a-z][a-z]*)><\1>", "gi");
+					var reg9 = new RegExp("<\/([a-z][a-z]*)><\/\1>", "gi");
+					var reg10 = new RegExp("[\x20]+", "gi"); 
 					while(oldlen > html.length) {
 						oldlen = html.length;
 							// join us now and free the tags
-						html = html.replace(/<([a-z][a-z]*)> *<\/\1>/gi, " ").
-							replace(/<([a-z][a-z]*)> *<\/?([a-z][^>]*)> *<\/\1>/gi, "<$2>");
+						html = html.replace(reg6, " ").replace(reg7, "<$2>");
 							// remove double tags
-						html = html.replace(/<([a-z][a-z]*)><\1>/gi, "<$1>").
-							replace(/<\/([a-z][a-z]*)><\/\1>/gi, "<\/$1>");
+						html = html.replace(reg8, "<$1>").replace(reg9, "<\/$1>");
 							// remove double spaces
-						html = html.replace(/\x20*/gi, " ");
+						html = html.replace(reg10, " ");
 					}
 				}
 

@@ -39,6 +39,6 @@ Acronym.prototype.buttonPress = function(editor) {
 	var editorNo = editor._doc._editorNo;
 	var backreturn;
 	var addUrlParams = "?" + conf_RTEtsConfigParams;
-	editor._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNo + "&popupname=acronym&srcpath=" + encodeURI(rtePathAcronymFile), null, null, 570, 300);
+	editor._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNo + "&popupname=acronym&srcpath=" + encodeURI(rtePathAcronymFile), null, null, 570, 280);
 	return false;
 };

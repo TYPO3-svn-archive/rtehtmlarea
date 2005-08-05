@@ -26,7 +26,7 @@ ContextMenu._pluginInfo = {
 
 ContextMenu.prototype.onGenerate = function() {
 	this.editor.eventHandlers["contextMenu"] = ContextMenu.contextMenuHandler(this);
-	HTMLArea._addEvent(this.editor._doc, "contextmenu", this.editor.eventHandlers["contextMenu"]);
+	HTMLArea._addEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "contextmenu", this.editor.eventHandlers["contextMenu"]);
 };
 
 ContextMenu.contextMenuHandler = function(instance) {
@@ -49,6 +49,7 @@ ContextMenu.imageHandler = function(editor,img) {
 
 ContextMenu.linkHandler = function(editor,link,opcode) {
 	switch (opcode) {
+		case "MakeLink":
 		case "ModifyLink":
 			return (function() {
 				editor.execCommand("CreateLink", true);
@@ -127,7 +128,7 @@ ContextMenu.prototype.getContextMenu = function(target) {
 	var editor = this.editor;
 	var config = editor.config;
 	var menu = [];
-	var handlerFunctRef, opcode;
+	var opcode;
 	var tbo = this.editor.plugins["TableOperations"];
 	if(tbo) tbo = tbo.instance;
 
@@ -135,19 +136,16 @@ ContextMenu.prototype.getContextMenu = function(target) {
 	if(selection) {
 		if(editor._toolbarObjects['Cut'] && editor._toolbarObjects['Cut'].enabled)  {
 			opcode = "Cut";
-			handlerFunctRef = ContextMenu.execCommandHandler(editor, opcode);
-			menu.push([ContextMenu.I18N[opcode], handlerFunctRef, null, config.btnList[opcode][1], opcode]);
+			menu.push([ContextMenu.I18N[opcode], ContextMenu.execCommandHandler(editor, opcode), null, config.btnList[opcode][1], opcode]);
 		}
 		if(editor._toolbarObjects['Copy'] && editor._toolbarObjects['Copy'].enabled) {
 			opcode = "Copy";
-			handlerFunctRef = ContextMenu.execCommandHandler(editor, opcode);
-			menu.push([ContextMenu.I18N[opcode], handlerFunctRef, null, config.btnList[opcode][1], opcode]);
+			menu.push([ContextMenu.I18N[opcode], ContextMenu.execCommandHandler(editor, opcode), null, config.btnList[opcode][1], opcode]);
 		}
 	}
 	if(editor._toolbarObjects['Paste'] && editor._toolbarObjects['Paste'].enabled) {
 		opcode = "Paste";
-		handlerFunctRef = ContextMenu.execCommandHandler(editor, opcode);
-		menu.push([ContextMenu.I18N[opcode], handlerFunctRef, null, config.btnList[opcode][1], opcode]);
+		menu.push([ContextMenu.I18N[opcode], ContextMenu.execCommandHandler(editor, opcode), null, config.btnList[opcode][1], opcode]);
 	}
 	
 	var currentTarget = target,
@@ -162,10 +160,10 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		    case "img":
 			img = target;
 			if(editor._toolbarObjects["InsertImage"] && editor._toolbarObjects["InsertImage"].enabled)  {
-				handlerFunctRef = ContextMenu.imageHandler(editor, img);
 				elmenus.push(null,
 				     [ContextMenu.I18N["Image Properties"],
-				       handlerFunctRef, ContextMenu.I18N["Show the image properties dialog"],
+				       ContextMenu.imageHandler(editor, img),
+				       ContextMenu.I18N["Show the image properties dialog"],
 				       config.btnList["InsertImage"][1],"InsertImage"]
 				);
 			}
@@ -173,23 +171,19 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		    case "a":
 			link = target;
 			if(editor._toolbarObjects["CreateLink"] && editor._toolbarObjects["CreateLink"].enabled)  {
-				opcode = "ModifyLink";
-				var modifyLinkHandlerFunctRef = ContextMenu.linkHandler(editor, link, opcode);
-				opcode = "CheckLink";
-				var checkLinkHandlerFunctRef = ContextMenu.linkHandler(editor, link, opcode);
-				opcode = "RemoveLink";
-				var removeLinkHandlerFunctRef = ContextMenu.linkHandler(editor, link, opcode);
 				elmenus.push(null,
 					[ContextMenu.I18N["Modify Link"],
-						modifyLinkHandlerFunctRef, ContextMenu.I18N["Current URL is"] + ': ' + link.href,
+						ContextMenu.linkHandler(editor, link, "ModifyLink"),
+						ContextMenu.I18N["Current URL is"] + ': ' + link.href,
 						config.btnList["CreateLink"][1], "CreateLink"],
 					[ContextMenu.I18N["Check Link"],
-						checkLinkHandlerFunctRef, ContextMenu.I18N["Opens this link in a new window"],
+						ContextMenu.linkHandler(editor, link, "CheckLink"),
+						ContextMenu.I18N["Opens this link in a new window"],
 						null, "CreateLink"],
 					[ContextMenu.I18N["Remove Link"],
-						removeLinkHandlerFunctRef, ContextMenu.I18N["Unlink the current element"],
+						ContextMenu.linkHandler(editor, link, "RemoveLink"),
+						ContextMenu.I18N["Unlink the current element"],
 						null, "CreateLink"]
-
 				);
 			}
 			break;
@@ -204,37 +198,37 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			if(cellPropEnabled || cellInsertBeforeEnabled || cellInsertAfterEnabled || cellDeleteEnabled || cellSplitEnabled) elmenus.push(null);
 			if(cellPropEnabled) {
 				opcode = "TO-cell-prop";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Cell Properties"],
-				handlerFunctRef, ContextMenu.I18N["Show the Table Cell Properties dialog"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Show the Table Cell Properties dialog"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(cellInsertBeforeEnabled) {
 				opcode = "TO-cell-insert-before";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Insert cell before"],
-				handlerFunctRef, ContextMenu.I18N["Insert a new cell before the current one"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Insert a new cell before the current one"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(cellInsertAfterEnabled) {
 				opcode = "TO-cell-insert-after";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Insert cell after"],
-				handlerFunctRef, ContextMenu.I18N["Insert a new cell after the current one"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Insert a new cell after the current one"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(cellDeleteEnabled) {
 				opcode = "TO-cell-delete";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Delete Cell"],
-				handlerFunctRef, ContextMenu.I18N["Delete the current cell"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Delete the current cell"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(cellSplitEnabled) {
 				opcode = "TO-cell-split";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Split Cell"],
-				handlerFunctRef, ContextMenu.I18N["Split the current cell"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Split the current cell"],
 				config.btnList[opcode][1], opcode]);
 			}
 			break;
@@ -249,45 +243,45 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			var rowSplitEnabled = (editor._toolbarObjects['TO-row-split'] && editor._toolbarObjects['TO-row-split'].enabled);
 			if(cellMergeEnabled) {
 				opcode = "TO-cell-merge";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Merge Cells"],
-				handlerFunctRef, ContextMenu.I18N["Merge the selected cells"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Merge the selected cells"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(rowPropEnabled || rowInsertBeforeEnabled || rowInsertAfterEnabled || rowDeleteEnabled || rowSplitEnabled) elmenus.push(null);
 			if(rowPropEnabled) {
 				opcode = "TO-row-prop";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Row Properties"],
-				handlerFunctRef, ContextMenu.I18N["Show the Table Row Properties dialog"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Show the Table Row Properties dialog"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(rowInsertBeforeEnabled) {
 				opcode = "TO-row-insert-above";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Insert Row Before"],
-				handlerFunctRef, ContextMenu.I18N["Insert a new row before the current one"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Insert a new row before the current one"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(rowInsertAfterEnabled) {
 				opcode = "TO-row-insert-under";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Insert Row After"],
-				handlerFunctRef, ContextMenu.I18N["Insert a new row after the current one"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Insert a new row after the current one"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(rowDeleteEnabled) {
 				opcode = "TO-row-delete";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Delete Row"],
-				handlerFunctRef, ContextMenu.I18N["Delete the current row"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Delete the current row"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(rowSplitEnabled) {
 				opcode = "TO-row-split";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Split Row"],
-				handlerFunctRef, ContextMenu.I18N["Split the current row"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Split the current row"],
 				config.btnList[opcode][1], opcode]);
 			}
 			break;
@@ -302,37 +296,37 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			if(colInsertBeforeEnabled || colInsertAfterEnabled || colDeleteEnabled || colSplitEnabled) elmenus.push(null);
 			if(colInsertBeforeEnabled) {
 				opcode = "TO-col-insert-before";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Insert Column Before"],
-				handlerFunctRef, ContextMenu.I18N["Insert a new column before the current one"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Insert a new column before the current one"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(colInsertAfterEnabled) {
 				opcode = "TO-col-insert-after";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Insert Column After"],
-				handlerFunctRef, ContextMenu.I18N["Insert a new column after the current one"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Insert a new column after the current one"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(colDeleteEnabled) {
 				opcode = "TO-col-delete";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Delete Column"],
-				handlerFunctRef, ContextMenu.I18N["Delete the current column"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Delete the current column"],
 				config.btnList[opcode][1], opcode]);
 			}
 			if(colSplitEnabled) {
 				opcode = "TO-col-split";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push([ContextMenu.I18N["Split Column"],
-				handlerFunctRef, ContextMenu.I18N["Split the current column"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Split the current column"],
   				config.btnList[opcode][1], opcode]);
 			}
 			if(tablePropEnabled) {
 				opcode = "TO-table-prop";
-				handlerFunctRef = ContextMenu.tableOperationsHandler(editor,tbo,opcode);
 				elmenus.push(null,[ContextMenu.I18N["Table Properties"],
-				handlerFunctRef, ContextMenu.I18N["Show the Table Properties dialog"],
+				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
+				ContextMenu.I18N["Show the Table Properties dialog"],
 				config.btnList[opcode][1], opcode]);
 			}
 			break;
@@ -349,39 +343,35 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			if(justifyLeftEnabled || justifyCenterEnabled || justifyRightEnabled || justifyFullEnabled) elmenus.push(null);
 			if(justifyLeftEnabled) {
 				opcode = "JustifyLeft";
-				handlerFunctRef = ContextMenu.execCommandHandler(editor, opcode);
 				elmenus.push([ContextMenu.I18N["Justify Left"],
-				handlerFunctRef, null,
-				config.btnList[opcode][1], opcode]);
+				ContextMenu.execCommandHandler(editor, opcode),
+				null, config.btnList[opcode][1], opcode]);
 			}
 			if(justifyCenterEnabled) {
 				opcode = "JustifyCenter";
-				handlerFunctRef = ContextMenu.execCommandHandler(editor, opcode);
 				elmenus.push([ContextMenu.I18N["Justify Center"],
-				handlerFunctRef, null,
-				config.btnList[opcode][1], opcode]);
+				ContextMenu.execCommandHandler(editor, opcode),
+				null, config.btnList[opcode][1], opcode]);
 			}
 			if(justifyRightEnabled) {
 				opcode = "JustifyRight";
-				handlerFunctRef = ContextMenu.execCommandHandler(editor, opcode);
 				elmenus.push([ContextMenu.I18N["Justify Right"],
-				handlerFunctRef, null,
-				config.btnList[opcode][1], opcode]);
+				ContextMenu.execCommandHandler(editor, opcode),
+				null, config.btnList[opcode][1], opcode]);
 			}
 			if(justifyFullEnabled) {
 				opcode = "JustifyFull";
-				handlerFunctRef = ContextMenu.execCommandHandler(editor, opcode);
 				elmenus.push([ContextMenu.I18N["Justify Full"],
-				handlerFunctRef, null,
-				config.btnList[opcode][1], opcode]);
+				ContextMenu.execCommandHandler(editor, opcode),
+				null, config.btnList[opcode][1], opcode]);
 			}
 			break;
 		}
 	}
 	
 	if (selection && !link) menu.push(null,[ContextMenu.I18N["Make link"],
-				  function(){editor.execCommand("CreateLink",true);},ContextMenu.I18N["Create a link"],
-				  config.btnList["CreateLink"][1],"CreateLink"]);
+					ContextMenu.linkHandler(editor, link, "MakeLink"),
+					ContextMenu.I18N["Create a link"],config.btnList["CreateLink"][1],"CreateLink"]);
 
 	for (var i = 0; i < elmenus.length; ++i) menu.push(elmenus[i]);
 
@@ -395,16 +385,13 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		} else {
 			tmp = currentTarget;
 		}
-		handlerFunctRef = ContextMenu.deleteElementHandler(editor, tmp, table);
-		var insertParBeforeHandlerFunctRef = ContextMenu.insertParagraphHandler(editor, tmp, false);
-		var insertParAfterHandlerFunctRef = ContextMenu.insertParagraphHandler(editor, tmp, true);
 		menu.push(null,
 		  [ContextMenu.I18N["Remove the"] + " &lt;" + tmp.tagName.toLowerCase() + "&gt; " + ContextMenu.I18N["Element"],
-			handlerFunctRef, ContextMenu.I18N["Remove this node from the document"]],
+			ContextMenu.deleteElementHandler(editor, tmp, table), ContextMenu.I18N["Remove this node from the document"]],
 		  [ContextMenu.I18N["Insert paragraph before"],
-			insertParBeforeHandlerFunctRef, ContextMenu.I18N["Insert a paragraph before the current node"]],
+			ContextMenu.insertParagraphHandler(editor, tmp, false), ContextMenu.I18N["Insert a paragraph before the current node"]],
 		  [ContextMenu.I18N["Insert paragraph after"],
-			insertParAfterHandlerFunctRef, ContextMenu.I18N["Insert a paragraph after the current node"]]
+			ContextMenu.insertParagraphHandler(editor, tmp, true), ContextMenu.I18N["Insert a paragraph after the current node"]]
 		);
 	}
 	return menu;
@@ -450,8 +437,8 @@ ContextMenu.mouseUpHandler = function(item,instance) {
 
 ContextMenu.activateHandler = function(item,instance,keys) {
 	return (function() {
-		instance.closeMenu(keys);
 		item.__msh.action();
+		instance.closeMenu(keys);
 	});
 };
 
@@ -488,26 +475,43 @@ ContextMenu.keyPressHandler = function(instance,keys) {
 };
 
 ContextMenu.prototype.closeMenu = function(keys) {
-	this.currentMenu.parentNode.removeChild(this.currentMenu);
-	this.currentMenu = null;
-	HTMLArea._removeEvent(document, "mousedown", this.eventHandlers["documentClick"]);
-	HTMLArea._removeEvent(this.editor._doc, "mousedown", this.eventHandlers["documentClick"]);
-	if (keys.length > 0) HTMLArea._removeEvent(this.editor._doc, "keypress", this.eventHandlers["keyPress"]);
+	HTMLArea._removeEvent((HTMLArea.is_ie ? document.body : document), "mousedown", this.eventHandlers["documentClick"]);
+	HTMLArea._removeEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "mousedown", this.eventHandlers["documentClick"]);
+	if (keys.length > 0) HTMLArea._removeEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "keypress", this.eventHandlers["keyPress"]);
 	for (var handler in this.eventHandlers) this.eventHandlers[handler] = null;
-	var doc = document;
-	if (HTMLArea.is_ie) doc = this.iePopup.document;
-	var e, i = 0;
-	while ( e = doc.getElementsByTagName("li").item(i++) ) {
+	var e, items = document.getElementsByTagName("li");
+	if (HTMLArea.is_ie) items = this.iePopup.document.getElementsByTagName("li");;
+	for (var i = items.length; --i >= 0 ;) {
+		e = items[i];
 		if ( e.__msh ) {
 			HTMLArea._removeEvent(e, "mouseover", e.__msh.mouseover);
+			e.__msh.mouseover = null;
 			HTMLArea._removeEvent(e, "mouseout", e.__msh.mouseout);
+			e.__msh.mouseout = null;
 			HTMLArea._removeEvent(e, "contextmenu", e.__msh.contextmenu);
+			e.__msh.contextmenu = null;
 			if (!HTMLArea.is_ie) HTMLArea._removeEvent(e, "mousedown", e.__msh.mousedown);
+			e.__msh.mousedown = null;
 			HTMLArea._removeEvent(e, "mouseup", e.__msh.mouseup);
+			e.__msh.mouseup = null;
+			e.__msh.action = null;
+			e.__msh.activate = null;
 			e.__msh = null;
 		}
 	}
+	this.currentMenu.parentNode.removeChild(this.currentMenu);
+	this.currentMenu = null;
 	if (HTMLArea.is_ie) this.iePopup.hide();
+};
+
+ContextMenu.getPos = function(el) {
+	var r = { x: el.offsetLeft, y: el.offsetTop };
+	if (el.offsetParent) {
+		var tmp = ContextMenu.getPos(el.offsetParent);
+		r.x += tmp.x;
+		r.y += tmp.y;
+	}
+	return r;
 };
 
 ContextMenu.prototype.popupMenu = function(ev,target) {
@@ -515,17 +519,8 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	if (!ev) var ev = window.event;
 	if (!target) var target = (ev.target) ? ev.target : ev.srcElement;
 	if (this.currentMenu) this.currentMenu.parentNode.removeChild(this.currentMenu);
-	function getPos(el) {
-		var r = { x: el.offsetLeft, y: el.offsetTop };
-		if (el.offsetParent) {
-			var tmp = getPos(el.offsetParent);
-			r.x += tmp.x;
-			r.y += tmp.y;
-		}
-		return r;
-	};
 	var keys = [];
-	var ifpos = getPos(this.editor._iframe);
+	var ifpos = ContextMenu.getPos(this.editor._iframe);
 	var x = ev.clientX + ifpos.x;
 	var y = ev.clientY + ifpos.y;
 
@@ -562,14 +557,13 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 				item.className += " separator";
 				separator = false;
 			}
-			var handlerFunctRef = ContextMenu.activateHandler(item, this, keys);
 			item.__msh = {
 				item:		item,
 				label:		label,
 				action:		option[1],
 				tooltip:	option[2] || null,
 				icon:		option[3] || null,
-				activate:	handlerFunctRef,
+				activate:	ContextMenu.activateHandler(item, this, keys),
 				cmd:		option[4] || null
 			};
 			label = label.replace(/_([a-zA-Z0-9])/, "<u>$1</u>");
@@ -588,23 +582,18 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 			}
 			item.appendChild(button);
 
-			handlerFunctRef = ContextMenu.mouseOverHandler(editor, item);
-			item.__msh.mouseover = handlerFunctRef;
-			HTMLArea._addEvent(item, "mouseover", handlerFunctRef);
-			handlerFunctRef = ContextMenu.mouseOutHandler(item);
-			item.__msh.mouseout = handlerFunctRef;
-			HTMLArea._addEvent(item, "mouseout", handlerFunctRef);
-			handlerFunctRef = ContextMenu.itemContextMenuHandler(item);
-			item.__msh.contextmenu = handlerFunctRef;
-			HTMLArea._addEvent(item, "contextmenu", handlerFunctRef);
+			item.__msh.mouseover = ContextMenu.mouseOverHandler(editor, item);
+			HTMLArea._addEvent(item, "mouseover", item.__msh.mouseover);
+			item.__msh.mouseout = ContextMenu.mouseOutHandler(item);
+			HTMLArea._addEvent(item, "mouseout", item.__msh.mouseout);
+			item.__msh.contextmenu = ContextMenu.itemContextMenuHandler(item);
+			HTMLArea._addEvent(item, "contextmenu", item.__msh.contextmenu);
 			if(!HTMLArea.is_ie) {
-				handlerFunctRef = ContextMenu.mouseDownHandler(item);
-				item.__msh.mousedown = handlerFunctRef;
-				HTMLArea._addEvent(item, "mousedown", handlerFunctRef);
+				item.__msh.mousedown = ContextMenu.mouseDownHandler(item);
+				HTMLArea._addEvent(item, "mousedown", item.__msh.mousedown);
 			}
-			handlerFunctRef = ContextMenu.mouseUpHandler(item, this);
-			item.__msh.mouseup = handlerFunctRef;
-			HTMLArea._addEvent(item, "mouseup", handlerFunctRef);
+			item.__msh.mouseup = ContextMenu.mouseUpHandler(item, this);
+			HTMLArea._addEvent(item, "mouseup", item.__msh.mouseup);
 		}
 	}
 	if(!HTMLArea.is_ie) {
@@ -630,11 +619,11 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	this.currentMenu = list;
 	this.timeStamp = (new Date()).getTime();
 	this.eventHandlers["documentClick"] = ContextMenu.documentClickHandler(this, keys);
-	HTMLArea._addEvent(document, "mousedown", this.eventHandlers["documentClick"]);
-	HTMLArea._addEvent(editor._doc, "mousedown", this.eventHandlers["documentClick"]);
+	HTMLArea._addEvent((HTMLArea.is_ie ? document.body : document), "mousedown", this.eventHandlers["documentClick"]);
+	HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "mousedown", this.eventHandlers["documentClick"]);
 	if (keys.length > 0) {
 		this.eventHandlers["keyPress"] = ContextMenu.keyPressHandler(this, keys);
-		HTMLArea._addEvent(editor._doc, "keypress", this.eventHandlers["keyPress"]);
+		HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "keypress", this.eventHandlers["keyPress"]);
 	}
 	HTMLArea._stopEvent(ev);
 	return false;

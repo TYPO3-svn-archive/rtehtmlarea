@@ -49,13 +49,14 @@ require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
  * Modification by Stanislas Rolland 2005-02-10 to include hr in headListTags
  * Modification by Stanislas Rolland 2005-03-27 to avoid insertion of superfluous linebreaks by transform_db
  * Modification by Stanislas Rolland 2005-04-06 to eliminate true linebreaks inside hx tags
- * Modification by Johannes Bornhold 2005-05-09 convert linebreaks to spaces instead of deleting them
+ * Modification by Johannes Bornhold 2005-05-09 to convert linebreaks to spaces instead of deleting them
+ * Modification by Stanislas Rolland 2005-07-28 to include address and dl in headListTags
  */
 class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
- // <Stanislas Rolland 2005-02-10 to include hr in headListTags>
-	var $headListTags = 'PRE,UL,OL,H1,H2,H3,H4,H5,H6,HR';
- // </Stanislas Rolland 2005-02-10 to include hr in headListTags>
+ // <Stanislas Rolland 2005-02-10 and 2005-07-28 to include hr, address and dl in headListTags>
+	var $headListTags = 'PRE,UL,OL,H1,H2,H3,H4,H5,H6,HR,ADDRESS,DL';
+ // </Stanislas Rolland 2005-02-10 and 2005-07-28 to include hr, address and dl in headListTags>
 
 	/**
 	 * Creates an array of configuration for the HTMLcleaner function based on whether content go TO or FROM the Rich Text Editor ($direction)

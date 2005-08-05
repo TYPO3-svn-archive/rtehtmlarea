@@ -177,34 +177,10 @@ DynamicCSS.prototype.onUpdateToolbar = function() {
 
 DynamicCSS.prototype.generate = function(editor) {
 	var obj = editor.config.customSelects["DynamicCSS-class"];
-	var self = this;
-
-        // Let us load the style sheets
-	function getCSSArray(){
-		obj.cssArray = DynamicCSS.parseStyleSheet(editor);
-		if( !obj.loaded && obj.parseCount<17 ) {
-			obj.timeout = editor._iframe.contentWindow ? editor._iframe.contentWindow.setTimeout(getCSSArray, 200) : window.setTimeout(getCSSArray, 200);
-			obj.parseCount++ ;
-		} else {
-			obj.timeout = null;
-			obj.loaded = true;
-			self.updateValue(editor,obj);
-		}
-	};
-	if(obj.loaded) {
-		self.updateValue(editor,obj);
-	} else {
- 		getCSSArray();
-	}
-};
-
-/*
-DynamicCSS.prototype.generate = function(editor) {
-	var obj = editor.config.customSelects["DynamicCSS-class"];
         // Let us load the style sheets
 	if(obj.loaded) this.updateValue(editor,obj);
 		else this.getCSSArray(editor);
-}
+};
 
 DynamicCSS.prototype.getCSSArray = function(editor) {
 	var obj = editor.config.customSelects["DynamicCSS-class"];
@@ -218,14 +194,13 @@ DynamicCSS.prototype.getCSSArray = function(editor) {
 		obj.loaded = true;
 		this.updateValue(editor,obj);
 	}
-}
+};
 
 DynamicCSS.getCSSArrayLater = function(editor,instance) {
 	return (function() {
 		instance.getCSSArray(editor);
 	});
-}
-*/
+};
 
 DynamicCSS.prototype.onMode = function(mode) {
 	var editor = this.editor;
@@ -258,7 +233,7 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 	var tagName = "body";
 	var className = "";
 	var parent = editor.getParentElement();
-	while(typeof(parent) != "undefined" && !HTMLArea.isBlockElement(parent) && parent.nodeName.toLowerCase() != "img") parent = parent.parentNode;
+	while(parent && typeof(parent) != "undefined" && !HTMLArea.isBlockElement(parent) && parent.nodeName.toLowerCase() != "img") parent = parent.parentNode;
 	if(parent) {
 		tagName = parent.nodeName.toLowerCase();
 		className = parent.className;

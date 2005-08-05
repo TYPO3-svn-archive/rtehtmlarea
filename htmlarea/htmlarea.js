@@ -24,6 +24,7 @@ if (typeof(_editor_skin) == "string") _editor_skin = _editor_skin.replace(/\x2f*
 if (typeof(_editor_CSS) != "string") var _editor_CSS = _editor_url + "skins/default/htmlarea.css";
 if (typeof(_editor_edited_content_CSS) != "string") var _editor_edited_content_CSS = _editor_skin + "htmlarea-edited-content.css";
 if (typeof(_editor_lang) == "string") _editor_lang = _editor_lang ? _editor_lang.toLowerCase() : "en";
+if (typeof(_editor_mozAllowClipboard_url) != "string") var _editor_mozAllowClipboard_url = "http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.3-fx.xpi";
 
 /*
  * HTMLArea object constructor.
@@ -101,6 +102,8 @@ HTMLArea.loadScript = function(url, plugin) {
 	HTMLArea._scripts.push(url);
 };
 HTMLArea.loadScript(_editor_url + "popupwin.js");
+if(HTMLArea.is_gecko) HTMLArea.loadScript(_editor_url + "htmlarea-gecko.js");
+if(HTMLArea.is_ie) HTMLArea.loadScript(_editor_url + "htmlarea-ie.js");
 
 /*
  * Get a script using asynchronous XMLHttpRequest
@@ -123,29 +126,33 @@ HTMLArea.XMLHTTPResponseHandler = function (i) {
 		}
 	});
 };
-HTMLArea._getScript = function (i,asynchronous) {
-	var url = HTMLArea._scripts[i];
+HTMLArea._getScript = function (i,asynchronous,url) {
+	if (typeof(url) == "undefined") var url = HTMLArea._scripts[i];
 	if (typeof(asynchronous) == "undefined") var asynchronous = true;
-	if (window.XMLHttpRequest && !window.ActiveXObject) HTMLArea._request[i] = new XMLHttpRequest();
+	if (window.XMLHttpRequest) HTMLArea._request[i] = new XMLHttpRequest();
 		else if (window.ActiveXObject) {
 			var success = false;
 			for (var k = 0; k < HTMLArea.MSXML_XMLHTTP_PROGIDS.length && !success; k++) {
 				try {
 					HTMLArea._request[i] = new ActiveXObject(HTMLArea.MSXML_XMLHTTP_PROGIDS[k]);
 					success = true;
-				} catch (e) {}
+				} catch (e) { }
 			}
+			if (!success) return false;
 		}
 	var request = HTMLArea._request[i];
 	if (request) {
 		request.open("GET", url, asynchronous);
 		if (asynchronous) request.onreadystatechange = HTMLArea.XMLHTTPResponseHandler(i);
-		if (window.XMLHttpRequest && !window.ActiveXObject) request.send(null);
-			else request.send();
+		if (window.XMLHttpRequest) request.send(null);
+			else if (window.ActiveXObject) request.send();
 		if (!asynchronous) {
 			if (request.status == 200) return request.responseText;
 				else return '';
 		}
+		return true;
+	} else {
+		return false;
 	}
 };
 
@@ -180,13 +187,18 @@ HTMLArea.init = function() {
 	HTMLArea._eventCache = HTMLArea._eventCacheConstructor();
 	if (window.XMLHttpRequest || window.ActiveXObject) {
 		try { 
-			for (var i = HTMLArea._scripts.length; --i >= 0;) {
-				HTMLArea._getScript(i);
-			}
+			var success = true;
+			for (var i = HTMLArea._scripts.length; --i >= 0 && success;) success = success && HTMLArea._getScript(i);
 		} catch (e) {
 			HTMLArea._appendToLog("ERROR [HTMLArea::init]: Unable to use XMLHttpRequest: "+ e);
 		}
-		HTMLArea.checkInitialLoad();
+		if (success) {
+			HTMLArea.checkInitialLoad();
+		} else {
+			if (HTMLArea.is_ie) window.setTimeout('if (window.document.getElementById("pleasewait1")) { window.document.getElementById("pleasewait1").innerHTML = HTMLArea.I18N.msg["ActiveX-required"]; } else { alert(HTMLArea.I18N.msg["ActiveX-required"]); };', 200);
+		}
+	} else {
+		if (HTMLArea.is_ie) alert(HTMLArea.I18N.msg["ActiveX-required"]);
 	}
 };
 
@@ -226,6 +238,7 @@ HTMLArea.Config = function () {
 	this.useCSS = false;
 	this.enableMozillaExtension = true;
 	this.disableEnterParagraphs = false;
+	this.removeTrailingBR = false;
 		// style included in the iframe document
 	this.editedContentStyle = _editor_edited_content_CSS;
 		// content style
@@ -248,6 +261,7 @@ HTMLArea.Config = function () {
 		// URL-s
 	this.imgURL = "images/";
 	this.popupURL = "popups/";
+/* TYPO3 will provide its own defaults for the following objects	
 		// Default toolbar
 	this.toolbar = [
 		[ "FontName", "space", "FontSize", "space", "FormatBlock", "space", "Bold", "Italic", "Underline", "StrikeThrough", "separator",
@@ -271,7 +285,7 @@ HTMLArea.Config = function () {
 	this.FontSize = { "1 (8 pt)":  "1", "2 (10 pt)": "2", "3 (12 pt)": "3", "4 (14 pt)": "4", "5 (18 pt)": "5", "6 (24 pt)": "6", "7 (36 pt)": "7" };
 		// Default block elements
 	this.FormatBlock = {"Heading 1": "h1", "Heading 2": "h2", "Heading 3": "h3", "Heading 4": "h4", "Heading 5": "h5", "Heading 6": "h6", "Normal": "p", "Address": "address", "Formatted": "pre" };
-
+*/
 	this.btnList = {
 		Bold:			["Bold", "ed_format_bold", false, function(editor) {editor.execCommand("Bold");}],
 		Italic:			["Italic", "ed_format_italic", false, function(editor) {editor.execCommand("Italic");}],
@@ -608,7 +622,7 @@ HTMLArea.createLabel = function(txt,tb_line,first_cell_on_line) {
  * Create the toolbar and append it to the _htmlarea.
  */
 HTMLArea.prototype._createToolbar = function () {
-	var j, k, code,
+	var j, k, code, n = this.config.toolbar.length, m,
 		tb_line = null,
 		first_cell_on_line = true,
 		labelObj = new Object(),
@@ -622,11 +636,12 @@ HTMLArea.prototype._createToolbar = function () {
 	this._htmlArea.appendChild(toolbar);
 	this._toolbarObjects = tb_objects;
 
-	for (j=0; j < this.config.toolbar.length; ++j) {
+	for (j = 0; j < n; ++j) {
 		tb_line = HTMLArea.newLine(toolbar);
 		first_cell_on_line = true;
 		var group = this.config.toolbar[j];
-		for (k=0; k < group.length; ++k) {
+		m = group.length;
+		for (k = 0; k < m; ++k) {
 			code = group[k];
 			if (code == "linebreak") {
 				tb_line = HTMLArea.newLine(toolbar);
@@ -777,7 +792,7 @@ HTMLArea.prototype.generate = function () {
 	var height = (this.config.height == "auto" ? (textarea.style.height) : this.config.height);
 	var textareaHeight = height;
 	if(height.indexOf("%") == -1) {
-		height = parseInt(height) - 2;
+		height = parseInt(height) - 2;		
 		if (this.config.sizeIncludesToolbar) {
 			height -= this._toolbar.offsetHeight;
 			height -= this._statusBar.offsetHeight;
@@ -903,6 +918,9 @@ HTMLArea.prototype.stylesLoaded = function() {
 	this._timerUndo = window.setInterval("HTMLArea.undoTakeSnapshot(" + this._editorNumber + ");", this.config.undoTimeout);
 
 		// Set contents editable
+	if(HTMLArea.is_gecko && !HTMLArea.is_safari && !this._initEditMode()) return false;
+			
+/*		
 	if(HTMLArea.is_gecko && !HTMLArea.is_safari) {
 			// We can't set designMode when we are in a hidden TYPO3 tab
 			// Then we will set it when the tab comes in the front.
@@ -932,6 +950,7 @@ HTMLArea.prototype.stylesLoaded = function() {
 			}
 		}
 	}
+*/	
 	if (HTMLArea.is_ie || HTMLArea.is_safari) doc.body.contentEditable = true;
 	this._editMode = "wysiwyg";
 	if (doc.body.contentEditable || doc.designMode == "on") HTMLArea._appendToLog("[HTMLArea::initIframe]: Design mode successfully set.");
@@ -939,16 +958,17 @@ HTMLArea.prototype.stylesLoaded = function() {
 		// set editor number in iframe and document for retrieval in event handlers
 	doc._editorNo = this._editorNumber;
 	if (HTMLArea.is_ie) doc.documentElement._editorNo = this._editorNumber;
-
+/*
 	if (HTMLArea.is_gecko && inTYPO3Tab && !HTMLArea.is_safari) {
 			// When the TYPO3 TCA feature div2tab is used, the editor iframe may become hidden with style.display = "none"
 			// This breaks the editor in Mozilla/Firefox browsers: the designMode attribute needs to be resetted after the style.display of the containing div is resetted to "block"
 			// Here we rely on TYPO3 naming conventions for the div id and class name
 		HTMLArea._addEvent(DTMDiv, "DOMAttrModified", HTMLArea.DTMDivHandler(this, DTMDiv));
 	}
+*/
 		// intercept events for updating the toolbar & for keyboard handlers
-	HTMLArea._addEvents(doc, ["keydown","keypress","mousedown","mouseup","drag"], HTMLArea._editorEvent);
-	
+	HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["keydown","keypress","mousedown","mouseup","drag"], HTMLArea._editorEvent);
+
 		// add unload handler
 	HTMLArea._addEvent((this._iframe.contentWindow ? this._iframe.contentWindow : this._iframe.contentDocument), "unload", HTMLArea.removeEditorEvents);
 
@@ -993,6 +1013,7 @@ HTMLArea.resetHandler = function(ev) {
 	}
 };
 
+/*
 HTMLArea.DTMDivHandler = function (editor,DTMDiv) {
 	return (function(ev) {
 		if(!ev) var ev = window.event;
@@ -1009,6 +1030,7 @@ HTMLArea.DTMDivHandler = function (editor,DTMDiv) {
 		}
 	});
 };
+*/
 
 /*
  * Clean up event handlers and object references, undo/redo snapshots, update the textarea for submission
@@ -1027,12 +1049,18 @@ HTMLArea.removeEditorEvents = function(ev) {
 			editor._undoQueue = null;
 				// release events
 			if (HTMLArea._eventCache) HTMLArea._eventCache.flush();
-			
+			if (HTMLArea.is_ie) HTMLArea._cleanup(editor);
+/*			
 			if (HTMLArea.is_ie) {
 					// nullify envent handlers
 				for (var handler in editor.eventHandlers) editor.eventHandlers[handler] = null;
 				for (var button in editor.btnList) editor.btnList[button][3] = null;
+				for (var dropdown in editor.config.customSelects) {
+					dropdown.action = null;
+					dropdown.refresh = null;
+				}
 				editor.onGenerate = null;
+				HTMLArea._editorEvent = null;
 				if(editor._textArea.form) {
 					editor._textArea.form.__msh_prevOnReset = null;
 					editor._textArea.form._editorNumber = null;
@@ -1051,6 +1079,7 @@ HTMLArea.removeEditorEvents = function(ev) {
 					plugin.onGenerate = null;
 					plugin.onMode = null;
 					plugin.onKeyPress = null;
+					plugin.onSelect = null;
 					plugin.onUpdateTolbar = null;
 				}
 				
@@ -1073,6 +1102,7 @@ HTMLArea.removeEditorEvents = function(ev) {
 					}
 				}
 			}
+*/			
 		}
 	}
 };
@@ -1463,7 +1493,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 		var btn = this._toolbarObjects[i];
 		cmd = i;
 		inContext = true;
-		if(btn.context && !text) {
+		if (btn.context && !text) {
 			inContext = false;
 			var context = btn.context;
 			var attrs = [];
@@ -1473,7 +1503,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			}
 			context = context.toLowerCase();
 			match = (context == "*");
-			for (k=0;k < ancestors.length;++k) {
+			for (k = 0; k < ancestors.length; ++k) {
 				if (!ancestors[k]) {continue;};
 				if (match || (ancestors[k].tagName.toLowerCase() == context)) {
 					inContext = true;
@@ -1498,34 +1528,17 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 		switch (cmd) {
 		    case "FontName":
 		    case "FontSize":
-		    case "FormatBlock":
 			if(!text) try {
 				var value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
 				if(!value) {
 					document.getElementById(btn.elementId).selectedIndex = 0;
 					break;
 				}
-					// IE gives the labels as value and seems to translate the headings labels!
-					// This will work at least in English and French...
-				if(HTMLArea.is_ie && cmd == "FormatBlock" && value != "normal") {
-					var heading = false;
-					n = 0;
-					while(n<7 && !heading ) { 
-						n++;
-						if(value.indexOf(n) != -1) {
-							value = "h"+n;
-							heading = true;
-						}
-					}
-					value = heading ? value : "pre";
-				}
 					// We rely on the fact that the variable in config has the same name as button name in the toolbar.
 				var options = this.config[cmd];
 				k = 0;
 				for (j in options) {
-					// FIXME: the following line is scary.
-					if((j.toLowerCase() == value) ||
-						   (options[j].substr(0, value.length).toLowerCase() == value)) {
+					if((j.toLowerCase() == value) || (options[j].substr(0, value.length).toLowerCase() == value)) {
 						document.getElementById(btn.elementId).selectedIndex = k;
 						throw "ok";
 					}
@@ -1533,6 +1546,20 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 				}
 				document.getElementById(btn.elementId).selectedIndex = 0;
 			} catch(e) {}
+			break;
+		    case "FormatBlock":
+		    	var blocks = [ ];
+			for(var i in this.config['FormatBlock']) {
+				blocks[blocks.length] = this.config['FormatBlock'][i];
+			}
+			var deepestAncestor = this._getFirstAncestor(this._getSelection(), blocks);
+			if(deepestAncestor) {
+				for(var x= 0; x < blocks.length; x++) {
+					if(blocks[x].toLowerCase() == deepestAncestor.tagName.toLowerCase()) document.getElementById(btn.elementId).selectedIndex = x;
+				}
+			} else {
+				document.getElementById(btn.elementId).selectedIndex = 0;
+			}
 			break;
 		    case "textindicator":
 			if(!text) {
@@ -1811,15 +1838,17 @@ HTMLArea.prototype.surroundHTML = function(startTag,endTag) {
 /*
  * Get the current selection object
  */
+ /*
 HTMLArea.prototype._getSelection = function() {
 	if(HTMLArea.is_ie) return this._doc.selection;
 	if(HTMLArea.is_safari) return window.getSelection();
 	return this._iframe.contentWindow.getSelection();
 };
-
+*/
 /*
  * Create a range for the current selection
  */
+ /*
 HTMLArea.prototype._createRange = function(sel) {
 	if (HTMLArea.is_ie) {
 		if (typeof(sel) != "undefined") return sel.createRange();
@@ -1850,7 +1879,7 @@ HTMLArea.prototype._createRange = function(sel) {
 		return this._doc.createRange();
  	}
 };
-
+*/
 /*
  * Select a node AND the contents inside the node
  */
@@ -2120,12 +2149,12 @@ HTMLArea.insertTableDialog = function(editor, sel, range) {
 		if(param.f_fixed) cellwidth = Math.floor(100 / parseInt(param.f_cols));
 		var tbody = doc.createElement("tbody");
 		table.appendChild(tbody);
-		for (var i=0;i < param["f_rows"];++i) {
+		for (var i = param["f_rows"]; i > 0; i--) {
 			var tr = doc.createElement("tr");
 			tbody.appendChild(tr);
-			for (var j=0;j < param["f_cols"];++j) {
+			for (var j = param["f_cols"]; j > 0; j--) {
 				var td = doc.createElement("td");
-				if (cellwidth) { td.style.width = cellwidth + "%"; }
+				if (cellwidth) td.style.width = cellwidth + "%";
 				tr.appendChild(td);
 			}
 		}
@@ -2170,15 +2199,12 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	if(HTMLArea.is_gecko && !this.config.useCSS && !HTMLArea.is_safari) try { this._doc.execCommand('useCSS', false, true); } catch (e) {};
 	switch (cmdID) {
 	    case "htmlmode"	: this.setMode(); break;
-	    case "HiliteColor"	:
-		(HTMLArea.is_ie || HTMLArea.is_safari) && (cmdID = "BackColor");
+	    case "HiliteColor"	: (HTMLArea.is_ie || HTMLArea.is_safari) && (cmdID = "BackColor");
 	    case "ForeColor"	:
 		var colorDialogFunctRef = HTMLArea.selectColorDialog(this, cmdID);
 		this._popupDialog("select_color.html", colorDialogFunctRef, HTMLArea._colorToRgb(this._doc.queryCommandValue(cmdID)), 200, 182);
 		break;
-	    case "CreateLink"	:
-		this._createLink();
-		break;
+	    case "CreateLink"	: this._createLink(); break;
 	    case "Undo"		:
 	    case "Redo"		:
 		if(this._customUndo) this[cmdID.toLowerCase()]();
@@ -2196,44 +2222,11 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 			this._doc.execCommand(cmdID,false,null);
 			if (cmdID == "Paste" && this.config.killWordOnPaste) HTMLArea._wordClean(this._doc.body);
 		} catch (e) {
-			if (HTMLArea.is_gecko && !HTMLArea.is_safari) {
-					// Mozilla lauches an exception, but can paste anyway on ctrl-V
-					// UI is false on keyboard shortcut, and undefined on button click
-				if(typeof(UI) != "undefined") {
-					this._doc.execCommand(cmdID, UI, param);
-					if (cmdID == "Paste" && this.config.killWordOnPaste) HTMLArea._wordClean(this._doc.body);
-				} else if (this.config.enableMozillaExtension) {
-					if (HTMLArea.agt.indexOf("firefox/1.") != -1) {
-						if (confirm(HTMLArea.I18N.msg["Allow-Clipboard-Helper-Extension"])) {
-							if (InstallTrigger.enabled()) {
-								HTMLArea._mozillaXpi = new Object();
-								HTMLArea._mozillaXpi["AllowClipboard Helper"] = "http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.1-fx.xpi";
-								InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
-							} else {
-								alert(HTMLArea.I18N.msg["Mozilla-Org-Install-Not-Enabled"]);
-								HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
-								return; 
-							}
-						}
-					} else if (confirm(HTMLArea.I18N.msg["Moz-Extension"])) {
-						if (InstallTrigger.enabled()) {
-							HTMLArea._mozillaXpi = new Object();
-							HTMLArea._mozillaXpi["TYPO3 htmlArea RTE Preferences"] = _typo3_host_url + "/uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi";
-  							InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
-						} else {
-							alert(HTMLArea.I18N.msg["Moz-Extension-Install-Not-Enabled"]);
-							HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
-							return; 
-						}
-					}
-				} else if (confirm(HTMLArea.I18N.msg["Moz-Clipboard"])) {
-					window.open("http://mozilla.org/editor/midasdemo/securityprefs.html");
-				}
-			}
+			if (HTMLArea.is_gecko && !HTMLArea.is_safari) this._mozillaPasteException(cmdID, UI, param);
 		}
 		break;
-	    case "LeftToRight":
-	    case "RightToLeft":
+	    case "LeftToRight"	:
+	    case "RightToLeft"	:
 		var dir = (cmdID == "RightToLeft") ? "rtl" : "ltr";
 		var el = this.getParentElement();
 		while (el && !HTMLArea.isBlockElement(el)) el = el.parentNode;
@@ -2242,12 +2235,48 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 				else el.style.direction = dir;
 		}
 		break;
-	    default: try { this._doc.execCommand(cmdID, UI, param); }
-		catch(e) { if(this.config.debug) alert(e + "\n\nby execCommand(" + cmdID + ");"); }
+	    default		:
+	    	try { this._doc.execCommand(cmdID, UI, param); }
+			catch(e) { if(this.config.debug) alert(e + "\n\nby execCommand(" + cmdID + ");"); }
 	}
 	this.updateToolbar();
 	return false;
 };
+/*
+HTMLArea.prototype._mozillaPasteException = function(cmdID, UI, param) {
+		// Mozilla lauches an exception, but can paste anyway on ctrl-V
+		// UI is false on keyboard shortcut, and undefined on button click
+	if(typeof(UI) != "undefined") {
+		this._doc.execCommand(cmdID, UI, param);
+		if (cmdID == "Paste" && this.config.killWordOnPaste) HTMLArea._wordClean(this._doc.body);
+	} else if (this.config.enableMozillaExtension) {
+		if (HTMLArea.agt.indexOf("firefox/1.") != -1) {
+			if (confirm(HTMLArea.I18N.msg["Allow-Clipboard-Helper-Extension"])) {
+				if (InstallTrigger.enabled()) {
+					HTMLArea._mozillaXpi = new Object();
+					HTMLArea._mozillaXpi["AllowClipboard Helper"] = _editor_mozAllowClipboard_url;
+					InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
+				} else {
+					alert(HTMLArea.I18N.msg["Mozilla-Org-Install-Not-Enabled"]);
+					HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
+					return; 
+				}
+			}
+		} else if (confirm(HTMLArea.I18N.msg["Moz-Extension"])) {
+			if (InstallTrigger.enabled()) {
+				HTMLArea._mozillaXpi = new Object();
+				HTMLArea._mozillaXpi["TYPO3 htmlArea RTE Preferences"] = _typo3_host_url + "/uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi";
+  				InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
+			} else {
+				alert(HTMLArea.I18N.msg["Moz-Extension-Install-Not-Enabled"]);
+				HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
+				return; 
+			}
+		}
+	} else if (confirm(HTMLArea.I18N.msg["Moz-Clipboard"])) {
+		window.open("http://mozilla.org/editor/midasdemo/securityprefs.html");
+	}
+}
 
 HTMLArea._mozillaInstallCallback = function(url,returnCode) {
 	if (returnCode == 0) {
@@ -2260,7 +2289,7 @@ HTMLArea._mozillaInstallCallback = function(url,returnCode) {
 		return; 
 	}
 };
-
+*/
 /*
 * A generic event handler for things that happen in the IFRAME's document.
 * This function also handles key bindings.
@@ -2455,14 +2484,14 @@ HTMLArea._editorEvent = function(ev) {
 		}
 		// other keys here
 		switch (ev.keyCode) {
-		    case 13: // KEY enter
+		    case 13	: // KEY enter
 			if(HTMLArea.is_gecko && !ev.shiftKey && !editor.config.disableEnterParagraphs) {
 				editor.dom_checkInsertP();
 				HTMLArea._stopEvent(ev);
 			}
 			break;
-		    case 8: // KEY backspace
-		    case 46: // KEY delete
+		    case 8	: // KEY backspace
+		    case 46	: // KEY delete
 			if(HTMLArea.is_gecko && !ev.shiftKey) {
 				if(editor.dom_checkBackspace()) HTMLArea._stopEvent(ev);
 			} else if(HTMLArea.is_ie) {
@@ -2498,6 +2527,7 @@ HTMLArea.prototype.convertNode = function(el, newTagName) {
 /*
  * Handle the backspace event in IE browsers
  */
+ /*
 HTMLArea.prototype.ie_checkBackspace = function() {
 	var sel = this._getSelection();
 	var range = this._createRange(sel);
@@ -2519,10 +2549,12 @@ HTMLArea.prototype.ie_checkBackspace = function() {
 		}
 	}
 };
+*/
 
 /*
  * Handle the backspace event in gecko browsers
  */
+ /*
 HTMLArea.prototype.dom_checkBackspace = function() {
 	var self = this;
 	window.setTimeout(function() {
@@ -2565,8 +2597,8 @@ HTMLArea.prototype.dom_checkInsertP = function() {
 		doc   = this._doc,
 		body  = doc.body;
 
-	for(i=0;i < p.length;++i) {
-		if(HTMLArea.isBlockElement(p[i]) && !/body|html|table|tbody|tr/i.test(p[i].tagName)) {
+	for (i = 0; i < p.length; ++i) {
+		if (HTMLArea.isBlockElement(p[i]) && !/body|html|table|tbody|tr/i.test(p[i].tagName)) {
 			block = p[i];
 			break;
 		}
@@ -2636,7 +2668,7 @@ HTMLArea.prototype.dom_checkInsertP = function() {
 	//this.forceRedraw();
 	this.scrollToCaret();
 };
-
+*/
 /*
  * Retrieve the HTML
  */
@@ -2828,17 +2860,25 @@ HTMLArea.needsClosingTag = function(el) { return el && el.nodeType == 1 && !HTML
 
 /*
  * Perform HTML encoding of some given string
- * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
+ * Borrowed in part from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
  */
+HTMLArea.htmlDecode = function(str) {
+	str = str.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+	str = str.replace(/&nbsp;/g, "\xA0"); // Decimal 160, non-breaking-space
+	str = str.replace(/&quot;/g, "\x22");
+	str = str.replace(/&#39;/g, "'") ;
+	str = str.replace(/&amp;/g, "&");
+	return str;
+};
 HTMLArea.htmlEncode = function(str) {
 	if (typeof(str.replace) == 'undefined') str = str.toString(); // we don't need regexp for that, but.. so be it for now.
+		// Let's not do it twice
+	str = HTMLArea.htmlDecode(str);
 	str = str.replace(/&/g, "&amp;");
-	str = str.replace(/</g, "&lt;");
-	str = str.replace(/>/g, "&gt;");
+	str = str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	str = str.replace(/\xA0/g, "&nbsp;"); // Decimal 160, non-breaking-space
-	str = str.replace(/\x22/g, "&quot;");
-	// \x22 means '"' -- we use hex reprezentation so that we don't disturb JS compressors
-	str = str.replace(/'/g, "&#39;") ;
+	str = str.replace(/\x22/g, "&quot;"); // \x22 means '"'
+	//str = str.replace(/'/g, "&#39;") ;
 	return str;
 };
 
@@ -2848,12 +2888,11 @@ HTMLArea.htmlEncode = function(str) {
  * Wrapper catches a Mozilla-Exception with non well-formed html source code.
  */
 HTMLArea.getHTML = function(root, outputRoot, editor){
-	try{ 
+	try { 
 		return HTMLArea.getHTMLWrapper(root,outputRoot,editor); 
-	}
-	catch(e){
+	} catch(e) {
 		HTMLArea._appendToLog("The HTML document is not well-formed.");
-		if(!HTMLArea._debugMode) { alert("The HTML document is not well-formed."); }
+		if(!HTMLArea._debugMode) alert(HTMLArea.I18N.msg["HTML-document-not-well-formed"]);
 		return editor._doc.body.innerHTML;
 	}
 };
@@ -2862,37 +2901,15 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 	var html = "";
 	if(!root) return html;
 	switch (root.nodeType) {
-	   case 10:// Node.DOCUMENT_TYPE_NODE
-	   case 6: // Node.ENTITY_NODE
-	   case 12:// Node.NOTATION_NODE
-			// this all are for the document type, probably not necessary
-		break;
-	   case 2: // Node.ATTRIBUTE_NODE
-			// Never get here, this has to be handled in the ELEMENT case because of IE requiring that some attributes are grabbed directly from
-			// the attribute (nodeValue doesn't return correct values), see
-			//http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=3porgu4mc4ofcoa1uqkf7u8kvv064kjjb4%404ax.com
-			// for information
-		break;
-	   case 4: // Node.CDATA_SECTION_NODE
-			// Mozilla seems to convert CDATA into a comment when going into wysiwyg mode, don't know about IE
-		html += '<![CDATA[' + root.data + ']]>';
-		break;
-	   case 5: // Node.ENTITY_REFERENCE_NODE
-		html += '&' + root.nodeValue + ';';
-		break;
-	   case 7: // Node.PROCESSING_INSTRUCTION_NODE
-		// PI's don't seem to survive going into the wysiwyg mode, (at least in moz) so this is purely academic
-		html += '<?' + root.target + ' ' + root.data + ' ?>';
-		break;
-	   case 1: // ELEMENT_NODE
-	   case 11: // DOCUMENT_FRAGMENT_NODE
-	   case 9: // DOCUMENT_NODE
-		var closed, i;
+	   case 1:	// ELEMENT_NODE
+	   case 11:	// DOCUMENT_FRAGMENT_NODE
+	   case 9:	// DOCUMENT_NODE
+		var closed, i, config = editor.config;
 		var root_tag = (root.nodeType == 1) ? root.tagName.toLowerCase() : '';
-		if (root_tag == 'br' && !root.nextSibling && !root.previousSibling ) break;
-		if (editor.config.htmlRemoveTagsAndContents && editor.config.htmlRemoveTagsAndContents.test(root_tag)) break;
-		var custom_tag = (editor.config.customTags && editor.config.customTags.test(root_tag));
-		if (outputRoot) outputRoot = !(editor.config.htmlRemoveTags && editor.config.htmlRemoveTags.test(root_tag));
+		if (root_tag == 'br' && config.removeTrailingBR && !root.nextSibling && HTMLArea.isBlockElement(root.parentNode) && (!root.previousSibling || root.previousSibling.nodeName.toLowerCase() != 'br')) break;
+		if (config.htmlRemoveTagsAndContents && config.htmlRemoveTagsAndContents.test(root_tag)) break;
+		var custom_tag = (config.customTags && config.customTags.test(root_tag));
+		if (outputRoot) outputRoot = !(config.htmlRemoveTags && config.htmlRemoveTags.test(root_tag));
 		if ((HTMLArea.is_ie || HTMLArea.is_safari) && root_tag == "head") {
 			if(outputRoot) html += "<head>";
 			var save_multiline = RegExp.multiline;
@@ -2905,19 +2922,15 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 			if(outputRoot) html += "</head>";
 			break;
 		} else if (outputRoot) {
+			if (HTMLArea.is_gecko && root.hasAttribute('_moz_editor_bogus_node')) break;
 			closed = (!(root.hasChildNodes() || HTMLArea.needsClosingTag(root) || custom_tag));
-			html = "<" + root.tagName.toLowerCase();
-			var attrs = root.attributes;
-			for (i=0; i < attrs.length; ++i) {
-				var a = attrs.item(i);
-				if (!a.specified && a.nodeName.toLowerCase() != 'value') continue;
-				var name = a.nodeName.toLowerCase();
-				if (/_moz_editor_bogus_node/.test(name)) {
-					html = "";
-					break;
-				}
-				if (/_moz|contenteditable|_msh/.test(name)) continue;
-				var value;
+			html = "<" + root_tag;
+			var a, name, value, attrs = root.attributes;
+			var n = attrs.length;
+			for (i = attrs.length; --i >= 0 ;) {
+				a = attrs.item(i);
+				name = a.nodeName.toLowerCase();
+				if ((!a.specified && name != 'value') || /_moz|contenteditable|_msh/.test(name)) continue;
 				if (name != "style") {
 						// IE5.5 reports wrong values. For this reason we extract the values directly from the root node.
 						// Using Gecko the values of href and src are converted to absolute links unless we get them using nodeValue()
@@ -2925,38 +2938,41 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 						value = root[a.nodeName];
 					} else {
 						value = a.nodeValue;
-							// Ampersands in URIs need to be escaped to get valid XHTML
-						if(name == "href" || name == "src") {
-							value = value.replace(/&/g, "&amp;");
-							if(HTMLArea.is_ie) value = editor.stripBaseURL(value);
-						}
+						if (HTMLArea.is_ie && (name == "href" || name == "src")) value = editor.stripBaseURL(value);
 					}
 				} else { // IE fails to put style in attributes list.
 					value = root.style.cssText;
 				}
-					// Mozilla reports some special attributes here; we don't need them.
+					// Mozilla reports some special values; we don't need them.
 				if(/(_moz|^$)/.test(value)) continue;
 					// Strip value="0" reported by IE on all li tags
-				if(HTMLArea.is_ie && root.tagName.toLowerCase() == "li" && name == "value" && a.nodeValue == 0) continue;
-//				html += " " + name + '="' + value + '"';
+				if(HTMLArea.is_ie && root_tag == "li" && name == "value" && a.nodeValue == 0) continue;
 				html += " " + name + '="' + HTMLArea.htmlEncode(value) + '"';
 			}
-			if(html != "") { html += closed ? " />" : ">"; }
+			if (html != "") html += closed ? " />" : ">";
 		}
-		for(i=root.firstChild;i;i=i.nextSibling) { html += HTMLArea.getHTMLWrapper(i, true, editor); }
-		if(outputRoot && !closed) { html += "</" + root.tagName.toLowerCase() + ">"; }
+		for (i = root.firstChild; i; i = i.nextSibling) { html += HTMLArea.getHTMLWrapper(i, true, editor); }
+		if (outputRoot && !closed) html += "</" + root_tag + ">";
 		break;
-	    case 3: // TEXT_NODE
-			// If a text node is alone in an element and all spaces, replace it with an non breaking one
-			// This partially undoes the damage done by moz, which translates '&nbsp;'s into spaces in the data element
-			// Add a non breaking space in the empty text node an delete any starting non breaking space in the text node
-//		if(!root.previousSibling && !root.nextSibling && root.data.match(/^\s*$/i) ) html = '&nbsp;';
-//			else html = /^script|style$/i.test(root.parentNode.tagName) ? root.data : HTMLArea.htmlEncode(root.data.replace(/^&nbsp;(.*)/gi,"$1"));
-		html = /^script|style$/i.test(root.parentNode.tagName) ? root.data : HTMLArea.htmlEncode(root.data);
+	    case 3:	// TEXT_NODE
+		html = /^(script|style)$/i.test(root.parentNode.tagName) ? root.data : HTMLArea.htmlEncode(root.data);
 		break;
-	    case 8: // COMMENT_NODE
-		if(!editor.config.htmlRemoveComments) html = "<!--" + root.data + "-->";
+	    case 8:	// COMMENT_NODE
+		if (!editor.config.htmlRemoveComments) html = "<!--" + root.data + "-->";
 		break;
+	    case 4:	// Node.CDATA_SECTION_NODE
+			// Mozilla seems to convert CDATA into a comment when going into wysiwyg mode, don't know about IE
+		html += '<![CDATA[' + root.data + ']]>';
+		break;
+	    case 5:	// Node.ENTITY_REFERENCE_NODE
+		html += '&' + root.nodeValue + ';';
+		break;
+	    case 7:	// Node.PROCESSING_INSTRUCTION_NODE
+			// PI's don't seem to survive going into the wysiwyg mode, (at least in moz) so this is purely academic
+		html += '<?' + root.target + ' ' + root.data + ' ?>';
+		break;
+	    default:
+	    	break;
 	}
 	return html;
 };
@@ -3278,7 +3294,10 @@ HTMLArea.prototype.renderPopup_addLink = function(theLink,cur_target,cur_class,c
 							else { node.removeAttribute('className'); }
 					}
 					if (cur_title.trim()) { node.title = cur_title.trim(); }
-						else { node.removeAttribute("title"); }
+						else {
+							node.removeAttribute("title");
+							node.removeAttribute("rtekeep");
+						}
 				}
 			} else {
 				for (var i = node.firstChild;i;i = i.nextSibling) {
@@ -3353,42 +3372,46 @@ HTMLArea.initEditor = function(editorNumber) {
 		if(!HTMLArea.is_loaded) {
 			HTMLArea.initTimer[editorNumber] = window.setTimeout( "HTMLArea.initEditor(" + editorNumber + ");", 150);
 		} else {
+			var RTE = RTEarea[editorNumber];
 			var config = new HTMLArea.Config();
 
 				// Get the toolbar config
-			config.toolbar = RTEarea[editorNumber]["toolbar"];
+			config.toolbar = RTE["toolbar"];
 
 				// create an editor for the textarea
-			RTEarea[editorNumber]["editor"] = new HTMLArea(RTEarea[editorNumber]["id"], config);
-			var editor = RTEarea[editorNumber]["editor"];
+			RTE["editor"] = new HTMLArea(RTE["id"], config);
+			var editor = RTE["editor"];
 
 				// Save the editornumber in the object
 			editor._typo3EditerNumber = editorNumber;
 			editor._editorNumber = editorNumber;
 
-			for (var plugin in RTEarea[editorNumber]["plugin"]) {
-				if(RTEarea[editorNumber]["plugin"][plugin]) { editor.registerPlugin(plugin); }
+			for (var plugin in RTE["plugin"]) {
+				if(RTE["plugin"][plugin]) { editor.registerPlugin(plugin); }
 			}
-			if(RTEarea[editorNumber]["pageStyle"]) { editor.config.pageStyle = RTEarea[editorNumber]["pageStyle"]; }
-			if(RTEarea[editorNumber]["fontname"]) { editor.config.FontName = RTEarea[editorNumber]["fontname"]; }
-			if(RTEarea[editorNumber]["fontsize"]) { editor.config.FontSize = RTEarea[editorNumber]["fontsize"]; }
-			if(RTEarea[editorNumber]["colors"]) { editor.config.colors = RTEarea[editorNumber]["colors"]; }
-			if(RTEarea[editorNumber]["disableColorPicker"]) { editor.config.disableColorPicker = RTEarea[editorNumber]["disableColorPicker"]; }
-			if(RTEarea[editorNumber]["paragraphs"]) { editor.config.FormatBlock = RTEarea[editorNumber]["paragraphs"]; }
-			editor.config.width = "auto";
-			editor.config.height = "auto";
-			editor.config.sizeIncludesToolbar = true;
-			editor.config.fullPage = false;
-			editor.config.useHTTPS = RTEarea[editorNumber]["useHTTPS"] ? RTEarea[editorNumber]["useHTTPS"] : false;
-			editor.config.disableEnterParagraphs = RTEarea[editorNumber]["disableEnterParagraphs"] ? RTEarea[editorNumber]["disableEnterParagraphs"] : false;
-			editor.config.useCSS = RTEarea[editorNumber]["useCSS"] ? RTEarea[editorNumber]["useCSS"] : false;
-			editor.config.enableMozillaExtension = RTEarea[editorNumber]["enableMozillaExtension"] ? RTEarea[editorNumber]["enableMozillaExtension"] : false;
-			editor.config.statusBar = RTEarea[editorNumber]["statusBar"] ? RTEarea[editorNumber]["statusBar"] : false;
-			editor.config.killWordOnPaste = RTEarea[editorNumber]["enableWordClean"] ? true : false;
-			editor.config.htmlareaPaste = RTEarea[editorNumber]["enableWordClean"] ? true : false;
-			editor.config.htmlRemoveTags = RTEarea[editorNumber]["htmlRemoveTags"] ? RTEarea[editorNumber]["htmlRemoveTags"] : null;
-			editor.config.htmlRemoveTagsAndContents = RTEarea[editorNumber]["htmlRemoveTagsAndContents"] ? RTEarea[editorNumber]["htmlRemoveTagsAndContents"] : null;
-			editor.config.htmlRemoveComments = RTEarea[editorNumber]["htmlRemoveComments"] ? true : false;
+			
+			config = editor.config;
+			if(RTE["pageStyle"]) config.pageStyle = RTE["pageStyle"];
+			if(RTE["fontname"]) config.FontName = RTE["fontname"];
+			if(RTE["fontsize"]) config.FontSize = RTE["fontsize"];
+			if(RTE["colors"]) config.colors = RTE["colors"];
+			if(RTE["disableColorPicker"]) config.disableColorPicker = RTE["disableColorPicker"];
+			if(RTE["paragraphs"]) config.FormatBlock = RTE["paragraphs"];
+			config.width = "auto";
+			config.height = "auto";
+			config.sizeIncludesToolbar = true;
+			config.fullPage = false;
+			config.useHTTPS = RTE["useHTTPS"] ? RTE["useHTTPS"] : false;
+			config.disableEnterParagraphs = RTE["disableEnterParagraphs"] ? RTE["disableEnterParagraphs"] : false;
+			config.removeTrailingBR = RTE["removeTrailingBR"] ? RTE["removeTrailingBR"] : false;
+			config.useCSS = RTE["useCSS"] ? RTE["useCSS"] : false;
+			config.enableMozillaExtension = RTE["enableMozillaExtension"] ? RTE["enableMozillaExtension"] : false;
+			config.statusBar = RTE["statusBar"] ? RTE["statusBar"] : false;
+			config.killWordOnPaste = RTE["enableWordClean"] ? true : false;
+			config.htmlareaPaste = RTE["enableWordClean"] ? true : false;
+			config.htmlRemoveTags = RTE["htmlRemoveTags"] ? RTE["htmlRemoveTags"] : null;
+			config.htmlRemoveTagsAndContents = RTE["htmlRemoveTagsAndContents"] ? RTE["htmlRemoveTagsAndContents"] : null;
+			config.htmlRemoveComments = RTE["htmlRemoveComments"] ? true : false;
 
 			editor.onGenerate = HTMLArea.onGenerateHandler(editorNumber);
 			
@@ -3396,7 +3419,7 @@ HTMLArea.initEditor = function(editorNumber) {
 			return false;
 		} 
 	} else {
-		document.getElementById('pleasewait' + editorNumber).style.display='none';
-		document.getElementById('editorWrap' + editorNumber).style.visibility='visible';
+		document.getElementById('pleasewait' + editorNumber).style.display = 'none';
+		document.getElementById('editorWrap' + editorNumber).style.visibility = 'visible';
 	}
 };

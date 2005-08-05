@@ -1,3 +1,20 @@
+2005-08-05  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.5.9
+	* Correction: the MS Word Formatting option of the RemoveFormat button was broken in version 0.5.5.
+	* Url of AllowClipboard Helper is added as an extension configuration variable.
+	* The address and dl tags are added to the list $headListTags of TYPO3 system class t3lib_parsehtml_proc. See Known problems.
+	* Correction: since version 0.5.5, html attribute values could be html-encoded more than once.
+	* Correction: the editor will load correctly even if it is located in a hidden tab at te time of loading. See Known problems.
+	* Improved memory management for IE.
+	* Correction for IE: with some locales, the type of paragraph displayed in the toolbar may not correspond to the type of paragraph of the current selection.
+	* Address is added to the default list of types of paragraphs.
+	* Correction: since 0.5.5, html-encoding of single quotes was causing incompatibilities.
+	* Correction: the Acronym plugin was broken since version 0.5.5.
+	* Correction: if a title is added on a link, the link is not eligible as typolink, and TYPO3 will add a rtekeep attribute on the a tag; if the link is edited and the title removed, the editor should remove the rtekeep attribute so that the link becomes eligible as typolink again.
+	* Correction: since 0.5.2, the Insert/Modify Link dialog could be broken in TYPO3 3.6.
+	* New Page TSConfig property: removeTrailingBR. In Mozilla/Firefox/Netscape browsers, whenever some text is entered in an empty block, a trailing br tag is added by the browser. If this property is set, any trailing br tag in a block element will be removed on save and/or change mode. However, multiple trailing br tags will be preserved.
+	* For IE: an error message will be displayed if execution of ActiveX controls is not enabled.
+
 2005-07-23  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.5.5
 	* The size of the back end editor area may be configured in User TSConfig. See the configuration section. Thanks to Peter Enzenberger.

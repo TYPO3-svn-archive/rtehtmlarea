@@ -16,6 +16,7 @@ RTE.default {
 	disableSelectColor = 0
 	disableTYPO3Browsers = 0
 	disableEnterParagraphs = 0
+	removeTrailingBR = 1
 	hidePStyleItems =
 	hideFontSizes =
 	hideTags = font, font (full)
@@ -38,10 +39,10 @@ RTE.default {
 		internalizeFontTags = 1
 
 			## TAGS ALLOWED OUTSIDE P & DIV
-		allowTagsOutside = img,hr
+		allowTagsOutside = img,hr,address
 
 			## TAGS ALLOWED
-		allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, link, img, nobr, hr, center, font, tt, q, cite, abbr, acronym, sdfield
+		allowTags = table, tbody, tr, th, td, h1, h2, h3, h4, h5, h6, div, p, br, span, ul, ol, li, pre, blockquote, strong, em, b, i, u, sub, sup, strike, a, link, img, nobr, hr, center, font, tt, q, cite, abbr, acronym, address, sdfield
 
 			## TAGS DENIED
 		denyTags >

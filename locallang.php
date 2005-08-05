@@ -16,6 +16,7 @@ $LOCAL_LANG = Array (
 		'Heading 5' => 'Heading 5',
 		'Heading 6' => 'Heading 6',
 		'Preformatted' => 'Preformatted',
+		'Address' => 'Address',
 	),
 	'dk' => Array (
 	),
@@ -53,6 +54,7 @@ $LOCAL_LANG = Array (
 		'Heading 5' => 'Titre 5',
 		'Heading 6' => 'Titre 6',
 		'Preformatted' => 'Préformaté',
+		'Address' => 'Adresse',
 	),
 	'es' => Array (
 		'Please wait' => 'El editor se está cargando. Espere por favor...',
@@ -64,6 +66,7 @@ $LOCAL_LANG = Array (
 		'Heading 5' => 'Encabezado 5',
 		'Heading 6' => 'Encabezado 6',
 		'Preformatted' => 'Preformateado',
+		'Address' => 'Dirección',
 	),
 	'nl' => Array (
 		'Please wait' => 'De editor wordt geladen. Even geduld AUB...',
