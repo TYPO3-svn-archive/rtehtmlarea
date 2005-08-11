@@ -14,6 +14,7 @@ $LOCAL_LANG = Array (
 	'de' => Array (
 	),
 	'no' => Array (
+		'Insert/Modify Acronym' => 'Sett inn/rediger akronym eller forkortelse',
 	),
 	'it' => Array (
 	),
@@ -31,6 +32,7 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'Insert/Modify Acronym' => 'Lisää/muotoile akronyymi tai lyhenne',
 	),
 	'tr' => Array (
 	),
@@ -89,6 +91,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

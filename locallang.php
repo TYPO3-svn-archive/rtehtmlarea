@@ -32,6 +32,15 @@ $LOCAL_LANG = Array (
 		'Preformatted' => 'Vorformatiert',
 	),
 	'no' => Array (
+		'Please wait' => 'Editoren lastes inn. Vennligst vent...',
+		'Normal' => 'Normal',
+		'Heading 1' => 'Overskrift 1',
+		'Heading 2' => 'Overskrift 2',
+		'Heading 3' => 'Overskrift 3',
+		'Heading 4' => 'Overskrift 4',
+		'Heading 5' => 'Overskrift 5',
+		'Heading 6' => 'Overskrift 6',
+		'Preformatted' => 'Preformatert',
 	),
 	'it' => Array (
 		'Please wait' => 'L\'editor sta per essere caricato. Attendi un attimo...',
@@ -171,6 +180,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

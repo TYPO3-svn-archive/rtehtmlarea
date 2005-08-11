@@ -25,6 +25,12 @@ $LOCAL_LANG = Array (
 		'no_color' => 'Keine Farbe',
 	),
 	'no' => Array (
+		'CO-forecolor' => 'Tekstfarge',
+		'CO-hilitecolor' => 'Bakgrunnsfarge',
+		'CO-forecolor_title' => 'Bestem tekstfarge',
+		'CO-hilitecolor_title' => 'Bestem bakgrunnsfarge',
+		'color_title' => 'Velg en farge',
+		'no_color' => 'Ingen farge',
 	),
 	'it' => Array (
 		'CO-forecolor' => 'Colore Testo',
@@ -141,6 +147,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

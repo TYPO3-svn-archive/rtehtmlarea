@@ -37,6 +37,18 @@ $LOCAL_LANG = Array (
 		'Cancel' => 'Abbrechen',
 	),
 	'no' => Array (
+		'Quick Tag Editor' => 'Sett inn tag',
+		'Enter the TAG you want to insert' => 'Skriv inn taggen du vil sette inn',
+		'You have to select some text' => 'Du må markere noe tekst',
+		'There are some unclosed quote' => 'Noen anførselstegn har ikke blitt avsluttet',
+		'This attribute already exists in the TAG' => 'Dette attributtet eksisterer allerede i taggen',
+		'No CSS class avaiable' => 'Ingen CSS-klasser tilgjengelig',
+		'OPTIONS' => 'VALG',
+		'ATTRIBUTES' => 'ATTRIBUTTER',
+		'TAGs' => 'TAGGER',
+		'Colors' => 'Farger',
+		'Ok' => 'OK',
+		'Cancel' => 'Avbryt',
 	),
 	'it' => Array (
 		'Quick Tag Editor' => 'Inserisci tag',
@@ -183,6 +195,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

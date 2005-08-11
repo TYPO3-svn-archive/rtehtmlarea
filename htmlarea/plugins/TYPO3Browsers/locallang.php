@@ -88,5 +88,9 @@ $LOCAL_LANG = Array (
 	),
 	'eo' => Array (
 	),
+	'my' => Array (
+	),
+	'hi' => Array (
+	),
 );
 ?>

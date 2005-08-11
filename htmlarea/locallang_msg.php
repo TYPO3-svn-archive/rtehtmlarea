@@ -28,6 +28,16 @@ $LOCAL_LANG = Array (
 		'Moz-Clipboard' => 'Unprivilegierte Skripte können aus Sicherheitsgründen Ausschneiden/Kopieren/Einfügen nicht nutzen. Klicken Sie auf OK, um  einen technischen Hinweis von mozilla.org (auf englisch) zu lesen , der Ihnen zeigt, wie Sie Skripten den Zugriff  auf die Zwischenablage ermöglichen.',
 	),
 	'no' => Array (
+		'Path' => 'Sti',
+		'TEXT_MODE' => 'Du er i TEKSTMODUS. Bruk "<>"-knappen for å gå tilbake til WYSIWYG-modus.',
+		'Moz-Clipboard' => 'Upriviligerte programmer kan ikke få tilgang til "klipp ut"/"kopier"/"lim inn" av sikkerhetshensyn. Klikk på OK for å se en teknisk notis på Mozilla.org, som viser deg hvordan du kan tillate tilgang til utklipp.',
+		'Moz-Extension' => 'Av sikkerhetshensyn har ikke upriviligerte progremmer tilgang til utklipp. Klikk OK for å installere en komponent som gir programmer på dette nettstedet mulighet til å hente utklipp fra maskinen din og gjøre "kopier"-, "klipp ut"- og "lim inn"-operasjoner.',
+		'Moz-Extension-Success' => 'Installasjonen gikk etter planen. Du må avslutte og starte nettleseren din på nytt for at endringen skal komme i funsjon.',
+		'Moz-Extension-Failure' => 'Beklager, installasjonen var mislykket.',
+		'Moz-Extension-Install-Not-Enabled' => 'Installasjonen kan ikke bli gjort. Vennligst endre instillingene i nettleseren din slik at du tillater installasjon av programvare fra dette nettstedet.',
+		'Allow-Clipboard-Helper-Extension' => 'Av sikkerhetshensyn kan ikke upriviligerte progremmer ha adgang til utklipp. Klikk OK for å installere en komponent som vil gi deg mulighet til å spesifisere nettsteder og -sider som vil ha tilgang til utklipp og utføre "kopier"-, "klipp ut"- og "lim inn"-operasjoner.',
+		'Mozilla-Org-Install-Not-Enabled' => 'Installasjonen kan ikke bli gjort. Vennligst endre innstillingene i nettleseren din slik at den tillater programvareinstallasjon fra http://ftp.mozilla.org.',
+		'Allow-Clipboard-Helper-Extension-Success' => 'Installasjonen var vellykket. Du må avslutte og starte nettleseren din på nytt for at endringene skal vises. Etterpå kan du bruke AllowClipboard Helper fra Verktøy-menyen for å tillate spesifikke nettsteder tilgang til utklipp.',
 	),
 	'it' => Array (
 		'Path' => 'Percorso',
@@ -137,6 +147,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

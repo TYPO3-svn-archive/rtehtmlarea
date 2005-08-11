@@ -54,6 +54,27 @@ $LOCAL_LANG = Array (
 		'Done' => 'Fertig',
 	),
 	'no' => Array (
+		'Substitute this occurrence?' => 'Bytt ut denne forekomsten?',
+		'Enter the text you want to find' => 'Skriv inn teksten du ønsker å finne',
+		'Inform a replacement word' => 'Dette vil slette alle forekomster.',
+		'found items' => 'funnet',
+		'replaced items' => 'byttet ut',
+		'found item' => 'funnet',
+		'replaced item' => 'byttet ut',
+		'not found' => 'ikke funnet',
+		'Find and Replace' => 'Søk og erstatt',
+		'Options' => 'Valg:',
+		'Whole words only' => 'Bare hele ord',
+		'Case sensitive search' => 'Skill mellom store og små bokstaver',
+		'Substitute all occurrences' => 'Bytt ut alle forekomster',
+		'Search for:' => 'Søk etter:',
+		'Replace with:' => 'Bytt ut med:',
+		'Actions' => 'Gjør dette:',
+		'Clear' => 'Tøm',
+		'Highlight' => 'Synliggjør',
+		'Undo' => 'Gjør om',
+		'Next' => 'Neste',
+		'Done' => 'Ferdig',
 	),
 	'it' => Array (
 		'Substitute this occurrence?' => 'Sostituire questa occorrenza?',
@@ -274,6 +295,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

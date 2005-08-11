@@ -17,6 +17,8 @@ $LOCAL_LANG = Array (
 		'text_style' => 'Text:',
 	),
 	'no' => Array (
+		'style' => 'Avsnitt:',
+		'text_style' => 'Tekst:',
 	),
 	'it' => Array (
 		'style' => 'Paragrafo:',
@@ -105,6 +107,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

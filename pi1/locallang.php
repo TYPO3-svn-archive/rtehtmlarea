@@ -15,6 +15,7 @@ $LOCAL_LANG = Array (
 		'tx_srspellcheck_pi1.list_type' => 'Rechtschreibprüfung für HTMLArea RTE',
 	),
 	'no' => Array (
+		'tx_srspellcheck_pi1.list_type' => 'Stavekontroll for HTMLArea RTE',
 	),
 	'it' => Array (
 		'tx_srspellcheck_pi1.list_type' => 'Controllo Ortografico per HTMLArea',
@@ -96,6 +97,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

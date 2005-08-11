@@ -37,14 +37,14 @@ TableOperations.I18N = TableOperations_langArray;
  * The information about the plugin
  */
 TableOperations._pluginInfo = {
-	name			: "TableOperations",
-	version 		: "3.1",
-	developer 		: "Mihai Bazon & Stanislas Rolland",
+	name		: "TableOperations",
+	version 	: "3.1",
+	developer 	: "Mihai Bazon & Stanislas Rolland",
 	developer_url 	: "http://dynarch.com/mishoo/",
-	c_owner 		: "Mihai Bazon & Stanislas Rolland",
-	sponsor 		: "Zapatec Inc. & Fructifor Inc.",
+	c_owner 	: "Mihai Bazon & Stanislas Rolland",
+	sponsor 	: "Zapatec Inc. & Fructifor Inc.",
 	sponsor_url 	: "http://www.bloki.com",
-	license 		: "htmlArea"
+	license 	: "htmlArea"
 };
 
 /*
@@ -95,7 +95,6 @@ TableOperations.prototype.getClosest = function(tagName) {
 
 /*
  * Open the table properties dialog.
- * This function requires the file PopupWin to be loaded.
  */
 TableOperations.prototype.dialogTableProperties = function() {
 		// retrieve existing values
@@ -110,18 +109,18 @@ TableOperations.prototype.dialogTableProperties = function() {
  */
 TableOperations.tablePropertiesInit = function(table) {
 	return (function (dialog) {
-		TableOperations.buildTitle(dialog.doc, TableOperations.I18N, dialog.content, "Table Properties");
-		TableOperations.buildDescriptionFieldset(dialog.doc, table, TableOperations.I18N, dialog.content);
+		var doc = dialog.doc;
+		var content = dialog.content;
+		var i18n = TableOperations.I18N;
+		TableOperations.buildTitle(doc, i18n, content, "Table Properties");
+		TableOperations.buildDescriptionFieldset(doc, table, i18n, content);
 		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
-		if (obj && obj.loaded) {
-			var cssArray = obj.cssArray;
-			TableOperations.buildStylingFieldset(dialog.doc, table, TableOperations.I18N, dialog.content, cssArray);
-		}
-		TableOperations.buildLayoutFieldset(dialog.doc, table, TableOperations.I18N, dialog.content);
-		TableOperations.buildAlignmentFieldset(dialog.doc, table, TableOperations.I18N, dialog.content, "floating");
-		TableOperations.buildSpacingFieldset(dialog.doc, table, TableOperations.I18N, dialog.content);
-		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, TableOperations.I18N, dialog.content);
-		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, table, TableOperations.I18N, dialog.content);
+		if (obj && obj.loaded) TableOperations.buildStylingFieldset(doc, table, i18n, content, obj.cssArray);
+		TableOperations.buildLayoutFieldset(doc, table, i18n, content);
+		TableOperations.buildAlignmentFieldset(doc, table, i18n, content, "floating");
+		TableOperations.buildSpacingFieldset(doc, table, i18n, content);
+		TableOperations.buildBordersFieldset(dialog.dialogWindow, doc, dialog.editor, table, i18n, content);
+		TableOperations.buildColorsFieldset(dialog.dialogWindow, doc, dialog.editor, table, i18n, content);
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement();
@@ -216,18 +215,17 @@ TableOperations.prototype.dialogRowCellProperties = function(cell) {
  */
 TableOperations.rowCellPropertiesInit = function(element,cell) {
 	return (function (dialog) {
-		TableOperations.buildTitle(dialog.doc, TableOperations.I18N, dialog.content, (cell ? "Cell Properties" : "Row Properties"));
+		var doc = dialog.doc;
+		var content = dialog.content;
+		var i18n = TableOperations.I18N;
+		TableOperations.buildTitle(doc, i18n, content, (cell ? "Cell Properties" : "Row Properties"));
 		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
-		if (obj && obj.loaded) {
-			var cssArray = obj.cssArray;
-			TableOperations.buildStylingFieldset(dialog.doc, element, TableOperations.I18N, dialog.content, cssArray);
-		} else {
-			TableOperations.insertSpace(dialog.doc, dialog.content);
-		}
-		TableOperations.buildLayoutFieldset(dialog.doc, element, TableOperations.I18N, dialog.content, "floating");
-		TableOperations.buildAlignmentFieldset(dialog.doc, element, TableOperations.I18N, dialog.content);
-		TableOperations.buildBordersFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, TableOperations.I18N, dialog.content);
-		TableOperations.buildColorsFieldset(dialog.dialogWindow, dialog.doc, dialog.editor, element, TableOperations.I18N, dialog.content);
+		if (obj && obj.loaded) TableOperations.buildStylingFieldset(doc, element, i18n, content, obj.cssArray);
+			else TableOperations.insertSpace(doc, content);
+		TableOperations.buildLayoutFieldset(doc, element, i18n, content, "floating");
+		TableOperations.buildAlignmentFieldset(doc, element, i18n, content);
+		TableOperations.buildBordersFieldset(dialog.dialogWindow, doc, dialog.editor, element, i18n, content);
+		TableOperations.buildColorsFieldset(dialog.dialogWindow, doc, dialog.editor, element, i18n, content);
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement();

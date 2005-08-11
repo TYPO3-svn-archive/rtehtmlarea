@@ -60,7 +60,7 @@ ContextMenu.linkHandler = function(editor,link,opcode) {
 			});
 		case "RemoveLink":
 			return (function() {
-				if (confirm(ContextMenu.I18N["Please confirm that you want to unlink this element."] + "\n" +
+				if (confirm(ContextMenu.I18N["Please confirm unlink"] + "\n" +
 					ContextMenu.I18N["Link points to:"] + " " + link.href)) {
 						while(link.firstChild) link.parentNode.insertBefore(link.firstChild, link);
 						link.parentNode.removeChild(link);
@@ -104,7 +104,7 @@ ContextMenu.insertParagraphHandler = function(editor,currentTarget,after) {
 
 ContextMenu.deleteElementHandler = function(editor,tmp,table) {
 	return (function() {
-		if(confirm(ContextMenu.I18N["Please confirm that you want to remove this element:"] + " " + tmp.tagName.toLowerCase())) {
+		if(confirm(ContextMenu.I18N["Please confirm remove"] + " " + tmp.tagName.toLowerCase())) {
 			var el = tmp;
 			var p = el.parentNode;
 			p.removeChild(el);
@@ -124,28 +124,51 @@ ContextMenu.deleteElementHandler = function(editor,tmp,table) {
 	});
 };
 
+ContextMenu.prototype.pushOperations = function(opcodes,elmenus,tbo) {
+	var editor = this.editor;
+	var toolbarObjects = editor._toolbarObjects;
+	var i18n = ContextMenu.I18N;
+	var btnList = editor.config.btnList;
+	var enabled = false, opcode, opEnabled = [], i = opcodes.length;
+	for (i; i > 0;) {
+		opcode = opcodes[--i];
+		opEnabled[opcode] = toolbarObjects[opcode]  && toolbarObjects[opcode].enabled;
+		enabled = enabled || opEnabled[opcode];
+	}
+	if (enabled) elmenus.push(null);
+	for (i = opcodes.length; i > 0;) {
+		opcode = opcodes[--i];
+		if(opEnabled[opcode]) elmenus.push([i18n[opcode + "-title"],
+				(tbo ? ContextMenu.tableOperationsHandler(editor, tbo, opcode) : ContextMenu.execCommandHandler(editor, opcode)),
+				i18n[opcode + "-tooltip"],
+				btnList[opcode][1], opcode]);
+	}
+};
+
 ContextMenu.prototype.getContextMenu = function(target) {
 	var editor = this.editor;
+	var toolbarObjects = editor._toolbarObjects;
+	var i18n = ContextMenu.I18N;
 	var config = editor.config;
-	var menu = [];
-	var opcode;
+	var btnList = config.btnList;
+	var menu = [], opcode;
 	var tbo = this.editor.plugins["TableOperations"];
 	if(tbo) tbo = tbo.instance;
 
 	var selection = editor.hasSelectedText();
 	if(selection) {
-		if(editor._toolbarObjects['Cut'] && editor._toolbarObjects['Cut'].enabled)  {
+		if (toolbarObjects['Cut'] && toolbarObjects['Cut'].enabled)  {
 			opcode = "Cut";
-			menu.push([ContextMenu.I18N[opcode], ContextMenu.execCommandHandler(editor, opcode), null, config.btnList[opcode][1], opcode]);
+			menu.push([i18n[opcode], ContextMenu.execCommandHandler(editor, opcode), null, btnList[opcode][1], opcode]);
 		}
-		if(editor._toolbarObjects['Copy'] && editor._toolbarObjects['Copy'].enabled) {
+		if (toolbarObjects['Copy'] && toolbarObjects['Copy'].enabled) {
 			opcode = "Copy";
-			menu.push([ContextMenu.I18N[opcode], ContextMenu.execCommandHandler(editor, opcode), null, config.btnList[opcode][1], opcode]);
+			menu.push([i18n[opcode], ContextMenu.execCommandHandler(editor, opcode), null, btnList[opcode][1], opcode]);
 		}
 	}
-	if(editor._toolbarObjects['Paste'] && editor._toolbarObjects['Paste'].enabled) {
+	if (toolbarObjects['Paste'] && toolbarObjects['Paste'].enabled) {
 		opcode = "Paste";
-		menu.push([ContextMenu.I18N[opcode], ContextMenu.execCommandHandler(editor, opcode), null, config.btnList[opcode][1], opcode]);
+		menu.push([i18n[opcode], ContextMenu.execCommandHandler(editor, opcode), null, btnList[opcode][1], opcode]);
 	}
 	
 	var currentTarget = target,
@@ -159,30 +182,30 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		switch (tag) {
 		    case "img":
 			img = target;
-			if(editor._toolbarObjects["InsertImage"] && editor._toolbarObjects["InsertImage"].enabled)  {
+			if (toolbarObjects["InsertImage"] && toolbarObjects["InsertImage"].enabled)  {
 				elmenus.push(null,
-				     [ContextMenu.I18N["Image Properties"],
+				     [i18n["Image Properties"],
 				       ContextMenu.imageHandler(editor, img),
-				       ContextMenu.I18N["Show the image properties dialog"],
-				       config.btnList["InsertImage"][1],"InsertImage"]
+				       i18n["Show the image properties dialog"],
+				       btnList["InsertImage"][1],"InsertImage"]
 				);
 			}
 			break;
 		    case "a":
 			link = target;
-			if(editor._toolbarObjects["CreateLink"] && editor._toolbarObjects["CreateLink"].enabled)  {
+			if (toolbarObjects["CreateLink"] && toolbarObjects["CreateLink"].enabled)  {
 				elmenus.push(null,
-					[ContextMenu.I18N["Modify Link"],
+					[i18n["Modify Link"],
 						ContextMenu.linkHandler(editor, link, "ModifyLink"),
-						ContextMenu.I18N["Current URL is"] + ': ' + link.href,
-						config.btnList["CreateLink"][1], "CreateLink"],
-					[ContextMenu.I18N["Check Link"],
+						i18n["Current URL is"] + ': ' + link.href,
+						btnList["CreateLink"][1], "CreateLink"],
+					[i18n["Check Link"],
 						ContextMenu.linkHandler(editor, link, "CheckLink"),
-						ContextMenu.I18N["Opens this link in a new window"],
+						i18n["Opens this link in a new window"],
 						null, "CreateLink"],
-					[ContextMenu.I18N["Remove Link"],
+					[i18n["Remove Link"],
 						ContextMenu.linkHandler(editor, link, "RemoveLink"),
-						ContextMenu.I18N["Unlink the current element"],
+						i18n["Unlink the current element"],
 						null, "CreateLink"]
 				);
 			}
@@ -190,145 +213,23 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		    case "td":
 			td = target;
 			if(!tbo) break;
-			var cellPropEnabled = (editor._toolbarObjects['TO-cell-prop']  && editor._toolbarObjects['TO-cell-prop'].enabled);
-			var cellInsertBeforeEnabled = (editor._toolbarObjects['TO-cell-insert-before']  && editor._toolbarObjects['TO-cell-insert-before'].enabled);
-			var cellInsertAfterEnabled = (editor._toolbarObjects['TO-cell-insert-after']  && editor._toolbarObjects['TO-cell-insert-after'].enabled);
-			var cellDeleteEnabled = (editor._toolbarObjects['TO-cell-delete']  && editor._toolbarObjects['TO-cell-delete'].enabled);
-			var cellSplitEnabled = (editor._toolbarObjects['TO-cell-split']  && editor._toolbarObjects['TO-cell-split'].enabled);
-			if(cellPropEnabled || cellInsertBeforeEnabled || cellInsertAfterEnabled || cellDeleteEnabled || cellSplitEnabled) elmenus.push(null);
-			if(cellPropEnabled) {
-				opcode = "TO-cell-prop";
-				elmenus.push([ContextMenu.I18N["Cell Properties"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Show the Table Cell Properties dialog"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(cellInsertBeforeEnabled) {
-				opcode = "TO-cell-insert-before";
-				elmenus.push([ContextMenu.I18N["Insert cell before"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Insert a new cell before the current one"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(cellInsertAfterEnabled) {
-				opcode = "TO-cell-insert-after";
-				elmenus.push([ContextMenu.I18N["Insert cell after"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Insert a new cell after the current one"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(cellDeleteEnabled) {
-				opcode = "TO-cell-delete";
-				elmenus.push([ContextMenu.I18N["Delete Cell"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Delete the current cell"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(cellSplitEnabled) {
-				opcode = "TO-cell-split";
-				elmenus.push([ContextMenu.I18N["Split Cell"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Split the current cell"],
-				config.btnList[opcode][1], opcode]);
-			}
+			this.pushOperations(["TO-cell-split", "TO-cell-delete", "TO-cell-insert-after", "TO-cell-insert-before", "TO-cell-prop"], elmenus, tbo);
 			break;
 		    case "tr":
 			tr = target;
 			if(!tbo) break;
-			var cellMergeEnabled = (editor._toolbarObjects['TO-cell-merge']  && editor._toolbarObjects['TO-cell-merge'].enabled);
-			var rowPropEnabled = (editor._toolbarObjects['TO-row-prop']  && editor._toolbarObjects['TO-row-prop'].enabled);
-			var rowInsertBeforeEnabled = (editor._toolbarObjects['TO-row-insert-above'] && editor._toolbarObjects['TO-row-insert-above'].enabled);
-			var rowInsertAfterEnabled = (editor._toolbarObjects['TO-row-insert-under'] && editor._toolbarObjects['TO-row-insert-under'].enabled);
-			var rowDeleteEnabled = (editor._toolbarObjects['TO-row-delete'] && editor._toolbarObjects['TO-row-delete'].enabled);
-			var rowSplitEnabled = (editor._toolbarObjects['TO-row-split'] && editor._toolbarObjects['TO-row-split'].enabled);
-			if(cellMergeEnabled) {
-				opcode = "TO-cell-merge";
-				elmenus.push([ContextMenu.I18N["Merge Cells"],
+			opcode = "TO-cell-merge";
+			if(toolbarObjects[opcode]  && toolbarObjects[opcode].enabled)
+				elmenus.push([i18n[opcode + "-title"],
 				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Merge the selected cells"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(rowPropEnabled || rowInsertBeforeEnabled || rowInsertAfterEnabled || rowDeleteEnabled || rowSplitEnabled) elmenus.push(null);
-			if(rowPropEnabled) {
-				opcode = "TO-row-prop";
-				elmenus.push([ContextMenu.I18N["Row Properties"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Show the Table Row Properties dialog"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(rowInsertBeforeEnabled) {
-				opcode = "TO-row-insert-above";
-				elmenus.push([ContextMenu.I18N["Insert Row Before"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Insert a new row before the current one"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(rowInsertAfterEnabled) {
-				opcode = "TO-row-insert-under";
-				elmenus.push([ContextMenu.I18N["Insert Row After"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Insert a new row after the current one"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(rowDeleteEnabled) {
-				opcode = "TO-row-delete";
-				elmenus.push([ContextMenu.I18N["Delete Row"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Delete the current row"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(rowSplitEnabled) {
-				opcode = "TO-row-split";
-				elmenus.push([ContextMenu.I18N["Split Row"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Split the current row"],
-				config.btnList[opcode][1], opcode]);
-			}
+				i18n[opcode + "-tooltip"],
+				btnList[opcode][1], opcode]);
+			this.pushOperations(["TO-row-split", "TO-row-delete", "TO-row-insert-under", "TO-row-insert-above", "TO-row-prop"], elmenus, tbo);
 			break;
 		    case "table":
 			table = target;
 			if(!tbo) break;
-			var tablePropEnabled = (editor._toolbarObjects['TO-table-prop']  && editor._toolbarObjects['TO-table-prop'].enabled);
-			var colInsertBeforeEnabled = (editor._toolbarObjects['TO-col-insert-before'] && editor._toolbarObjects['TO-col-insert-before'].enabled);
-			var colInsertAfterEnabled = (editor._toolbarObjects['TO-col-insert-after'] && editor._toolbarObjects['TO-col-insert-after'].enabled);
-			var colDeleteEnabled = (editor._toolbarObjects['TO-col-delete'] && editor._toolbarObjects['TO-col-delete'].enabled);
-			var colSplitEnabled = (editor._toolbarObjects['TO-col-split'] && editor._toolbarObjects['TO-col-split'].enabled);
-			if(colInsertBeforeEnabled || colInsertAfterEnabled || colDeleteEnabled || colSplitEnabled) elmenus.push(null);
-			if(colInsertBeforeEnabled) {
-				opcode = "TO-col-insert-before";
-				elmenus.push([ContextMenu.I18N["Insert Column Before"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Insert a new column before the current one"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(colInsertAfterEnabled) {
-				opcode = "TO-col-insert-after";
-				elmenus.push([ContextMenu.I18N["Insert Column After"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Insert a new column after the current one"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(colDeleteEnabled) {
-				opcode = "TO-col-delete";
-				elmenus.push([ContextMenu.I18N["Delete Column"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Delete the current column"],
-				config.btnList[opcode][1], opcode]);
-			}
-			if(colSplitEnabled) {
-				opcode = "TO-col-split";
-				elmenus.push([ContextMenu.I18N["Split Column"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Split the current column"],
-  				config.btnList[opcode][1], opcode]);
-			}
-			if(tablePropEnabled) {
-				opcode = "TO-table-prop";
-				elmenus.push(null,[ContextMenu.I18N["Table Properties"],
-				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
-				ContextMenu.I18N["Show the Table Properties dialog"],
-				config.btnList[opcode][1], opcode]);
-			}
+			this.pushOperations(["TO-table-prop", "TO-col-split", "TO-col-delete", "TO-col-insert-after", "TO-col-insert-before"], elmenus, tbo);
 			break;
 		    case "ol":
 		    case "ul":
@@ -336,42 +237,14 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			list = target;
 			break;
 		    case "body":
-			var justifyLeftEnabled = (editor._toolbarObjects['JustifyLeft'] && editor._toolbarObjects['JustifyLeft'].enabled);
-			var justifyCenterEnabled = (editor._toolbarObjects['JustifyCenter'] && editor._toolbarObjects['JustifyCenter'].enabled);
-			var justifyRightEnabled = (editor._toolbarObjects['JustifyRight'] && editor._toolbarObjects['JustifyRight'].enabled);
-			var justifyFullEnabled = (editor._toolbarObjects['JustifyFull'] && editor._toolbarObjects['JustifyFull'].enabled);
-			if(justifyLeftEnabled || justifyCenterEnabled || justifyRightEnabled || justifyFullEnabled) elmenus.push(null);
-			if(justifyLeftEnabled) {
-				opcode = "JustifyLeft";
-				elmenus.push([ContextMenu.I18N["Justify Left"],
-				ContextMenu.execCommandHandler(editor, opcode),
-				null, config.btnList[opcode][1], opcode]);
-			}
-			if(justifyCenterEnabled) {
-				opcode = "JustifyCenter";
-				elmenus.push([ContextMenu.I18N["Justify Center"],
-				ContextMenu.execCommandHandler(editor, opcode),
-				null, config.btnList[opcode][1], opcode]);
-			}
-			if(justifyRightEnabled) {
-				opcode = "JustifyRight";
-				elmenus.push([ContextMenu.I18N["Justify Right"],
-				ContextMenu.execCommandHandler(editor, opcode),
-				null, config.btnList[opcode][1], opcode]);
-			}
-			if(justifyFullEnabled) {
-				opcode = "JustifyFull";
-				elmenus.push([ContextMenu.I18N["Justify Full"],
-				ContextMenu.execCommandHandler(editor, opcode),
-				null, config.btnList[opcode][1], opcode]);
-			}
+		    	this.pushOperations(["JustifyFull", "JustifyRight", "JustifyCenter", "JustifyLeft"], elmenus, null);
 			break;
 		}
 	}
 	
-	if (selection && !link) menu.push(null,[ContextMenu.I18N["Make link"],
+	if (selection && !link) menu.push(null,[i18n["Make link"],
 					ContextMenu.linkHandler(editor, link, "MakeLink"),
-					ContextMenu.I18N["Create a link"],config.btnList["CreateLink"][1],"CreateLink"]);
+					i18n["Create a link"], btnList["CreateLink"][1],"CreateLink"]);
 
 	for (var i = 0; i < elmenus.length; ++i) menu.push(elmenus[i]);
 
@@ -386,12 +259,12 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			tmp = currentTarget;
 		}
 		menu.push(null,
-		  [ContextMenu.I18N["Remove the"] + " &lt;" + tmp.tagName.toLowerCase() + "&gt; " + ContextMenu.I18N["Element"],
-			ContextMenu.deleteElementHandler(editor, tmp, table), ContextMenu.I18N["Remove this node from the document"]],
-		  [ContextMenu.I18N["Insert paragraph before"],
-			ContextMenu.insertParagraphHandler(editor, tmp, false), ContextMenu.I18N["Insert a paragraph before the current node"]],
-		  [ContextMenu.I18N["Insert paragraph after"],
-			ContextMenu.insertParagraphHandler(editor, tmp, true), ContextMenu.I18N["Insert a paragraph after the current node"]]
+		  [i18n["Remove the"] + " &lt;" + tmp.tagName.toLowerCase() + "&gt; " + i18n["Element"],
+			ContextMenu.deleteElementHandler(editor, tmp, table), i18n["Remove this node from the document"]],
+		  [i18n["Insert paragraph before"],
+			ContextMenu.insertParagraphHandler(editor, tmp, false), i18n["Insert a paragraph before the current node"]],
+		  [i18n["Insert paragraph after"],
+			ContextMenu.insertParagraphHandler(editor, tmp, true), i18n["Insert a paragraph after the current node"]]
 		);
 	}
 	return menu;
@@ -519,6 +392,7 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	if (!ev) var ev = window.event;
 	if (!target) var target = (ev.target) ? ev.target : ev.srcElement;
 	if (this.currentMenu) this.currentMenu.parentNode.removeChild(this.currentMenu);
+	HTMLArea._stopEvent(ev);
 	var keys = [];
 	var ifpos = ContextMenu.getPos(this.editor._iframe);
 	var x = ev.clientX + ifpos.x;
@@ -545,7 +419,8 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	doc.body.appendChild(list);
 	
 	var options = this.getContextMenu(target);
-	for (var i=0; i < options.length; ++i) {
+	var n = options.length;
+	for (var i=0; i < n; ++i) {
 		var option = options[i];
 		if (!option){
 			separator = true;
@@ -625,7 +500,7 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 		this.eventHandlers["keyPress"] = ContextMenu.keyPressHandler(this, keys);
 		HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "keypress", this.eventHandlers["keyPress"]);
 	}
-	HTMLArea._stopEvent(ev);
+	//HTMLArea._stopEvent(ev);
 	return false;
 };
 

@@ -185,5 +185,17 @@ $LOCAL_LANG = Array (
 	),
 	'vn' => Array (
 	),
+	'ca' => Array (
+	),
+	'ba' => Array (
+	),
+	'kr' => Array (
+	),
+	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
+	),
 );
 ?>

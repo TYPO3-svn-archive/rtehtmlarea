@@ -91,6 +91,138 @@ HTMLArea.prototype._createRange = function(sel) {
  	}
 };
 
+/*
+ * Select a node AND the contents inside the node
+ */
+HTMLArea.prototype.selectNode = function(node) {
+	this.focusEditor();
+	this.forceRedraw();
+	var sel = this._getSelection();
+	var range = this._doc.createRange();
+	if(node.nodeType == 1 && node.tagName.toLowerCase() == "body") range.selectNodeContents(node);
+		else range.selectNode(node);
+	if(HTMLArea.is_safari) {
+		sel.empty();
+		sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
+	} else {
+		sel.removeAllRanges();
+		sel.addRange(range);
+	}
+};
+
+/*
+ * Select ONLY the contents inside the given node
+ */
+HTMLArea.prototype.selectNodeContents = function(node,pos) {
+	this.focusEditor();
+	this.forceRedraw();
+	var collapsed = (typeof(pos) != "undefined");
+	var sel = this._getSelection();
+	var range = this._doc.createRange();
+	range.selectNodeContents(node);
+	(collapsed) && range.collapse(pos);
+	if(HTMLArea.is_safari) {
+		sel.empty();
+		sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
+	} else {
+		sel.removeAllRanges();
+		sel.addRange(range);
+	}
+};
+
+/*
+ * Retrieve the HTML contents of selected block
+ */
+HTMLArea.prototype.getSelectedHTML = function() {
+	var sel = this._getSelection();
+	var range = this._createRange(sel);
+	var cloneContents = "";
+	try {cloneContents = range.cloneContents();} catch(e) { }
+	return (cloneContents ? HTMLArea.getHTML(cloneContents,false,this) : "");
+};
+
+/*
+ * Retrieve simply HTML contents of the selected block, IE ignoring control ranges
+ */
+HTMLArea.prototype.getSelectedHTMLContents = function() {
+	return this.getSelectedHTML();
+};
+
+/*
+ * Get the deepest node that contains both endpoints of the current selection.
+ */
+HTMLArea.prototype.getParentElement = function(sel) {
+	if(!sel) var sel = this._getSelection();
+	var range = this._createRange(sel);
+	try {
+		var p = range.commonAncestorContainer;
+		if(!range.collapsed && range.startContainer == range.endContainer &&
+		    range.startOffset - range.endOffset <= 1 && range.startContainer.hasChildNodes())
+			p = range.startContainer.childNodes[range.startOffset];
+		while (p.nodeType == 3) {p = p.parentNode;}
+		return p;
+	} catch (e) {
+		return this._doc.body;
+	}
+};
+
+/***************************************************
+ *  DOM TREE MANIPULATION
+ ***************************************************/
+
+ /*
+ * Insert a node at the current position.
+ * Delete the current selection, if any.
+ * Split the text node, if needed.
+ */
+HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
+	this.focusEditor();
+	var sel = this._getSelection(),
+		range = this._createRange(sel),
+		node = range.startContainer,
+		pos = range.startOffset,
+		selnode = toBeInserted;
+	if(HTMLArea.is_safari) sel.empty();
+		else sel.removeAllRanges();
+	range.deleteContents();
+	switch (node.nodeType) {
+	    case 3: // Node.TEXT_NODE: we have to split it at the caret position.
+		if(toBeInserted.nodeType == 3) {
+			node.insertData(pos,toBeInserted.data);
+			range = this._createRange();
+			range.setEnd(node, pos + toBeInserted.length);
+			range.setStart(node, pos + toBeInserted.length);
+			if(HTMLArea.is_safari) sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
+				else sel.addRange(range);
+		} else {
+			node = node.splitText(pos);
+			if(toBeInserted.nodeType == 11) selnode = selnode.firstChild;
+			node = node.parentNode.insertBefore(toBeInserted,node);
+			this.selectNodeContents(selnode);
+			this.updateToolbar();
+		}
+		break;
+	    case 1:
+		if(toBeInserted.nodeType == 11) selnode = selnode.firstChild;
+		node = node.insertBefore(toBeInserted,node.childNodes[pos]);
+		this.selectNodeContents(selnode);
+		this.updateToolbar();
+		break;
+	}
+};
+
+/* 
+ * Insert HTML source code at the current position.
+ * Delete the current selection, if any.
+ */
+HTMLArea.prototype.insertHTML = function(html) {
+	this.focusEditor();
+	var fragment = this._doc.createDocumentFragment();
+	var div = this._doc.createElement("div");
+	div.innerHTML = html;
+	while (div.firstChild) {fragment.appendChild(div.firstChild);}
+	this.insertNodeAtSelection(fragment);
+};
 
 /***************************************************
  *  EVENTS HANDLERS
@@ -169,9 +301,9 @@ HTMLArea._mozillaInstallCallback = function(url,returnCode) {
 /*
  * Backspace event handler
  */
-HTMLArea.prototype.dom_checkBackspace = function() {
+HTMLArea.prototype._checkBackspace = function() {
 	var self = this;
-	window.setTimeout(function() {
+	//window.setTimeout(function() {
 		self.focusEditor();
 		var sel = self._getSelection();
 		var range = self._createRange(sel);
@@ -197,14 +329,16 @@ HTMLArea.prototype.dom_checkBackspace = function() {
 				sel.removeAllRanges();
 				sel.addRange(r);
 			}
+			return true;
 		}
-	},10);
+	//},10);
+	return false;
 };
 
 /*
  * Enter event handler
  */
-HTMLArea.prototype.dom_checkInsertP = function() {
+HTMLArea.prototype._checkInsertP = function() {
 	this.focusEditor();
 	var i, SC, left, right, r2,
 		sel   = this._getSelection(),
@@ -284,4 +418,101 @@ HTMLArea.prototype.dom_checkInsertP = function() {
 		else sel.addRange(r);
 	//this.forceRedraw();
 	this.scrollToCaret();
+};
+
+/*
+ * Detect emails and urls as they are typed in Mozilla
+ * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
+ */
+ // Not yet revised for Safari
+HTMLArea.prototype._detectURL = function(ev) {
+	var editor = this;
+	var s = editor._getSelection();
+	var autoWrap = function (textNode, tag) {
+		var rightText = textNode.nextSibling;
+		if (typeof(tag) == 'string') tag = editor._doc.createElement(tag);
+		var a = textNode.parentNode.insertBefore(tag, rightText);
+		textNode.parentNode.removeChild(textNode);
+		a.appendChild(textNode);
+		rightText.data = ' ' + rightText.data;
+		s.collapse(rightText, 1);
+		HTMLArea._stopEvent(ev);
+
+		editor._unLink = function() {
+			var t = a.firstChild, parent = a.parentNode;
+			a.removeChild(t);
+			parent.insertBefore(t, a);
+			parent.removeChild(a);
+			editor._unLink = null;
+			editor._unlinkOnUndo = false;
+		};
+		
+		editor._unlinkOnUndo = true;
+		return a;
+	};
+
+	switch(ev.which) {
+			// Space, see if the text just typed looks like a URL, or email address and link it appropriatly
+		case 32:
+			if(s && s.isCollapsed && s.anchorNode.nodeType == 3 && s.anchorNode.data.length > 3 && s.anchorNode.data.indexOf('.') >= 0) {
+				var midStart = s.anchorNode.data.substring(0,s.anchorOffset).search(/\S{4,}$/);
+				if(midStart == -1) break;
+				if(editor._getFirstAncestor(s, 'a')) break; // already in an anchor
+				var matchData = s.anchorNode.data.substring(0,s.anchorOffset).replace(/^.*?(\S*)$/, '$1');
+				var m = matchData.match(HTMLArea.RE_email);
+				if(m) {
+					var leftText  = s.anchorNode;
+					var rightText = leftText.splitText(s.anchorOffset);
+					var midText   = leftText.splitText(midStart);
+					autoWrap(midText, 'a').href = 'mailto:' + m[0];
+					break;
+				}
+				var m = matchData.match(HTMLArea.RE_url);
+				if(m) {
+					var leftText  = s.anchorNode;
+					var rightText = leftText.splitText(s.anchorOffset);
+					var midText   = leftText.splitText(midStart);
+					autoWrap(midText, 'a').href = (m[1] ? m[1] : 'http://') + m[2];
+					break;
+				}
+			}
+			break;
+		default:
+			if(ev.keyCode == 27 || (editor._unlinkOnUndo && ev.ctrlKey && ev.which == 122) ) {
+				if(editor._unLink) {
+					editor._unLink();
+					HTMLArea._stopEvent(ev);
+				}
+				break;
+			} else if(ev.which || ev.keyCode == 8 || ev.keyCode == 46) {
+				editor._unlinkOnUndo = false;
+				if(s.anchorNode && s.anchorNode.nodeType == 3) {
+						// See if we might be changing a link
+					var a = editor._getFirstAncestor(s, 'a');
+					if(!a) break; // not an anchor
+					if(!a._updateAnchTimeout) {
+						if(s.anchorNode.data.match(HTMLArea.RE_email) && (a.href.match('mailto:' + s.anchorNode.data.trim()))) {
+							var textNode = s.anchorNode;
+							var fn = function() {
+								a.href = 'mailto:' + textNode.data.trim();
+								a._updateAnchTimeout = setTimeout(fn, 250);
+							};
+							a._updateAnchTimeout = setTimeout(fn, 250);
+							break;
+						}
+						var m = s.anchorNode.data.match(HTMLArea.RE_url);
+						if(m &&  a.href.match(s.anchorNode.data.trim())) {
+							var textNode = s.anchorNode;
+							var fn = function() {
+								var m = textNode.data.match(HTMLArea.RE_url);
+								a.href = (m[1] ? m[1] : 'http://') + m[2];
+								a._updateAnchTimeout = setTimeout(fn, 250);
+							}
+							a._updateAnchTimeout = setTimeout(fn, 250);
+						}
+					}
+				}
+			}
+			break;
+	}
 };

@@ -66,22 +66,29 @@ $LOCAL_LANG = Array (
 		'currentImage' => 'Aktuelles Bild',
 	),
 	'no' => Array (
-		'folderTree' => 'Mapper',
+		'folderTree' => 'Mappehierarki',
 		'uploadImage' => 'Last opp bilde',
 		'path' => 'Sti',
 		'images' => 'Bilder',
 		'magicImage_msg' => 'I \'magisk\' modus kan du velge alle typer bilder med vilkårlige dimensjoner. Bildet blir automatisk konvertert til webformat og enhver endring av dimensjoner du gjør blir prosessert for å optimalisere kvalitet og størrelse.',
 		'plainImage_msg' => 'I \'normal\' modus kan du kun sette inn web bildeformater (JPG, GIF og PNG) opp til 640x480 piksler. Denne metoden er beregnet for bilder som allerede er optimalisert for web.',
+		'class' => 'Stil',
 		'width' => 'Bredde',
 		'height' => 'Høyde',
-		'border' => 'Kant',
-		'margin_tb' => 'Margen topp/bunn',
-		'margin_lr' => 'Margen venstre/høyre',
+		'border' => 'Ramme',
+		'margin_tb' => 'Marg topp/bunn',
+		'margin_lr' => 'Marg venstre/høyre',
+		'float' => 'Flyt',
+		'notSet' => 'Ikke bestemt',
+		'nonFloating' => 'Ikkeflytende',
+		'left' => 'Venstre',
+		'right' => 'Høyre',
 		'title' => 'Tittel',
+		'alt' => 'Alternativ tekst',
 		'update' => 'Oppdater',
 		'magicImage' => 'Nytt magisk bilde',
 		'plainImage' => 'Nytt normalt bilde',
-		'dragDropImage' => 'Dra og plasser',
+		'dragDropImage' => 'Trekk og slipp',
 		'currentImage' => 'Gjeldende bilde',
 	),
 	'it' => Array (
@@ -500,6 +507,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

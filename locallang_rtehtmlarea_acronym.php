@@ -28,6 +28,21 @@ $LOCAL_LANG = Array (
 	'de' => Array (
 	),
 	'no' => Array (
+		'Type_of_abridged_form' => 'Akronym eller forkortelse?',
+		'Term_to_abridge' => 'Uttrykk å forkorte',
+		'Defined_term' => 'Forhåndsdefinerte akronymer og forkortelser',
+		'Term' => 'Uttrykk:',
+		'Unabridged_term' => 'Fullstendig uttrykk:',
+		'Select_a_term' => 'Velg et uttrykk',
+		'Abridged_term' => 'Forkortet uttrykk:',
+		'Acronym' => 'Akronym',
+		'Abbreviation' => 'Forkortelse',
+		'Select_an_acronym' => 'Velg et akronym eller en forkortelse',
+		'Use_this_term' => 'Bruk dette uttrykket:',
+		'Use_this_term_explain' => 'Assosier dette uttrykket til den nåværende markeringen',
+		'OK' => 'OK',
+		'Delete' => 'Slett',
+		'Cancel' => 'Avbryt',
 	),
 	'it' => Array (
 	),
@@ -59,6 +74,21 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'Type_of_abridged_form' => 'Akronyymi vai lyhenne ?',
+		'Term_to_abridge' => 'Suppea termi',
+		'Defined_term' => 'Edeltä määritetyt akronyymit ja lyhenteet',
+		'Term' => 'Termi:',
+		'Unabridged_term' => 'Suppea termi:',
+		'Select_a_term' => 'Valitse termi',
+		'Abridged_term' => 'Suppea termi:',
+		'Acronym' => 'Akronyymi',
+		'Abbreviation' => 'Lyhenne',
+		'Select_an_acronym' => 'Valitse akronyymi tai lyhenne',
+		'Use_this_term' => 'Käytä tätää termiä:',
+		'Use_this_term_explain' => 'Liitä tämä termi nykyiseen valintaan',
+		'OK' => 'OK',
+		'Delete' => 'Poista',
+		'Cancel' => 'Peruuta',
 	),
 	'tr' => Array (
 	),
@@ -109,6 +139,18 @@ $LOCAL_LANG = Array (
 	'jp' => Array (
 	),
 	'vn' => Array (
+	),
+	'ca' => Array (
+	),
+	'ba' => Array (
+	),
+	'kr' => Array (
+	),
+	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

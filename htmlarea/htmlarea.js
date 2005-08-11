@@ -98,7 +98,7 @@ HTMLArea._scriptRequest = [];
 HTMLArea._request = [];
 HTMLArea.loadScript = function(url, plugin) {
 	if (plugin) url = _editor_url + "/plugins/" + plugin + '/' + url;
-	if(HTMLArea._compressedScripts) url.replace(/\.js$/gi, "-compressed.js");
+	if(HTMLArea._compressedScripts) url = url.replace(/\.js$/gi, "-compressed.js");
 	HTMLArea._scripts.push(url);
 };
 HTMLArea.loadScript(_editor_url + "popupwin.js");
@@ -626,15 +626,13 @@ HTMLArea.prototype._createToolbar = function () {
 		tb_line = null,
 		first_cell_on_line = true,
 		labelObj = new Object(),
-		tbObj = new Object(),
-		tb_objects = new Object();
+		tbObj = new Object();
 
 	var toolbar = document.createElement("div");
 	this._toolbar = toolbar;
 	toolbar.className = "toolbar";
 	toolbar.unselectable = "1";
-	this._htmlArea.appendChild(toolbar);
-	this._toolbarObjects = tb_objects;
+	this._toolbarObjects = new Object();
 
 	for (j = 0; j < n; ++j) {
 		tb_line = HTMLArea.newLine(toolbar);
@@ -671,6 +669,7 @@ HTMLArea.prototype._createToolbar = function () {
 	}
 	
 	tb_line = HTMLArea.newLine(toolbar);
+	this._htmlArea.appendChild(toolbar);
 };
 
 /*
@@ -729,16 +728,16 @@ HTMLArea.toolBarButtonHandler = function(ev) {
  * Create the status bar
  */
 HTMLArea.prototype._createStatusBar = function() {
-	var statusbar = document.createElement("div");
-	statusbar.className = "statusBar";
-	if (!this.config.statusBar) statusbar.style.display = "none";
-	this._htmlArea.appendChild(statusbar);
-	this._statusBar = statusbar;
+	var statusBar = document.createElement("div");
+	this._statusBar = statusBar;
+	statusBar.className = "statusBar";
+	if (!this.config.statusBar) statusBar.style.display = "none";
 	var statusBarTree = document.createElement("span");
-	statusBarTree.className = "statusBarTree";
-	this._statusBar.appendChild(statusBarTree);
 	this._statusBarTree = statusBarTree;
+	statusBarTree.className = "statusBarTree";
+	statusBar.appendChild(statusBarTree);
 	statusBarTree.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
+	this._htmlArea.appendChild(statusBar);
 };
 
 /*
@@ -918,39 +917,7 @@ HTMLArea.prototype.stylesLoaded = function() {
 	this._timerUndo = window.setInterval("HTMLArea.undoTakeSnapshot(" + this._editorNumber + ");", this.config.undoTimeout);
 
 		// Set contents editable
-	if(HTMLArea.is_gecko && !HTMLArea.is_safari && !this._initEditMode()) return false;
-			
-/*		
-	if(HTMLArea.is_gecko && !HTMLArea.is_safari) {
-			// We can't set designMode when we are in a hidden TYPO3 tab
-			// Then we will set it when the tab comes in the front.
-		var inTYPO3Tab = false;
-		var DTMDiv = this._textArea;
-		while (DTMDiv && (DTMDiv.nodeType == 1) && (DTMDiv.tagName.toLowerCase() != "body")) {
-			if (DTMDiv.tagName.toLowerCase() == "div" && DTMDiv.id.indexOf("DTM-") != -1 && DTMDiv.id.indexOf("-DIV") != -1 && DTMDiv.className == "c-tablayer") {
-				inTYPO3Tab = true;
-				break;
-			} else {
-				DTMDiv = DTMDiv.parentNode;
-			}
-		}
-		if (!HTMLArea.is_wamcom) {
-			try {
-				if (!(inTYPO3Tab && DTMDiv.style.display == "none")) doc.designMode = "on";
-			} catch(e) {}
-		} else {
-			try { doc.designMode = "on"; }
-			catch(e) {
-				if (!(inTYPO3Tab && DTMDiv.style.display == "none")) {
-					doc.open();
-					doc.close();
-					this._initIframeTimer = window.setTimeout("HTMLArea.initIframe(" + this._editorNumber + ");", 500);
-					return false;
-				}
-			}
-		}
-	}
-*/	
+	if(HTMLArea.is_gecko && !HTMLArea.is_safari && !this._initEditMode()) return false;	
 	if (HTMLArea.is_ie || HTMLArea.is_safari) doc.body.contentEditable = true;
 	this._editMode = "wysiwyg";
 	if (doc.body.contentEditable || doc.designMode == "on") HTMLArea._appendToLog("[HTMLArea::initIframe]: Design mode successfully set.");
@@ -958,14 +925,7 @@ HTMLArea.prototype.stylesLoaded = function() {
 		// set editor number in iframe and document for retrieval in event handlers
 	doc._editorNo = this._editorNumber;
 	if (HTMLArea.is_ie) doc.documentElement._editorNo = this._editorNumber;
-/*
-	if (HTMLArea.is_gecko && inTYPO3Tab && !HTMLArea.is_safari) {
-			// When the TYPO3 TCA feature div2tab is used, the editor iframe may become hidden with style.display = "none"
-			// This breaks the editor in Mozilla/Firefox browsers: the designMode attribute needs to be resetted after the style.display of the containing div is resetted to "block"
-			// Here we rely on TYPO3 naming conventions for the div id and class name
-		HTMLArea._addEvent(DTMDiv, "DOMAttrModified", HTMLArea.DTMDivHandler(this, DTMDiv));
-	}
-*/
+
 		// intercept events for updating the toolbar & for keyboard handlers
 	HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["keydown","keypress","mousedown","mouseup","drag"], HTMLArea._editorEvent);
 
@@ -981,12 +941,17 @@ HTMLArea.prototype.stylesLoaded = function() {
 HTMLArea.generatePlugins = function(editorNumber) {
 	var editor = RTEarea[editorNumber]["editor"];
 		// check if any plugins have registered generate handlers
+		// check also if any plugin has a onKeyPress handler
+	editor._hasPluginWithOnKeyPressHandler = false;
 	for (var i in editor.plugins) {
 		var plugin = editor.plugins[i].instance;
 		if (typeof(plugin.onGenerate) == "function") plugin.onGenerate();
 		if (typeof(plugin.onGenerateOnce) == "function") {
 			plugin.onGenerateOnce();
 			plugin.onGenerateOnce = null;
+		}
+		if (typeof(plugin.onKeyPress) == "function") {
+			editor._hasPluginWithOnKeyPressHandler = true;
 		}
 	}
 	if (typeof(editor.onGenerate) == "function") {
@@ -1014,25 +979,6 @@ HTMLArea.resetHandler = function(ev) {
 };
 
 /*
-HTMLArea.DTMDivHandler = function (editor,DTMDiv) {
-	return (function(ev) {
-		if(!ev) var ev = window.event;
-		var target = (ev.target) ? ev.target : ev.srcElement;
-		if(target == DTMDiv && editor._editMode == "wysiwyg" && DTMDiv.style.display == "block") {
-			window.setTimeout( function() {
-				try { editor._doc.designMode = "on"; } 
-				catch(e) {
-					editor._doc.open();
-					editor._doc.close();
-					editor.initIframe();}
-				}, 20);
-			HTMLArea._stopEvent(ev);
-		}
-	});
-};
-*/
-
-/*
  * Clean up event handlers and object references, undo/redo snapshots, update the textarea for submission
  */
 HTMLArea.removeEditorEvents = function(ev) {
@@ -1049,60 +995,7 @@ HTMLArea.removeEditorEvents = function(ev) {
 			editor._undoQueue = null;
 				// release events
 			if (HTMLArea._eventCache) HTMLArea._eventCache.flush();
-			if (HTMLArea.is_ie) HTMLArea._cleanup(editor);
-/*			
-			if (HTMLArea.is_ie) {
-					// nullify envent handlers
-				for (var handler in editor.eventHandlers) editor.eventHandlers[handler] = null;
-				for (var button in editor.btnList) editor.btnList[button][3] = null;
-				for (var dropdown in editor.config.customSelects) {
-					dropdown.action = null;
-					dropdown.refresh = null;
-				}
-				editor.onGenerate = null;
-				HTMLArea._editorEvent = null;
-				if(editor._textArea.form) {
-					editor._textArea.form.__msh_prevOnReset = null;
-					editor._textArea.form._editorNumber = null;
-				}
-				HTMLArea.onload = null;
-				if(HTMLArea._eventCache) {
-					HTMLArea._eventCache.listEvents = null;
-					HTMLArea._eventCache.add = null;
-					HTMLArea._eventCache.flush = null;
-					HTMLArea._eventCache = null;
-				}
-				
-					// cleaning plugin handlers
-				for (var i in editor.plugins) {
-					var plugin = editor.plugins[i].instance;
-					plugin.onGenerate = null;
-					plugin.onMode = null;
-					plugin.onKeyPress = null;
-					plugin.onSelect = null;
-					plugin.onUpdateTolbar = null;
-				}
-				
-					// cleaning the toolbar elements
-				var obj;
-				for (var txt in editor._toolbarObjects) {
-					obj = editor._toolbarObjects[txt];
-					obj["state"] = null;
-					document.getElementById(obj["elementId"])._obj = null;
-				}
-				
-					// cleaning the statusbar elements
-				if(editor._statusBarTree.hasChildNodes()) {
-					for (var i = editor._statusBarTree.firstChild; i; i = i.nextSibling) {
-						if (i.nodeName.toLowerCase() == "a") {
-							HTMLArea._removeEvents(i, ["click", "contextmenu"], HTMLArea.statusBarHandler);
-							i.el = null;
-							i.editor = null;
-						}
-					}
-				}
-			}
-*/			
+			if (HTMLArea.is_ie) HTMLArea._cleanup(editor);			
 		}
 	}
 };
@@ -1223,7 +1116,7 @@ HTMLArea.loadPlugin = function(pluginName,noLangFile) {
 	var dir = _editor_url + "plugins/" + pluginName;
 	var plugin = pluginName.replace(/([a-z])([A-Z])([a-z])/g, "$1" + "-" + "$2" + "$3").toLowerCase() + ".js";
 	var plugin_file = dir + "/" + plugin;
-	HTMLArea._scripts.push(plugin_file);
+	HTMLArea.loadScript(plugin_file);
 	if (typeof(noLangFile) == "undefined" || !noLangFile) {
 		var plugin_lang = dir + "/lang/" + _editor_lang + ".js";
 		HTMLArea._scripts.push(plugin_lang);
@@ -1448,13 +1341,13 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 		text = (this._editMode == "textmode"),
 		selection = this.hasSelectedText(),
 		ancestors = null, cls = new Array(),
-		txt, txtClass, i, ia, cmd, inContext, match, k, ka, j, n, commandState;
+		txt, txtClass, i, ia, cmd, inContext, match, k, ka, j, n, commandState;	
 	if(!text) {
 		ancestors = this.getAllAncestors();
 		if(this.config.statusBar && !noStatus) {
 				// Unhook previous events handlers
 			if(this._statusBarTree.hasChildNodes()) {
-				for (i=this._statusBarTree.firstChild;i;i=i.nextSibling) {
+				for (i = this._statusBarTree.firstChild; i; i = i.nextSibling) {
 					if(i.nodeName.toLowerCase() == "a") {
 						HTMLArea._removeEvents(i,["click", "contextmenu"],HTMLArea.statusBarHandler);
 						i.el = null;
@@ -1644,81 +1537,6 @@ HTMLArea.statusBarHandler = function (ev) {
 /***************************************************
  *  DOM TREE MANIPULATION
  ***************************************************/
-/*
- * Insert a node at the current position.
- * Deletes the current selection, if any.
- * Splits the text node, if needed.
- */
-HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
-	if(!HTMLArea.is_ie) {
-		this.focusEditor();
-		var 	sel = this._getSelection(),
-			range = this._createRange(sel),
-			node = range.startContainer,
-			pos = range.startOffset,
-			selnode = toBeInserted;
-		if(HTMLArea.is_safari) sel.empty();
-			else sel.removeAllRanges();
-		range.deleteContents();
-		switch (node.nodeType) {
-		    case 3: // Node.TEXT_NODE: we have to split it at the caret position.
-			if(toBeInserted.nodeType == 3) {
-				node.insertData(pos,toBeInserted.data);
-				range = this._createRange();
-				range.setEnd(node, pos + toBeInserted.length);
-				range.setStart(node, pos + toBeInserted.length);
-				if(HTMLArea.is_safari) sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
-					else sel.addRange(range);
-			} else {
-				node = node.splitText(pos);
-				if(toBeInserted.nodeType == 11) selnode = selnode.firstChild;
-				node = node.parentNode.insertBefore(toBeInserted,node);
-				this.selectNodeContents(selnode);
-				this.updateToolbar();
-			}
-			break;
-		    case 1:
-			if(toBeInserted.nodeType == 11) selnode = selnode.firstChild;
-			node = node.insertBefore(toBeInserted,node.childNodes[pos]);
-			this.selectNodeContents(selnode);
-			this.updateToolbar();
-			break;
-		}
-	} else {
-		var sel = this._getSelection();
-		var range = this._createRange(sel);
-		range.pasteHTML(toBeInserted.outerHTML);
-	}
-};
-
-/*
- * Get the deepest node that contains both endpoints of the current selection.
- */
-HTMLArea.prototype.getParentElement = function(sel) {
-	if(!sel) var sel = this._getSelection();
-	var range = this._createRange(sel);
-	if(HTMLArea.is_ie) {
-		switch(sel.type) {
-			case "Text":
-			case "None":
-				var el = range.parentElement();
-				if(el.nodeName.toLowerCase() == "li" && range.htmlText.replace(/\s/g,"") == el.parentNode.outerHTML.replace(/\s/g,"")) return el.parentNode;
-				return el;
-			case "Control": return range.item(0);
-			default: return this._doc.body;
-		}
-	}
-	try {
-		var p = range.commonAncestorContainer;
-		if(!range.collapsed && range.startContainer == range.endContainer &&
-		    range.startOffset - range.endOffset <= 1 && range.startContainer.hasChildNodes())
-			p = range.startContainer.childNodes[range.startOffset];
-		while (p.nodeType == 3) {p = p.parentNode;}
-		return p;
-	} catch (e) {
-		return this._doc.body;
-	}
-};
 
 /*
  * Get an array with all the ancestor nodes of the selection.
@@ -1806,27 +1624,8 @@ HTMLArea.prototype._selectionEmpty = function(sel) {
 };
 
 /* 
- * Insert HTML source code at the current position.
- * Deletes the current selection, if any.
- */
-HTMLArea.prototype.insertHTML = function(html) {
-	this.focusEditor();
-	if(HTMLArea.is_ie) {
-		var sel = this._getSelection();
-		var range = this._createRange(sel);
-		range.pasteHTML(html);
-	} else {
-		var fragment = this._doc.createDocumentFragment();
-		var div = this._doc.createElement("div");
-		div.innerHTML = html;
-		while (div.firstChild) {fragment.appendChild(div.firstChild);}
-		this.insertNodeAtSelection(fragment);
-	}
-};
-
-/* 
  * Surround the currently selected HTML source code with the given tags.
- * Deletes the selection, if any.
+ * Delete the selection, if any.
  */
 HTMLArea.prototype.surroundHTML = function(startTag,endTag) {
 	this.insertHTML(startTag + this.getSelectedHTML().replace(HTMLArea.Reg_body, "") + endTag);
@@ -1835,136 +1634,6 @@ HTMLArea.prototype.surroundHTML = function(startTag,endTag) {
 /***************************************************
  *  SELECTIONS AND RANGES
  ***************************************************/
-/*
- * Get the current selection object
- */
- /*
-HTMLArea.prototype._getSelection = function() {
-	if(HTMLArea.is_ie) return this._doc.selection;
-	if(HTMLArea.is_safari) return window.getSelection();
-	return this._iframe.contentWindow.getSelection();
-};
-*/
-/*
- * Create a range for the current selection
- */
- /*
-HTMLArea.prototype._createRange = function(sel) {
-	if (HTMLArea.is_ie) {
-		if (typeof(sel) != "undefined") return sel.createRange();
-		return this._doc.selection.createRange();
-	}
-	if (HTMLArea.is_safari) {
-		var range = this._doc.createRange();
-		if (typeof(sel) == "undefined") return range;
-		switch (sel.type) {
-			case "Range": 
-				range.setStart(sel.baseNode,sel.baseOffset);
-				range.setEnd(sel.extentNode,sel.extentOffset);
-				break;
-			case "Caret":
-				range.setStart(sel.baseNode,sel.baseOffset);
-				range.setEnd(sel.baseNode,sel.baseOffset);
-				break;
-			case "None":
-				range.setStart(this._doc.body,0);
-				range.setEnd(this._doc.body,0);
-		}
-		return range;
-	}
-	if (typeof(sel) == "undefined") return this._doc.createRange();
-	try {
-		return sel.getRangeAt(0);
-	} catch(e) {
-		return this._doc.createRange();
- 	}
-};
-*/
-/*
- * Select a node AND the contents inside the node
- */
-HTMLArea.prototype.selectNode = function(node) {
-	this.focusEditor();
-	this.forceRedraw();
-	if(HTMLArea.is_ie) {
-		var range = this._doc.body.createTextRange();
-		range.moveToElementText(node);
-		range.select();
-	} else {
-		var sel = this._getSelection();
-		var range = this._doc.createRange();
-		if(node.nodeType == 1 && node.tagName.toLowerCase() == "body") range.selectNodeContents(node);
-			else range.selectNode(node);
-		if(HTMLArea.is_safari) {
-			sel.empty();
-			sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
-		} else {
-			sel.removeAllRanges();
-			sel.addRange(range);
-		}
-	}
-};
-
-/*
- * Select ONLY the contents inside the given node
- */
-HTMLArea.prototype.selectNodeContents = function(node,pos) {
-	this.focusEditor();
-	this.forceRedraw();
-	var collapsed = (typeof(pos) != "undefined");
-	if (HTMLArea.is_ie) {
-		var range = this._doc.body.createTextRange();
-		range.moveToElementText(node);
-		(collapsed) && range.collapse(pos);
-		range.select();
-	} else {
-		var sel = this._getSelection();
-		var range = this._doc.createRange();
-		range.selectNodeContents(node);
-		(collapsed) && range.collapse(pos);
-		if(HTMLArea.is_safari) {
-			sel.empty();
-			sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
-		} else {
-			sel.removeAllRanges();
-			sel.addRange(range);
-		}
-	}
-};
-
-/*
- * Retrieve the HTML contents of selected block
- */
-HTMLArea.prototype.getSelectedHTML = function() {
-	var sel = this._getSelection();
-	var range = this._createRange(sel);
-	if (HTMLArea.is_ie) {
-		if (sel.type.toLowerCase() == "control") {
-			var r1 = this._doc.body.createTextRange();
-			r1.moveToElementText(range(0));
-			return r1.htmlText;
-		} else {
-			return range.htmlText;
-		}
-	} else {
-		var cloneContents = "";
-		try {cloneContents = range.cloneContents();} catch(e) { }
-		return (cloneContents ? HTMLArea.getHTML(cloneContents,false,this) : "");
-	}
-};
-
-/*
- * Retrieves simply HTML contents of the selected block, IE ignoring control ranges
- */
-HTMLArea.prototype.getSelectedHTMLContents = function() {
-	if (HTMLArea.is_ie) {
-		var sel = this._getSelection();
-		var range = this._createRange(sel);
-		return range.htmlText;
-	} else {
-		return this.getSelectedHTML();
-	}
-};
 
 /*
  * Return true if we have some selected content
@@ -2242,70 +1911,22 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	this.updateToolbar();
 	return false;
 };
-/*
-HTMLArea.prototype._mozillaPasteException = function(cmdID, UI, param) {
-		// Mozilla lauches an exception, but can paste anyway on ctrl-V
-		// UI is false on keyboard shortcut, and undefined on button click
-	if(typeof(UI) != "undefined") {
-		this._doc.execCommand(cmdID, UI, param);
-		if (cmdID == "Paste" && this.config.killWordOnPaste) HTMLArea._wordClean(this._doc.body);
-	} else if (this.config.enableMozillaExtension) {
-		if (HTMLArea.agt.indexOf("firefox/1.") != -1) {
-			if (confirm(HTMLArea.I18N.msg["Allow-Clipboard-Helper-Extension"])) {
-				if (InstallTrigger.enabled()) {
-					HTMLArea._mozillaXpi = new Object();
-					HTMLArea._mozillaXpi["AllowClipboard Helper"] = _editor_mozAllowClipboard_url;
-					InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
-				} else {
-					alert(HTMLArea.I18N.msg["Mozilla-Org-Install-Not-Enabled"]);
-					HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
-					return; 
-				}
-			}
-		} else if (confirm(HTMLArea.I18N.msg["Moz-Extension"])) {
-			if (InstallTrigger.enabled()) {
-				HTMLArea._mozillaXpi = new Object();
-				HTMLArea._mozillaXpi["TYPO3 htmlArea RTE Preferences"] = _typo3_host_url + "/uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi";
-  				InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
-			} else {
-				alert(HTMLArea.I18N.msg["Moz-Extension-Install-Not-Enabled"]);
-				HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
-				return; 
-			}
-		}
-	} else if (confirm(HTMLArea.I18N.msg["Moz-Clipboard"])) {
-		window.open("http://mozilla.org/editor/midasdemo/securityprefs.html");
-	}
-}
 
-HTMLArea._mozillaInstallCallback = function(url,returnCode) {
-	if (returnCode == 0) {
-		if (HTMLArea._mozillaXpi["TYPO3 htmlArea RTE Preferences"]) alert(HTMLArea.I18N.msg["Moz-Extension-Success"]);
-			else alert(HTMLArea.I18N.msg["Allow-Clipboard-Helper-Extension-Success"]);
-		return; 
-	} else {
-		alert(HTMLArea.I18N.msg["Moz-Extension-Failure"]);
-		HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install return code was: " + returnCode + ".");
-		return; 
-	}
-};
-*/
 /*
 * A generic event handler for things that happen in the IFRAME's document.
-* This function also handles key bindings.
 */
 HTMLArea._editorEvent = function(ev) {
 	if(!ev) var ev = window.event;
 	var target = (ev.target) ? ev.target : ev.srcElement;
 	var owner = (target.ownerDocument) ? target.ownerDocument : target;
-	while (HTMLArea.is_ie && owner.parentElement ) { // IE5.5 does not report any ownerDocument
-		owner = owner.parentElement;
+	if(HTMLArea.is_ie) { // IE5.5 does not report any ownerDocument
+		while (owner.parentElement ) { owner = owner.parentElement; }
 	}
 	var editor = RTEarea[owner._editorNo]["editor"];
 	var keyEvent = ((HTMLArea.is_ie || HTMLArea.is_safari) && ev.type == "keydown") || (!HTMLArea.is_ie && ev.type == "keypress");
 	editor.focusEditor();
 
-	if(keyEvent) {
+	if(keyEvent && editor._hasPluginWithOnKeyPressHandler) {
 		for (var i in editor.plugins) {
 			var plugin = editor.plugins[i].instance;
 			if (typeof(plugin.onKeyPress) == "function") {
@@ -2337,24 +1958,29 @@ HTMLArea._editorEvent = function(ev) {
 			}
 			break;
 				// simple key commands follow
-		    case 'b': cmd = "Bold"; break;
-		    case 'i': cmd = "Italic"; break;
-		    case 'u': cmd = "Underline"; break;
-		    case 's': cmd = "StrikeThrough"; break;
-		    case 'l': cmd = "JustifyLeft"; break;
-		    case 'e': cmd = "JustifyCenter"; break;
-		    case 'r': cmd = "JustifyRight"; break;
-		    case 'j': cmd = "JustifyFull"; break;
-		    case 'z': cmd = "Undo"; break;
-		    case 'y': cmd = "Redo"; break;
+		    case 'b': if (editor._toolbarObjects["Bold"]) cmd = "Bold"; break;
+		    case 'i': if (editor._toolbarObjects["Italic"]) cmd = "Italic"; break;
+		    case 'u': if (editor._toolbarObjects["Underline"]) cmd = "Underline"; break;
+		    case 's': if (editor._toolbarObjects["StrikeThrough"]) cmd = "StrikeThrough"; break;
+		    case 'l': if (editor._toolbarObjects["JustifyLeft"]) cmd = "JustifyLeft"; break;
+		    case 'e': if (editor._toolbarObjects["JustifyCenter"]) cmd = "JustifyCenter"; break;
+		    case 'r': if (editor._toolbarObjects["JustifyRight"]) cmd = "JustifyRight"; break;
+		    case 'j': if (editor._toolbarObjects["JustifyFull"]) cmd = "JustifyFull"; break;
+		    case 'z': if (editor._toolbarObjects["Undo"]) cmd = "Undo"; break;
+		    case 'y': if (editor._toolbarObjects["Redo"]) cmd = "Redo"; break;
 		    case 'v': 
-				if(HTMLArea.is_ie || HTMLArea.is_safari) {
-					 cmd = "Paste";
-				} else if(editor.config.killWordOnPaste) {
-					window.setTimeout("HTMLArea.wordCleanLater(" + owner._editorNo + ", false);", 50);
-				}
-				break;
-		    case 'n': cmd = "FormatBlock"; value = (HTMLArea.is_ie || HTMLArea.is_safari) ? "<p>" : "p"; break;
+		    	    if(HTMLArea.is_ie || HTMLArea.is_safari) {
+				cmd = "Paste";
+			    } else if(editor.config.killWordOnPaste) {
+				window.setTimeout("HTMLArea.wordCleanLater(" + owner._editorNo + ", false);", 50);
+			    }
+			    break;
+		    case 'n': 
+		    	    if (editor._toolbarObjects["FormatBlock"]) { 
+				cmd = "FormatBlock";
+				value = (HTMLArea.is_ie || HTMLArea.is_safari) ? "<p>" : "p";
+			    }
+			    break;
 		    case '0': cmd = "killword"; break;
 
 			// headings
@@ -2364,146 +1990,46 @@ HTMLArea._editorEvent = function(ev) {
 		    case '4':
 		    case '5':
 		    case '6':
-			cmd = "FormatBlock";
-			value = "h" + key;
-			if(HTMLArea.is_ie || HTMLArea.is_safari) value = "<" + value + ">";
-			break;
-		    case '-':  // Soft hyphen
-			editor.focusEditor();
-			editor.insertHTML('&shy;');
-			HTMLArea._stopEvent(ev);
-			break;
+		    	    if (editor._toolbarObjects["FormatBlock"]) { 
+				cmd = "FormatBlock";
+				value = "h" + key;
+				if(HTMLArea.is_ie || HTMLArea.is_safari) value = "<" + value + ">";
+			    }
+			    break;
 		}
 		if(cmd) {
-			// execute simple command
+				// execute simple command
 			editor.execCommand(cmd, false, value);
 			HTMLArea._stopEvent(ev);
+		} else {
+			editor.updateToolbar();
 		}
-/*
-		if (ev.keyCode == 45) { // Soft hyphen
-			editor.focusEditor();
-			editor.insertHTML('&shy;');
-			HTMLArea._stopEvent(ev);
-		}
-*/
 	} else if (keyEvent) {
-
-		if(HTMLArea.is_gecko) {
-/*
- * Detect emails and urls as they are typed in Mozilla
- * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
- */
-			var s = editor._getSelection();
-			var autoWrap = function (textNode, tag) {
-				var rightText = textNode.nextSibling;
-				if (typeof(tag) == 'string') tag = editor._doc.createElement(tag);
-				var a = textNode.parentNode.insertBefore(tag, rightText);
-				textNode.parentNode.removeChild(textNode);
-				a.appendChild(textNode);
-				rightText.data = ' ' + rightText.data;
-// Not yet revised for Safari
-				s.collapse(rightText, 1);
-				HTMLArea._stopEvent(ev);
-
-				editor._unLink = function() {
-					var t = a.firstChild, parent = a.parentNode;
-					a.removeChild(t);
-					parent.insertBefore(t, a);
-					parent.removeChild(a);
-					editor._unLink = null;
-					editor._unlinkOnUndo = false;
-				};
-				editor._unlinkOnUndo = true;
-				return a;
-			};
-
-			switch(ev.which) {
-				// Space, see if the text just typed looks like a URL, or email address and link it appropriatly
-				case 32:
-					if(s && s.isCollapsed && s.anchorNode.nodeType == 3 && s.anchorNode.data.length > 3 && s.anchorNode.data.indexOf('.') >= 0) {
-						var midStart = s.anchorNode.data.substring(0,s.anchorOffset).search(/\S{4,}$/);
-						if(midStart == -1) break;
-						if(editor._getFirstAncestor(s, 'a')) break; // already in an anchor
-						var matchData = s.anchorNode.data.substring(0,s.anchorOffset).replace(/^.*?(\S*)$/, '$1');
-						var m = matchData.match(HTMLArea.RE_email);
-						if(m) {
-							var leftText  = s.anchorNode;
-							var rightText = leftText.splitText(s.anchorOffset);
-							var midText   = leftText.splitText(midStart);
-							autoWrap(midText, 'a').href = 'mailto:' + m[0];
-							break;
-						}
-						var m = matchData.match(HTMLArea.RE_url);
-						if(m) {
-							var leftText  = s.anchorNode;
-							var rightText = leftText.splitText(s.anchorOffset);
-							var midText   = leftText.splitText(midStart);
-							autoWrap(midText, 'a').href = (m[1] ? m[1] : 'http://') + m[2];
-							break;
-						}
-					}
-					break;
-				default:
-					if(ev.keyCode == 27 || (editor._unlinkOnUndo && ev.ctrlKey && ev.which == 122) ) {
-						if(editor._unLink) {
-							editor._unLink();
-							HTMLArea._stopEvent(ev);
-						}
-						break;
-					} else if(ev.which || ev.keyCode == 8 || ev.keyCode == 46) {
-						editor._unlinkOnUndo = false;
-						if(s.anchorNode && s.anchorNode.nodeType == 3) {
-								// See if we might be changing a link
-							var a = editor._getFirstAncestor(s, 'a');
-							if(!a) break; // not an anchor
-							if(!a._updateAnchTimeout) {
-								if(s.anchorNode.data.match(HTMLArea.RE_email) && (a.href.match('mailto:' + s.anchorNode.data.trim()))) {
-									var textNode = s.anchorNode;
-									var fn = function() {
-										a.href = 'mailto:' + textNode.data.trim();
-										a._updateAnchTimeout = setTimeout(fn, 250);
-									};
-									a._updateAnchTimeout = setTimeout(fn, 250);
-									break;
-								}
-								var m = s.anchorNode.data.match(HTMLArea.RE_url);
-								if(m &&  a.href.match(s.anchorNode.data.trim())) {
-									var textNode = s.anchorNode;
-									var fn = function() {
-										var m = textNode.data.match(HTMLArea.RE_url);
-										a.href = (m[1] ? m[1] : 'http://') + m[2];
-										a._updateAnchTimeout = setTimeout(fn, 250);
-									}
-									a._updateAnchTimeout = setTimeout(fn, 250);
-								}
-							}
-						}
-					}
-					break;
-			}
-		}
-		// other keys here
+		if (HTMLArea.is_gecko) editor._detectURL(ev);
 		switch (ev.keyCode) {
 		    case 13	: // KEY enter
-			if(HTMLArea.is_gecko && !ev.shiftKey && !editor.config.disableEnterParagraphs) {
-				editor.dom_checkInsertP();
+			if (HTMLArea.is_gecko && !ev.shiftKey && !editor.config.disableEnterParagraphs) {
+				editor._checkInsertP();
 				HTMLArea._stopEvent(ev);
+				editor.updateToolbar();
 			}
 			break;
 		    case 8	: // KEY backspace
 		    case 46	: // KEY delete
-			if(HTMLArea.is_gecko && !ev.shiftKey) {
-				if(editor.dom_checkBackspace()) HTMLArea._stopEvent(ev);
-			} else if(HTMLArea.is_ie) {
-				if(editor.ie_checkBackspace()) HTMLArea._stopEvent(ev);
+			if ((HTMLArea.is_gecko && !ev.shiftKey) || HTMLArea.is_ie) {
+				if (editor._checkBackspace()) HTMLArea._stopEvent(ev);
 			}
+				// update the toolbar state after some time
+			if (editor._timerToolbar) window.clearTimeout(editor._timerToolbar);
+			editor._timerToolbar = window.setTimeout("HTMLArea.updateToolbar(" + editor._editorNumber + ");", 50);
 			break;
 		}
+	} else {
+			// mouse event
+		if (editor._timerToolbar) window.clearTimeout(editor._timerToolbar);
+		if (ev.type == "mouseup") editor.updateToolbar();
+			else editor._timerToolbar = window.setTimeout("HTMLArea.updateToolbar(" + editor._editorNumber + ");", 50);
 	}
-
-		// update the toolbar state after some time
-	if (editor._timerToolbar) window.clearTimeout(editor._timerToolbar);
-	editor._timerToolbar = window.setTimeout("HTMLArea.updateToolbar(" + editor._editorNumber + ");", 50);
 };
 
 HTMLArea.prototype.scrollToCaret = function() {
@@ -2524,151 +2050,6 @@ HTMLArea.prototype.convertNode = function(el, newTagName) {
 	return newel;
 };
 
-/*
- * Handle the backspace event in IE browsers
- */
- /*
-HTMLArea.prototype.ie_checkBackspace = function() {
-	var sel = this._getSelection();
-	var range = this._createRange(sel);
-	if(sel.type == "Control"){   
-		var el = this.getParentElement();   
-		var p = el.parentNode;   
-		p.removeChild(el);   
-		return true;  
-	} else {
-		var r2 = range.duplicate();
-		r2.moveStart("character", -1);
-		var a = r2.parentElement();
-		if(a != range.parentElement() && /^a$/i.test(a.tagName)) {
-			r2.collapse(true);
-			r2.moveEnd("character", 1);
-       		r2.pasteHTML('');
-       		r2.select();
-       		return true;
-		}
-	}
-};
-*/
-
-/*
- * Handle the backspace event in gecko browsers
- */
- /*
-HTMLArea.prototype.dom_checkBackspace = function() {
-	var self = this;
-	window.setTimeout(function() {
-		self.focusEditor();
-		var sel = self._getSelection();
-		var range = self._createRange(sel);
-		var SC = range.startContainer;
-		var SO = range.startOffset;
-		var EC = range.endContainer;
-		var EO = range.endOffset;
-		var newr = SC.nextSibling;
-		if(SC.nodeType == 3) SC = SC.parentNode;
-		if(!/\S/.test(SC.tagName)) {
-			var p = document.createElement("p");
-			while (SC.firstChild) p.appendChild(SC.firstChild);
-			SC.parentNode.insertBefore(p, SC);
-			SC.parentNode.removeChild(SC);
-			var r = range.cloneRange();
-			r.setStartBefore(newr);
-			r.setEndAfter(newr);
-			r.extractContents();
-			if(HTMLArea.is_safari) {
-				sel.empty();
-				sel.setBaseAndExtent(r.startContainer,r.startOffset,r.endContainer,r.endOffset);
-			} else {
-				sel.removeAllRanges();
-				sel.addRange(r);
-			}
-		}
-	},10);
-};
-
-HTMLArea.prototype.dom_checkInsertP = function() {
-	this.focusEditor();
-	var i, SC, left, right, r2,
-		sel   = this._getSelection(),
-		r     = this._createRange(sel),
-		p     = this.getAllAncestors(),
-		block = null,
-		doc   = this._doc,
-		body  = doc.body;
-
-	for (i = 0; i < p.length; ++i) {
-		if (HTMLArea.isBlockElement(p[i]) && !/body|html|table|tbody|tr/i.test(p[i].tagName)) {
-			block = p[i];
-			break;
-		}
-	}
-	if(!r.collapsed) r.deleteContents();
-	if(HTMLArea.is_safari) sel.empty();
-		else sel.removeAllRanges();
-	SC = r.startContainer;
-	if(!block || /td/i.test(block.tagName)) {
-		left = SC;
-		for (i=SC;i && (i != body) && !HTMLArea.isBlockElement(i);i=HTMLArea.getPrevNode(i)) { left = i; }
-		right = SC;
-		for (i=SC;i && (i != body) && !HTMLArea.isBlockElement(i);i=HTMLArea.getNextNode(i)) { right = i; }
-		if(left != body && right != body && !(block && left == block ) && !(block && right == block )) {
-			r2 = r.cloneRange();
-			r2.setStartBefore(left);
-			r2.surroundContents(block = doc.createElement('p'));
-			if (!/\S/.test(HTMLArea.getInnerText(block))) block.appendChild(this._doc.createElement('br'));
-			block.normalize();
-			r.setEndAfter(right);
-			r.surroundContents(block = doc.createElement('p'));
-			if (!/\S/.test(HTMLArea.getInnerText(block))) block.appendChild(this._doc.createElement('br'));
-			block.normalize();
-		} else { 
-			if(!block) {
-				r = doc.createRange();
-				r.setStart(body, 0);
-				r.setEnd(body, 0);
-				r.insertNode(block = doc.createElement('p'));
-				block.appendChild(this._doc.createElement('br'));
-			} else {
-				r = doc.createRange();
-				r.setStart(block, 0);
-				r.setEnd(block, 0);
-				r.insertNode(block = doc.createElement('p'));
-				block.appendChild(this._doc.createElement('br'));
-			}
-		}
-		r.selectNodeContents(block);
-	} else {
-		r.setEndAfter(block);
-		var df = r.extractContents(), left_empty = false;
-		if(!/\S/.test(block.innerHTML)) {
-			block.innerHTML = "<br />";
-			left_empty = true;
-		}
-		p = df.firstChild;
-		if (p) {
-			if(!/\S/.test(HTMLArea.getInnerText(p))) {
- 				if (/^h[1-6]$/i.test(p.tagName)) p = this.convertNode(p,"p");
-				p.innerHTML = "<br />";
-			}
-			if(/^li$/i.test(p.tagName) && left_empty && !block.nextSibling) {
-				left = block.parentNode;
-				left.removeChild(block);
-				r.setEndAfter(left);
-				r.collapse(false);
-				p = this.convertNode(p, /^[uo]l$/i.test(left.parentNode.tagName) ? "li" : "p");
-			}
-			r.insertNode(df);
-			r.selectNodeContents(p);
-		}
-	}
-	r.collapse(true);
-	if(HTMLArea.is_safari) sel.setBaseAndExtent(r.startContainer,r.startOffset,r.endContainer,r.endOffset);
-		else sel.addRange(r);
-	//this.forceRedraw();
-	this.scrollToCaret();
-};
-*/
 /*
  * Retrieve the HTML
  */
@@ -3164,170 +2545,12 @@ HTMLArea.edHidePopup = function() {
  * Set the size of textarea with the RTE. It's called, if we are in fullscreen-mode.
  */
 var setRTEsizeByJS = function(divId, height, width) {
-	if (HTMLArea.is_gecko) { height = height - 25; } else { height = height - 60; }
-	if (height > 0) { document.getElementById(divId).style.height =  height + "px"; }
-	if (HTMLArea.is_gecko) { width = "99%"; } else { width = "97%"; }
+	if (HTMLArea.is_gecko) height = height - 25; 
+		else height = height - 60;
+	if (height > 0) document.getElementById(divId).style.height =  height + "px";
+	if (HTMLArea.is_gecko) width = "99%"; 
+		else width = "97%";
 	document.getElementById(divId).style.width = width;
-};
-
-/*
- * IE-Browsers strip URL's to relative URL's. But for the TYPO3 backend we need absolute URL's.
- * This function overloads the normal stripBaseURL-function (which generate relative URLs).
- */
-HTMLArea.prototype.nonStripBaseURL = function(url) {
-	return url;
-};
-
-/*
- *  CreateLink: Typo3-RTE function, use this instead of the original.
- */
-HTMLArea.prototype.renderPopup_link = function() {
-	var editorNo = this._doc._editorNo,
-		backreturn,
-		addUrlParams = "?" + conf_RTEtsConfigParams,
-		sel = this.getParentElement();
-
-	if (sel == null || sel.tagName.toLowerCase() != "a") {
-		var parent = getElementObject(sel,"a");
-		if (parent != null && parent.tagName && parent.tagName.toLowerCase() == "a") sel = parent;
-	}
-	if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") {
-		addUrlParams = "?curUrl[href]=" + escape(sel.getAttribute("href"));
-		if (sel.target) addUrlParams += "&curUrl[target]=" + escape(sel.target);
-		if (sel.className) addUrlParams += "&curUrl[class]=" + escape(sel.className);
-		if (sel.title) addUrlParams += "&curUrl[title]=" + escape(sel.title);
-		addUrlParams += conf_RTEtsConfigParams;
-	} else if (this.hasSelectedText()) {
-		var text = this.getSelectedHTML();
-		if (text && text != null) {
-			var offset = text.toLowerCase().indexOf("<a");
-			if (offset!=-1) {
-				var ATagContent = text.substring(offset+2);
-				offset = ATagContent.toUpperCase().indexOf(">");
-				ATagContent = ATagContent.substring(0,offset);
-				addUrlParams = "?curUrl[all]=" + escape(ATagContent) + conf_RTEtsConfigParams;
-			}
-		}
-	}
-	this._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNo + "&popupname=link&srcpath=" + encodeURI(rtePathLinkFile), null, backreturn, 550, 350);
-	return false;
-};
-
-/*
- *  Insert Image TYPO3 RTE function.
- */
-
-var _selectedImage;
-
-HTMLArea.prototype.renderPopup_image = function() {
-	var editorNo = this._doc._editorNo,
-		backreturn,
-		addParams = "?"+conf_RTEtsConfigParams,
-		image = this.getParentElement();
-
-	if (image && !/^img$/i.test(image.tagName)) image = null;
-	_selectedImage = "";
-	if (image && image.tagName.toLowerCase() == "img") {
-		addParams = "?act=image" + conf_RTEtsConfigParams;
-		_selectedImage = image;
-	}
-
-	this._popupDialog("../../t3_popup.php" + addParams + "&editorNo=" + editorNo + "&popupname=image&srcpath="+encodeURI(rtePathImageFile), null, backreturn, 550, 350);	
-	return false;
-};
-
-/*
- * Insert the Image.
- * This function is called from the typo3-image-popup.
- */
-HTMLArea.prototype.renderPopup_insertImage = function(image) {
-	this.focusEditor();
-	this.insertHTML(image);
-	_selectedImage="";
-	Dialog._modal.close();
-	this.updateToolbar();
-};
-
-/*
- * Add a link to the selection.
- * This function is called from the TYPO3 link popup.
- */
-HTMLArea.prototype.renderPopup_addLink = function(theLink,cur_target,cur_class,cur_title) {
-	var a, sel = null;
-	this.focusEditor();
-
-	if(!HTMLArea.is_ie) {
-		var text = null;
-		sel = this.getParentElement();
-		if (sel == null || sel.tagName.toLowerCase() != "a") {
-			var parent = getElementObject(sel, "a");
-			if (parent != null && parent.tagName && parent.tagName.toLowerCase() == "a") sel = parent;
-		}
-		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNodeContents(sel);
-	}
-
-	this._doc.execCommand("CreateLink", false, theLink);
-
-	sel = this._getSelection();
-	var range = this._createRange(sel);
-	a = this.getParentElement();
-	if (a) {
-/*
-		if(!HTMLArea.is_ie) {
-			a = range.startContainer;
-			if(!/^a$/i.test(a.tagName)) {
-				a = a.nextSibling;
-				if(a == null) a = range.startContainer.parentNode;
-			}
-		}
-*/
-			// we may have created multiple links in as many blocks
-		function setLinkAttributes(node) {
-			if (/^a$/i.test(node.tagName)) {
-				if ((HTMLArea.is_gecko && range.intersectsNode(node)) || (HTMLArea.is_ie)) {
-					if (cur_target.trim()) { node.target = cur_target.trim(); }
-						else { node.removeAttribute("target"); }
-					if (cur_class.trim()) {
-						node.className = cur_class.trim();
-					} else { 
-						if (HTMLArea.is_gecko) { node.removeAttribute('class'); }
-							else { node.removeAttribute('className'); }
-					}
-					if (cur_title.trim()) { node.title = cur_title.trim(); }
-						else {
-							node.removeAttribute("title");
-							node.removeAttribute("rtekeep");
-						}
-				}
-			} else {
-				for (var i = node.firstChild;i;i = i.nextSibling) {
-					if (i.nodeType == 1 || i.nodeType == 11) { setLinkAttributes(i); }
-				}
-			}
-		}
-		setLinkAttributes(a);
-	}
-	Dialog._modal.close();
-};
-
-/*
- * Unlink the selection.
- * This function is called from the TYPO3 link popup.
- */
-HTMLArea.prototype.renderPopup_unLink = function() {
-	this.focusEditor();
-	if(!HTMLArea.is_ie) {
-		var sel = null;
-		var text = null;
-		sel = this.getParentElement();
-		if (sel == null || sel.tagName.toLowerCase() != "a") {
-			var parent = getElementObject(sel, "a");
-			if (parent != null && parent.tagName && parent.tagName.toLowerCase() == "a") sel = parent;
-		}
-		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNodeContents(sel);
-	}
-	this._doc.execCommand("Unlink", false, "");
-	Dialog._modal.close();
 };
 
 /*

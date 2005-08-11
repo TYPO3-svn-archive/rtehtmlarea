@@ -82,6 +82,97 @@ HTMLArea.prototype._createRange = function(sel) {
 	return this._doc.selection.createRange();
 };
 
+/*
+ * Select a node AND the contents inside the node
+ */
+HTMLArea.prototype.selectNode = function(node) {
+	this.focusEditor();
+	this.forceRedraw();
+	var range = this._doc.body.createTextRange();
+	range.moveToElementText(node);
+	range.select();
+};
+
+/*
+ * Select ONLY the contents inside the given node
+ */
+HTMLArea.prototype.selectNodeContents = function(node,pos) {
+	this.focusEditor();
+	this.forceRedraw();
+	var collapsed = (typeof(pos) != "undefined");
+	var range = this._doc.body.createTextRange();
+	range.moveToElementText(node);
+	(collapsed) && range.collapse(pos);
+	range.select();
+};
+
+/*
+ * Retrieve the HTML contents of selected block
+ */
+HTMLArea.prototype.getSelectedHTML = function() {
+	var sel = this._getSelection();
+	var range = this._createRange(sel);
+	if (sel.type.toLowerCase() == "control") {
+		var r1 = this._doc.body.createTextRange();
+		r1.moveToElementText(range(0));
+		return r1.htmlText;
+	} else {
+		return range.htmlText;
+	}
+};
+
+/*
+ * Retrieve simply HTML contents of the selected block, IE ignoring control ranges
+ */
+HTMLArea.prototype.getSelectedHTMLContents = function() {
+	var sel = this._getSelection();
+	var range = this._createRange(sel);
+	return range.htmlText;
+};
+
+/*
+ * Get the deepest node that contains both endpoints of the current selection.
+ */
+HTMLArea.prototype.getParentElement = function(sel) {
+	if(!sel) var sel = this._getSelection();
+	var range = this._createRange(sel);
+	switch (sel.type) {
+		case "Text":
+		case "None":
+			var el = range.parentElement();
+			if(el.nodeName.toLowerCase() == "li" && range.htmlText.replace(/\s/g,"") == el.parentNode.outerHTML.replace(/\s/g,"")) return el.parentNode;
+			return el;
+		case "Control": return range.item(0);
+		default: return this._doc.body;
+	}
+};
+
+/***************************************************
+ *  DOM TREE MANIPULATION
+ ***************************************************/
+
+ /*
+ * Insert a node at the current position.
+ * Delete the current selection, if any.
+ * Split the text node, if needed.
+ */
+HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
+	var sel = this._getSelection();
+	var range = this._createRange(sel);
+	range.pasteHTML(toBeInserted.outerHTML);
+};
+
+/* 
+ * Insert HTML source code at the current position.
+ * Delete the current selection, if any.
+ */
+HTMLArea.prototype.insertHTML = function(html) {
+	this.focusEditor();
+	var sel = this._getSelection();
+	var range = this._createRange(sel);
+	range.pasteHTML(html);
+};
+ 
 /***************************************************
  *  EVENT HANDLERS
  ***************************************************/
@@ -89,7 +180,7 @@ HTMLArea.prototype._createRange = function(sel) {
 /*
  * Handle the backspace event in IE browsers
  */
-HTMLArea.prototype.ie_checkBackspace = function() {
+HTMLArea.prototype._checkBackspace = function() {
 	var sel = this._getSelection();
 	var range = this._createRange(sel);
 	if(sel.type == "Control"){   
@@ -104,9 +195,10 @@ HTMLArea.prototype.ie_checkBackspace = function() {
 		if(a != range.parentElement() && /^a$/i.test(a.tagName)) {
 			r2.collapse(true);
 			r2.moveEnd("character", 1);
-       		r2.pasteHTML('');
-       		r2.select();
-       		return true;
+			r2.pasteHTML('');
+			r2.select();
+			return true;
 		}
+		return false;
 	}
 };

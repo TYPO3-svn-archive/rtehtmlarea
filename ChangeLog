@@ -1,3 +1,10 @@
+2005-08-09  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Added documentation section on server configuration.
+	* Correction: the compressed version of plugin scripts were not used.
+	* Various changes for performance improvement.
+	* Added FAQ on hotkeys.
+	* Update to Finnish and Norwegian translations.
+
 2005-08-05  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.5.9
 	* Correction: the MS Word Formatting option of the RemoveFormat button was broken in version 0.5.5.

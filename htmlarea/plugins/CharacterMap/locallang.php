@@ -21,6 +21,10 @@ $LOCAL_LANG = Array (
 		'Cancel' => 'Abbrechen',
 	),
 	'no' => Array (
+		'CharacterMapTooltip' => 'Sett inn spesialtegn',
+		'Insert special character' => 'Sett inn spesialtegn',
+		'HTML value:' => 'HTML-verdi:',
+		'Cancel' => 'Avbryt',
 	),
 	'it' => Array (
 		'CharacterMapTooltip' => 'Inserisci carattere speciale',
@@ -123,6 +127,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

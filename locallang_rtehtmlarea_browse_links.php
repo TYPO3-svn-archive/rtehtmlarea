@@ -113,6 +113,8 @@ $LOCAL_LANG = Array (
 		'target_popUpWindow' => 'Åpne i vindu',
 		'target_popUpWindow_width' => 'Bredde',
 		'target_popUpWindow_height' => 'Høyde',
+		'anchor_class' => 'Stil',
+		'anchor_title' => 'Tittel',
 		'newWindow' => 'Nytt vindu',
 		'top' => 'Topp',
 		'none' => 'Ingen - ny link!',
@@ -125,9 +127,9 @@ $LOCAL_LANG = Array (
 		'setLink' => 'Sett link',
 		'clickToRedrawFullSize' => 'Bildet er større enn vist her! Klikk for å lese inn på nytt i full størrelse.',
 		'findDragDrop' => 'Finn ditt bilde, klikk på bildet og trekk det inn i redigeringsområdet i hovedvinduet!',
-		'noWebFolder' => 'Du kan ikke ’klikke og dra’ bilder fra denne mappen (gul), da den ligger internt på serveren.',
+		'noWebFolder' => 'Du kan ikke ’trekke og slippe’ bilder fra denne mappen (gul), da den ligger internt på serveren.',
 		'currentLink' => 'Gjeldende link',
-		'invalidChar' => 'FEIL: Det finnes en ugyldig karakter i filstien (%s). Kan ikke legge til filen!',
+		'invalidChar' => 'FEIL: Det finnes et ugyldig tegn i filstien (%s). Kan ikke legge til filen!',
 	),
 	'it' => Array (
 		'removeLink' => 'Rimuovi Link',
@@ -349,6 +351,7 @@ $LOCAL_LANG = Array (
 		'target_popUpWindow_width' => 'Leveys',
 		'target_popUpWindow_height' => 'Korkeus',
 		'anchor_class' => 'Tyyli',
+		'anchor_title' => 'Otsikko',
 		'newWindow' => 'Uusi ikkuna',
 		'top' => 'Alkuun',
 		'none' => 'Ei mitään - uusi linkki!',
@@ -960,6 +963,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

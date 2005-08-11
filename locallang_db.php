@@ -20,6 +20,12 @@ $LOCAL_LANG = Array (
 	'de' => Array (
 	),
 	'no' => Array (
+		'tx_rtehtmlarea_acronym' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type' => 'Type',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Forkortelse',
+		'tx_rtehtmlarea_acronym.term' => 'Uttrykk',
+		'tx_rtehtmlarea_acronym.acronym' => 'Forkortet form',
 	),
 	'it' => Array (
 	),
@@ -42,6 +48,12 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'tx_rtehtmlarea_acronym' => 'Akronyymi',
+		'tx_rtehtmlarea_acronym.type' => 'Tyyppi',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Akronyymi',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Lyhenne',
+		'tx_rtehtmlarea_acronym.term' => 'Termi',
+		'tx_rtehtmlarea_acronym.acronym' => 'Suppea muoto',
 	),
 	'tr' => Array (
 	),
@@ -92,6 +104,18 @@ $LOCAL_LANG = Array (
 	'jp' => Array (
 	),
 	'vn' => Array (
+	),
+	'ca' => Array (
+	),
+	'ba' => Array (
+	),
+	'kr' => Array (
+	),
+	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

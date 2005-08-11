@@ -19,6 +19,9 @@ $LOCAL_LANG = Array (
 		'Cancel' => 'Abbrechen',
 	),
 	'no' => Array (
+		'Insert Smiley' => 'Sett inn smiley',
+		'Smiley' => 'Smiley',
+		'Cancel' => 'Avbryt',
 	),
 	'it' => Array (
 		'Insert Smiley' => 'Inserisci Smiley',
@@ -114,6 +117,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

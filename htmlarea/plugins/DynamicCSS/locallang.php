@@ -19,6 +19,9 @@ $LOCAL_LANG = Array (
 		'DynamicCSSStyleTooltip' => 'Dem Paragraphen eine Formatierung zuweisen',
 	),
 	'no' => Array (
+		'Default' => 'Standard',
+		'Undefined' => 'Ikke definert',
+		'DynamicCSSStyleTooltip' => 'Bruk stilen til dette avsnittet',
 	),
 	'it' => Array (
 		'Default' => 'Predefinito',
@@ -113,6 +116,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

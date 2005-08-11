@@ -38,6 +38,19 @@ $LOCAL_LANG = Array (
 		'Cancel' => 'Abbrechen',
 	),
 	'no' => Array (
+		'RemoveFormatTooltip' => 'Fjern formattering',
+		'Cleaning Area' => 'Renser område',
+		'Selection' => 'Markering',
+		'All' => 'Alle',
+		'Remove formatting' => 'Fjern formattering',
+		'Cleaning options' => 'Hva slags formattering som skal fjernes',
+		'Formatting:' => 'HTML-formattering:',
+		'MS Word Formatting:' => 'MS Word-formattering:',
+		'Images:' => 'Bilder:',
+		'All HTML:' => 'All HTML:',
+		'Select the type of formatting you wish to remove.' => 'Velg typen formattering du vil fjerne.',
+		'OK' => 'OK',
+		'Cancel' => 'Avbryt',
 	),
 	'it' => Array (
 		'RemoveFormatTooltip' => 'Rimuovi formattazione',
@@ -99,6 +112,7 @@ $LOCAL_LANG = Array (
 		'Cleaning options' => 'Muotoilutyypin poisto',
 		'Formatting:' => 'HTML muotoilu:',
 		'MS Word Formatting:' => 'MS Word muotoilu:',
+		'Images:' => 'Kuvat:',
 		'All HTML:' => 'Kaikki HTML tagit:',
 		'Select the type of formatting you wish to remove.' => 'Valitse muotoilutyyppi joka poistetaan',
 		'OK' => 'OK',
@@ -185,6 +199,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>

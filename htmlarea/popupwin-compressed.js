@@ -2,9 +2,7 @@
 PopupWin=function(editor,_title,handler,initFunction,width,height,_opener){
 this.editor=editor;
 this.handler=handler;
-if(typeof initFunction=="undefined"){
-initFunction=window;
-}
+if(typeof initFunction=="undefined")initFunction=window;
 this._geckoOpenModal(editor,_title,handler,initFunction,width,height,_opener);
 };
 PopupWin.prototype._parentEvent=function(ev){
@@ -25,7 +23,6 @@ this._opener.dialog=this;
 if(Dialog._modal&&!Dialog._modal.closed)Dialog._dialog=this;
 var doc=this.dialogWindow.document;
 this.doc=doc;
-var self=this;
 if(doc.all){
 doc.open();
 var html="<html><head></head><body></body></html>\n";
@@ -55,13 +52,13 @@ body.className="popupwin dialog";
 body.id="--HA-body";
 var content=doc.createElement("div");
 content.className="content";
-self.content=content;
+this.content=content;
 body.appendChild(content);
 if(!doc.all)html.appendChild(body);
-self.element=body;
-initFunction(self);
+this.element=body;
+initFunction(this);
 this.captureEvents();
-self.dialogWindow.focus();
+this.dialogWindow.focus();
 };
 PopupWin.prototype._dlg_close_on_esc=function(ev){
 if(ev.keyCode==27){

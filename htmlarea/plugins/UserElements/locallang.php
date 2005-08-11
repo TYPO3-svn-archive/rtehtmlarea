@@ -14,6 +14,7 @@ $LOCAL_LANG = Array (
 	'de' => Array (
 	),
 	'no' => Array (
+		'Insert custom element' => 'Sett inn egendefinert element',
 	),
 	'it' => Array (
 	),
@@ -31,6 +32,7 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'Insert custom element' => 'Lisää oma elementti',
 	),
 	'tr' => Array (
 	),
@@ -89,6 +91,10 @@ $LOCAL_LANG = Array (
 	'kr' => Array (
 	),
 	'eo' => Array (
+	),
+	'my' => Array (
+	),
+	'hi' => Array (
 	),
 );
 ?>
