@@ -79,14 +79,14 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		);
 
 		// The order of the toolbar: the name is the TYPO3-button name when it exists
-	var $defaultToolbarOrder = 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, bar, linebreak,
-		fontstyle, space, fontsize, space, formatblock, bar, 
-		bold, italic, underline, bar, strikethrough, subscript, superscript, bar,
-		lefttoright, righttoleft, bar, left, center, right, justifyfull, bar, 
-		orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, 
-		emoticon, insertcharacter, line, link, image, table, user, acronym, bar, findreplace, spellcheck, bar, 
-		chMode, inserttag, removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
-		toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
+	var $defaultToolbarOrder = 'bar, blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak,
+		bar, fontstyle, space, fontsize, space, formatblock,
+		bar, bold, italic, underline, strikethrough, subscript, superscript,
+		bar, lefttoright, righttoleft, bar, left, center, right, justifyfull,
+		bar, orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator,
+		bar, emoticon, insertcharacter, line, link, image, table, user, acronym, bar, findreplace, spellcheck,
+		bar, chMode, inserttag, removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
+		bar, toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 		columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
 		cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge';
 			
@@ -449,6 +449,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				if( !in_array($this->spellCheckerMode, $this->spellCheckerModes)) {
 					$this->spellCheckerMode = 'normal';
 				}
+
+
+
 			}
 
 			if( $this->isPluginEnable('QuickTag') && trim($this->thisConfig['hideTags'])) {
@@ -495,6 +498,9 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 
 				// Loading the editor skin
 			$skinFilename = trim($this->thisConfig['skin']) ? trim($this->thisConfig['skin']) : 'EXT:' . $this->ID . '/htmlarea/skins/default/htmlarea.css';
+			if($this->client['BROWSER'] == 'gecko' && $this->client['VERSION'] == '1.3' && substr($skinFilename,0,4) == 'EXT:')  {
+				$skinFilename = 'EXT:' . $this->ID . '/htmlarea/skins/default/htmlarea.css';
+			}
 			if (substr($skinFilename,0,4) == 'EXT:')      {       // extension
 				list($extKey,$local) = explode('/',substr($skinFilename,4),2);
 				$skinFilename='';
@@ -578,22 +584,22 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		global $BE_USER;
 
 		if($this->client['BROWSER'] == 'gecko' && $this->client['VERSION'] == '1.3')  {
-			$this->defaultToolbarOrder = $this->TCEform->docLarge ? 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
-				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
+			$this->defaultToolbarOrder = $this->TCEform->docLarge ? 'bar, blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
+				bar, fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, strikethrough, 
 				subscript, superscript, lefttoright, righttoleft, bar, left, center, right, justifyfull, linebreak, 
-				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
+				bar, orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
 				insertcharacter, line, link, image, table, user, acronym, bar, findreplace, spellcheck, bar, chMode, inserttag, 
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
-				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
+				bar, toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
 				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge'
-				: 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
-				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
-				subscript, superscript, linebreak, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
+				: 'bar, blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
+				bar, fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, strikethrough, 
+				subscript, superscript, linebreak, bar, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
 				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
-				insertcharacter, line, link, image, table, user, acronym, linebreak, findreplace, spellcheck, bar, chMode, inserttag, 
+				insertcharacter, line, link, image, table, user, acronym, linebreak, bar, findreplace, spellcheck, bar, chMode, inserttag, 
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak, 
-				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
+				bar, toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
 				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge';
 		}
@@ -706,11 +712,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		}
 	}
 
-	
 	/**
-
-
-
 	 * Convert the names for typo3 Buttons into the names for HTML-Area.
 	 * HTML-Area and Typo3 use differens names for the button. This function
 	 * convert the names
@@ -814,6 +816,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			RTEarea['.$number.']["htmlRemoveComments"] = ' . (trim($this->thisConfig['removeComments'])?'true':'false') . ';
 			RTEarea['.$number.']["disableEnterParagraphs"] = ' . (trim($this->thisConfig['disableEnterParagraphs'])?'true':'false') . ';
 			RTEarea['.$number.']["removeTrailingBR"] = ' . (trim($this->thisConfig['removeTrailingBR'])?'true':'false') . ';
+			RTEarea['.$number.']["keepButtonGroupTogether"] = ' . (trim($this->thisConfig['keepButtonGroupTogether'])?'true':'false') . ';
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
 			RTEarea['.$number.']["showTagFreeClasses"] = ' . (trim($this->thisConfig['showTagFreeClasses'])?'true':'false') . ';
@@ -1231,6 +1234,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		$toolbar = "";			// The JS-Code for the toolbar
 		$group = "";			// The TS-Code for the group in the moment, each group are between "bar"s
 		$group_has_button = false;	// True if the group has any enabled buttons
+		$group_needs_starting_bar = false;
 
 			// process each button in the order list
 		reset($this->toolbarOrderArray);
@@ -1246,16 +1250,20 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$toolbar .= $toolbar ? (', ' . $group) : ('[[' . $group);
 				$group = '';
 				$group_has_button = false;
+				$group_needs_starting_bar = false;
 			} elseif ($toolbar && $button == 'linebreak' && !$group_has_button) {
 					// Insert linebreak if no group is opened
 				$group = '';
+				$group_needs_starting_bar = false;
 				$toolbar .= ', "' . $this->convertToolBarForHTMLArea($button) . '"';
-			} elseif (in_array($button, $this->toolBar)) {
+			} elseif ($button == 'bar' && !$group_has_button) {
+				$group_needs_starting_bar = true;
+			} elseif (in_array($button, $this->toolBar) || $button == "space") {
 					// Add the button to the group
 				$convertButton = $this->convertToolBarForHTMLArea($button);
 				if ($convertButton) {
 					$convertButton = '"' . $convertButton . '"';
-					$group .= $group ? (', ' . $convertButton) : $convertButton;
+					$group .= $group ? (', ' . $convertButton) : (($group_needs_starting_bar && $button != "space") ? ('"' . $this->convertToolBarForHTMLArea('bar') . '", ' . $convertButton) : $convertButton);
 					if($button != "space") $group_has_button = true;
 				}
 			}

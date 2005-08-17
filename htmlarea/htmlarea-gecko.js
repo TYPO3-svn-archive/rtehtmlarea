@@ -249,6 +249,22 @@ HTMLArea.DTMDivHandler = function (editor,DTMDiv) {
 };
 
 /*
+ * Handle statusbar element events
+ */
+HTMLArea.statusBarHandler = function (ev) {
+	if(!ev) var ev = window.event;
+	var target = (ev.target) ? ev.target : ev.srcElement;
+	var editor = target.editor;
+	target.blur();
+	editor.selectNode(target.el);
+	editor.updateToolbar(true);
+	switch (ev.type) {
+		case "click" : return false;
+		case "contextmenu" : return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
+	}
+};
+
+/*
  * Paste exception handler
  */
 HTMLArea.prototype._mozillaPasteException = function(cmdID, UI, param) {

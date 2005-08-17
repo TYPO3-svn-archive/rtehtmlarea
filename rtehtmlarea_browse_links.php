@@ -1768,6 +1768,7 @@ class tx_rtehtmlarea_browse_links {
 
 				//	Add the HTML for the record list to output variable:
 			$out.=$dblist->HTMLcode;
+
 			$out.=$dblist->getSearchBox();
 		}
 

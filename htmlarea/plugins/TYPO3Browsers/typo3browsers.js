@@ -27,20 +27,16 @@ TYPO3Browsers._pluginInfo = {
 /*
  *  Insert Image TYPO3 RTE function.
  */
-
-var _selectedImage;
-
 HTMLArea.prototype.renderPopup_image = function() {
 	var editorNo = this._doc._editorNo,
 		backreturn,
 		addParams = "?"+conf_RTEtsConfigParams,
 		image = this.getParentElement();
 
-	if (image && !/^img$/i.test(image.tagName)) image = null;
-	_selectedImage = "";
+	this._selectedImage = null;
 	if (image && image.tagName.toLowerCase() == "img") {
 		addParams = "?act=image" + conf_RTEtsConfigParams;
-		_selectedImage = image;
+		this._selectedImage = image;
 	}
 
 	this._popupDialog("../../t3_popup.php" + addParams + "&editorNo=" + editorNo + "&popupname=image&srcpath="+encodeURI(rtePathImageFile), null, backreturn, 550, 350);	
@@ -54,7 +50,7 @@ HTMLArea.prototype.renderPopup_image = function() {
 HTMLArea.prototype.renderPopup_insertImage = function(image) {
 	this.focusEditor();
 	this.insertHTML(image);
-	_selectedImage="";
+	this._selectedImage = null;
 	Dialog._modal.close();
 	this.updateToolbar();
 };

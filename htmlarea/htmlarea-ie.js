@@ -178,6 +178,29 @@ HTMLArea.prototype.insertHTML = function(html) {
  ***************************************************/
 
 /*
+ * Handle statusbar element events
+ */
+HTMLArea.statusBarHandler = function (ev) {
+	if(!ev) var ev = window.event;
+	var target = (ev.target) ? ev.target : ev.srcElement;
+	var editor = target.editor;
+	target.blur();
+	var tagname = target.el.tagName.toLowerCase();
+	if(tagname == "table" || tagname == "img") {
+		var range = editor._doc.body.createControlRange();
+		range.addElement(target.el);
+		range.select();
+	} else {
+		editor.selectNode(target.el);
+	}
+	editor.updateToolbar(true);
+	switch (ev.type) {
+		case "click" : return false;
+		case "contextmenu" : return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
+	}
+};
+
+/*
  * Handle the backspace event in IE browsers
  */
 HTMLArea.prototype._checkBackspace = function() {

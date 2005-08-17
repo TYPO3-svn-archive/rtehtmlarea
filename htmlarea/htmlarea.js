@@ -398,16 +398,27 @@ HTMLArea.setButtonStatus = function(id,newval) {
 		switch (id) {
 			case "enabled":
 				if (newval) {
-					if (!HTMLArea.is_wamcom) HTMLArea._removeClass(el, "buttonDisabled");
+					if (!HTMLArea.is_wamcom) {
+						HTMLArea._removeClass(el, "buttonDisabled");
+						HTMLArea._removeClass(el.parentNode, "buttonDisabled");
+					}
 					el.disabled = false;
 				} else {
-					if (!HTMLArea.is_wamcom) HTMLArea._addClass(el, "buttonDisabled");
+					if (!HTMLArea.is_wamcom) {
+						HTMLArea._addClass(el, "buttonDisabled");
+						HTMLArea._addClass(el.parentNode, "buttonDisabled");
+					}
 					el.disabled = true;
 				}
 				break;
 			    case "active":
-				if (newval) HTMLArea._addClass(el, "buttonPressed");
-					else HTMLArea._removeClass(el, "buttonPressed");
+				if (newval) { 
+					HTMLArea._addClass(el, "buttonPressed");
+					HTMLArea._addClass(el.parentNode, "buttonPressed");
+				} else {
+					HTMLArea._removeClass(el, "buttonPressed");
+					HTMLArea._removeClass(el.parentNode, "buttonPressed");
+				}
 				break;
 		}
 		this[id] = newval;
@@ -429,11 +440,21 @@ HTMLArea.newLine = function(toolbar) {
  */
 HTMLArea.addTbElement = function(element, tb_line, first_cell_on_line) {
 	var tb_cell = document.createElement("li");
-	if (first_cell_on_line) tb_cell.className = "tb-first-cell";
-		else tb_cell.className = "tb-cell";
+	if (first_cell_on_line) tb_cell.className = "tb-first-cell " + element.className;
+		else tb_cell.className = "tb-cell " + element.className;
 	tb_line.appendChild(tb_cell);
 	tb_cell.appendChild(element);
 	return false;
+};
+
+/*
+ * Create a new group on the current line
+ */
+HTMLArea.addTbGroup = function(tb_line, first_cell_on_line) {
+	var tb_group = document.createElement("ul");
+	tb_group.className = "tb-group";
+	HTMLArea.addTbElement(tb_group, tb_line, first_cell_on_line);
+	return tb_group;
 };
 
 /*
@@ -471,9 +492,10 @@ HTMLArea.prototype.createSelect = function(txt,tb_line,first_cell_on_line,labelO
 	}
 	if(options) {
 		newObj["el"] = document.createElement("select");
-		newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
+		newObj["el"].className = "select";
 		newObj["el"].title = tooltip;
 		newObj["el"].id = this._editorNumber + "-" + txt;
+		newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 		var obj = {
 			name 		: txt,				// field name
 			elementId 	: newObj["el"].id,		// unique id for the UI element
@@ -521,24 +543,24 @@ HTMLArea.prototype.createButton = function (txt,tb_line,first_cell_on_line,label
 	switch (txt) {
 		case "separator":
 			newObj["el"] = document.createElement("div");
-			newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 			newObj["el"].className = "separator";
+			newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 			newObj["created"] = true;
 			break;
 		case "space":
 			newObj["el"] = document.createElement("div");
-			newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 			newObj["el"].className = "space";
 			newObj["el"].innerHTML = "&nbsp;";
+			newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 			newObj["created"] = true;
 			break;
 		case "textindicator":
 			newObj["el"] = document.createElement("div");
-			newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 			newObj["el"].appendChild(document.createTextNode("A"));
 			newObj["el"].className = "indicator";
 			newObj["el"].title = HTMLArea.I18N.tooltips.textindicator;
 			newObj["el"].id = this._editorNumber + "-" + txt;
+			newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 			var obj = {
 				name		: txt,
 				elementId	: newObj["el"].id,
@@ -556,10 +578,10 @@ HTMLArea.prototype.createButton = function (txt,tb_line,first_cell_on_line,label
 	}
 	if(!newObj["created"] && btn) {
 		newObj["el"] = document.createElement("button");
-		newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 		newObj["el"].title = btn[0];
 		newObj["el"].className = "button";
 		newObj["el"].id = this._editorNumber + "-" + txt;
+		newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 		if (btn[5]) newObj["el"].id.style.display = "none";
 		var obj = {
 			name 		: txt, 				// the button name
@@ -623,7 +645,7 @@ HTMLArea.createLabel = function(txt,tb_line,first_cell_on_line) {
  */
 HTMLArea.prototype._createToolbar = function () {
 	var j, k, code, n = this.config.toolbar.length, m,
-		tb_line = null,
+		tb_line = null, tb_group = null,
 		first_cell_on_line = true,
 		labelObj = new Object(),
 		tbObj = new Object();
@@ -636,29 +658,37 @@ HTMLArea.prototype._createToolbar = function () {
 
 	for (j = 0; j < n; ++j) {
 		tb_line = HTMLArea.newLine(toolbar);
+		if(!this.config.keepButtonGroupTogether) tb_line.className += " " + "free-float";
 		first_cell_on_line = true;
+		tb_group = null;
 		var group = this.config.toolbar[j];
 		m = group.length;
 		for (k = 0; k < m; ++k) {
 			code = group[k];
 			if (code == "linebreak") {
 				tb_line = HTMLArea.newLine(toolbar);
+				if(!this.config.keepButtonGroupTogether) tb_line.className += " " + "free-float";
 				first_cell_on_line = true;
+				tb_group = null;
 			} else {
+				if ((code == "separator" || first_cell_on_line) && this.config.keepButtonGroupTogether) {
+					tb_group = HTMLArea.addTbGroup(tb_line, first_cell_on_line);
+					first_cell_on_line = false;
+				}
 				created = false;
 				if (/^([IT])\[(.*?)\]/.test(code)) {
-					labelObj = HTMLArea.createLabel(code, tb_line, first_cell_on_line);
+					labelObj = HTMLArea.createLabel(code, (tb_group?tb_group:tb_line), first_cell_on_line);
 					created = labelObj["created"] ;
 					first_cell_on_line = labelObj["first"];
 				}
 				if (!created) {
-					tbObj = this.createButton(code, tb_line, first_cell_on_line, labelObj);
+					tbObj = this.createButton(code, (tb_group?tb_group:tb_line), first_cell_on_line, labelObj);
 					created = tbObj["created"];
 					first_cell_on_line = tbObj["first"];
 					if(tbObj["labelUsed"]) labelObj["labelRef"] = false;
 				}
 				if (!created) {
-					tbObj = this.createSelect(code, tb_line, first_cell_on_line, labelObj);
+					tbObj = this.createSelect(code, (tb_group?tb_group:tb_line), first_cell_on_line, labelObj);
 					created = tbObj["created"];
 					first_cell_on_line = tbObj["first"];
 					if(tbObj["labelUsed"]) labelObj["labelRef"] = false;
@@ -673,7 +703,7 @@ HTMLArea.prototype._createToolbar = function () {
 };
 
 /*
- * Handle toolbar element events
+ * Handle toolbar element events handler
  */
 HTMLArea.toolBarButtonHandler = function(ev) {
 	if(!ev) var ev = window.event;
@@ -686,20 +716,30 @@ HTMLArea.toolBarButtonHandler = function(ev) {
 		switch (ev.type) {
 			case "mouseover":
 				HTMLArea._addClass(target, "buttonHover");
+				HTMLArea._addClass(target.parentNode, "buttonHover");
 				break;
 			case "mouseout":
 				HTMLArea._removeClass(target, "buttonHover");
+				HTMLArea._removeClass(target.parentNode, "buttonHover");
 				HTMLArea._removeClass(target, "buttonActive");
-				if (obj.active) HTMLArea._addClass(target, "buttonPressed");
+				HTMLArea._removeClass(target.parentNode, "buttonActive");
+				if (obj.active) { 
+					HTMLArea._addClass(target, "buttonPressed");
+					HTMLArea._addClass(target.parentNode, "buttonPressed");
+				}
 				break;
 			case "mousedown":
 				HTMLArea._addClass(target, "buttonActive");
+				HTMLArea._addClass(target.parentNode, "buttonActive");
 				HTMLArea._removeClass(target, "buttonPressed");
+				HTMLArea._removeClass(target.parentNode, "buttonPressed");
 				HTMLArea._stopEvent(ev);
 				break;
 			case "click":
 				HTMLArea._removeClass(target, "buttonActive");
+				HTMLArea._removeClass(target.parentNode, "buttonActive");
 				HTMLArea._removeClass(target, "buttonHover");
+				HTMLArea._removeClass(target.parentNode, "buttonHover");
 				obj.cmd(editor, obj.name, obj);
 				HTMLArea._stopEvent(ev);
 				break;
@@ -739,6 +779,8 @@ HTMLArea.prototype._createStatusBar = function() {
 	statusBarTree.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
 	this._htmlArea.appendChild(statusBar);
 };
+
+
 
 /*
  * Create the htmlArea iframe and replace the textarea with it.
@@ -1507,33 +1549,6 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 	}
 };
 
-/*
- * Handle statusbar element events
- */
-HTMLArea.statusBarHandler = function (ev) {
-	if(!ev) var ev = window.event;
-	var target = (ev.target) ? ev.target : ev.srcElement;
-	var editor = target.editor;
-	target.blur();
-	if(HTMLArea.is_gecko) {
-		editor.selectNode(target.el);
-	} else { 
-		var tagname = target.el.tagName.toLowerCase();
-		if(tagname == "table" || tagname == "img") {
-			var range = editor._doc.body.createControlRange();
-			range.addElement(target.el);
-			range.select();
-		} else {
-			editor.selectNode(target.el);
-		}
-	}
-	editor.updateToolbar(true);
-	switch (ev.type) {
-		case "click" : return false;
-		case "contextmenu" : return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
-	}
-};
-
 /***************************************************
  *  DOM TREE MANIPULATION
  ***************************************************/
@@ -1641,6 +1656,10 @@ HTMLArea.prototype.surroundHTML = function(startTag,endTag) {
 HTMLArea.prototype.hasSelectedText = function() {
 	return this.getSelectedHTML() != "";
 };
+
+/***************************************************
+ *  LINKS, IMAGES AND TABLES
+ ***************************************************/
 
 /*
  * Get the create link action function
@@ -2627,6 +2646,7 @@ HTMLArea.initEditor = function(editorNumber) {
 			config.useHTTPS = RTE["useHTTPS"] ? RTE["useHTTPS"] : false;
 			config.disableEnterParagraphs = RTE["disableEnterParagraphs"] ? RTE["disableEnterParagraphs"] : false;
 			config.removeTrailingBR = RTE["removeTrailingBR"] ? RTE["removeTrailingBR"] : false;
+			config.keepButtonGroupTogether = (RTE["keepButtonGroupTogether"] && HTMLArea.is_gecko && !HTMLArea.is_wamcom) ? RTE["keepButtonGroupTogether"] : false;
 			config.useCSS = RTE["useCSS"] ? RTE["useCSS"] : false;
 			config.enableMozillaExtension = RTE["enableMozillaExtension"] ? RTE["enableMozillaExtension"] : false;
 			config.statusBar = RTE["statusBar"] ? RTE["statusBar"] : false;

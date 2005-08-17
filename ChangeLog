@@ -1,4 +1,13 @@
+2005-08-16  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.6.2
+	* Correction: the  image update popup dialog was broken in the previous version.
+	* Update to the recommended server configuration for png images.
+	* Addition of two example skins: blue-look and xp-blue, inspired by Xinha.
+	* New Page TSConfig property: keepButtonGroupTogether will keep buttons of a same group together on the same line of the editor tool bar. Not supported in IE, nor in Mozilla 1.3.
+	* Adjustments to the default skin. Custom skins may need to be adjusted.
+
 2005-08-09  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.6.1
 	* Added documentation section on server configuration.
 	* Correction: the compressed version of plugin scripts were not used.
 	* Various changes for performance improvement.

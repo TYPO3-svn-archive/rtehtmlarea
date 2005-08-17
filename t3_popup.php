@@ -85,12 +85,12 @@ switch( $popupname ) {
 		echo '
 	setTimeout("init_selectedImageRef();",100);
 	function init_selectedImageRef() {
-		if (window.opener._selectedImage) {
+		if (editor._selectedImage) {
 			if (!idPopup.insertImagePropertiesInForm) {
 				setTimeout("init_selectedImageRef();",100);
 				return;
 			}
-			idPopup.selectedImageRef = window.opener._selectedImage;
+			idPopup.selectedImageRef = editor._selectedImage;
 			idPopup.insertImagePropertiesInForm();
 		}
 	}';

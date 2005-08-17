@@ -202,11 +202,11 @@ ContextMenu.prototype.getContextMenu = function(target) {
 					[i18n["Check Link"],
 						ContextMenu.linkHandler(editor, link, "CheckLink"),
 						i18n["Opens this link in a new window"],
-						null, "CreateLink"],
+						null, null],
 					[i18n["Remove Link"],
 						ContextMenu.linkHandler(editor, link, "RemoveLink"),
 						i18n["Unlink the current element"],
-						null, "CreateLink"]
+						editor.imgURL("ed_unlink.gif"), "UnLink"]
 				);
 			}
 			break;
@@ -448,7 +448,7 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 			button.className = "button";
 			if(item.__msh.cmd) {
 				button.className += " " + item.__msh.cmd;
-				if(typeof(editor.plugins["TYPO3Browsers"]) != "undefined" && (item.__msh.cmd == "CreateLink" || item.__msh.cmd == "InsertImage")) button.className += "-TYPO3Browsers";
+				if(typeof(editor.plugins["TYPO3Browsers"]) != "undefined" && (item.__msh.cmd == "CreateLink" || item.__msh.cmd == "UnLink" || item.__msh.cmd == "InsertImage")) button.className += "-TYPO3Browsers";
 				button.innerHTML = label;
 			} else if(item.__msh.icon) {
 				button.innerHTML = "<img src='" + item.__msh.icon + "' />" + label;

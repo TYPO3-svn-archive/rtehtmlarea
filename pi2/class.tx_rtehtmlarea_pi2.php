@@ -243,6 +243,9 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 
 			// Loading the editor skin
 		$skinFilename = trim($this->thisConfig['skin']) ? trim($this->thisConfig['skin']) : 'EXT:' . $this->ID . '/htmlarea/skins/default/htmlarea.css';
+		if($this->client['BROWSER'] == 'gecko' && $this->client['VERSION'] == '1.3' && substr($skinFilename,0,4) == 'EXT:')  {
+			$skinFilename = 'EXT:' . $this->ID . '/htmlarea/skins/default/htmlarea.css';
+		}
 		if (substr($skinFilename,0,4) == 'EXT:')      {       // extension
 			list($extKey,$local) = explode('/',substr($skinFilename,4),2);
 			$skinFilename='';
@@ -301,22 +304,22 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 	 */
 	function setToolBar() {
 		if($this->client['BROWSER'] == 'gecko' && $this->client['VERSION'] == '1.3')  {
-			$this->defaultToolbarOrder = $this->TCEform->docLarge ? 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
-				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
+			$this->defaultToolbarOrder = $this->TCEform->docLarge ? 'bar, blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
+				bar, fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, strikethrough, 
 				subscript, superscript, lefttoright, righttoleft, bar, left, center, right, justifyfull, linebreak, 
-				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
+				bar, orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
 				insertcharacter, line, link, image, table, bar, findreplace, spellcheck, bar, chMode, inserttag, 
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
-				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
+				bar, toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
 				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge'
-				: 'blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
-				fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
-				subscript, superscript, linebreak, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
+				: 'bar, blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
+				bar, fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
+				subscript, superscript, linebreak, bar, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
 				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
-				insertcharacter, line, link, image, table, linebreak, findreplace, spellcheck, bar, chMode, inserttag, 
+				insertcharacter, line, link, image, table, linebreak, bar, findreplace, spellcheck, bar, chMode, inserttag, 
 				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
-				toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
+				bar, toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
 				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
 				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge';
 		}
@@ -401,6 +404,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			RTEarea['.$number.']["disableEnterParagraphs"] = ' . (trim($this->thisConfig['disableEnterParagraphs'])?'true':'false') . ';
 			RTEarea['.$number.']["removeTrailingBR"] = ' . (trim($this->thisConfig['removeTrailingBR'])?'true':'false') . ';
 			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
+			RTEarea['.$number.']["keepButtonGroupTogether"] = ' . (trim($this->thisConfig['keepButtonGroupTogether'])?'true':'false') . ';
 			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
 			RTEarea['.$number.']["showTagFreeClasses"] = ' . (trim($this->thisConfig['showTagFreeClasses'])?'true':'false') . ';
 			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';

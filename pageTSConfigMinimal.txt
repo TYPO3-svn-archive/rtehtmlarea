@@ -10,6 +10,7 @@ RTE.default {
 	showButtons =  bold,italic,underline,textindicator,copy,cut,paste,undo,redo,about
 	hideButtons = 
 	hideTableOperationsInToolbar = 0
+	keepButtonGroupTogether = 0
 	disableContextMenu = 0
 	disableSelectColor = 0
 	disableTYPO3Browsers = 0

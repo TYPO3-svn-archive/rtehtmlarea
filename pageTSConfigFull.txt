@@ -12,6 +12,7 @@ RTE.default {
 	showButtons = *
 	hideButtons =
 	hideTableOperationsInToolbar = 0
+	keepButtonGroupTogether = 0
 	disableContextMenu = 0
 	disableSelectColor = 0
 	disableTYPO3Browsers = 0
