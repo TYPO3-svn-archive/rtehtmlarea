@@ -103,8 +103,8 @@
 .htmlarea .toolbar .Redo { background-image:url("images/ed_redo.gif");}
 .htmlarea .toolbar .about { background-image:url("images/ed_about.gif");}
 .htmlarea .toolbar .showhelp { background-image:url("images/ed_help.gif");}
-.htmlarea .toolbar .TO-toggle-borders { background-image:url("images/TableOperations/toggle-borders.gif");}
-.htmlarea .toolbar .TO-table-prop, .htmlarea-context-menu .TO-table-prop  {background-image:url("images/TableOperations/table-prop.gif");}
+.htmlarea .toolbar .TO-toggle-borders, .htmlarea-context-menu .TO-toggle-borders {background-image:url("images/TableOperations/toggle-borders.gif");}
+.htmlarea .toolbar .TO-table-prop, .htmlarea-context-menu .TO-table-prop {background-image:url("images/TableOperations/table-prop.gif");}
 .htmlarea .toolbar .TO-row-prop, .htmlarea-context-menu .TO-row-prop {background-image:url("images/TableOperations/row-prop.gif");}
 .htmlarea .toolbar .TO-row-insert-above, .htmlarea-context-menu .TO-row-insert-above {background-image:url("images/TableOperations/row-insert-above.gif");}
 .htmlarea .toolbar .TO-row-insert-under, .htmlarea-context-menu .TO-row-insert-under {background-image:url("images/TableOperations/row-insert-under.gif");}
@@ -369,9 +369,6 @@
 	font:11px tahoma,verdana,sans-serif;
 	list-style:none;
 	border:1px solid #aca899;margin:0;padding:2px;
-}
-* html .htmlarea-context-menu {
-	width:275px;
 }
 .htmlarea-context-menu li {
 	background-color:#cdf;

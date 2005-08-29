@@ -1,3 +1,12 @@
+2005-08-29  Stanislas Rolland  <stanislas.rolland@fructifor.com>
+	* Version 0.7.0
+	* Correction: the  editor failed to initialize correctly when Page TSConfig property hideTableOperationsInToolbar was set to 1.
+	* Addition of Toggle borders in the context memu.
+	* Correction: updating a link did not work when the link was set on an image and on multiple elements.
+	* Problem with Firefox extension “All-in-One Gestures” documented as Known problem.
+	* Blue-look and xp-blue skins moved to separate extensions: sr_rtehtmlarea_bluelook and sr_rtehtmlarea_xpblue respectively.
+	* Update to Finnish and Norwegian translations.
+
 2005-08-16  Stanislas Rolland  <stanislas.rolland@fructifor.com>
 	* Version 0.6.2
 	* Correction: the  image update popup dialog was broken in the previous version.

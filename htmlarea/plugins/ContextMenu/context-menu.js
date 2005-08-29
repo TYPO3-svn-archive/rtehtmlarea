@@ -229,7 +229,7 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		    case "table":
 			table = target;
 			if(!tbo) break;
-			this.pushOperations(["TO-table-prop", "TO-col-split", "TO-col-delete", "TO-col-insert-after", "TO-col-insert-before"], elmenus, tbo);
+			this.pushOperations(["TO-toggle-borders", "TO-table-prop", "TO-col-split", "TO-col-delete", "TO-col-insert-after", "TO-col-insert-before"], elmenus, tbo);
 			break;
 		    case "ol":
 		    case "ul":
@@ -392,7 +392,6 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	if (!ev) var ev = window.event;
 	if (!target) var target = (ev.target) ? ev.target : ev.srcElement;
 	if (this.currentMenu) this.currentMenu.parentNode.removeChild(this.currentMenu);
-	HTMLArea._stopEvent(ev);
 	var keys = [];
 	var ifpos = ContextMenu.getPos(this.editor._iframe);
 	var x = ev.clientX + ifpos.x;
@@ -485,11 +484,9 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 		var foobar = document.createElement("ul");
 		foobar.className = "htmlarea-context-menu";
 		foobar.innerHTML = list.innerHTML;
-		document.body.appendChild(foobar);
-		var w = foobar.clientWidth;
-		var h = foobar.clientHeight;
-		document.body.removeChild(foobar);
-		this.iePopup.show(ev.screenX,ev.screenY,w,h);
+		editor._iframe.contentWindow.parent.document.body.appendChild(foobar);
+		this.iePopup.show(ev.screenX, ev.screenY, foobar.clientWidth+2, foobar.clientHeight+2);
+		editor._iframe.contentWindow.parent.document.body.removeChild(foobar);
 	}
 	this.currentMenu = list;
 	this.timeStamp = (new Date()).getTime();
@@ -500,7 +497,7 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 		this.eventHandlers["keyPress"] = ContextMenu.keyPressHandler(this, keys);
 		HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "keypress", this.eventHandlers["keyPress"]);
 	}
-	//HTMLArea._stopEvent(ev);
+	HTMLArea._stopEvent(ev);
 	return false;
 };
 

@@ -147,6 +147,36 @@ HTMLArea.prototype.getParentElement = function(sel) {
 	}
 };
 
+/*
+ * Get the selected element, if any.  That is, the element that you have last selected in the "path"
+ * at the bottom of the editor, or a "control" (eg image)
+ *
+ * @returns null | element
+ * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
+ */
+HTMLArea.prototype._activeElement = function(sel) {
+	if(sel == null) return null;
+	if(this._selectionEmpty(sel)) return null;
+	if(sel.type.toLowerCase() == "control") {
+		return sel.createRange().item(0);
+	} else {
+			// If it's not a control, then we need to see if the selection is the _entire_ text of a parent node
+			// (this happens when a node is clicked in the tree)
+		var range = sel.createRange();
+		var p_elm = this.getParentElement(sel);
+		if(p_elm.innerHTML == range.htmlText) return p_elm;
+		return null;
+    	}
+};
+
+/*
+ * Determine if the current selection is empty or not.
+ */
+HTMLArea.prototype._selectionEmpty = function(sel) {
+	if (!sel) return true;
+	return this._createRange(sel).htmlText == '';
+};
+
 /***************************************************
  *  DOM TREE MANIPULATION
  ***************************************************/

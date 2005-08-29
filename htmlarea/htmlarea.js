@@ -436,14 +436,20 @@ HTMLArea.newLine = function(toolbar) {
 };
 
 /*
- * Add a toolbar element to the current line
+ * Add a toolbar element to the current line or group
  */
 HTMLArea.addTbElement = function(element, tb_line, first_cell_on_line) {
 	var tb_cell = document.createElement("li");
-	if (first_cell_on_line) tb_cell.className = "tb-first-cell " + element.className;
-		else tb_cell.className = "tb-cell " + element.className;
+	if (first_cell_on_line) tb_cell.className = "tb-first-cell";
+		else tb_cell.className = "tb-cell";
+	HTMLArea._addClass(tb_cell, element.className);
 	tb_line.appendChild(tb_cell);
 	tb_cell.appendChild(element);
+	if(element.style.display == "none") {
+		tb_cell.style.display = "none";
+		if(HTMLArea._hasClass(tb_line, "tb-group")) tb_line.style.display = "none";
+		if(HTMLArea._hasClass(tb_cell.previousSibling, "separator")) tb_cell.previousSibling.style.display = "none";
+	}
 	return false;
 };
 
@@ -581,8 +587,8 @@ HTMLArea.prototype.createButton = function (txt,tb_line,first_cell_on_line,label
 		newObj["el"].title = btn[0];
 		newObj["el"].className = "button";
 		newObj["el"].id = this._editorNumber + "-" + txt;
+		if (btn[5]) newObj["el"].style.display = "none";
 		newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
-		if (btn[5]) newObj["el"].id.style.display = "none";
 		var obj = {
 			name 		: txt, 				// the button name
 			elementId	: newObj["el"].id, 		// unique id for the UI element
@@ -658,7 +664,7 @@ HTMLArea.prototype._createToolbar = function () {
 
 	for (j = 0; j < n; ++j) {
 		tb_line = HTMLArea.newLine(toolbar);
-		if(!this.config.keepButtonGroupTogether) tb_line.className += " " + "free-float";
+		if(!this.config.keepButtonGroupTogether) HTMLArea._addClass(tb_line, "free-float");
 		first_cell_on_line = true;
 		tb_group = null;
 		var group = this.config.toolbar[j];
@@ -667,7 +673,7 @@ HTMLArea.prototype._createToolbar = function () {
 			code = group[k];
 			if (code == "linebreak") {
 				tb_line = HTMLArea.newLine(toolbar);
-				if(!this.config.keepButtonGroupTogether) tb_line.className += " " + "free-float";
+				if(!this.config.keepButtonGroupTogether) HTMLArea._addClass(tb_line, "free-float");
 				first_cell_on_line = true;
 				tb_group = null;
 			} else {
@@ -1554,6 +1560,45 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
  ***************************************************/
 
 /*
+ * Surround the currently selected HTML source code with the given tags.
+ * Delete the selection, if any.
+ */
+HTMLArea.prototype.surroundHTML = function(startTag,endTag) {
+	this.insertHTML(startTag + this.getSelectedHTML().replace(HTMLArea.Reg_body, "") + endTag);
+};
+
+/*
+ * Change the tag name of a node.
+ */
+HTMLArea.prototype.convertNode = function(el,newTagName) {
+	var newel = this._doc.createElement(newTagName), p = el.parentNode;
+	while (el.firstChild) newel.appendChild(el.firstChild);
+	p.insertBefore(newel, el);
+	p.removeChild(el);
+	return newel;
+};
+
+/*
+ * Find a parent of an element with a specified tag
+ */
+HTMLArea.getElementObject = function(el,tagName) {
+	var oEl = el;
+	while (oEl != null && oEl.nodeName.toLowerCase() != tagName) oEl = oEl.parentNode;
+	return oEl;
+};
+
+/***************************************************
+ *  SELECTIONS AND RANGES
+ ***************************************************/
+
+/*
+ * Return true if we have some selected content
+ */
+HTMLArea.prototype.hasSelectedText = function() {
+	return this.getSelectedHTML() != "";
+};
+
+/*
  * Get an array with all the ancestor nodes of the selection.
  */
 HTMLArea.prototype.getAllAncestors = function() {
@@ -1594,67 +1639,6 @@ HTMLArea.prototype._getFirstAncestor = function(sel,types) {
 		prnt = prnt.parentNode;
 	}
 	return null;
-};
-
-/*
- * Get the selected element, if any.  That is, the element that you have last selected in the "path"
- * at the bottom of the editor, or a "control" (eg image)
- *
- * @returns null | element
- * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
- */
-HTMLArea.prototype._activeElement = function(sel) {
-	if(sel == null) return null;
-	if(this._selectionEmpty(sel)) return null;
-	if(HTMLArea.is_ie) {
-		if(sel.type.toLowerCase() == "control") {
-			return sel.createRange().item(0);
-		} else {
-			// If it's not a control, then we need to see if the selection is the _entire_ text of a parent node
-			// (this happens when a node is clicked in the tree)
-			var range = sel.createRange();
-			var p_elm = this.getParentElement(sel);
-			if(p_elm.innerHTML == range.htmlText) return p_elm;
-			return null;
-    		}
-	} else {
-		// For Mozilla we just see if the selection is not collapsed (something is selected)
-		// and that the anchor (start of selection) is an element.  This might not be totally
-		// correct, we possibly should do a simlar check to IE?
-		if(!sel.isCollapsed) {
-			if(sel.anchorNode.nodeType == 1) return sel.anchorNode;
-		}
-	return null;
-	}
-};
-
-HTMLArea.prototype._selectionEmpty = function(sel) {
-	if (!sel) return true;
-	if (HTMLArea.is_ie) {
-		return this._createRange(sel).htmlText == '';
-	} else if (typeof(sel.isCollapsed) != 'undefined') {
-		return sel.isCollapsed;
-	}
-	return true;
-};
-
-/* 
- * Surround the currently selected HTML source code with the given tags.
- * Delete the selection, if any.
- */
-HTMLArea.prototype.surroundHTML = function(startTag,endTag) {
-	this.insertHTML(startTag + this.getSelectedHTML().replace(HTMLArea.Reg_body, "") + endTag);
-};
-
-/***************************************************
- *  SELECTIONS AND RANGES
- ***************************************************/
-
-/*
- * Return true if we have some selected content
- */
-HTMLArea.prototype.hasSelectedText = function() {
-	return this.getSelectedHTML() != "";
 };
 
 /***************************************************
@@ -2061,14 +2045,6 @@ HTMLArea.prototype.scrollToCaret = function() {
 	if(e.offsetTop > h + t) w.scrollTo(e.offsetLeft,e.offsetTop - h + e.offsetHeight);
 };
 
-HTMLArea.prototype.convertNode = function(el, newTagName) {
-	var newel = this._doc.createElement(newTagName), p = el.parentNode;
-	while (el.firstChild) newel.appendChild(el.firstChild);
-	p.insertBefore(newel, el);
-	p.removeChild(el);
-	return newel;
-};
-
 /*
  * Retrieve the HTML
  */
@@ -2244,10 +2220,10 @@ HTMLArea._addClass = function(el, className) {
  * Check if a class name is in the class attribute
  */
 HTMLArea._hasClass = function(el, className) {
-	if (!(el && el.className)) { return false; }
+	if (!el || !el.className) return false;
 	var cls = el.className.split(" ");
 	for (var i = cls.length; i > 0;) {
-		if(cls[--i] == className) { return true; }
+		if(cls[--i] == className) return true;
 	}
 	return false;
 };
@@ -2585,14 +2561,6 @@ var lorem_ipsum = function(element,text) {
 		editor.updateToolbar();
 	}
 	
-};
-
-/*
-* Other functions
-*/
-var getElementObject = function(oEl,sTag) {
-	while (oEl != null && oEl.tagName.toLowerCase() != sTag) { oEl = oEl.parentElement; }
-	return oEl;
 };
 
 /*

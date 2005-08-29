@@ -166,6 +166,33 @@ HTMLArea.prototype.getParentElement = function(sel) {
 	}
 };
 
+/*
+ * Get the selected element, if any.  That is, the element that you have last selected in the "path"
+ * at the bottom of the editor, or a "control" (eg image)
+ *
+ * @returns null | element
+ * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
+ */
+HTMLArea.prototype._activeElement = function(sel) {
+	if(sel == null) return null;
+	if(this._selectionEmpty(sel)) return null;
+		// Check if the selection is not collapsed (something is selected) and if the anchor (start of selection) is an element.
+	if(!sel.isCollapsed && sel.anchorNode.nodeType == 1) return sel.anchorNode;
+		else return null;
+};
+
+/*
+ * Determine if the current selection is empty or not.
+ */
+HTMLArea.prototype._selectionEmpty = function(sel) {
+	if (!sel) return true;
+	if (typeof(sel.isCollapsed) != 'undefined') {
+		return sel.isCollapsed;
+	} else {
+		return true;
+	}
+};
+
 /***************************************************
  *  DOM TREE MANIPULATION
  ***************************************************/

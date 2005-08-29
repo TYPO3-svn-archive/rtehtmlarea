@@ -39,9 +39,13 @@
 	border-style:none;padding:0;
 }
 .htmlarea .toolbar ul.tb-line li, .htmlarea .toolbar ul.free-float li {
-	height:22px;
 	margin:1px 0px;
 }
+
+.htmlarea .toolbar ul.tb-line li .tb-cell, .htmlarea .toolbar ul.free-float li .tb-cell, .htmlarea .toolbar ul.tb-line li .tb-first-cell, .htmlarea .toolbar ul.free-float li .tb-first-cell {
+	height:22px;
+}
+
 .htmlarea .toolbar ul.tb-group li, .htmlarea .toolbar ul.free-float li {
 	background-image:url(button-background.png);
 }
@@ -97,19 +101,19 @@
 .htmlarea .toolbar .InsertTable {background-image:url("images/insert_table.gif");}
 .htmlarea .toolbar .UserElements {background-image:url("images/UserElements/ed_user.gif");}
 .htmlarea .toolbar .FindReplace {background-image:url("images/FindReplace/ed_find.gif");}
-.htmlarea .toolbar .SpellCheck { background-image:url("images/SpellChecker/spell-check.gif"); }
-.htmlarea .toolbar .InsertTag { background-image:url("images/QuickTag/ed_quicktag.gif"); }
-.htmlarea .toolbar .Acronym { background-image:url("images/Acronym/ed_acronym.gif"); }
-.htmlarea .toolbar .RemoveFormat { background-image:url("images/RemoveFormat/ed_clean.gif"); }
-.htmlarea .toolbar .htmlmode { background-image:url("images/ed_html.gif"); }
-.htmlarea .toolbar .Copy, .htmlarea-context-menu .Copy  { background-image:url("images/ed_copy.gif");}
-.htmlarea .toolbar .Cut, .htmlarea-context-menu .Cut  { background-image:url("images/ed_cut.gif");}
-.htmlarea .toolbar .Paste, .htmlarea-context-menu .Paste { background-image:url("images/ed_paste.gif");}
-.htmlarea .toolbar .Undo { background-image:url("images/ed_undo.gif");}
-.htmlarea .toolbar .Redo { background-image:url("images/ed_redo.gif");}
-.htmlarea .toolbar .about { background-image:url("images/ed_about.gif");}
-.htmlarea .toolbar .showhelp { background-image:url("images/ed_help.gif");}
-.htmlarea .toolbar .TO-toggle-borders { background-image:url("images/TableOperations/toggle-borders.gif");}
+.htmlarea .toolbar .SpellCheck {background-image:url("images/SpellChecker/spell-check.gif");}
+.htmlarea .toolbar .InsertTag {background-image:url("images/QuickTag/ed_quicktag.gif");}
+.htmlarea .toolbar .Acronym {background-image:url("images/Acronym/ed_acronym.gif");}
+.htmlarea .toolbar .RemoveFormat {background-image:url("images/RemoveFormat/ed_clean.gif");}
+.htmlarea .toolbar .htmlmode {background-image:url("images/ed_html.gif");}
+.htmlarea .toolbar .Copy, .htmlarea-context-menu .Copy  {background-image:url("images/ed_copy.gif");}
+.htmlarea .toolbar .Cut, .htmlarea-context-menu .Cut  {background-image:url("images/ed_cut.gif");}
+.htmlarea .toolbar .Paste, .htmlarea-context-menu .Paste {background-image:url("images/ed_paste.gif");}
+.htmlarea .toolbar .Undo {background-image:url("images/ed_undo.gif");}
+.htmlarea .toolbar .Redo {background-image:url("images/ed_redo.gif");}
+.htmlarea .toolbar .about {background-image:url("images/ed_about.gif");}
+.htmlarea .toolbar .showhelp {background-image:url("images/ed_help.gif");}
+.htmlarea .toolbar .TO-toggle-borders, .htmlarea-context-menu .TO-toggle-borders {background-image:url("images/TableOperations/toggle-borders.gif");}
 .htmlarea .toolbar .TO-table-prop, .htmlarea-context-menu .TO-table-prop  {background-image:url("images/TableOperations/table-prop.gif");}
 .htmlarea .toolbar .TO-row-prop, .htmlarea-context-menu .TO-row-prop {background-image:url("images/TableOperations/row-prop.gif");}
 .htmlarea .toolbar .TO-row-insert-above, .htmlarea-context-menu .TO-row-insert-above {background-image:url("images/TableOperations/row-insert-above.gif");}
@@ -374,9 +378,6 @@
 	font:11px tahoma,verdana,sans-serif;
 	list-style:none;
 	border:1px solid #003355;margin:0;padding:2px;
-}
-* html .htmlarea-context-menu {
-	width:275px;
 }
 .htmlarea-context-menu li {
 	background-color:transparent;background-image:url(button-background.png);

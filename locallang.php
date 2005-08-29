@@ -41,6 +41,7 @@ $LOCAL_LANG = Array (
 		'Heading 5' => 'Overskrift 5',
 		'Heading 6' => 'Overskrift 6',
 		'Preformatted' => 'Preformatert',
+		'Address' => 'Adresse',
 	),
 	'it' => Array (
 		'Please wait' => 'L\'editor sta per essere caricato. Attendi un attimo...',
@@ -104,6 +105,7 @@ $LOCAL_LANG = Array (
 		'Heading 5' => 'Otsikko 5',
 		'Heading 6' => 'Otsikko 6',
 		'Preformatted' => 'Esimuotoiltu',
+		'Address' => 'Osoite',
 	),
 	'tr' => Array (
 	),

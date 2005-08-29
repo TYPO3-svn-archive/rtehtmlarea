@@ -1,7 +1,7 @@
-// TYPO3 Image & Link Browsers Plugin for TYPO3 htmlArea RTE HTMLArea
+// TYPO3 Image & Link Browsers Plugin for TYPO3 htmlArea RTE
 // Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
 // Sponsored by http://www.fructifor.com
-// This plugin encapsulates de initialization code produced by Philipp Borgmann
+// This plugin encapsulates an evolution of the initialization code originally produced by Philipp Borgmann
 // This notice MUST stay intact for use (see license.txt).
 
 TYPO3Browsers = function(editor,args) {
@@ -15,7 +15,7 @@ TYPO3Browsers.I18N = TYPO3Browsers_langArray;
 
 TYPO3Browsers._pluginInfo = {
 	name		: "TYPO3Browsers",
-	version		: "1.0",
+	version		: "1.1",
 	developer	: "Stanislas Rolland",
 	developer_url 	: "http://www.fructifor.com/",
 	c_owner		: "Stanislas Rolland",
@@ -64,10 +64,8 @@ HTMLArea.prototype.renderPopup_link = function() {
 		addUrlParams = "?" + conf_RTEtsConfigParams,
 		sel = this.getParentElement();
 
-	if (sel == null || sel.tagName.toLowerCase() != "a") {
-		var parent = getElementObject(sel,"a");
-		if (parent != null && parent.tagName && parent.tagName.toLowerCase() == "a") sel = parent;
-	}
+	var el = HTMLArea.getElementObject(sel,"a");
+	if (el != null && el.tagName && el.tagName.toLowerCase() == "a") sel = el;
 	if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") {
 		addUrlParams = "?curUrl[href]=" + escape(sel.getAttribute("href"));
 		if (sel.target) addUrlParams += "&curUrl[target]=" + escape(sel.target);
@@ -99,13 +97,10 @@ HTMLArea.prototype.renderPopup_addLink = function(theLink,cur_target,cur_class,c
 	this.focusEditor();
 
 	if(!HTMLArea.is_ie) {
-		var text = null;
 		sel = this.getParentElement();
-		if (sel == null || sel.tagName.toLowerCase() != "a") {
-			var parent = getElementObject(sel, "a");
-			if (parent != null && parent.tagName && parent.tagName.toLowerCase() == "a") sel = parent;
-		}
-		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNodeContents(sel);
+		var el = HTMLArea.getElementObject(sel,"a");
+		if (el != null && el.tagName && el.tagName.toLowerCase() == "a") sel = el;
+		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNode(sel);
 	}
 
 	this._doc.execCommand("CreateLink", false, theLink);
@@ -113,27 +108,20 @@ HTMLArea.prototype.renderPopup_addLink = function(theLink,cur_target,cur_class,c
 	sel = this._getSelection();
 	var range = this._createRange(sel);
 	a = this.getParentElement();
+	var el = HTMLArea.getElementObject(a,"a");
+	if (el != null && el.tagName && el.tagName.toLowerCase() == "a") a = el;
 	if (a) {
-/*
-		if(!HTMLArea.is_ie) {
-			a = range.startContainer;
-			if(!/^a$/i.test(a.tagName)) {
-				a = a.nextSibling;
-				if(a == null) a = range.startContainer.parentNode;
-			}
-		}
-*/
 			// we may have created multiple links in as many blocks
 		function setLinkAttributes(node) {
-			if (/^a$/i.test(node.tagName)) {
+			if (node.tagName && node.tagName.toLowerCase() == "a") {
 				if ((HTMLArea.is_gecko && range.intersectsNode(node)) || (HTMLArea.is_ie)) {
-					if (cur_target.trim()) { node.target = cur_target.trim(); }
-						else { node.removeAttribute("target"); }
+					if (cur_target.trim()) node.target = cur_target.trim();
+						else node.removeAttribute("target");
 					if (cur_class.trim()) {
 						node.className = cur_class.trim();
 					} else { 
-						if (HTMLArea.is_gecko) { node.removeAttribute('class'); }
-							else { node.removeAttribute('className'); }
+						if (HTMLArea.is_gecko) node.removeAttribute('class');
+							else node.removeAttribute('className');
 					}
 					if (cur_title.trim()) { node.title = cur_title.trim(); }
 						else {
@@ -143,7 +131,7 @@ HTMLArea.prototype.renderPopup_addLink = function(theLink,cur_target,cur_class,c
 				}
 			} else {
 				for (var i = node.firstChild;i;i = i.nextSibling) {
-					if (i.nodeType == 1 || i.nodeType == 11) { setLinkAttributes(i); }
+					if (i.nodeType == 1 || i.nodeType == 11) setLinkAttributes(i);
 				}
 			}
 		}
@@ -159,14 +147,10 @@ HTMLArea.prototype.renderPopup_addLink = function(theLink,cur_target,cur_class,c
 HTMLArea.prototype.renderPopup_unLink = function() {
 	this.focusEditor();
 	if(!HTMLArea.is_ie) {
-		var sel = null;
-		var text = null;
-		sel = this.getParentElement();
-		if (sel == null || sel.tagName.toLowerCase() != "a") {
-			var parent = getElementObject(sel, "a");
-			if (parent != null && parent.tagName && parent.tagName.toLowerCase() == "a") sel = parent;
-		}
-		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNodeContents(sel);
+		var sel = this.getParentElement();
+		var el = HTMLArea.getElementObject(sel,"a");
+		if (el != null && el.tagName && el.tagName.toLowerCase() == "a") sel = el;
+		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNode(sel);
 	}
 	this._doc.execCommand("Unlink", false, "");
 	Dialog._modal.close();
