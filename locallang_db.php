@@ -18,6 +18,12 @@ $LOCAL_LANG = Array (
 	'dk' => Array (
 	),
 	'de' => Array (
+		'tx_rtehtmlarea_acronym' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type' => 'Typ',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Abkürzung',
+		'tx_rtehtmlarea_acronym.term' => 'Begriff',
+		'tx_rtehtmlarea_acronym.acronym' => 'Abgekürzte Form',
 	),
 	'no' => Array (
 		'tx_rtehtmlarea_acronym' => 'Akronym',
@@ -40,6 +46,12 @@ $LOCAL_LANG = Array (
 	'es' => Array (
 	),
 	'nl' => Array (
+		'tx_rtehtmlarea_acronym' => 'Acroniem',
+		'tx_rtehtmlarea_acronym.type' => 'Type',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Acroniem',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Afkorting',
+		'tx_rtehtmlarea_acronym.term' => 'Term',
+		'tx_rtehtmlarea_acronym.acronym' => 'Afkorting van',
 	),
 	'cz' => Array (
 	),
@@ -90,6 +102,12 @@ $LOCAL_LANG = Array (
 	'bg' => Array (
 	),
 	'br' => Array (
+		'tx_rtehtmlarea_acronym' => 'Acrônimo',
+		'tx_rtehtmlarea_acronym.type' => 'Tipo',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Acrônimo',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Abreviação',
+		'tx_rtehtmlarea_acronym.term' => 'Termo',
+		'tx_rtehtmlarea_acronym.acronym' => 'Forma abreviada',
 	),
 	'et' => Array (
 	),

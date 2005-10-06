@@ -38,7 +38,6 @@
 
 require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
 
-
 /**
  * Class for parsing HTML for the Rich Text Editor. (also called transformations)
  *
@@ -53,7 +52,7 @@ require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
  * Modification by Stanislas Rolland 2005-07-28 to include address and dl in headListTags
  */
 class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
-
+	
  // <Stanislas Rolland 2005-02-10 and 2005-07-28 to include hr, address and dl in headListTags>
 	var $headListTags = 'PRE,UL,OL,H1,H2,H3,H4,H5,H6,HR,ADDRESS,DL';
  // </Stanislas Rolland 2005-02-10 and 2005-07-28 to include hr, address and dl in headListTags>
@@ -69,7 +68,6 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 	 */
 	function getKeepTags($direction='rte',$tagList='')	{
 		if (!is_array($this->getKeepTags_cache[$direction]) || $tagList)	{
-
 				// Setting up allowed tags:
 			if (strcmp($tagList,''))	{	// If the $tagList input var is set, this will take precedence
 				$keepTags = array_flip(t3lib_div::trimExplode(',',$tagList,1));
@@ -77,7 +75,6 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 					// Construct default list of tags to keep:
 				$typoScript_list = 'b,i,u,a,img,br,div,center,pre,font,hr,sub,sup,p,strong,em,li,ul,ol,blockquote,strike,span';
 				$keepTags = array_flip(t3lib_div::trimExplode(',',$typoScript_list.','.strtolower($this->procOptions['allowTags']),1));
-
 					// For tags to deny, remove them from $keepTags array:
 				$denyTags = t3lib_div::trimExplode(',',$this->procOptions['denyTags'],1);
 				foreach($denyTags as $dKe)	{
@@ -87,23 +84,20 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
 				// Based on the direction of content, set further options:
 			switch ($direction)	{
-
 					// GOING from database to Rich Text Editor:
 				case 'rte':
 						// Transform bold/italics tags to strong/em
 					if (isset($keepTags['b']))	{$keepTags['b']=array('remap'=>'STRONG');}
 					if (isset($keepTags['i']))	{$keepTags['i']=array('remap'=>'EM');}
-
 						// Transforming keepTags array so it can be understood by the HTMLcleaner function. This basically converts the format of the array from TypoScript (having .'s) to plain multi-dimensional array.
 					list($keepTags) = $this->HTMLparserConfig($this->procOptions['HTMLparser_rte.'],$keepTags);
 				break;
-
+				
 					// GOING from RTE to database:
 				case 'db':
 						// Transform strong/em back to bold/italics:
 					if (isset($keepTags['strong']))	{ $keepTags['strong']=array('remap'=>'b'); }
 					if (isset($keepTags['em']))		{ $keepTags['em']=array('remap'=>'i'); }
-
 						// Setting up span tags if they are allowed:
 					if (isset($keepTags['span']))		{
 						$classes=array_merge(array(''),$this->allowedClasses);
@@ -120,11 +114,10 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						);
 						if (!$this->procOptions['allowedClasses'])	unset($keepTags['span']['fixAttrib']['class']['list']);
 					}
-
+ // </Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
 						// Setting up font tags if they are allowed:
 					if (isset($keepTags['font']))		{
 						$colors=array_merge(array(''),t3lib_div::trimExplode(',',$this->procOptions['allowedFontColors'],1));
- // </Stanislas Rolland 2004-12-10 to allow style attribute on span tags>
 						$keepTags['font']=array(
 							'allowedAttribs'=>'face,color,size,style',
 							'fixAttrib' => Array(
@@ -152,8 +145,8 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 						// Transforming the array from TypoScript to regular array:
 					list($keepTags) = $this->HTMLparserConfig($TSc,$keepTags);
 				break;
+				
 			}
-
 				// Caching (internally, in object memory) the result unless tagList is set:
 			if (!$tagList)	{
 				$this->getKeepTags_cache[$direction] = $keepTags;
@@ -161,7 +154,6 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 				return $keepTags;
 			}
 		}
-
 			// Return result:
 		return $this->getKeepTags_cache[$direction];
 	}
@@ -176,14 +168,11 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 	 * @see TS_transform_rte()
 	 */
 	function TS_transform_db($value,$css=FALSE)	{
-
 			// safety... so forever loops are avoided (they should not occur, but an error would potentially do this...)
 		$this->TS_transform_db_safecounter--;
 		if ($this->TS_transform_db_safecounter<0)	return $value;
-
 			// Split the content from RTE by the occurence of these blocks:
 		$blockSplit = $this->splitIntoBlock('TABLE,BLOCKQUOTE,'.$this->headListTags,$value);
-
 		$cc=0;
 		$aC = count($blockSplit);
 // <Stanislas Rolland 2005-04-02 to avoid superfluous linebreak after ending headListTag>
@@ -198,7 +187,6 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 			$cc++;
 			$lastBR = $cc==$aC ? '' : chr(10);
 			if ($k%2)	{	// Inside block:
-
 					// Init:
 				$tag=$this->getFirstTag($v);
 				$tagName=strtolower($this->getFirstTagName($v));
@@ -208,6 +196,7 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 					case 'blockquote':	// Keep blockquotes, but clean the inside recursively in the same manner as the main code
 						$blockSplit[$k]='<'.$tagName.'>'.$this->TS_transform_db($this->removeFirstAndLastTag($blockSplit[$k]),$css).'</'.$tagName.'>'.$lastBR;
 					break;
+					
 					case 'ol':
 					case 'ul':	// Transform lists into <typolist>-tags:
 						if (!$css)	{
@@ -226,6 +215,7 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 							$blockSplit[$k].=$lastBR;
 						}
 					break;
+					
 					case 'table':	// Tables are NOT allowed in any form (unless preserveTables is set or CSS is the mode)
 						if (!$this->procOptions['preserveTables'] && !$css)	{
 							$blockSplit[$k]=$this->TS_transform_db($this->removeTables($blockSplit[$k]));
@@ -233,10 +223,10 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 // <Johannes Bornhold 2005-05-09 linebreaks are spaces>
 							$blockSplit[$k]=str_replace(chr(10),' ',$blockSplit[$k]).$lastBR;
 // </Johannes Bornhold 2005-05-09 linebreaks are spaces>
-
 							$blockSplit[$k]=str_replace(chr(10),'',$blockSplit[$k]).$lastBR;
 						}
 					break;
+					
 					case 'h1':
 					case 'h2':
 					case 'h3':
@@ -247,7 +237,6 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 							$attribArray=$this->get_tag_attributes_classic($tag);
 								// Processing inner content here:
 							$innerContent = $this->HTMLcleaner_db($this->removeFirstAndLastTag($blockSplit[$k]));
-
 							if (!isset($this->procOptions['typohead']) || $this->procOptions['typohead'])	{
 								$type = intval(substr($tagName,1));
 								$blockSplit[$k]='<typohead'.
@@ -276,9 +265,11 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 // </Stanislas Rolland 2005-04-06 to eliminate true linebreaks inside hx tags>
 						}
 					break;
+					
 					default:
 						$blockSplit[$k].=$lastBR;
 					break;
+					
 				}
 			} else {	// NON-block:
 				if (strcmp(trim($blockSplit[$k]),''))	{
@@ -300,43 +291,40 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 
 	function remap_chars($html) {
 		$replacements = array(
-		//	'129' => '',
-			'130' => '&sbquo;', 
-			'131' => '&fnof;', 
-			'132' => '&bdquo;', 
-			'133' => '&hellip;', 
-			'134' => '&dagger;', 
-			'135' => '&Dagger;', 
-			'136' => '&circ;', 
-			'137' => '&permil;', 
-			'138' => '&Scaron;', 
-			'139' => '&lsaquo;', 
-			'140' => '&OElig;', 
-		//	'141' => '',
-			'142' => '&Zcaron;', 
-		//	'143' => '',
-		//	'144' => '',
-			'145' => '&lsquo;', 
-			'146' => '&rsquo;', 
-			'147' => '&ldquo;', 
-			'148' => '&rdquo;', 
-			'149' => '&bull;', 
-			'150' => '&ndash;', 
-			'151' => '&mdash;', 
-			'152' => '&tilde;', 
-			'153' => '&trade;', 
-			'154' => '&scaron;', 
-			'155' => '&rsaquo;', 
-			'156' => '&oelig;', 
-		//	'157' => '',
-			'158' => '&zcaron;', 
-			'159' => '&Yuml;', 
+			chr(128) => '&#8364;',
+			chr(129) => '',
+			chr(130) => '&#8218',
+			chr(131) => '&#402;',
+			chr(132) => '&#8222;',
+			chr(133) => '&#8230;',
+			chr(134) => '&#8224;',
+			chr(135) => '&#8225;',
+			chr(136) => '&#710;',
+			chr(137) => '&#8240;',
+			chr(138) => '&#352;',
+			chr(139) => '&#8249;',
+			chr(140) => '&#338;',
+			chr(141) => '',
+			chr(142) => '&#381;',
+			chr(143) => '',
+			chr(144) => '',
+			chr(145) => '&#8216;',
+			chr(146) => '&#8217;',
+			chr(147) => '&#8220;',
+			chr(148) => '&#8221;',
+			chr(149) => '&#8226;',
+			chr(150) => '&#8211',
+			chr(151) => '&#8212;',
+			chr(152) => '&#732;',
+			chr(153) => '&#8482;',
+			chr(154) => '&#353;',
+			chr(155) => '&#8250;',
+			chr(156) => '&#339;',
+			chr(157) => '',
+			chr(158) => '&#382;',
+			chr(159) => '&#376;'
 		);
-		foreach($replacements as $char => $entity) {
-			$html = str_replace(chr($char),$entity,$html);
-		}
-		return $html;
+		return str_replace(array_keys($replacements),array_values($replacements),$html);
 	}
 }
-
 ?>

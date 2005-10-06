@@ -31,12 +31,12 @@ SelectColor.I18N = SelectColor_langArray;
 
 SelectColor._pluginInfo = {
 	name          : "SelectColor",
-	version       : "1.3",
+	version       : "1.4",
 	developer     : "Stanislas Rolland",
-	developer_url : "http://www.fructifor.com/",
+	developer_url : "http://www.fructifor.ca",
 	c_owner       : "Stanislas Rolland",
 	sponsor       : "Fructifor Inc.",
-	sponsor_url   : "http://www.fructifor.com",
+	sponsor_url   : "http://www.fructifor.ca",
 	license       : "htmlArea"
 };
 
@@ -70,7 +70,7 @@ SelectColor.prototype.buttonPress = function(editor,button_id) {
 // this function requires the file PopupWin
 SelectColor.prototype.dialogSelectColor = function(button_id,element,field,opener) {
 	var editor = this.editor;
-	var windowWidth = 348;
+	var windowWidth = 470;
 	var windowHeight = 220;
 
 		// button_id's  "color" and "tag" are not registered but used to interface with the Table Operations and QuickTag plugins
@@ -106,7 +106,7 @@ SelectColor.selectColorCOInit = function(instance,button_id) {
 			if(!e) var e = dialog.dialogWindow.event;
 			var targ = e.target ? e.target : e.srcElement;
 			if (targ.nodeType == 3) targ = targ.parentNode;
-			dialog.doc.getElementById(button_id).value=targ.bgColor;
+			dialog.doc.getElementById(button_id).value = targ.bgColor ? targ.bgColor : "";
 			dialog.callHandler();
 			return false;
 		};
@@ -276,7 +276,7 @@ SelectColor.prototype.renderPopupSelectColor = function(sID,dialog,title) {
 	var szColorId = "";
 
 	sz = '<div class="title">' + title + '</div>';
-	sz += '<table style="width:100%"><tr><td id="--HA-layout"><fieldset>';
+	sz += '<table style="width:100%"><tr><td id="HA-layout"><fieldset>';
 	sz += '<input type="hidden" name="' + sID + '" id="' + sID + '" value="" />';
 	sz += '<table style="width:100%;"><tr><td style="vertical-align: middle;"><span style="margin-left: 5px; height: 1em;" class="dialog buttonColor" ';
 	sz += '		onMouseover="className += \' buttonColor-hilite\';" ';
@@ -288,7 +288,7 @@ SelectColor.prototype.renderPopupSelectColor = function(sID,dialog,title) {
 	sz += '	>&#x00d7;</span></span></td><td>';
 	sz += '<table ';
 	sz += '	onMouseout="document.getElementById(\'' + szID + '\').style.backgroundColor=\'\';" ';
-	sz += '	onMouseover="if(' + HTMLArea.is_ie + '){ document.getElementById(\'' + szID + '\').style.backgroundColor=event.srcElement.bgColor; } else { document.getElementById(\'' + szID + '\').style.backgroundColor=event.target.bgColor; }" ';
+	sz += '	onMouseover="if(' + HTMLArea.is_ie + '){ if(event.srcElement.bgColor) document.getElementById(\'' + szID + '\').style.backgroundColor=event.srcElement.bgColor; } else { if (event.target.bgColor) document.getElementById(\'' + szID + '\').style.backgroundColor=event.target.bgColor; }" ';
 	sz += '	class="colorTable" cellspacing="0" cellpadding="0" id="colorTable">';
 		// Making colorPicker
 	if (!cfg.disableColorPicker) {
@@ -322,6 +322,6 @@ SelectColor.prototype.renderPopupSelectColor = function(sID,dialog,title) {
 	}
 
 	sz += '</table></td></tr></table>';
-	sz += '</fieldset></td></tr><tr><td id="--HA-style"></td></tr></table>';
+	sz += '</fieldset></td></tr><tr><td id="HA-style"></td></tr></table>';
 	return sz;
 };

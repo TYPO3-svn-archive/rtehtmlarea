@@ -17,7 +17,7 @@ HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, SelectColor, TY
   # cat=basic/enable; type=boolean; label=Enable all editor options: If set, all optional features will be enabled in the default User and Page TSConfig. If not set, only minimal features will be enabled.
 enableAllOptions = 0
 
-  # cat=basic/enable; type=boolean; label=Enable Mozilla/Firefox extension: If set, enables the generation of a Mozilla/Firefox extension to allow the RTE to access the clipboard. This features requires PHP to be compiled with zlib.
+  # cat=basic/enable; type=boolean; label=Enable Mozilla/Firefox extension: If set, enables the triggering of installation of a Mozilla/Firefox extension to allow the RTE to access the clipboard.
 enableMozillaExtension = 0
 
   # cat=basic/enable; type=boolean; label=Force Aspell command mode: If set, the spellchecker will use the Aspell command interface. Presumably. PHP is compiled with pspell, but with an old version of Aspell. If set, PHP safe mode should NOT be enabled.
@@ -29,5 +29,5 @@ enableDebugMode = 0
   # cat=basic/enable; type=boolean; label=Enable compressed scripts: If set, the compressed version of the editor scripts will be used.
 enableCompressedScripts = 1
 
-  # cat=basic; type=string; label=Url of AllowClipboard Helper: Full absolute Url of the AllowClipboard Helper extension for Firefox 1+.
-mozAllowClipboardUrl = http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.2-fx.xpi
+  # cat=basic; type=string; label=Url of AllowClipboard Helper: Full absolute Url of the AllowClipboard Helper extension for Mozilla and Firefox.
+mozAllowClipboardUrl = http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.3.4-fx+mz.xpi

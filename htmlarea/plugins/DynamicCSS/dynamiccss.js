@@ -127,12 +127,12 @@ DynamicCSS.applyCSSIEImport = function(editor,i18n,cssIEImport,cssArray){
 
 DynamicCSS._pluginInfo = {
 	name          : "DynamicCSS",
-	version       : "1.5.3",
+	version       : "1.6",
 	developer     : "Holger Hees & Stanislas Rolland",
-	developer_url : "http://www.systemconcept.de/",
+	developer_url : "http://www.fructifor.ca/",
 	c_owner       : "Holger Hees & Stanislas Rolland",
 	sponsor       : "System Concept GmbH & Fructifor Inc.",
-	sponsor_url   : "http://www.systemconcept.de/",
+	sponsor_url   : "http://www.fructifor.ca/",
 	license       : "htmlArea"
 };
 
@@ -162,7 +162,7 @@ DynamicCSS.prototype.onGenerate = function() {
 DynamicCSS.prototype.onUpdateToolbar = function() {
 	var editor = this.editor;
 	var obj = editor.config.customSelects["DynamicCSS-class"];
-	if(HTMLArea.is_gecko && editor._editMode != "textmode") {
+	if (HTMLArea.is_gecko && editor._editMode != "textmode") {
 		if(obj.loaded) { 
 			this.updateValue(editor,obj);
 		} else {
@@ -172,6 +172,10 @@ DynamicCSS.prototype.onUpdateToolbar = function() {
 			}
 			this.generate(editor);
 		}
+	} else if (editor._editMode == "textmode") {
+		var select = document.getElementById(editor._toolbarObjects[obj.id].elementId);
+		select.disabled = true;
+		select.className = "buttonDisabled";
 	}
 };
 
@@ -242,10 +246,10 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 			for(var i = cls.length; i > 0;) if(!HTMLArea.reservedClassNames.test(cls[--i])) className = cls[i];
 		}
 	}
-	if(obj.lastTag != tagName || obj.lastClass != className){        
+	if(obj.lastTag != tagName || obj.lastClass != className){
 		obj.lastTag = tagName;
 		obj.lastClass = className;
-            var select = document.getElementById(editor._toolbarObjects[obj.id].elementId);
+		var select = document.getElementById(editor._toolbarObjects[obj.id].elementId);
 		while(select.options.length>0) select.options[select.length-1] = null;
 		select.options[0]=new Option(DynamicCSS.I18N["Default"],'none');
 		if(cssArray){
@@ -253,11 +257,8 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 			if(tagName != 'body' || editor.config.fullPage){
 				if(cssArray[tagName]){
 					for(cssClass in cssArray[tagName]){
-						if(cssClass == 'none') {
-							select.options[0] = new Option(cssArray[tagName][cssClass],cssClass);
-						} else {
-							select.options[select.options.length] = new Option(cssArray[tagName][cssClass],cssClass);
-						}
+						if(cssClass == 'none') select.options[0] = new Option(cssArray[tagName][cssClass],cssClass);
+							else select.options[select.options.length] = new Option(cssArray[tagName][cssClass],cssClass);
 					}
 				}
 				if(cssArray['all']){
@@ -270,22 +271,24 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 			}
 		}
 		select.selectedIndex = 0;
-		if(typeof(className) != "undefined" && /\S/.test(className) && !HTMLArea.reservedClassNames.test(className) ) {
-			for(i = select.options.length; --i >= 0;) {
+		if (typeof(className) != "undefined" && /\S/.test(className) && !HTMLArea.reservedClassNames.test(className) ) {
+			for (i = select.options.length; --i >= 0;) {
 				var option = select.options[i];
 				if (className == option.value) {
 					select.selectedIndex = i;
 					break;
 				}
 			}
-			if(select.selectedIndex == 0) {
+			if (select.selectedIndex == 0) {
 				select.options[select.options.length] = new Option(DynamicCSS.I18N["Undefined"],className);
 				select.selectedIndex = select.options.length-1;
 			}
 		}
-		if(select.options.length>1) select.disabled = false;
-			else select.disabled = true;
-		select.className = "";
-		if(select.disabled) select.className = "buttonDisabled";
+		if (select.options.length > 1) {
+			select.disabled = false;
+		} else select.disabled = true;
+		if(HTMLArea.is_gecko) select.removeAttribute('class');
+			else select.removeAttribute('className');
+		if (select.disabled) HTMLArea._addClass(select, "buttonDisabled");
 	}
 };

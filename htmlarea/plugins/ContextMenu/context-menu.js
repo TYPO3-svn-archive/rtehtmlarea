@@ -8,6 +8,7 @@
 ContextMenu = function(editor) {
 	this.editor = editor;
 	this.currentMenu = null;
+	this.keys = [];
 	this.eventHandlers = {};
 };
 
@@ -62,8 +63,12 @@ ContextMenu.linkHandler = function(editor,link,opcode) {
 			return (function() {
 				if (confirm(ContextMenu.I18N["Please confirm unlink"] + "\n" +
 					ContextMenu.I18N["Link points to:"] + " " + link.href)) {
-						while(link.firstChild) link.parentNode.insertBefore(link.firstChild, link);
-						link.parentNode.removeChild(link);
+						if(typeof(editor.plugins["TYPO3Browsers"]) != "undefined") {
+							editor.renderPopup_unLink();
+						} else {
+							while(link.firstChild) link.parentNode.insertBefore(link.firstChild, link);
+							link.parentNode.removeChild(link);
+						}
 				}
 			});
 	}
@@ -308,14 +313,14 @@ ContextMenu.mouseUpHandler = function(item,instance) {
 	});
 };
 
-ContextMenu.activateHandler = function(item,instance,keys) {
+ContextMenu.activateHandler = function(item,instance) {
 	return (function() {
 		item.__msh.action();
-		instance.closeMenu(keys);
+		instance.closeMenu();
 	});
 };
 
-ContextMenu.documentClickHandler = function(instance,keys) {
+ContextMenu.documentClickHandler = function(instance) {
 	return (function(ev) {
 		if (!ev) var ev = window.event;
 		if (!instance.currentMenu) {
@@ -325,32 +330,36 @@ ContextMenu.documentClickHandler = function(instance,keys) {
 		var el = (ev.target) ? ev.target : ev.srcElement;
 		for (; el != null && el != instance.currentMenu; el = el.parentNode);
 		if (el == null) { 
-			instance.closeMenu(keys);
+			instance.closeMenu();
 			instance.editor.updateToolbar();
 		}
 	});
 };
 
-ContextMenu.keyPressHandler = function(instance,keys) {
+ContextMenu.keyPressHandler = function(instance) {
 	return (function(ev) {
 		if (!ev) var ev = window.event;
-		HTMLArea._stopEvent(ev);
 		if (ev.keyCode == 27) {
-			instance.closeMenu(keys);
+			instance.closeMenu();
 			return false;
 		}
-		var key = String.fromCharCode(HTMLArea.is_ie ? ev.keyCode : ev.charCode).toLowerCase();
-		for (var i = keys.length; --i >= 0;) {
-			var k = keys[i];
-			if (k[0].toLowerCase() == key) k[1].__msh.activate();
+		if(ev.altKey && !ev.ctrlKey) {
+			var key = String.fromCharCode(HTMLArea.is_ie ? ev.keyCode : ev.charCode).toLowerCase();
+			var keys = instance.keys;
+			for (var i = keys.length; --i >= 0;) {
+				var k = keys[i];
+				if (k[0].toLowerCase() == key) k[1].__msh.activate();
+			}
+			HTMLArea._stopEvent(ev);
+			return false;
 		}
 	});
 };
 
-ContextMenu.prototype.closeMenu = function(keys) {
+ContextMenu.prototype.closeMenu = function() {
 	HTMLArea._removeEvent((HTMLArea.is_ie ? document.body : document), "mousedown", this.eventHandlers["documentClick"]);
 	HTMLArea._removeEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "mousedown", this.eventHandlers["documentClick"]);
-	if (keys.length > 0) HTMLArea._removeEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "keypress", this.eventHandlers["keyPress"]);
+	if (this.keys.length > 0) HTMLArea._removeEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "keypress", this.eventHandlers["keyPress"]);
 	for (var handler in this.eventHandlers) this.eventHandlers[handler] = null;
 	var e, items = document.getElementsByTagName("li");
 	if (HTMLArea.is_ie) items = this.iePopup.document.getElementsByTagName("li");;
@@ -374,6 +383,7 @@ ContextMenu.prototype.closeMenu = function(keys) {
 	}
 	this.currentMenu.parentNode.removeChild(this.currentMenu);
 	this.currentMenu = null;
+	this.keys = [];
 	if (HTMLArea.is_ie) this.iePopup.hide();
 };
 
@@ -392,7 +402,7 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	if (!ev) var ev = window.event;
 	if (!target) var target = (ev.target) ? ev.target : ev.srcElement;
 	if (this.currentMenu) this.currentMenu.parentNode.removeChild(this.currentMenu);
-	var keys = [];
+	this.keys = [];
 	var ifpos = ContextMenu.getPos(this.editor._iframe);
 	var x = ev.clientX + ifpos.x;
 	var y = ev.clientY + ifpos.y;
@@ -437,11 +447,11 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 				action:		option[1],
 				tooltip:	option[2] || null,
 				icon:		option[3] || null,
-				activate:	ContextMenu.activateHandler(item, this, keys),
+				activate:	ContextMenu.activateHandler(item, this),
 				cmd:		option[4] || null
 			};
 			label = label.replace(/_([a-zA-Z0-9])/, "<u>$1</u>");
-			if (label != option[0]) keys.push([ RegExp.$1, item ]);
+			if (label != option[0]) this.keys.push([ RegExp.$1, item ]);
 			label = label.replace(/__/, "_");
 			var button = doc.createElement("button");
 			button.className = "button";
@@ -490,12 +500,12 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 	}
 	this.currentMenu = list;
 	this.timeStamp = (new Date()).getTime();
-	this.eventHandlers["documentClick"] = ContextMenu.documentClickHandler(this, keys);
+	this.eventHandlers["documentClick"] = ContextMenu.documentClickHandler(this);
 	HTMLArea._addEvent((HTMLArea.is_ie ? document.body : document), "mousedown", this.eventHandlers["documentClick"]);
 	HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "mousedown", this.eventHandlers["documentClick"]);
-	if (keys.length > 0) {
-		this.eventHandlers["keyPress"] = ContextMenu.keyPressHandler(this, keys);
-		HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "keypress", this.eventHandlers["keyPress"]);
+	if (this.keys.length > 0) {
+		this.eventHandlers["keyPress"] = ContextMenu.keyPressHandler(this);
+		HTMLArea._addEvents((HTMLArea.is_ie ? editor._doc.body : editor._doc), ["keypress", "keydown"], this.eventHandlers["keyPress"]);
 	}
 	HTMLArea._stopEvent(ev);
 	return false;

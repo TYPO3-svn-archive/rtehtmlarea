@@ -117,6 +117,15 @@
  *
  */
 
+
+
+
+
+
+
+
+
+
 error_reporting (E_ALL ^ E_NOTICE);
 unset($MCONF);
 define('MY_PATH_thisScript',str_replace('//','/', str_replace('\\','/', (php_sapi_name()=='cgi'||php_sapi_name()=='xcgi'||php_sapi_name()=='isapi' ||php_sapi_name()=='cgi-fcgi')&&($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED'])? ($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED']):($_SERVER['ORIG_SCRIPT_FILENAME']?$_SERVER['ORIG_SCRIPT_FILENAME']:$_SERVER['SCRIPT_FILENAME']))));
@@ -175,6 +184,7 @@ class TBE_browser_recordList extends localRecordList {
 			$this->ext_addP()
 			;
 	}
+
 
 	/**
 	 * Returns additional, local GET parameters to include in the links of the record list.
@@ -265,6 +275,10 @@ class localPageTree extends t3lib_browseTree {
 	 *
 	 * @param	string		Title, (must be ready for output, that means it must be htmlspecialchars()'ed).
 	 * @param	array		The record
+
+
+
+
 	 * @param	boolean		(Ignore)
 	 * @return	string		Wrapping title string.
 	 */
@@ -393,6 +407,7 @@ class TBE_PageTree extends localPageTree {
 
 	/**
 	 * Returns true if a doktype can be linked (which is always the case here).
+
 	 *
 	 * @param	integer		Doktype value to test
 	 * @param	integer		uid to test.
@@ -424,10 +439,6 @@ class TBE_PageTree extends localPageTree {
 
 
 
-
-
-
-
 /**
  * Base extension class which generates the folder tree.
  * Used directly by the RTE.
@@ -443,6 +454,9 @@ class localFolderTree extends t3lib_folderTree {
 	 * Wrapping the title in a link, if applicable.
 	 *
 	 * @param	string		Title, ready for output.
+
+
+
 	 * @param	array		The "record"
 	 * @return	string		Wrapping title string.
 	 */
@@ -475,6 +489,8 @@ class localFolderTree extends t3lib_folderTree {
 	 * @param	string		HTML string to wrap, probably an image tag.
 	 * @param	string		Command for 'PM' get var
 	 * @param	boolean		If set, the link will have a anchor point (=$bMark) and a name attribute (=$bMark)
+
+
 	 * @return	string		Link-wrapped input string
 	 * @access private
 	 */
@@ -517,6 +533,7 @@ class localFolderTree extends t3lib_folderTree {
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
 
 				// Creating blinking arrow, if applicable:
+
 			if ($GLOBALS['SOBE']->curUrlInfo['act']=='file' && $cmpPath==$v['row']['path'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
 				$bgColorClass='bgColor4';
@@ -586,7 +603,9 @@ class TBE_FolderTree extends localFolderTree {
 	 *
 	 * @param	array		Array with information about the folder element. Contains keys like title, uid, path, _title
 	 * @return	boolean		True is returned if the path is NOT a recycler or temp folder AND if ->ext_noTempRecyclerDirs is not set.
+
 	 */
+
 	function ext_isLinkable($v)	{
 		if ($this->ext_noTempRecyclerDirs && (substr($v['path'],-7)=='_temp_/' || substr($v['path'],-11)=='_recycler_/'))	{
 			return 0;
@@ -666,6 +685,7 @@ class tx_rtehtmlarea_browse_links {
 
 
 
+
 	/**
 	 * TYPO3 Element Browser, wizard mode parameters. There is a heap of parameters there, better debug() them out if you need something... :-)
 	 */
@@ -696,7 +716,6 @@ class tx_rtehtmlarea_browse_links {
 	 */
 	var $pointer;
 
-
 	/**
 	 * Used with the link selector: Contains the GET input information about the CURRENT link in the RTE/TCEform field. This consists of "href" and "target" keys. This information is passed around in links.
 	 */
@@ -707,7 +726,6 @@ class tx_rtehtmlarea_browse_links {
 	 */
 	var $curUrlInfo;
 
-
 	/**
 	 * Constructor:
 	 * Initializes a lot of variables, setting JavaScript functions in header etc.
@@ -715,7 +733,7 @@ class tx_rtehtmlarea_browse_links {
 	 * @return	void
 	 */
 	function init()	{
-		global $BE_USER,$BACK_PATH;
+		global $BE_USER,$BACK_PATH,$LANG;
 		$this->typoVersion = t3lib_div::int_from_ver($GLOBALS['TYPO_VERSION']);
 
 			// Main GPvars:
@@ -726,6 +744,8 @@ class tx_rtehtmlarea_browse_links {
 		$this->expandPage = t3lib_div::_GP('expandPage');
 		$this->expandFolder = t3lib_div::_GP('expandFolder');
 		$this->PM = t3lib_div::_GP('PM');
+		$this->contentTypo3Language = t3lib_div::_GP('typo3ContentLanguage');
+		$this->contentTypo3Charset = t3lib_div::_GP('typo3ContentCharset');
 
 			// Find "mode"
 		$this->mode=t3lib_div::_GP('mode');
@@ -757,24 +777,73 @@ class tx_rtehtmlarea_browse_links {
 			$this->act=$this->curUrlInfo['act'];
 		}
 
+			// Initializing the titlevalue (RTE)
+		$this->setTitle = $this->curUrlArray['title'];
+
 			// Rich Text Editor specific configuration:
 		$addPassOnParams='';
 		if ((string)$this->mode=='rte')	{
 			$RTEtsConfigParts = explode(':',$this->RTEtsConfigParams);
-			$addPassOnParams.='&RTEtsConfigParams='.rawurlencode($this->RTEtsConfigParams);
+			$addPassOnParams .= '&RTEtsConfigParams='.rawurlencode($this->RTEtsConfigParams);
+			$addPassOnParams .= ($this->contentTypo3Language ? '&typo3ContentLanguage=' . rawurlencode($this->contentTypo3Language) : '');
+			$addPassOnParams .= ($this->contentTypo3Charset ? '&typo3ContentCharset=' . rawurlencode($this->contentTypo3Charset) : '');
 			$RTEsetup = $GLOBALS['BE_USER']->getTSConfig('RTE',t3lib_BEfunc::getPagesTSconfig($RTEtsConfigParts[5]));
 			$this->thisConfig = t3lib_BEfunc::RTEsetup($RTEsetup['properties'],$RTEtsConfigParts[0],$RTEtsConfigParts[2],$RTEtsConfigParts[4]);
 			if($this->thisConfig['classesAnchor']) {
 				$this->setClass = $this->curUrlArray['class'];
 				$classesAnchorArray = t3lib_div::trimExplode(',',$this->thisConfig['classesAnchor'],1);
-				$selected = '';
-				if(!$this->setClass)  $selected = 'selected';
-				$this->classesAnchorJSOptions = '<option ' . $selected . ' value=""></option>';
-				reset($classesAnchorArray);
-				while(list(,$class)=each($classesAnchorArray)) {
-					$selected = '';
-					if($this->setClass == $class) $selected = 'selected';
-					$this->classesAnchorJSOptions .= '<option ' . $selected . ' value="' .$class . '">' . $class . '</option>';
+				$anchorTypes = array( 'page', 'url', 'file', 'mail', 'spec');
+				$classesAnchor = array();
+				$classesAnchorDefault = array();
+				$this->classesAnchorDefaultTitle = array();
+				$classesAnchor['all'] = array();
+				if (is_array($RTEsetup['properties']['classesAnchor.'])) {
+					reset($RTEsetup['properties']['classesAnchor.']);
+					while(list($label,$conf)=each($RTEsetup['properties']['classesAnchor.'])) { 
+						$classesAnchor['all'][] = $conf['class'];
+						if (in_array($conf['type'], $anchorTypes)) {
+							$classesAnchor[$conf['type']][] = $conf['class'];
+							if (is_array($this->thisConfig['classesAnchor.']) && is_array($this->thisConfig['classesAnchor.']['default.']) && $this->thisConfig['classesAnchor.']['default.'][$conf['type']] == $conf['class']) {
+								$classesAnchorDefault[$conf['type']] = $conf['class'];
+								if ($conf['titleText']) {
+									$string = trim($conf['titleText']);
+									if (substr($string,0,4)=='LLL:') {       // language file
+										$arr = explode(':',$string);
+										if($arr[0] == 'LLL' && $arr[1] == 'EXT') {
+											$BE_lang = $LANG->lang;
+											$BE_origCharset = $LANG->origCharSet;
+											$LANG->lang = $this->contentTypo3Language;
+											$LANG->origCharSet = $this->contentTypo3Charset;
+											$string = $LANG->getLLL($arr[3], $LANG->readLLfile($arr[1].':'.$arr[2]), true);
+											$LANG->lang = $BE_lang;
+											$LANG->origCharSet = $BE_origCharset;
+										}
+									}
+									$this->classesAnchorDefaultTitle[$conf['type']] = $string;
+								}
+							}
+						}
+					}
+				}
+				reset($anchorTypes);
+				while (list(, $anchorType) = each($anchorTypes) ) {
+					reset($classesAnchorArray);
+					while(list(,$class)=each($classesAnchorArray)) {
+						if (!in_array($class, $classesAnchor['all']) || (in_array($class, $classesAnchor['all']) && is_array($classesAnchor[$anchorType]) && in_array($class, $classesAnchor[$anchorType]))) {
+							$selected = '';
+							if ($this->setClass == $class) $selected = 'selected';
+							if (!$this->setClass && $classesAnchorDefault[$anchorType] == $class) {
+								$selected = 'selected';
+								$this->setClass = $class;
+							}
+							$this->classesAnchorJSOptions[$anchorType] .= '<option ' . $selected . ' value="' .$class . '">' . $class . '</option>';
+						}
+					}
+					if ($this->classesAnchorJSOptions[$anchorType]) {
+						$selected = '';
+						if (!$this->setClass && !$classesAnchorDefault[$anchorType])  $selected = 'selected';
+						$this->classesAnchorJSOptions[$anchorType] =  '<option ' . $selected . ' value=""></option>' . $this->classesAnchorJSOptions[$anchorType];
+					}
 				}
 			}
 		}
@@ -784,9 +853,6 @@ class tx_rtehtmlarea_browse_links {
 		if ($this->thisConfig['defaultLinkTarget'] && !isset($this->curUrlArray['target']))	{
 			$this->setTarget=$this->thisConfig['defaultLinkTarget'];
 		}
-
-			// Initializing the titlevalue (RTE)
-		$this->setTitle = $this->curUrlArray['title'];
 
 			// Creating backend template object:
 		$this->doc = t3lib_div::makeInstance('template');
@@ -810,17 +876,19 @@ class tx_rtehtmlarea_browse_links {
 			var cur_class="'.($this->setClass?$this->setClass:'').'";
 			var cur_title="'.($this->setTitle?$this->setTitle:'').'";
 
+
 			function setTarget(value)	{
 				cur_target=value;
-				add_target="&curUrl[target]="+escape(value);
+				add_target="&curUrl[target]="+encodeURIComponent(value);
 			}
 			function setClass(value)	{
 				cur_class=value;
-				add_class="&curUrl[class]="+escape(value);
+				add_class="&curUrl[class]="+encodeURIComponent(value);
+			
 			}
 			function setTitle(value)	{
 				cur_title=value;
-				add_title="&curUrl[title]="+escape(value);
+				add_title="&curUrl[title]="+encodeURIComponent(value);
 			}
 			function setValue(value)	{
 				cur_href=value;
@@ -833,6 +901,7 @@ class tx_rtehtmlarea_browse_links {
 			reset($this->P['fieldChangeFunc']);
 			$update='';
 			while(list($k,$v)=each($this->P['fieldChangeFunc']))	{
+
 				$update.= '
 				window.opener.'.$v;
 			}
@@ -944,6 +1013,7 @@ class tx_rtehtmlarea_browse_links {
 					targetDoc = parent.window.opener.content.document;
 					elRef = targetDoc.editform["'.$formFieldName.'"];
 					return true;
+
 				} else {
 					return false;
 				}
@@ -956,6 +1026,7 @@ class tx_rtehtmlarea_browse_links {
 						parent.window.opener.group_change("add","'.$pArr[0].'","'.$pArr[1].'","'.$pArr[2].'",elRef,targetDoc);
 					} else {
 						alert("Error - reference to main window is not set properly!");
+
 					}
 					if (close)	{
 						parent.window.opener.focus();
@@ -965,6 +1036,7 @@ class tx_rtehtmlarea_browse_links {
 				return false;
 			}
 			function addElement(elName,elValue,altElValue,close)	{	//
+
 				if (parent.window.opener && parent.window.opener.setFormValueFromBrowseWin)	{
 					parent.window.opener.setFormValueFromBrowseWin("'.$pArr[0].'",altElValue?altElValue:elValue,elName);
 					if (close)	{
@@ -1000,6 +1072,7 @@ class tx_rtehtmlarea_browse_links {
 	/**
 	 * Main function, detecting the current mode of the element browser and branching out to internal methods.
 	 *
+
 	 * @return	void
 	 */
 	function main()	{
@@ -1048,19 +1121,6 @@ class tx_rtehtmlarea_browse_links {
 	function printContent()	{
 		echo $this->content;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	/******************************************************************
 	 *
@@ -1120,7 +1180,9 @@ class tx_rtehtmlarea_browse_links {
 			$menuDef['mail']['label'] = $LANG->getLL('email',1);
 			$menuDef['mail']['url'] = '#';
 			$menuDef['mail']['addParams'] = 'onclick="jumpToUrl(\'?act=mail\');return false;"';
+
 		}
+
 		if (is_array($this->thisConfig['userLinks.']) && in_array('spec',$allowedItems)) {
 			$menuDef['spec']['isActive'] = $this->act=='spec';
 			$menuDef['spec']['label'] = $LANG->getLL('special',1);
@@ -1129,8 +1191,10 @@ class tx_rtehtmlarea_browse_links {
 		}
 		$content .= $this->doc->getTabMenuRaw($menuDef);
 
+
 			// Adding the menu and header to the top of page:
 		$content.=$this->printCurrentUrl($this->curUrlInfo['info']).'<br />';
+
 
 		} else {  // TYPO3 3.6.0
 		$menu='
@@ -1205,6 +1269,7 @@ class tx_rtehtmlarea_browse_links {
 			break;
 			case 'file':
 				$foldertree = t3lib_div::makeInstance('rteFolderTree');
+
 				$foldertree->thisScript = $this->script;
 				$tree=$foldertree->getBrowsableTree();
 
@@ -1389,76 +1454,97 @@ class tx_rtehtmlarea_browse_links {
 									<option value="600">600</option>
 								</select>';
 				// Class:
-			if($this->classesAnchorJSOptions) {
+			if ($this->classesAnchorJSOptions[$this->act]) {
 				$selectClassJS = '
 					document.ltargetform.anchor_class.value = document.ltargetform.anchor_class.options[document.ltargetform.anchor_class.selectedIndex].value;
+					if(document.ltargetform.anchor_class.value && editor.classesAnchorSetup) {
+						for (var i = editor.classesAnchorSetup.length; --i >= 0;) {
+							var anchorClass = editor.classesAnchorSetup[i];
+							if (anchorClass["name"] == document.ltargetform.anchor_class.value) {
+								if(anchorClass["titleText"]) document.ltargetform.anchor_title.value = anchorClass["titleText"];
+								break;
+							}
+						}
+					}
 					setClass(document.ltargetform.anchor_class.value);
 
 				';
-				$ltarget.='		</td>
+				$ltarget .='		</td>
 						</tr>
 						<tr>
 							<td>'.$GLOBALS['LANG']->getLL('anchor_class',1).':</td>
 							<td colspan="3">
 								<select name="anchor_class" onchange="'.htmlspecialchars($selectClassJS).'">
-									' . $this->classesAnchorJSOptions . '
+									' . $this->classesAnchorJSOptions[$this->act] . '
 								</select>';
 			}
 				// Title:
-			$ltarget.='		</td>
+			$ltarget .='		</td>
 						</tr>
 						<tr>
 							<td>'.$GLOBALS['LANG']->getLL('anchor_title',1).':</td>
 							<td colspan="3">
-								<input type="text" name="anchor_title" value="' . $this->setTitle . '" ' . $GLOBALS['TBE_TEMPLATE']->formWidth(30) . ' />';
+								<input type="text" name="anchor_title" value="' . ($this->setTitle?$this->setTitle:($this->thisConfig['classesAnchor']?$this->classesAnchorDefaultTitle[$this->act]:'')) . '" ' . $GLOBALS['TBE_TEMPLATE']->formWidth(30) . ' />';
 
 				$ltarget.='	</td>
 						</tr>
 					</table>
 				</form>';
 
-				// Add "target selector" box to content:
-			$content.=$ltarget;
+				// Add class selector boxand title field to content:
+			$content .=$ltarget;
 
 				// Add some space
 			$content.='<br /><br />';
 		} else {
 			$selectClassJS = '
 				document.ltargetform.anchor_class.value = document.ltargetform.anchor_class.options[document.ltargetform.anchor_class.selectedIndex].value;
+				if(document.ltargetform.anchor_class.value && editor.classesAnchorSetup) {
+					for (var i = editor.classesAnchorSetup.length; --i >= 0;) {
+						var anchorClass = editor.classesAnchorSetup[i];
+						if (anchorClass["name"] == document.ltargetform.anchor_class.value) {
+							if(anchorClass["titleText"]) document.ltargetform.anchor_title.value = anchorClass["titleText"];
+							break;
+						}
+						
+					}
+				}
 				setClass(document.ltargetform.anchor_class.value);
 			';
 			$ltarget='
+
 
 			<!--
 				Selecting class and title for email link:
 			-->
 				<form action="" name="ltargetform" id="ltargetform">
 					<table border="0" cellpadding="2" cellspacing="1" id="typo3-linkTarget">';
-			if ($this->classesAnchorJSOptions) {
-				$ltarget.='
+			if ($this->classesAnchorJSOptions[$this->act]) {
+
+				$ltarget .='
 						<tr>
 							<td>'.$GLOBALS['LANG']->getLL('anchor_class',1).':</td>
 							<td colspan="3">
 								<select name="anchor_class" onchange="'.htmlspecialchars($selectClassJS).'">
-									' . $this->classesAnchorJSOptions . '
+									' . $this->classesAnchorJSOptions[$this->act] . '
 								</select>
 						</td>
 						</tr>';
 			}
-			$ltarget.='
+			$ltarget .='
 						<tr>
 							<td>'.$GLOBALS['LANG']->getLL('anchor_title',1).':</td>
 							<td colspan="3">
-								<input type="text" name="anchor_title" value="' . $this->setTitle . '" ' . $GLOBALS['TBE_TEMPLATE']->formWidth(30) . ' />
+								<input type="text" name="anchor_title" value="' .  ($this->setTitle?$this->setTitle:($this->thisConfig['classesAnchor']?$this->classesAnchorDefaultTitle[$this->act]:'')) . '" ' . $GLOBALS['TBE_TEMPLATE']->formWidth(30) . ' />
 						</td>
 						</tr>
 					</table>
 				</form>';
-				// Add "class selector" box to content:
+				// Add class selector box and title field to content:
 			$content.=$ltarget;
 
 				// Add some space
-			$content.='<br /><br />';
+			$content .='<br /><br />';
 
 		}
 
@@ -1473,6 +1559,7 @@ class tx_rtehtmlarea_browse_links {
 	 * @return	string		HTML content for the module
 	 */
 	function main_db()	{
+
 
 			// Starting content:
 		$content=$this->doc->startPage('TBE file selector');
@@ -1524,6 +1611,7 @@ class tx_rtehtmlarea_browse_links {
 
 			// Init variable:
 		$pArr = explode('|',$this->bparams);
+
 
 			// Create upload/create folder forms, if a path is given:
 		$fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
@@ -1615,6 +1703,7 @@ class tx_rtehtmlarea_browse_links {
 
 		$out='';
 		$expPageId = $this->expandPage;		// Set page id (if any) to expand
+
 
 			// If there is an anchor value (content element reference) in the element reference, then force an ID to expand:
 		if (!$this->expandPage && $this->curUrlInfo['cElement'])	{
@@ -1733,11 +1822,14 @@ class tx_rtehtmlarea_browse_links {
 			}
 			$picon=t3lib_iconWorks::getIconImage('pages',$mainPageRec,$BACK_PATH,'');
 			$pBicon=$ATag2?'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/plusbullet2.gif','width="18" height="16"').' alt="" />':'';
+
 			if($this->typoVersion >= 3007000 ) {
 				$pText=htmlspecialchars(t3lib_div::fixed_lgd_cs($mainPageRec['title'],$titleLen));
 			} else {
+
 				$pText=htmlspecialchars(t3lib_div::fixed_lgd($mainPageRec['title'],$titleLen));
 			}
+
 			$out.=$picon.$ATag2.$pBicon.$ATag_e.$ATag.$pText.$ATag_e.'<br />';
 
 				// Initialize the record listing:
@@ -1959,6 +2051,7 @@ class tx_rtehtmlarea_browse_links {
 				}
 				$ATag_e='</a>';
 
+
 					// Create link to showing details about the file in a window:
 				$Ahref = $BACK_PATH.'show_item.php?table='.rawurlencode($filepath).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 				$ATag2='<a href="'.htmlspecialchars($Ahref).'">';
@@ -1984,6 +2077,7 @@ class tx_rtehtmlarea_browse_links {
 						<tr>
 							<td colspan="4">'.$ATag_alt.$clickIcon.$ATag_e.'</td>
 						</tr>';
+
 				} else {
 					$lines[]='
 						<tr class="bgColor4">
@@ -2040,6 +2134,7 @@ class tx_rtehtmlarea_browse_links {
 					$picon='<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/_icon_webfolders.gif','width="18" height="16"').' alt="" />';
 					if($this->typoVersion >= 3007000 ) {
 						$picon.=htmlspecialchars(t3lib_div::fixed_lgd_cs(basename($expandFolder),$titleLen));
+
 					} else {
 						$picon.=htmlspecialchars(t3lib_div::fixed_lgd(basename($expandFolder),$titleLen));
 					}
@@ -2075,6 +2170,7 @@ class tx_rtehtmlarea_browse_links {
 							}
 							if (t3lib_div::_GP('noLimit'))	{
 								$maxW=10000;
+
 								$maxH=10000;
 							} else {
 								$maxW=380;
@@ -2123,6 +2219,7 @@ class tx_rtehtmlarea_browse_links {
 						<table border="0" cellpadding="0" cellspacing="1" id="typo3-dragBox">
 							'.implode('',$lines).'
 						</table>';
+
 				}
 			} else {
 					// Print this warning if the folder is NOT a web folder:
@@ -2132,6 +2229,7 @@ class tx_rtehtmlarea_browse_links {
 		}
 		return $out;
 	}
+
 
 
 
@@ -2207,6 +2305,7 @@ class tx_rtehtmlarea_browse_links {
 	}
 
 	/**
+
 	 * For RTE/link: This prints the 'currentUrl'
 	 *
 	 * @param	string		URL value.  The value is htmlspecialchars()'ed before output.
@@ -2240,6 +2339,7 @@ class tx_rtehtmlarea_browse_links {
 				// Default is "url":
 			$info['value']=$href;
 			$info['act']='url';
+
 
 			$specialParts = explode('#_SPECIAL',$href);
 			if (count($specialParts)==2)	{	// Special kind (Something RTE specific: User configurable links through: "userLinks." from ->thisConfig)
@@ -2308,6 +2408,7 @@ class tx_rtehtmlarea_browse_links {
 		$code=$this->barheader($GLOBALS['LANG']->getLL('uploadImage').':');
 		$code.='
 
+
 			<!--
 				Form, for uploading files:
 			-->
@@ -2373,10 +2474,12 @@ class tx_rtehtmlarea_browse_links {
 
 			// Create the new-folder name field:
 		$a=1;
+
 		$code.='<input'.$this->doc->formWidth(20).' type="text" name="file[newfolder]['.$a.'][data]" />'.
 				'<input type="hidden" name="file[newfolder]['.$a.'][target]" value="'.htmlspecialchars($path).'" />';
 
 			// Make footer of upload form, including the submit button:
+
 		$redirectValue = TYPO3_MOD_PATH . $this->script . '?act='.$this->act.'&mode='.$this->mode.'&expandFolder='.rawurlencode($path).'&bparams='.rawurlencode($this->bparams);
 		$code.='<input type="hidden" name="redirect" value="'.htmlspecialchars($redirectValue).'" />'.
 				'<input type="submit" name="submit" value="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:file_newfolder.php.submit',1).'" />';

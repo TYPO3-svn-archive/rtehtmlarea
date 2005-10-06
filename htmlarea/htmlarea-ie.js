@@ -225,7 +225,9 @@ HTMLArea.statusBarHandler = function (ev) {
 	}
 	editor.updateToolbar(true);
 	switch (ev.type) {
-		case "click" : return false;
+		case "click" :
+			HTMLArea._stopEvent(ev);
+			return false;
 		case "contextmenu" : return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
 	}
 };

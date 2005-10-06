@@ -77,7 +77,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			//call $this->transformContent
 			//call $this->triggerField
                 $this->TCEform = $pObj;
-		$this->LOCAL_LANG = $GLOBALS['TSFE']->readLLfile('EXT:' . $this->ID . '/locallang.php');
 		$this->client = $this->clientInfo();
 		$this->typoVersion = t3lib_div::int_from_ver($GLOBALS['TYPO_VERSION']);
 
@@ -105,10 +104,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 			// Get the host URL
 		$this->hostURL = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST');
-			// Check if we should enable the Mozilla extension
-		if($this->client['BROWSER'] == 'gecko' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension'] && extension_loaded('zlib')) {
-			$this->makeMozillaExtension();
-		}
 
 			// Element ID + pid
 		$this->elementId = $PA['itemFormElName'];
@@ -131,20 +126,21 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			
 			// Language
 		$GLOBALS['TSFE']->initLLvars();
+		$this->LOCAL_LANG = $GLOBALS['TSFE']->readLLfile('EXT:' . $this->ID . '/locallang.php');
 		$this->language = $GLOBALS['TSFE']->lang;
 		if ($this->language=='default' || !$this->language)	{
 			$this->language='en';
 		}
 			// Character set
-		$this->csObj = t3lib_div::makeInstance('t3lib_cs');
 		$this->charset = $GLOBALS['TSFE']->labelsCharset;
 		if($this->typoVersion >= 3007000 ) {
-			$this->OutputCharset  = $GLOBALS['TSFE']->metaCharset ? $GLOBALS['TSFE']->metaCharset : $GLOBALS['TSFE']->renderCharset;
+			$this->OutputCharset  = $GLOBALS['TSFE']->renderCharset;
 		} else {
 			$renderCharset = $GLOBALS['TSFE']->csConvObj->parse_charset($GLOBALS['TSFE']->config['config']['renderCharset'] ? $GLOBALS['TSFE']->config['config']['renderCharset'] : ($GLOBALS['TSFE']->TYPO3_CONF_VARS['BE']['forceCharset'] ? $GLOBALS['TSFE']->TYPO3_CONF_VARS['BE']['forceCharset'] : $GLOBALS['TSFE']->defaultCharSet));    // REndering charset of HTML page.
 			$metaCharset = $GLOBALS['TSFE']->csConvObj->parse_charset($GLOBALS['TSFE']->config['config']['metaCharset'] ? $GLOBALS['TSFE']->config['config']['metaCharset'] : $renderCharset);
 			$this->OutputCharset  = $metaCharset ? $metaCharset : $renderCharset;
 		}
+
 		/* =======================================
 		 * TOOLBAR CONFIGURATION
 		 * =======================================
@@ -190,7 +186,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			}
 
 				// Set the charset of the content for the SpellChecker
-			$this->spellCheckerCharset = $this->csObj->$charSetArray[$this->spellCheckerTypo3Language];
+			$this->spellCheckerCharset = $GLOBALS['TSFE']->csConvObj->charSetArray[$this->spellCheckerTypo3Language];
 			$this->spellCheckerCharset = $this->spellCheckerCharset ? $this->spellCheckerCharset : 'iso-8859-1';
 			$this->spellCheckerCharset = trim($GLOBALS['TSFE']->config['config']['metaCharset']) ? trim($GLOBALS['TSFE']->config['config']['metaCharset']) : $this->spellCheckerCharset;
 
@@ -229,7 +225,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 				$filename='';
 				if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
 					$filename = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($extKey).$local;
-					//$filename = '/' . t3lib_extMgm::siteRelPath($extKey).$local;
 				}
 			} elseif (substr($filename,0,1) != '/') {
 				$filename = $this->siteURL.$filename;
@@ -251,14 +246,19 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			$skinFilename='';
 			if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
 				$skinFilename = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($extKey).$local;
+				$skinDir = $this->siteURL . t3lib_extMgm::siteRelPath($extKey) . dirname($local);
 			}
 		} elseif (substr($skinFilename,0,1) != '/') {
+			$skinDir = $this->siteURL.dirname($skinFilename);
 			$skinFilename = $this->siteURL.$skinFilename;
-		} 
+		} else {
+			$skinDir = substr($this->siteURL,0,-1) . dirname($skinFilename);
+		}	
 
 		$this->editorCSS = $skinFilename;
+		$this->editedContentCSS = $skinDir . '/htmlarea-edited-content.css';
 		$additionalCode_loadCSS .= '
-		<link rel="alternate stylesheet" type="text/css" href="' .  ((substr($this->editorCSS,0,1) == '/')?substr($this->siteURL,0,-1):'') . dirname($this->editorCSS) . '/htmlarea-edited-content.css" />';
+		<link rel="alternate stylesheet" type="text/css" href="' . $this->editedContentCSS . '" />';
 		$additionalCode_loadCSS .= '
 		<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
 
@@ -289,7 +289,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			
 			// draw the textarea
 		$item = $this->triggerField($PA['itemFormElName']).'
-			<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $this->csObj->conv($GLOBALS['TSFE']->getLLL('Please wait',$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '</div>
+			<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL('Please wait',$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '</div>
 			<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
 			<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($this->RTEdivStyle).'">'.t3lib_div::formatForTextarea($value).'</textarea>
 			</div>' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableDebugMode'] ? '<div id="HTMLAreaLog"></div>' : '') . '
@@ -496,6 +496,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		}
 
 
+
 			// Setting the list of fonts if specified in the RTE config
 		if (is_array($this->RTEsetup['properties']['fonts.']) )  {
 			$HTMLAreaFontname = array();
@@ -503,7 +504,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			while(list($fontName,$conf)=each($this->RTEsetup['properties']['fonts.']))      {
 				$fontName=substr($fontName,0,-1);
 				$HTMLAreaFontname[$fontName] = '
-				"' . $this->csObj->conv($GLOBALS['TSFE']->getLLL($conf['name'],$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '" : "' . $conf['value'] . '"';
+				"' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL($conf['name'],$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '" : "' . $conf['value'] . '"';
 			}
 		}
 
@@ -558,7 +559,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 				$HTMLAreaJSParagraph .= ',';
 			}
 			$HTMLAreaJSParagraph .= '
-				"' . $this->csObj->conv($GLOBALS['TSFE']->getLLL($PStyleLabel,$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '" : "' . $PStyleItem . '"';
+				"' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL($PStyleLabel,$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '" : "' . $PStyleItem . '"';
 			$HTMLAreaParagraphIndex++;
 		}
 		$HTMLAreaJSParagraph .= '};';
@@ -601,6 +602,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 	/**
 	 * Return the JS-Code for copy the HTML-Code from the editor in the hidden input field.
 	 * This is for submit function from the form.
+
 	 *
 	 * @return string		the JS-Code
 	 */

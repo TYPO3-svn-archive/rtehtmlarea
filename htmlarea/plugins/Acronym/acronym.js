@@ -1,8 +1,6 @@
 // Acronym Plugin for TYPO3 htmlArea RTE
 // Copyright (c) 2005 Stanislas Rolland
-// Sponsored by http://www.fructifor.com
-//
-// htmlArea v3.0 - Copyright (c) 2002 interactivetools.com, inc.
+// Sponsored by http://www.fructifor.ca
 // This notice MUST stay intact for use (see license.txt).
 
 Acronym = function(editor) {
@@ -19,13 +17,13 @@ Acronym = function(editor) {
 Acronym.I18N = Acronym_langArray;
 
 Acronym._pluginInfo = {
-	name			: "Acronym",
+	name		: "Acronym",
 	version		: "1.0",
-	developer		: "Stanislas Rolland",
-	developer_url	: "http://www.fructifor.com/",
+	developer	: "Stanislas Rolland",
+	developer_url	: "http://www.fructifor.ca",
 	c_owner		: "Stanislas Rolland",
 	sponsor		: "Fructifor Inc.",
-	sponsor_url		: "http://www.fructifor.com",
+	sponsor_url	: "http://www.fructifor.ca",
 	license		: "htmlArea"
 };
 

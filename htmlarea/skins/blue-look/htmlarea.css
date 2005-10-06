@@ -1,3 +1,4 @@
+/* CSS Selectors for skin sr_rtehtmlarea_bluelook */
 /* Selectors for the htmlArea RTE editor */
 .htmlarea {
 	background-color:#fff;
@@ -31,7 +32,9 @@
 .htmlarea .toolbar ul.tb-group {
 	clear:none;float:left;
 	border:1px solid #e4e0db;margin:1px 2px 0px 0px;padding:0;
+
 	-moz-border-radius:3px;
+
 }
 .htmlarea .toolbar ul li {
 	float:left;
@@ -48,6 +51,7 @@
 	background-color:transparent;
 	border-style:none;margin:0;padding:3px 3px 0px 3px;
 }
+
 .htmlarea .toolbar button {
 	vertical-align:top;
 	background-color:transparent;color:ButtonText;background-position:1px 1px;background-repeat:no-repeat;
@@ -95,14 +99,14 @@
 .htmlarea .toolbar .InsertTag {background-image:url("images/QuickTag/ed_quicktag.gif"); }
 .htmlarea .toolbar .Acronym {background-image:url("images/Acronym/ed_acronym.gif"); }
 .htmlarea .toolbar .RemoveFormat {background-image:url("images/RemoveFormat/ed_clean.gif"); }
-.htmlarea .toolbar .htmlmode {background-image:url("images/ed_html.gif"); }
+.htmlarea .toolbar .HtmlMode {background-image:url("images/ed_html.gif"); }
 .htmlarea .toolbar .Copy, .htmlarea-context-menu .Copy  {background-image:url("images/ed_copy.gif");}
 .htmlarea .toolbar .Cut, .htmlarea-context-menu .Cut  {background-image:url("images/ed_cut.gif");}
 .htmlarea .toolbar .Paste, .htmlarea-context-menu .Paste {background-image:url("images/ed_paste.gif");}
 .htmlarea .toolbar .Undo {background-image:url("images/ed_undo.gif");}
 .htmlarea .toolbar .Redo {background-image:url("images/ed_redo.gif");}
-.htmlarea .toolbar .about {background-image:url("images/ed_about.gif");}
-.htmlarea .toolbar .showhelp {background-image:url("images/ed_help.gif");}
+.htmlarea .toolbar .About {background-image:url("images/ed_about.gif");}
+.htmlarea .toolbar .ShowHelp {background-image:url("images/ed_help.gif");}
 .htmlarea .toolbar .TO-toggle-borders, .htmlarea-context-menu .TO-toggle-borders {background-image:url("images/TableOperations/toggle-borders.gif");}
 .htmlarea .toolbar .TO-table-prop, .htmlarea-context-menu .TO-table-prop  {background-image:url("images/TableOperations/table-prop.gif");}
 .htmlarea .toolbar .TO-row-prop, .htmlarea-context-menu .TO-row-prop {background-image:url("images/TableOperations/row-prop.gif");}
@@ -120,7 +124,6 @@
 .htmlarea .toolbar .TO-cell-delete, .htmlarea-context-menu .TO-cell-delete {background-image:url("images/TableOperations/cell-delete.gif");}
 .htmlarea .toolbar .TO-cell-split, .htmlarea-context-menu .TO-cell-split {background-image:url("images/TableOperations/cell-split.gif");}
 .htmlarea .toolbar .TO-cell-merge, .htmlarea-context-menu .TO-cell-merge {background-image:url("images/TableOperations/cell-merge.gif");}
-
 .htmlarea .toolbar button.buttonHover { 
 	border:1px solid;border-color:white #CCC #CCC white;
 }
@@ -137,7 +140,7 @@
 	text-align:center;
 	border:1px solid ButtonShadow;margin:4px 1px 0px 1px;padding:0px 3px;
 }
-.htmlarea .toolbar button.buttonDisabled, .htmlarea .toolbar select.buttonDisabled {
+.htmlarea .toolbar button.buttonDisabled {
 	filter: gray() alpha(opacity = 25);
 	-moz-opacity:0.25;
 	opacity:0.25;
@@ -154,14 +157,15 @@
 	border-style:none;margin:0;padding:0 1px;
 }
 .htmlarea .toolbar select {
-	color:black;
+	color:WindowText;
 	font:11px Tahoma,Verdana,sans-serif; 
 	margin:1px 2px;padding:0;
 }
 .htmlarea .toolbar select, .htmlarea .toolbar select:hover, .htmlarea .toolbar select:active { 
-	background-color:white;
+	background-color:Window;
 }
 .htmlarea .toolbar select.buttonDisabled { 
+	color:GrayText;
 	background-color:#f7f8fd;
 }
 .htmlarea .editorIframe {
@@ -216,11 +220,9 @@
 }
 .popupwin {
 	background-color:#f7f8fd;color:ButtonText;
-	font:11px Tahoma,Verdana,sans-serif;
 }
 .popupwin body {
-	background-color:#f7f8fd;color:ButtonText;
-	font:11px Tahoma,Verdana,sans-serif;
+	font-size:11px;font-family:Tahoma,Verdana,sans-serif;
 	border-style:none;margin:5px;padding:0;
 }
 .popupwin .title {
@@ -229,11 +231,45 @@
 	font-weight:bold;font-size:120%;letter-spacing:2px;
 	border-top:0px;border-bottom:1px solid #316ac5;margin-top:0px;margin-bottom:10px;padding:3px 10px;
 }
+.popupwin p {
+	margin: 0.5em 0;
+}
+.popupwin h1 {
+	font-weight: bold; font-size: 1.1em;
+	padding: .3em 0; border-bottom: 1px solid #999;
+}
+.popupwin a:link, a:visited {
+	color: #00f;
+}
+.popupwin a:hover {
+	color: #f00;
+}
+.popupwin a:active { 
+	color: #f80;
+}
+.popupwin #tabbar { position: relative; left: 10px; }
+.popupwin .tab {
+	color: #454; background-color: #66f; cursor: pointer;
+	margin-left: -5px; float: left; position: relative; top: -3px; left: -2px; z-index: 0;
+	border: 1px solid black; border-top: none; padding: 2px 10px 3px 10px;
+	-moz-border-radius: 0px 0px 4px 4px;
+}
+.popupwin .tab-current {
+	color: #000; background-color: #ddf;
+	top: -4px; z-index: 10;
+	padding: 3px 10px 4px 10px;
+}
 .popupwin .content {
 	border-style:none;margin:0;padding:0;
 }
 .popupwin table {
 	border-collapse:collapse;border-style:none;margin:0;padding:0;
+}
+.popupwin thead {
+	font-weight: bold; background-color: #ddf;
+}
+.popupwin td {
+	padding: 0.2em;
 }
 .popupwin form {
 	background-color:#f7f8fd;
@@ -256,7 +292,7 @@
 	margin-left:5px;padding:2px 5px;
 }
 .popupwin fieldset table {
-	font:11px Tahoma,Verdana,sans-serif;
+	font:1.0em Tahoma,Verdana,sans-serif;
 	border-style:none;margin:2px 0px;padding:0;
 }
 .popupwin .buttons {
@@ -268,7 +304,7 @@
 	padding:2px 0px;
 }
 .popupwin select, input, button, textarea, table, label {
-	font:11px Tahoma,Verdana,sans-serif;
+	font:1.0em Tahoma,Verdana,sans-serif;
 }
 .popupwin button {
 	background-color:#f7f8fd;background-image:url(button-background.png);
@@ -315,7 +351,7 @@
 .popupwin input.shorter-value {
 	width:17em;
 }
-#--HA-layout {
+.popupwin #HA-layout {
 	width:450px;
 }
 .colorTable {

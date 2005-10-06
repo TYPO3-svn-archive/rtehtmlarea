@@ -1,5 +1,52 @@
+	## Default anchor classes configuration
+
+RTE.classesAnchor {
+	externalLink {
+		class = external-link
+		type = url
+		image = EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/img/external_link.gif
+		altText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:external_link_altText
+		titleText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:external_link_titleText
+	}
+	externalLinkInNewWindow {
+		class = external-link-new-window
+		type = url
+		image = EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/img/external_link_new_window.gif
+		altText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:external_link_new_window_altText
+		titleText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:external_link_new_window_titleText
+	}
+	internalLink {
+		class = internal-link
+		type = page
+		image = EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/img/internal_link.gif
+		altText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:internal_link_altText
+		titleText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:internal_link_titleText
+	}
+	internalLinkInNewWindow {
+		class = internal-link-new-window
+		type = page
+		image = EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/img/internal_link_new_window.gif
+		altText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:internal_link_new_window_altText
+		titleText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:internal_link_new_window_titleText
+	}
+	download {
+		class = download
+		type = file
+		image = EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/img/download.gif
+		altText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:download_altText
+		titleText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:download_titleText
+	}
+	mail {
+		class = mail
+		type = mail
+		image = EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/img/mail.gif
+		altText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:mail_altText
+		titleText = LLL:EXT:rtehtmlarea/htmlarea/plugins/TYPO3Browsers/locallang.php:mail_titleText
+	}
+}
+
+	## Default RTE configuration
 RTE.default {
-		## Default RTE configuration
 	skin = EXT:rtehtmlarea/htmlarea/skins/default/htmlarea.css
 	contentCSS = EXT:rtehtmlarea/htmlarea/plugins/DynamicCSS/dynamiccss.css
 	enableWordClean = 1
@@ -24,7 +71,13 @@ RTE.default {
 	disableColorPicker = 0
 	classesCharacter = 
 	classesImage = float-right, blue-background
-	classesAnchor = 
+	classesAnchor = external-link, external-link-new-window, internal-link, internal-link-new-window, download, mail
+	classesAnchor.default {
+		page = internal-link
+		url = external-link-new-window
+		file = download
+		mail = mail
+	}
 	showTagFreeClasses = 1
 
 		## Default proc rules

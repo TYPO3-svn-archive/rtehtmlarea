@@ -1,7 +1,5 @@
 // TYPO3 Image & Link Browsers Plugin for TYPO3 htmlArea RTE
-// Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
-// Sponsored by http://www.fructifor.com
-// This plugin encapsulates an evolution of the initialization code originally produced by Philipp Borgmann
+// Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 // This notice MUST stay intact for use (see license.txt).
 
 TYPO3Browsers = function(editor,args) {
@@ -15,12 +13,12 @@ TYPO3Browsers.I18N = TYPO3Browsers_langArray;
 
 TYPO3Browsers._pluginInfo = {
 	name		: "TYPO3Browsers",
-	version		: "1.1",
+	version		: "1.3",
 	developer	: "Stanislas Rolland",
-	developer_url 	: "http://www.fructifor.com/",
+	developer_url 	: "http://www.fructifor.ca",
 	c_owner		: "Stanislas Rolland",
 	sponsor		: "Fructifor Inc.",
-	sponsor_url 	: "http://www.fructifor.com",
+	sponsor_url 	: "http://www.fructifor.ca",
 	license		: "htmlArea"
 };
 
@@ -28,9 +26,9 @@ TYPO3Browsers._pluginInfo = {
  *  Insert Image TYPO3 RTE function.
  */
 HTMLArea.prototype.renderPopup_image = function() {
-	var editorNo = this._doc._editorNo,
+	var editorNumber = this._editorNumber,
 		backreturn,
-		addParams = "?"+conf_RTEtsConfigParams,
+		addParams = "?" + conf_RTEtsConfigParams,
 		image = this.getParentElement();
 
 	this._selectedImage = null;
@@ -39,7 +37,7 @@ HTMLArea.prototype.renderPopup_image = function() {
 		this._selectedImage = image;
 	}
 
-	this._popupDialog("../../t3_popup.php" + addParams + "&editorNo=" + editorNo + "&popupname=image&srcpath="+encodeURI(rtePathImageFile), null, backreturn, 550, 350);	
+	this._popupDialog("../../t3_popup.php" + addParams + "&editorNo=" + editorNumber + "&popupname=image&srcpath="+encodeURI(rtePathImageFile), null, backreturn, 550, 350);	
 	return false;
 };
 
@@ -59,18 +57,28 @@ HTMLArea.prototype.renderPopup_insertImage = function(image) {
  *  CreateLink: Typo3-RTE function, use this instead of the original.
  */
 HTMLArea.prototype.renderPopup_link = function() {
-	var editorNo = this._doc._editorNo,
-		backreturn,
+	var editorNumber = this._editorNumber,
 		addUrlParams = "?" + conf_RTEtsConfigParams,
+		backreturn,
 		sel = this.getParentElement();
+
+		// Download the definition of special anchor classes if not yet done
+	if(RTEarea[editorNumber]["classesAnchorUrl"] && !this.classesAnchorSetup) {
+		var classesAnchorData = HTMLArea._getScript(0, false, RTEarea[editorNumber]["classesAnchorUrl"]);
+		var editor = this;
+		if(classesAnchorData) eval(classesAnchorData);
+		editor = null;
+	}
 
 	var el = HTMLArea.getElementObject(sel,"a");
 	if (el != null && el.tagName && el.tagName.toLowerCase() == "a") sel = el;
 	if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") {
-		addUrlParams = "?curUrl[href]=" + escape(sel.getAttribute("href"));
-		if (sel.target) addUrlParams += "&curUrl[target]=" + escape(sel.target);
-		if (sel.className) addUrlParams += "&curUrl[class]=" + escape(sel.className);
-		if (sel.title) addUrlParams += "&curUrl[title]=" + escape(sel.title);
+		addUrlParams = "?curUrl[href]=" + encodeURI(sel.getAttribute("href"));
+		addUrlParams += "&curUrl[typo3ContentLanguage]=" + RTEarea[editorNumber]["typo3ContentLanguage"];
+		addUrlParams += "&curUrl[typo3ContentCharset]=" + RTEarea[editorNumber]["typo3ContentCharset"];
+		if (sel.target) addUrlParams += "&curUrl[target]=" + encodeURIComponent(sel.target);
+		if (sel.className) addUrlParams += "&curUrl[class]=" + encodeURIComponent(sel.className);
+		if (sel.title) addUrlParams += "&curUrl[title]=" + encodeURIComponent(sel.title);
 		addUrlParams += conf_RTEtsConfigParams;
 	} else if (this.hasSelectedText()) {
 		var text = this.getSelectedHTML();
@@ -80,11 +88,12 @@ HTMLArea.prototype.renderPopup_link = function() {
 				var ATagContent = text.substring(offset+2);
 				offset = ATagContent.toUpperCase().indexOf(">");
 				ATagContent = ATagContent.substring(0,offset);
-				addUrlParams = "?curUrl[all]=" + escape(ATagContent) + conf_RTEtsConfigParams;
+				addUrlParams = "?curUrl[all]=" + encodeURIComponent(ATagContent);
+				addUrlParams +=  conf_RTEtsConfigParams;
 			}
 		}
 	}
-	this._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNo + "&popupname=link&srcpath=" + encodeURI(rtePathLinkFile), null, backreturn, 550, 350);
+	this._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNumber + "&typo3ContentLanguage=" + RTEarea[editorNumber]["typo3ContentLanguage"] + "&typo3ContentCharset=" + encodeURIComponent(RTEarea[editorNumber]["typo3ContentCharset"]) + "&popupname=link&srcpath=" + encodeURI(rtePathLinkFile), null, backreturn, 550, 350);
 	return false;
 };
 
@@ -93,67 +102,157 @@ HTMLArea.prototype.renderPopup_link = function() {
  * This function is called from the TYPO3 link popup.
  */
 HTMLArea.prototype.renderPopup_addLink = function(theLink,cur_target,cur_class,cur_title) {
-	var a, sel = null;
+	var a, sel = null, range = null, node = null, imageNode = null;
 	this.focusEditor();
-
+	
 	if(!HTMLArea.is_ie) {
-		sel = this.getParentElement();
-		var el = HTMLArea.getElementObject(sel,"a");
-		if (el != null && el.tagName && el.tagName.toLowerCase() == "a") sel = el;
-		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNode(sel);
+		node = this.getParentElement();
+		var el = HTMLArea.getElementObject(node,"a");
+		if (el != null && el.tagName && el.tagName.toLowerCase() == "a") node = el;
+		if (node != null && node.tagName && node.tagName.toLowerCase() == "a") this.selectNode(node);
 	}
-
+		// Clean images from existing anchors otherwise Mozilla may create nested anchors
+	if (this.classesAnchorSetup) {
+		sel = this._getSelection();
+		range = this._createRange(sel);
+		node = this.getParentElement();
+		this.cleanAllLinks(node, range, true);
+	}
+	
 	this._doc.execCommand("CreateLink", false, theLink);
-
+	
 	sel = this._getSelection();
-	var range = this._createRange(sel);
-	a = this.getParentElement();
-	var el = HTMLArea.getElementObject(a,"a");
-	if (el != null && el.tagName && el.tagName.toLowerCase() == "a") a = el;
-	if (a) {
-			// we may have created multiple links in as many blocks
-		function setLinkAttributes(node) {
-			if (node.tagName && node.tagName.toLowerCase() == "a") {
-				if ((HTMLArea.is_gecko && range.intersectsNode(node)) || (HTMLArea.is_ie)) {
-					if (cur_target.trim()) node.target = cur_target.trim();
-						else node.removeAttribute("target");
-					if (cur_class.trim()) {
-						node.className = cur_class.trim();
-					} else { 
-						if (HTMLArea.is_gecko) node.removeAttribute('class');
-							else node.removeAttribute('className');
-					}
-					if (cur_title.trim()) { node.title = cur_title.trim(); }
-						else {
-							node.removeAttribute("title");
-							node.removeAttribute("rtekeep");
-						}
-				}
-			} else {
-				for (var i = node.firstChild;i;i = i.nextSibling) {
-					if (i.nodeType == 1 || i.nodeType == 11) setLinkAttributes(i);
+	range = this._createRange(sel);
+	node = this.getParentElement();
+	var el = HTMLArea.getElementObject(node,"a");
+	if (el != null && el.tagName && el.tagName.toLowerCase() == "a") node = el;
+	if (node) {
+		if (this.classesAnchorSetup && cur_class) {
+			for (var i = this.classesAnchorSetup.length; --i >= 0;) {
+				var anchorClass = this.classesAnchorSetup[i];
+				if(anchorClass['name'] == cur_class && anchorClass["image"]) {
+					imageNode = this._doc.createElement("img");
+					imageNode.src = anchorClass["image"];
+					imageNode.alt = anchorClass["altText"];
+					break;
 				}
 			}
 		}
-		setLinkAttributes(a);
+			// We may have created multiple links in as many blocks
+		this.setLinkAttributes(node, range, cur_target, cur_class, cur_title, imageNode);
 	}
 	Dialog._modal.close();
 };
 
 /*
+ * Set attributes of anchors intersecting a range in the given node
+ */
+HTMLArea.prototype.setLinkAttributes = function(node,range,cur_target,cur_class,cur_title,imageNode) {
+	if (node.tagName && node.tagName.toLowerCase() == "a") {
+		var nodeInRange = false;
+		if(HTMLArea.is_gecko) {
+			if(!HTMLArea.is_safari) nodeInRange = range.intersectsNode(node);
+				else nodeInRange = true;
+		} else {
+			var nodeRange = this._doc.body.createTextRange();
+			nodeRange.moveToElementText(node);
+			nodeInRange = range.inRange(nodeRange) || (range.compareEndPoints("StartToStart", nodeRange) == 0) || (range.compareEndPoints("EndToEnd", nodeRange) == 0);
+		}
+		if (nodeInRange) {
+			if (imageNode != null) node.insertBefore(imageNode.cloneNode(false), node.firstChild);
+			if (cur_target.trim()) node.target = cur_target.trim();
+				else node.removeAttribute("target");
+			if (cur_class.trim()) {
+				node.className = cur_class.trim();
+			} else { 
+				if (HTMLArea.is_gecko) node.removeAttribute('class');
+					else node.removeAttribute('className');
+			}
+			if (cur_title.trim()) {
+				node.title = cur_title.trim();
+			} else {
+				node.removeAttribute("title");
+				node.removeAttribute("rtekeep");
+			}
+		}
+	} else {
+		for (var i = node.firstChild;i;i = i.nextSibling) {
+			if (i.nodeType == 1 || i.nodeType == 11) this.setLinkAttributes(i, range, cur_target, cur_class, cur_title, imageNode);
+		}
+	}
+};
+
+/*
+ * Clean up images in special anchor classes
+ */
+HTMLArea.prototype.cleanClassesAnchorImages = function(node) {
+	var nodeArray = [], splitArray1 = [], splitArray2 = [];
+	for (var childNode = node.firstChild; childNode; childNode = childNode.nextSibling) {
+		if (childNode.tagName && childNode.tagName.toLowerCase() == "img") {
+			splitArray1 = childNode.src.split("/");
+			for (var i = this.classesAnchorSetup.length; --i >= 0;) {
+				splitArray2 = this.classesAnchorSetup[i]["image"].split("/");
+				if (splitArray1[splitArray1.length-1] == splitArray2[splitArray2.length-1]) {
+					nodeArray.push(childNode);
+					break;
+				}
+			}
+		}
+	}
+	for (i = nodeArray.length; --i >= 0;) {
+		node.removeChild(nodeArray[i]);
+	}
+};
+
+/*
+ * Clean up all anchors intesecting with the range in the given node
+ */
+ HTMLArea.prototype.cleanAllLinks = function(node,range,keepLinks) {
+	if (node.tagName && node.tagName.toLowerCase() == "a") {
+		var intersection = false;
+		if(HTMLArea.is_gecko) {
+			if(!HTMLArea.is_safari) intersection = range.intersectsNode(node);
+				else intersection = true;
+			} else {
+				var nodeRange = this._doc.body.createTextRange();
+				nodeRange.moveToElementText(node);
+				intersection = range.inRange(nodeRange) || ((range.compareEndPoints("StartToStart", nodeRange) > 0) && (range.compareEndPoints("StartToEnd", nodeRange) < 0)) || ((range.compareEndPoints("EndToStart", nodeRange) > 0) && (range.compareEndPoints("EndToEnd", nodeRange) < 0));
+			}
+			if (intersection) {
+				this.cleanClassesAnchorImages(node);
+				if(!keepLinks) {
+					while(node.firstChild) node.parentNode.insertBefore(node.firstChild, node);
+					node.parentNode.removeChild(node);
+				}
+			}
+	} else {
+		for (var i = node.firstChild;i;i = i.nextSibling) {
+			if (i.nodeType == 1 || i.nodeType == 11) this.cleanAllLinks(i, range, keepLinks);
+		}
+	}
+};
+
+/*
  * Unlink the selection.
- * This function is called from the TYPO3 link popup.
+ * This function is called from the TYPO3 link popup and from the context menu.
  */
 HTMLArea.prototype.renderPopup_unLink = function() {
 	this.focusEditor();
-	if(!HTMLArea.is_ie) {
-		var sel = this.getParentElement();
+	if(HTMLArea.is_gecko) {
+		sel = this.getParentElement();
 		var el = HTMLArea.getElementObject(sel,"a");
 		if (el != null && el.tagName && el.tagName.toLowerCase() == "a") sel = el;
 		if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") this.selectNode(sel);
 	}
-	this._doc.execCommand("Unlink", false, "");
-	Dialog._modal.close();
+	if(this.classesAnchorSetup) {
+		var sel = this._getSelection();
+		var range = this._createRange(sel);
+		var node = this.getParentElement();
+		this.cleanAllLinks(node, range, false);
+	} else {
+		this._doc.execCommand("Unlink", false, "");
+	}
+	if(Dialog._modal) Dialog._modal.close();
 };
 
 /*

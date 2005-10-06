@@ -286,8 +286,11 @@ HTMLArea.statusBarHandler = function (ev) {
 	editor.selectNode(target.el);
 	editor.updateToolbar(true);
 	switch (ev.type) {
-		case "click" : return false;
-		case "contextmenu" : return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
+		case "click" : 
+			HTMLArea._stopEvent(ev);
+			return false;
+		case "contextmenu" : 
+			return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
 	}
 };
 
@@ -301,25 +304,13 @@ HTMLArea.prototype._mozillaPasteException = function(cmdID, UI, param) {
 		this._doc.execCommand(cmdID, UI, param);
 		if (cmdID == "Paste" && this.config.killWordOnPaste) HTMLArea._wordClean(this._doc.body);
 	} else if (this.config.enableMozillaExtension) {
-		if (HTMLArea.agt.indexOf("firefox/1.") != -1) {
-			if (confirm(HTMLArea.I18N.msg["Allow-Clipboard-Helper-Extension"])) {
-				if (InstallTrigger.enabled()) {
-					HTMLArea._mozillaXpi = new Object();
-					HTMLArea._mozillaXpi["AllowClipboard Helper"] = _editor_mozAllowClipboard_url;
-					InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
-				} else {
-					alert(HTMLArea.I18N.msg["Mozilla-Org-Install-Not-Enabled"]);
-					HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
-					return; 
-				}
-			}
-		} else if (confirm(HTMLArea.I18N.msg["Moz-Extension"])) {
+		if (confirm(HTMLArea.I18N.msg["Allow-Clipboard-Helper-Extension"])) {
 			if (InstallTrigger.enabled()) {
 				HTMLArea._mozillaXpi = new Object();
-				HTMLArea._mozillaXpi["TYPO3 htmlArea RTE Preferences"] = _typo3_host_url + "/uploads/tx_rtehtmlarea/typo3_rtehtmlarea_prefs.xpi";
-  				InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
+				HTMLArea._mozillaXpi["AllowClipboard Helper"] = _editor_mozAllowClipboard_url;
+				InstallTrigger.install(HTMLArea._mozillaXpi,HTMLArea._mozillaInstallCallback);
 			} else {
-				alert(HTMLArea.I18N.msg["Moz-Extension-Install-Not-Enabled"]);
+				alert(HTMLArea.I18N.msg["Mozilla-Org-Install-Not-Enabled"]);
 				HTMLArea._appendToLog("WARNING [HTMLArea::execCommand]: Mozilla install was not enabled.");
 				return; 
 			}
@@ -346,21 +337,29 @@ HTMLArea._mozillaInstallCallback = function(url,returnCode) {
  */
 HTMLArea.prototype._checkBackspace = function() {
 	var self = this;
-	//window.setTimeout(function() {
-		self.focusEditor();
-		var sel = self._getSelection();
-		var range = self._createRange(sel);
-		var SC = range.startContainer;
-		var SO = range.startOffset;
-		var EC = range.endContainer;
-		var EO = range.endOffset;
-		var newr = SC.nextSibling;
-		if(SC.nodeType == 3) SC = SC.parentNode;
-		if(!/\S/.test(SC.tagName)) {
+	self.focusEditor();
+	var sel = self._getSelection();
+	var range = self._createRange(sel);
+	var SC = range.startContainer;
+	var SO = range.startOffset;
+	var EC = range.endContainer;
+	var EO = range.endOffset;
+	var newr = SC.nextSibling;
+	while (SC.nodeType == 3 || /^a$/i.test(SC.tagName)) SC = SC.parentNode;
+	if (!self.config.disableEnterParagraphs && /^td$/i.test(SC.parentNode.tagName) && SC.parentNode.firstChild == SC && SO == 0 && range.collapsed) return true;
+	window.setTimeout(function() {
+			// Remove br tag inserted by Mozilla
+		if (!self.config.disableEnterParagraphs && (/^p$/i.test(SC.tagName) || !/\S/.test(SC.tagName)) && SO == 0) {
+			if (SC.firstChild && /^br$/i.test(SC.firstChild.tagName)) {
+				HTMLArea.removeFromParent(SC.firstChild);
+				return true;
+			}
+		}
+		if (!/\S/.test(SC.tagName)) {
 			var p = document.createElement("p");
 			while (SC.firstChild) p.appendChild(SC.firstChild);
 			SC.parentNode.insertBefore(p, SC);
-			SC.parentNode.removeChild(SC);
+			HTMLArea.removeFromParent(SC);
 			var r = range.cloneRange();
 			r.setStartBefore(newr);
 			r.setEndAfter(newr);
@@ -374,7 +373,7 @@ HTMLArea.prototype._checkBackspace = function() {
 			}
 			return true;
 		}
-	//},10);
+	},10);
 	return false;
 };
 
@@ -388,6 +387,7 @@ HTMLArea.prototype._checkInsertP = function() {
 		r     = this._createRange(sel),
 		p     = this.getAllAncestors(),
 		block = null,
+		a = null,
 		doc   = this._doc,
 		body  = doc.body;
 
@@ -401,28 +401,41 @@ HTMLArea.prototype._checkInsertP = function() {
 	if(HTMLArea.is_safari) sel.empty();
 		else sel.removeAllRanges();
 	SC = r.startContainer;
-	if(!block || /td/i.test(block.tagName)) {
+	if(!block || /^td$/i.test(block.tagName)) {
 		left = SC;
-		for (i=SC;i && (i != body) && !HTMLArea.isBlockElement(i);i=HTMLArea.getPrevNode(i)) { left = i; }
+		for (i = SC; i && !HTMLArea.isBlockElement(i); i = HTMLArea.getPrevNode(i)) left = i;
 		right = SC;
-		for (i=SC;i && (i != body) && !HTMLArea.isBlockElement(i);i=HTMLArea.getNextNode(i)) { right = i; }
+		for (i = SC; i && !HTMLArea.isBlockElement(i); i = HTMLArea.getNextNode(i)) right = i;
 		if(left != body && right != body && !(block && left == block ) && !(block && right == block )) {
 			r2 = r.cloneRange();
 			r2.setStartBefore(left);
 			r2.surroundContents(block = doc.createElement('p'));
-			if (!/\S/.test(HTMLArea.getInnerText(block))) block.appendChild(this._doc.createElement('br'));
+			if (!/\S/.test(HTMLArea.getInnerText(block))) {
+					// Remove any anchor created empty
+				a = block.lastChild;
+				if (a && /^a$/i.test(a.tagName) && !/\S/.test(a.innerHTML)) HTMLArea.removeFromParent(a);
+				block.appendChild(this._doc.createElement('br'));
+			}
 			block.normalize();
 			r.setEndAfter(right);
 			r.surroundContents(block = doc.createElement('p'));
-			if (!/\S/.test(HTMLArea.getInnerText(block))) block.appendChild(this._doc.createElement('br'));
+					// Remove any anchor created empty
+			a = block.previousSibling;
+			if (a && /^a$/i.test(a.tagName) && !/\S/.test(a.innerHTML)) HTMLArea.removeFromParent(a);
+			if (!/\S/.test(HTMLArea.getInnerText(block))) {
+					// Remove any anchor created empty
+				a = block.lastChild;
+				if (a && /^a$/i.test(a.tagName) && !/\S/.test(a.innerHTML)) HTMLArea.removeFromParent(a);
+				block.appendChild(this._doc.createElement('br'));
+			}
 			block.normalize();
 		} else { 
 			if(!block) {
 				r = doc.createRange();
 				r.setStart(body, 0);
 				r.setEnd(body, 0);
-				r.insertNode(block = doc.createElement('p'));
-				block.appendChild(this._doc.createElement('br'));
+				r.surroundContents(block = doc.createElement('p'));
+				if (!/\S/.test(HTMLArea.getInnerText(block))) block.appendChild(this._doc.createElement('br'));
 			} else {
 				r = doc.createRange();
 				r.setStart(block, 0);
@@ -450,16 +463,18 @@ HTMLArea.prototype._checkInsertP = function() {
 				left.removeChild(block);
 				r.setEndAfter(left);
 				r.collapse(false);
-				p = this.convertNode(p, /^[uo]l$/i.test(left.parentNode.tagName) ? "li" : "p");
+				p = this.convertNode(p, /^li$/i.test(left.parentNode.tagName) ? "br" : "p");
 			}
 			r.insertNode(df);
+				// Remove any anchor created empty
+			var a = p.previousSibling.lastChild;
+			if (a && /^a$/i.test(a.tagName) && !/\S/.test(a.innerHTML)) HTMLArea.removeFromParent(a);
 			r.selectNodeContents(p);
 		}
 	}
 	r.collapse(true);
 	if(HTMLArea.is_safari) sel.setBaseAndExtent(r.startContainer,r.startOffset,r.endContainer,r.endOffset);
 		else sel.addRange(r);
-	//this.forceRedraw();
 	this.scrollToCaret();
 };
 
@@ -467,25 +482,24 @@ HTMLArea.prototype._checkInsertP = function() {
  * Detect emails and urls as they are typed in Mozilla
  * Borrowed from Xinha (is not htmlArea) - http://xinha.gogo.co.nz/
  */
- // Not yet revised for Safari
 HTMLArea.prototype._detectURL = function(ev) {
 	var editor = this;
-	var s = editor._getSelection();
+	var s = this._getSelection();
 	var autoWrap = function (textNode, tag) {
 		var rightText = textNode.nextSibling;
 		if (typeof(tag) == 'string') tag = editor._doc.createElement(tag);
 		var a = textNode.parentNode.insertBefore(tag, rightText);
-		textNode.parentNode.removeChild(textNode);
+		HTMLArea.removeFromParent(textNode);
 		a.appendChild(textNode);
 		rightText.data = ' ' + rightText.data;
 		s.collapse(rightText, 1);
 		HTMLArea._stopEvent(ev);
 
 		editor._unLink = function() {
-			var t = a.firstChild, parent = a.parentNode;
+			var t = a.firstChild;
 			a.removeChild(t);
-			parent.insertBefore(t, a);
-			parent.removeChild(a);
+			a.parentNode.insertBefore(t, a);
+			HTMLArea.removeFromParent(a);
 			editor._unLink = null;
 			editor._unlinkOnUndo = false;
 		};
@@ -495,12 +509,15 @@ HTMLArea.prototype._detectURL = function(ev) {
 	};
 
 	switch(ev.which) {
-			// Space, see if the text just typed looks like a URL, or email address and link it appropriatly
+			// Space or Enter, see if the text just typed looks like a URL, or email address and link it accordingly
+		case 13:	// Enter
+			if(ev.shiftKey || editor.config.disableEnterParagraphs) break;
+				//Space
 		case 32:
 			if(s && s.isCollapsed && s.anchorNode.nodeType == 3 && s.anchorNode.data.length > 3 && s.anchorNode.data.indexOf('.') >= 0) {
 				var midStart = s.anchorNode.data.substring(0,s.anchorOffset).search(/\S{4,}$/);
 				if(midStart == -1) break;
-				if(editor._getFirstAncestor(s, 'a')) break; // already in an anchor
+				if(this._getFirstAncestor(s, 'a')) break; // already in an anchor
 				var matchData = s.anchorNode.data.substring(0,s.anchorOffset).replace(/^.*?(\S*)$/, '$1');
 				var m = matchData.match(HTMLArea.RE_email);
 				if(m) {
@@ -522,16 +539,16 @@ HTMLArea.prototype._detectURL = function(ev) {
 			break;
 		default:
 			if(ev.keyCode == 27 || (editor._unlinkOnUndo && ev.ctrlKey && ev.which == 122) ) {
-				if(editor._unLink) {
-					editor._unLink();
+				if(this._unLink) {
+					this._unLink();
 					HTMLArea._stopEvent(ev);
 				}
 				break;
 			} else if(ev.which || ev.keyCode == 8 || ev.keyCode == 46) {
-				editor._unlinkOnUndo = false;
+				this._unlinkOnUndo = false;
 				if(s.anchorNode && s.anchorNode.nodeType == 3) {
 						// See if we might be changing a link
-					var a = editor._getFirstAncestor(s, 'a');
+					var a = this._getFirstAncestor(s, 'a');
 					if(!a) break; // not an anchor
 					if(!a._updateAnchTimeout) {
 						if(s.anchorNode.data.match(HTMLArea.RE_email) && (a.href.match('mailto:' + s.anchorNode.data.trim()))) {

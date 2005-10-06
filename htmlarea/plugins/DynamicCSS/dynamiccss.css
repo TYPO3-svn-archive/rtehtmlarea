@@ -5,6 +5,7 @@
 span.quote { font-style: italic; color: #ee9; }
 span.highlight { background-color: yellow; color: #000; }
 span.deprecated { text-decoration: line-through; color: #aaa; }
+
 p { font-family : Verdana, sans-serif; font-size : 12px; }
 p.blue-text { color: #35006d; }
 p.blue-background { color: #ffffff; background-color: #35006d; }
@@ -14,8 +15,6 @@ table.table-redbackground { background: red none; }
 table.table-yellowbackground { background: yellow none; }
 tboby.tbody-redbackground { background: red none; }
 tbody.tbody-yellowbackground { background: yellow none; }
-/*tr.tr-redbackground { background: red none; }
-tr.tr-yellowbackground { background: yellow none; }*/
 td.td-redbackground { background: red none; }
 td.td-yellowbackground { background: yellow none; }
 ol.ol-redbackground { background: red none; }
@@ -24,3 +23,10 @@ ul.ul-redbackground { background: red none; }
 ul.ul-yellowbackground { background: yellow none; }
 li.li-redbackground { background: red none; }
 li.li-yellowbackground { background: yellow none; }
+
+a.external_link {}
+a.external_link_new_window {}
+a.internal_link {}
+a.internal_link_new_window {}
+a.download {}
+a.mail {}

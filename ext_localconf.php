@@ -10,7 +10,8 @@ $TYPO3_CONF_VARS['BE']['RTE_reg'][$_EXTKEY] = array('objRef' => 'EXT:'.$_EXTKEY.
 $_EXTCONF = unserialize($_EXTCONF);    // unserializing the configuration so we can use it here:
 
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableAllOptions'] = $_EXTCONF["enableAllOptions"] ? $_EXTCONF["enableAllOptions"] : 0;
-$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'] = $_EXTCONF["enableMozillaExtension"] ? $_EXTCONF["enableMozillaExtension"] : 0;
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableMozillaExtension'] = $_EXTCONF['enableMozillaExtension'] ? $_EXTCONF["enableMozillaExtension"] : 0;
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['mozAllowClipboardUrl'] = $_EXTCONF['mozAllowClipboardUrl'] ? $_EXTCONF['mozAllowClipboardUrl'] : 'http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.3.4-fx+mz.xpi';
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['forceCommandMode'] = $_EXTCONF["forceCommandMode"] ? $_EXTCONF["forceCommandMode"] : 0;
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableDebugMode'] = $_EXTCONF['enableDebugMode'] ? $_EXTCONF['enableDebugMode'] : 0;
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['enableCompressedScripts'] = $_EXTCONF['enableCompressedScripts'] ? $_EXTCONF['enableCompressedScripts'] : 0;

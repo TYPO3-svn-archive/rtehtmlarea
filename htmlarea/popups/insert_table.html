@@ -98,9 +98,10 @@
 		};
 		function buildTableFloatField(i18n, fieldset) {
 				// Table Float Label
-			var label = document.createElement("div");
+			var label = document.createElement("label");
 			label.className = "fl";
 			label.innerHTML = i18n["Float:"];
+			label.htmlFor = "f_float";
 			fieldset.appendChild(label);
 				// Table Float Select Box
 			var select = document.createElement("select");
@@ -122,9 +123,10 @@
 		};
 		function buildInput(i18n, fieldset,fieldName,fieldLabel,fieldTitle, fieldSize, fieldValue, labelClass, inputClass) {
 				// Field label
-			var label = document.createElement("div");
+			var label = document.createElement("label");
 			if(labelClass) label.className = labelClass;
 			label.innerHTML = i18n[fieldLabel];
+			label.htmlFor = fieldName;
 			fieldset.appendChild(label);
 				// Input field
 			var input = document.createElement("input");

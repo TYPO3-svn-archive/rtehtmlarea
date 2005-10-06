@@ -24,7 +24,6 @@ if (typeof(_editor_skin) == "string") _editor_skin = _editor_skin.replace(/\x2f*
 if (typeof(_editor_CSS) != "string") var _editor_CSS = _editor_url + "skins/default/htmlarea.css";
 if (typeof(_editor_edited_content_CSS) != "string") var _editor_edited_content_CSS = _editor_skin + "htmlarea-edited-content.css";
 if (typeof(_editor_lang) == "string") _editor_lang = _editor_lang ? _editor_lang.toLowerCase() : "en";
-if (typeof(_editor_mozAllowClipboard_url) != "string") var _editor_mozAllowClipboard_url = "http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.3-fx.xpi";
 
 /*
  * HTMLArea object constructor.
@@ -94,7 +93,6 @@ HTMLArea.onload = function(){
 HTMLArea.loadTimer;
 HTMLArea._scripts = [];
 HTMLArea._scriptLoaded = [];
-HTMLArea._scriptRequest = [];
 HTMLArea._request = [];
 HTMLArea.loadScript = function(url, plugin) {
 	if (plugin) url = _editor_url + "/plugins/" + plugin + '/' + url;
@@ -108,7 +106,7 @@ if(HTMLArea.is_ie) HTMLArea.loadScript(_editor_url + "htmlarea-ie.js");
 /*
  * Get a script using asynchronous XMLHttpRequest
  */
-HTMLArea.MSXML_XMLHTTP_PROGIDS = new Array("MSXML2.XMLHTTP.5.0", "MSXML2.XMLHTTP.4.0", "MSXML2.XMLHTTP.3.0", "MSXML2.XMLHTTP", "Microsoft.XMLHTTP");
+HTMLArea.MSXML_XMLHTTP_PROGIDS = new Array("Msxml2.XMLHTTP.5.0", "Msxml2.XMLHTTP.4.0", "Msxml2.XMLHTTP.3.0", "Msxml2.XMLHTTP", "Microsoft.XMLHTTP");
 HTMLArea.XMLHTTPResponseHandler = function (i) {
 	return (function() {
 		var url = HTMLArea._scripts[i];
@@ -210,8 +208,9 @@ HTMLArea.RE_doctype = /(<!doctype((.|\n)*?)>)\n?/i;
 HTMLArea.RE_head    = /<head>((.|\n)*?)<\/head>/i;
 HTMLArea.RE_body    = /<body>((.|\n)*?)<\/body>/i;
 HTMLArea.Reg_body = new RegExp("<\/?(body)[^>]*>", "gi");
+HTMLArea.Reg_entities = new RegExp("&amp;([0-9]+);", "gi");
 HTMLArea.reservedClassNames = /htmlarea/;
-HTMLArea.RE_email    = /[0-9a-z]([-.\w]*[0-9a-z])*@([0-9a-z][-\w]*[0-9a-z]\.)+[a-z]{2,9}/i;
+HTMLArea.RE_email    = /[0-9a-z][a-z0-9_-]*[0-9a-z](\.[0-9a-z][a-z0-9_-]*[0-9a-z])*@([0-9a-z][a-z0-9_-]*[0-9a-z]\.)+[a-z]{2,9}/i;
 HTMLArea.RE_url      = /(https?:\/\/)?(([a-z0-9_]+:[a-z0-9_]+@)?[a-z0-9_-]{2,}(\.[a-z0-9_-]{2,}){2,}(:[0-9]+)?(\/\S+)*)/i;
 
 /*
@@ -244,7 +243,7 @@ HTMLArea.Config = function () {
 		// content style
 	this.pageStyle = "";
 		// set to true if you want Word code to be cleaned upon Paste
-	this.killWordOnPaste = true;
+	this.cleanWordOnPaste = true;
 		// enable the 'Target' field in the Make Link dialog
 	this.makeLinkShowsTarget = true;
 		// remove tags (these have to be a regexp, or null if this functionality is not desired)
@@ -268,7 +267,7 @@ HTMLArea.Config = function () {
 		  "Subscript", "Superscript", "separator", "Copy", "Cut", "Paste", "space", "Undo", "Redo" ],
 		[ "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyFull", "separator", "LeftToRight", "RightToLeft", "separator",
 		  "InsertOrderedList", "InsertUnorderedList", "Outdent", "Indent", "separator", "ForeColor", "HiliteColor", "separator",
-		  "InsertHorizontalRule", "CreateLink", "InsertImage", "InsertTable", "htmlmode", "separator", "showhelp", "about" ]
+		  "InsertHorizontalRule", "CreateLink", "InsertImage", "InsertTable", "HtmlMode", "separator", "ShowHelp", "About" ]
 	];
 		// Default fonts
 	this.FontName = {
@@ -307,24 +306,41 @@ HTMLArea.Config = function () {
 		CreateLink:		["Insert Web Link", "ed_link.gif", false, function(editor) {editor.execCommand("CreateLink", true);}, null, false, true],
 		InsertImage:		["Insert/Modify Image", "ed_image.gif", false, function(editor) {editor.execCommand("InsertImage");}],
 		InsertTable:		["Insert Table", "insert_table.gif", false, function(editor) {editor.execCommand("InsertTable");}],
-		htmlmode:		["Toggle HTML Source", "ed_html.gif", true, function(editor) {editor.execCommand("htmlmode");}],
-		about:			["About this editor", "ed_about.gif", true, function(editor) {editor.execCommand("about");}],
-		showhelp:		["Help using editor", "ed_help.gif", true, function(editor) {editor.execCommand("showhelp");}],
+		HtmlMode:		["Toggle HTML Source", "ed_html.gif", true, function(editor) {editor.execCommand("HtmlMode");}],
+		SelectAll:		["SelectAll", "", true, function(editor) {editor.execCommand("SelectAll");}, null, true, false],
+		About:			["About this editor", "ed_about.gif", true, function(editor) {editor.execCommand("About");}],
+		ShowHelp:		["Help using editor", "ed_help.gif", true, function(editor) {editor.execCommand("ShowHelp");}],
 		Undo:			["Undoes your last action", "ed_undo.gif", false, function(editor) {editor.execCommand("Undo");}],
 		Redo:			["Redoes your last action", "ed_redo.gif", false, function(editor) {editor.execCommand("Redo");}],
 		Cut:			["Cut selection", "ed_cut.gif", false, function(editor,command,obj) {editor.execCommand("Cut");}],
 		Copy:			["Copy selection", "ed_copy.gif", false, function(editor,command,obj) {editor.execCommand("Copy");}],
 		Paste:			["Paste from clipboard", "ed_paste.gif", false, function(editor,command,obj) {editor.execCommand("Paste");}],
+		SelectAll:		["SelectAll", "", true, function(editor) {editor.execCommand("SelectAll");}, null, true, false],
 		LeftToRight:		["Direction left to right", "ed_left_to_right.gif", false, function(editor) {editor.execCommand("LeftToRight");}],
 		RightToLeft:		["Direction right to left", "ed_right_to_left.gif", false, function(editor) {editor.execCommand("RightToLeft");}]
+	};
+		// Default hotkeys
+	this.hotKeyList = {
+		a:	"SelectAll",
+		b:	"Bold",
+		i:	"Italic",
+		u:	"Underline",
+		s:	"StrikeThrough",
+		l:	"JustifyLeft",
+		e:	"JustifyCenter",
+		r:	"JustifyRight",
+		j:	"JustifyFull",
+		n:	"FormatBlock",
+		v:	"Paste",
+		0:	"CleanWord",
+		z:	"Undo",
+		y:	"Redo"
 	};
 
 		// Initialize tooltips from the I18N module, generate correct image path
 	for (var i in this.btnList) {
 		var btn = this.btnList[i];
-
 		if (typeof(HTMLArea.I18N.tooltips[i.toLowerCase()]) != "undefined") btn[0] = HTMLArea.I18N.tooltips[i.toLowerCase()];
-
 		if (typeof(btn[1]) == "string") btn[1] = _editor_skin + this.imgURL + btn[1];
 			else btn[1][0] = _editor_skin + this.imgURL + btn[1][0];
 	}		
@@ -560,7 +576,7 @@ HTMLArea.prototype.createButton = function (txt,tb_line,first_cell_on_line,label
 			newObj["first"] = HTMLArea.addTbElement(newObj["el"], tb_line, first_cell_on_line);
 			newObj["created"] = true;
 			break;
-		case "textindicator":
+		case "TextIndicator":
 			newObj["el"] = document.createElement("div");
 			newObj["el"].appendChild(document.createTextNode("A"));
 			newObj["el"].className = "indicator";
@@ -573,7 +589,7 @@ HTMLArea.prototype.createButton = function (txt,tb_line,first_cell_on_line,label
 				enabled		: true,
 				active		: false,
 				text		: false,
-				cmd		: "textindicator",
+				cmd		: "TextIndicator",
 				state		: HTMLArea.setButtonStatus
 			};
 			this._toolbarObjects[txt] = obj;
@@ -635,7 +651,7 @@ HTMLArea.createLabel = function(txt,tb_line,first_cell_on_line) {
 	if (/^([IT])\[(.*?)\]/.test(txt)) {
 		var l7ed = RegExp.$1 == "I"; // localized?
 		var label = RegExp.$2;
-		if (l7ed) label = HTMLArea.I18N.custom[label];
+		if (l7ed) label = HTMLArea.I18N.dialogs[label];
 		newObj["el"] = document.createElement("label");
 		newObj["el"].className = "label";
 		newObj["el"].innerHTML = label;
@@ -785,8 +801,6 @@ HTMLArea.prototype._createStatusBar = function() {
 	statusBarTree.appendChild(document.createTextNode(HTMLArea.I18N.msg["Path"] + ": "));
 	this._htmlArea.appendChild(statusBar);
 };
-
-
 
 /*
  * Create the htmlArea iframe and replace the textarea with it.
@@ -940,6 +954,7 @@ HTMLArea.stylesLoaded = function(editorNumber) {
 
 HTMLArea.prototype.stylesLoaded = function() {
 	var doc = this._doc;
+	var docWellFormed = true;
 
 		// check if the stylesheets have been loaded
 	if (this._stylesLoadedTimer) window.clearTimeout(this._stylesLoadedTimer);
@@ -959,16 +974,28 @@ HTMLArea.prototype.stylesLoaded = function() {
 	if (!this.config.fullPage) {
 		doc.body.style.borderWidth = "0px";
 		doc.body.className = "htmlarea-content-body";
-		doc.body.innerHTML = this._textArea.value;
+		try { 
+			doc.body.innerHTML = this._textArea.value;
+		} catch(e) { 
+			HTMLArea._appendToLog("[HTMLArea::initIframe]: The HTML document is not well-formed.");
+			alert(HTMLArea.I18N.msg["HTML-document-not-well-formed"]);
+			docWellFormed = false;
+		}
 	}
 		// Start undo snapshots
 	this._timerUndo = window.setInterval("HTMLArea.undoTakeSnapshot(" + this._editorNumber + ");", this.config.undoTimeout);
 
 		// Set contents editable
-	if(HTMLArea.is_gecko && !HTMLArea.is_safari && !this._initEditMode()) return false;	
-	if (HTMLArea.is_ie || HTMLArea.is_safari) doc.body.contentEditable = true;
-	this._editMode = "wysiwyg";
-	if (doc.body.contentEditable || doc.designMode == "on") HTMLArea._appendToLog("[HTMLArea::initIframe]: Design mode successfully set.");
+	if (docWellFormed) {
+		if (HTMLArea.is_gecko && !HTMLArea.is_safari && !this._initEditMode()) return false;	
+		if (HTMLArea.is_ie || HTMLArea.is_safari) doc.body.contentEditable = true;
+		this._editMode = "wysiwyg";
+		if (doc.body.contentEditable || doc.designMode == "on") HTMLArea._appendToLog("[HTMLArea::initIframe]: Design mode successfully set.");
+	} else {
+		this._editMode = "textmode";
+		this.setMode("docnotwellformedmode");
+		HTMLArea._appendToLog("[HTMLArea::initIframe]: Design mode could not be set.");
+	}
 
 		// set editor number in iframe and document for retrieval in event handlers
 	doc._editorNo = this._editorNumber;
@@ -980,8 +1007,8 @@ HTMLArea.prototype.stylesLoaded = function() {
 		// add unload handler
 	HTMLArea._addEvent((this._iframe.contentWindow ? this._iframe.contentWindow : this._iframe.contentDocument), "unload", HTMLArea.removeEditorEvents);
 
-		// set killWordOnPaste and intercept paste, dragdrop and drop events for wordClean
-	if (this.config.killWordOnPaste) HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["paste","dragdrop","drop"], HTMLArea.killWordOnPaste);
+		// set cleanWordOnPaste and intercept paste, dragdrop and drop events for wordClean
+	if (this.config.cleanWordOnPaste) HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["paste","dragdrop","drop"], HTMLArea.cleanWordOnPaste);
 
 	window.setTimeout("HTMLArea.generatePlugins(" + this._editorNumber + ");", 100);
 };
@@ -1056,6 +1083,7 @@ HTMLArea.prototype.setMode = function(mode) {
 	if (typeof(mode) == "undefined") var mode = (this._editMode == "textmode") ? "wysiwyg" : "textmode";
 	switch (mode) {
 		case "textmode":
+		case "docnotwellformedmode":
 			this._textArea.value = this.getHTML();
 			this._iframe.style.display = "none";
 			this._textArea.style.display = "block";
@@ -1066,11 +1094,17 @@ HTMLArea.prototype.setMode = function(mode) {
 				this._statusBar.innerHTML = '';
 				this._statusBar.appendChild(statusBarTextMode);
 			}
+			this._editMode = "textmode";
 			break;
 		case "wysiwyg":
 			if(HTMLArea.is_gecko && !HTMLArea.is_safari) this._doc.designMode = "off";
-			if(!this.config.fullPage) this._doc.body.innerHTML = this.getHTML();
-				else this.setFullHTML(this.getHTML());
+			try {
+				if(!this.config.fullPage) this._doc.body.innerHTML = this.getHTML();
+					else this.setFullHTML(this.getHTML());
+			} catch(e) {
+				alert(HTMLArea.I18N.msg["HTML-document-not-well-formed"]);
+				break;
+			}
 			this._textArea.style.display = "none";
 			this._iframe.style.display = "block";
 			if(HTMLArea.is_gecko && !HTMLArea.is_safari) this._doc.designMode = "on";
@@ -1078,12 +1112,12 @@ HTMLArea.prototype.setMode = function(mode) {
 				this._statusBar.innerHTML = "";
 				this._statusBar.appendChild(this._statusBarTree);
 			}
+			this._editMode = "wysiwyg";
 			break;
 		default:
 			return false;
 	}
-	this._editMode = mode;
-	this.focusEditor();
+	if (!(mode == "docnotwellformedmode")) this.focusEditor();
 	for (var i in this.plugins) {
 		var plugin = this.plugins[i].instance;
 		if (typeof(plugin.onMode) == "function") { plugin.onMode(mode); }
@@ -1283,7 +1317,7 @@ HTMLArea.wordCleanLater = function(editorNumber,doUpdateToolbar) {
 /*
  * Handler for paste, dragdrop and drop events
  */
-HTMLArea.killWordOnPaste = function(ev) {
+HTMLArea.cleanWordOnPaste = function(ev) {
 	if(!ev) var ev = window.event;
 	var target = (ev.target) ? ev.target : ev.srcElement;
 	var owner = (target.ownerDocument) ? target.ownerDocument : target;
@@ -1502,7 +1536,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 				document.getElementById(btn.elementId).selectedIndex = 0;
 			}
 			break;
-		    case "textindicator":
+		    case "TextIndicator":
 			if(!text) {
 				try {with (document.getElementById(btn.elementId).style) {
 					backgroundColor = HTMLArea._makeColor(doc.queryCommandValue((HTMLArea.is_ie || HTMLArea.is_safari) ? "BackColor" : "HiliteColor"));
@@ -1520,7 +1554,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 				}
 			}
 			break;
-		    case "htmlmode": btn.state("active", text); break;
+		    case "HtmlMode": btn.state("active", text); break;
 		    case "LeftToRight":
 		    case "RightToLeft":
 			var el = this.getParentElement();
@@ -1585,6 +1619,32 @@ HTMLArea.getElementObject = function(el,tagName) {
 	var oEl = el;
 	while (oEl != null && oEl.nodeName.toLowerCase() != tagName) oEl = oEl.parentNode;
 	return oEl;
+};
+
+/*
+ * Make XHTML-compliant nested list
+ */
+HTMLArea.prototype.makeNestedList = function(el) {
+	var previous, clone;
+	for (var i = el.firstChild; i; i = i.nextSibling) {
+		if (/^li$/i.test(i.tagName)) {
+			for (var j = i.firstChild; j; j = j.nextSibling) {
+				if (/^(ol|ul)$/i.test(j.tagName)) this.makeNestedList(j);
+			}
+		} else if (/^(ol|ul)$/i.test(i.tagName)) {
+			previous = i.previousSibling;
+			var clone = i.cloneNode(true);
+			if (!previous) {
+				previous = el.insertBefore(this._doc.createElement("li"),i);
+				previous.appendChild(clone);
+			} else {
+				previous.appendChild(clone);
+			}
+			HTMLArea.removeFromParent(i);
+			this.makeNestedList(el);
+			break;
+		}
+	}
 };
 
 /***************************************************
@@ -1801,16 +1861,16 @@ HTMLArea.insertTableDialog = function(editor, sel, range) {
 			var value = param[field];
 			if(!value) continue;
 			switch (field) {
-				case "f_width"   : table.style.width = value + param["f_unit"]; break;
+				case "f_width"   : if(value != "") table.style.width = parseInt(value) + param["f_unit"]; break;
 				case "f_align"   : table.style.textAlign = value; break;
 				case "f_border"  : 
-					if(parseInt(value)) {
+					if(value != "") {
 						table.style.borderWidth	 = parseInt(value)+"px";
 						table.style.borderStyle = "solid";
 					}
 					break;
-				case "f_spacing" : table.cellSpacing = parseInt(value); break;
-				case "f_padding" : table.cellPadding = parseInt(value); break;
+				case "f_spacing" : if(value != "") table.cellSpacing = parseInt(value); break;
+				case "f_padding" : if(value != "") table.cellPadding = parseInt(value); break;
 				case "f_float"   : 
 					if (HTMLArea.is_ie) table.style.styleFloat = ((value != "not set") ? value : "");
 						else table.style.cssFloat = ((value != "not set") ? value : "");
@@ -1870,7 +1930,7 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	this.focusEditor();
 	if(HTMLArea.is_gecko && !this.config.useCSS && !HTMLArea.is_safari) try { this._doc.execCommand('useCSS', false, true); } catch (e) {};
 	switch (cmdID) {
-	    case "htmlmode"	: this.setMode(); break;
+	    case "HtmlMode"	: this.setMode(); break;
 	    case "HiliteColor"	: (HTMLArea.is_ie || HTMLArea.is_safari) && (cmdID = "BackColor");
 	    case "ForeColor"	:
 		var colorDialogFunctRef = HTMLArea.selectColorDialog(this, cmdID);
@@ -1884,15 +1944,15 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 		break;
 	    case "InsertTable"	: this._insertTable(); break;
 	    case "InsertImage"	: this._insertImage(); break;
-	    case "about"	: this._popupDialog("about.html", null, this,475,350); break;
-	    case "showhelp"	: window.open(_editor_url + "reference.html","ha_help"); break;
-	    case "killword"	: HTMLArea._wordClean(this._doc.body); break;
+	    case "About"	: this._popupDialog("about.html", null, this, 475, 350); break;
+	    case "ShowHelp"	: window.open(_editor_url + "reference.html","ha_help"); break;
+	    case "CleanWord"	: HTMLArea._wordClean(this._doc.body); break;
 	    case "Cut"		:
 	    case "Copy"		:
 	    case "Paste"	:
 		try {
 			this._doc.execCommand(cmdID,false,null);
-			if (cmdID == "Paste" && this.config.killWordOnPaste) HTMLArea._wordClean(this._doc.body);
+			if (cmdID == "Paste" && this.config.cleanWordOnPaste) HTMLArea._wordClean(this._doc.body);
 		} catch (e) {
 			if (HTMLArea.is_gecko && !HTMLArea.is_safari) this._mozillaPasteException(cmdID, UI, param);
 		}
@@ -1907,6 +1967,16 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 				else el.style.direction = dir;
 		}
 		break;
+	    case "Indent"	:
+	    	var el = this.getParentElement();
+		while (el && (!HTMLArea.isBlockElement(el) || /^li$/i.test(el.nodeName))) el = el.parentNode;
+		if (/^(ol|ul)$/i.test(el.nodeName)) {
+			try { this._doc.execCommand(cmdID, UI, param); }
+				catch(e) { if(this.config.debug) alert(e + "\n\nby execCommand(" + cmdID + ");"); }
+			this.makeNestedList(el);
+			this.selectNodeContents(el);
+			break;
+		}
 	    default		:
 	    	try { this._doc.execCommand(cmdID, UI, param); }
 			catch(e) { if(this.config.debug) alert(e + "\n\nby execCommand(" + cmdID + ");"); }
@@ -1923,109 +1993,114 @@ HTMLArea._editorEvent = function(ev) {
 	var target = (ev.target) ? ev.target : ev.srcElement;
 	var owner = (target.ownerDocument) ? target.ownerDocument : target;
 	if(HTMLArea.is_ie) { // IE5.5 does not report any ownerDocument
-		while (owner.parentElement ) { owner = owner.parentElement; }
+		while (owner.parentElement) { owner = owner.parentElement; }
 	}
 	var editor = RTEarea[owner._editorNo]["editor"];
 	var keyEvent = ((HTMLArea.is_ie || HTMLArea.is_safari) && ev.type == "keydown") || (!HTMLArea.is_ie && ev.type == "keypress");
 	editor.focusEditor();
-
-	if(keyEvent && editor._hasPluginWithOnKeyPressHandler) {
-		for (var i in editor.plugins) {
-			var plugin = editor.plugins[i].instance;
-			if (typeof(plugin.onKeyPress) == "function") {
-				if (plugin.onKeyPress(ev)) return false;
-			}
-		}
-	}
-	if(keyEvent && ev.ctrlKey && !ev.altKey) {
-		var sel = null;
-		var range = null;
-		var key = String.fromCharCode((HTMLArea.is_ie || HTMLArea.is_safari) ? ev.keyCode : ev.charCode).toLowerCase();
-		var cmd = null;
-		var value = null;
-		switch (key) {
-		    case 'a':
-			if(!HTMLArea.is_ie) {
-				// KEY select all
-				sel = editor._getSelection();
-				range = editor._createRange();
-				range.selectNodeContents(editor._doc.body);
-				if(HTMLArea.is_safari) {
-					sel.empty();
-					sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
-				} else {
-					sel.removeAllRanges();
-					sel.addRange(range);
+	
+	if(keyEvent) {
+		if(editor._hasPluginWithOnKeyPressHandler) {
+			for (var i in editor.plugins) {
+				var plugin = editor.plugins[i].instance;
+				if (typeof(plugin.onKeyPress) == "function") {
+					if (plugin.onKeyPress(ev)) return false;
 				}
-				HTMLArea._stopEvent(ev);
 			}
-			break;
-				// simple key commands follow
-		    case 'b': if (editor._toolbarObjects["Bold"]) cmd = "Bold"; break;
-		    case 'i': if (editor._toolbarObjects["Italic"]) cmd = "Italic"; break;
-		    case 'u': if (editor._toolbarObjects["Underline"]) cmd = "Underline"; break;
-		    case 's': if (editor._toolbarObjects["StrikeThrough"]) cmd = "StrikeThrough"; break;
-		    case 'l': if (editor._toolbarObjects["JustifyLeft"]) cmd = "JustifyLeft"; break;
-		    case 'e': if (editor._toolbarObjects["JustifyCenter"]) cmd = "JustifyCenter"; break;
-		    case 'r': if (editor._toolbarObjects["JustifyRight"]) cmd = "JustifyRight"; break;
-		    case 'j': if (editor._toolbarObjects["JustifyFull"]) cmd = "JustifyFull"; break;
-		    case 'z': if (editor._toolbarObjects["Undo"]) cmd = "Undo"; break;
-		    case 'y': if (editor._toolbarObjects["Redo"]) cmd = "Redo"; break;
-		    case 'v': 
-		    	    if(HTMLArea.is_ie || HTMLArea.is_safari) {
-				cmd = "Paste";
-			    } else if(editor.config.killWordOnPaste) {
-				window.setTimeout("HTMLArea.wordCleanLater(" + owner._editorNo + ", false);", 50);
-			    }
-			    break;
-		    case 'n': 
-		    	    if (editor._toolbarObjects["FormatBlock"]) { 
-				cmd = "FormatBlock";
-				value = (HTMLArea.is_ie || HTMLArea.is_safari) ? "<p>" : "p";
-			    }
-			    break;
-		    case '0': cmd = "killword"; break;
-
-			// headings
-		    case '1':
-		    case '2':
-		    case '3':
-		    case '4':
-		    case '5':
-		    case '6':
-		    	    if (editor._toolbarObjects["FormatBlock"]) { 
-				cmd = "FormatBlock";
-				value = "h" + key;
-				if(HTMLArea.is_ie || HTMLArea.is_safari) value = "<" + value + ">";
-			    }
-			    break;
 		}
-		if(cmd) {
-				// execute simple command
-			editor.execCommand(cmd, false, value);
-			HTMLArea._stopEvent(ev);
-		} else {
-			editor.updateToolbar();
-		}
-	} else if (keyEvent) {
-		if (HTMLArea.is_gecko) editor._detectURL(ev);
-		switch (ev.keyCode) {
-		    case 13	: // KEY enter
-			if (HTMLArea.is_gecko && !ev.shiftKey && !editor.config.disableEnterParagraphs) {
-				editor._checkInsertP();
-				HTMLArea._stopEvent(ev);
-				editor.updateToolbar();
+		if(ev.ctrlKey) {
+			if(!ev.altKey) {
+					// execute hotkey command
+				var key = String.fromCharCode((HTMLArea.is_ie || HTMLArea.is_safari) ? ev.keyCode : ev.charCode).toLowerCase();
+				var cmd = null;
+				var value = null;
+				switch (key) {
+						// headings
+					case '1':
+					case '2':
+					case '3':
+					case '4':
+					case '5':
+					case '6':
+						if (editor._toolbarObjects["FormatBlock"]) { 
+							cmd = "FormatBlock";
+							value = "h" + key;
+							if(HTMLArea.is_ie || HTMLArea.is_safari) value = "<" + value + ">";
+						}
+						break;
+						// other hotkeys
+					default:
+						if (editor.config.hotKeyList[key]) {
+							switch (editor.config.hotKeyList[key]) {
+								case "SelectAll":
+								case "CleanWord":
+									cmd = editor.config.hotKeyList[key];
+									break;
+								case "Paste":
+									if(HTMLArea.is_ie || HTMLArea.is_safari) {
+										cmd = editor.config.hotKeyList[key];
+									} else if(editor.config.cleanWordOnPaste) {
+										window.setTimeout("HTMLArea.wordCleanLater(" + owner._editorNo + ", false);", 50);
+									}
+									break;
+								default:
+									if(editor._toolbarObjects[editor.config.hotKeyList[key]]) {
+										cmd = editor.config.hotKeyList[key];
+										if(cmd == "FormatBlock") value = (HTMLArea.is_ie || HTMLArea.is_safari) ? "<p>" : "p";
+									}
+							}
+						}
+				}
+				if(cmd) {
+					editor.execCommand(cmd, false, value);
+					HTMLArea._stopEvent(ev);
+					return false;
+				} else {
+					editor.updateToolbar();
+				}
 			}
-			break;
-		    case 8	: // KEY backspace
-		    case 46	: // KEY delete
-			if ((HTMLArea.is_gecko && !ev.shiftKey) || HTMLArea.is_ie) {
-				if (editor._checkBackspace()) HTMLArea._stopEvent(ev);
+		} else if (ev.altKey) {
+				// check if context menu is already handling this event
+			if(editor.plugins['ContextMenu'] && editor.plugins['ContextMenu'].instance) {
+				var keys = editor.plugins['ContextMenu'].instance.keys;
+				if (keys.length > 0) {
+					var k;
+					for (var i = keys.length; --i >= 0;) {
+						k = keys[i];
+						if (k[0].toLowerCase() == key) {
+							HTMLArea._stopEvent(ev);
+							return false;
+						}
+					}
+				}
 			}
-				// update the toolbar state after some time
-			if (editor._timerToolbar) window.clearTimeout(editor._timerToolbar);
-			editor._timerToolbar = window.setTimeout("HTMLArea.updateToolbar(" + editor._editorNumber + ");", 50);
-			break;
+		} else if (keyEvent) {
+			if (HTMLArea.is_gecko) editor._detectURL(ev);
+			switch (ev.keyCode) {
+				case 13	: // KEY enter
+					if (HTMLArea.is_gecko && !ev.shiftKey && !editor.config.disableEnterParagraphs) {
+						editor._checkInsertP();
+						HTMLArea._stopEvent(ev);
+						editor.updateToolbar();
+					}
+					break;
+				case 8	: // KEY backspace
+				case 46	: // KEY delete
+					if ((HTMLArea.is_gecko && !ev.shiftKey) || HTMLArea.is_ie) {
+						if (editor._checkBackspace()) HTMLArea._stopEvent(ev);
+					}
+						// update the toolbar state after some time
+					if (editor._timerToolbar) window.clearTimeout(editor._timerToolbar);
+					editor._timerToolbar = window.setTimeout("HTMLArea.updateToolbar(" + editor._editorNumber + ");", 50);
+					break;
+				case 9: // KEY horizontal tab
+					if (HTMLArea.is_gecko) {
+						editor.execCommand( (ev.shiftKey ? "Outdent" : "Indent"), false, null);
+						HTMLArea._stopEvent(ev);
+						return false;
+					}
+					break;
+			}
 		}
 	} else {
 			// mouse event
@@ -2254,7 +2329,7 @@ HTMLArea.htmlEncode = function(str) {
 	str = str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	str = str.replace(/\xA0/g, "&nbsp;"); // Decimal 160, non-breaking-space
 	str = str.replace(/\x22/g, "&quot;"); // \x22 means '"'
-	//str = str.replace(/'/g, "&#39;") ;
+	str = str.replace(HTMLArea.Reg_entities, "&$1;"); // keep numeric entities
 	return str;
 };
 
@@ -2269,6 +2344,7 @@ HTMLArea.getHTML = function(root, outputRoot, editor){
 	} catch(e) {
 		HTMLArea._appendToLog("The HTML document is not well-formed.");
 		if(!HTMLArea._debugMode) alert(HTMLArea.I18N.msg["HTML-document-not-well-formed"]);
+			else return HTMLArea.getHTMLWrapper(root,outputRoot,editor);
 		return editor._doc.body.innerHTML;
 	}
 };
@@ -2327,7 +2403,10 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 			}
 			if (html != "") html += closed ? " />" : ">";
 		}
-		for (i = root.firstChild; i; i = i.nextSibling) { html += HTMLArea.getHTMLWrapper(i, true, editor); }
+		for (i = root.firstChild; i; i = i.nextSibling) {
+			if (/^li$/i.test(i.tagName) && !/^[ou]l$/i.test(root.tagName)) html += "<ul>" + HTMLArea.getHTMLWrapper(i, true, editor) + "</ul>";
+				 else html += HTMLArea.getHTMLWrapper(i, true, editor);
+		}
 		if (outputRoot && !closed) html += "</" + root_tag + ">";
 		break;
 	    case 3:	// TEXT_NODE
@@ -2365,6 +2444,13 @@ HTMLArea.getNextNode = function(node) {
 	if(node.nextSibling) return node.nextSibling;
 	if(node.parentNode)  return node.parentNode;
 	return null;
+};
+
+HTMLArea.removeFromParent = function(el) {
+	if(!el.parentNode) return;
+	var pN = el.parentNode;
+	pN.removeChild(el);
+	return el;
 };
 
 HTMLArea.prototype.stripBaseURL = function(string) {
@@ -2618,8 +2704,7 @@ HTMLArea.initEditor = function(editorNumber) {
 			config.useCSS = RTE["useCSS"] ? RTE["useCSS"] : false;
 			config.enableMozillaExtension = RTE["enableMozillaExtension"] ? RTE["enableMozillaExtension"] : false;
 			config.statusBar = RTE["statusBar"] ? RTE["statusBar"] : false;
-			config.killWordOnPaste = RTE["enableWordClean"] ? true : false;
-			config.htmlareaPaste = RTE["enableWordClean"] ? true : false;
+			config.cleanWordOnPaste = RTE["enableWordClean"] ? true : false;
 			config.htmlRemoveTags = RTE["htmlRemoveTags"] ? RTE["htmlRemoveTags"] : null;
 			config.htmlRemoveTagsAndContents = RTE["htmlRemoveTagsAndContents"] ? RTE["htmlRemoveTagsAndContents"] : null;
 			config.htmlRemoveComments = RTE["htmlRemoveComments"] ? true : false;

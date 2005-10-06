@@ -177,9 +177,9 @@ PopupWin.prototype.addButtons = function() {
 		var btn = arguments[i];
 		var button = this.doc.createElement("button");
 		div.appendChild(button);
-		button.innerHTML = HTMLArea.I18N.buttons[btn];
 		switch (btn) {
 		    case "ok":
+		    	button.innerHTML = HTMLArea.I18N.dialogs["OK"];
 			button.onclick = function() {
 				try { self.callHandler(); } catch(e) { };
 				self.releaseEvents();
@@ -188,6 +188,7 @@ PopupWin.prototype.addButtons = function() {
 			};
 			break;
 		    case "cancel":
+		    	button.innerHTML = HTMLArea.I18N.dialogs["Cancel"];
 			button.onclick = function() {
 				self.releaseEvents();
 				self.close();
@@ -209,6 +210,7 @@ PopupWin.prototype.showAtElement = function() {
 		setTimeout( function() {
 			try {
 				self.dialogWindow.sizeToContent();
+				self.dialogWindow.innerWidth += 20;
 			} catch(e) { };
 				// center on parent if allowed
 			var x = self._opener.screenX + (self._opener.outerWidth - self.dialogWindow.outerWidth) / 2;
