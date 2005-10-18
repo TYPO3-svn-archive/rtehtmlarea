@@ -90,6 +90,18 @@ $LOCAL_LANG = Array (
 		'Allow-Clipboard-Helper-Extension-Success' => 'De installatie was succesvol. U moet uw browser afsluiten en opnieuw opstarten om de wijzigingen door te voeren. Hierna kunt u in uw browser aangeven welke site gebruik kunnen maken van uw klembord.',
 	),
 	'cz' => Array (
+		'Path' => 'Cesta',
+		'TEXT_MODE' => 'Jste v TEXTOVÉM MÓDU. Použijte tlaèítko [<>] pro návrat do vizuálního (WYSIWYG) módu',
+		'ActiveX-required' => 'Naètení editoru v Internet Exploreru vyžaduje povolené spouštìní ActiveX komponent.',
+		'HTML-document-not-well-formed' => 'Tento HTML dokument nemá správnou syntaxi.',
+		'Moz-Clipboard' => 'Skript nemùže z bezpeènostních dùvodù pøistupovat  k systémovým funkcím Vyjmout/Kopírovat/Vložit. Kliknìte na OK pro prohlédnutí technických poznámek na mozilla.org, které vás navedou, jak tuto funkci v prohlížeèi povolit.',
+		'Moz-Extension' => 'Skript nemùže z bezpeènostních dùvodù pøistupovat  k systémovým funkcím Vyjmout/Kopírovat/Vložit. Klinìte na OK pro instalaci doplòku pro Váš prohllížeè, který tuto funkci umožní.',
+		'Moz-Extension-Success' => 'Instalace probìhla úspìšnì. Zavøete všechna okna prohlížeèe a spuste jej znovu pro aktivaci zmìn.',
+		'Moz-Extension-Failure' => 'Bohužel, instalace se nezdaøila.',
+		'Moz-Extension-Install-Not-Enabled' => 'Instalace nemùže být provedena. Zmìòte prosím nastavení vašeho prohlížeèe - je tøeba povolit instalaci softwarových doplòkù z této adresy.',
+		'Allow-Clipboard-Helper-Extension' => 'Skript nemùže z bezpeènostních dùvodù pøistupovat  k systémovým funkcím Vyjmout/Kopírovat/Vložit. Klinìte na OK pro instalaci doplòku pro Váš prohllížeè, který tuto funkci umožní.',
+		'Mozilla-Org-Install-Not-Enabled' => 'Instalace nemùže být provedena. Zmìòte prosím nastavení vašeho prohlížeèe - je tøeba povolit instalaci softwarových doplòkù z adresy http://ftp.mozilla.org.',
+		'Allow-Clipboard-Helper-Extension-Success' => 'Instalace probìhla úspìšnì. Zavøete všechna okna prohlížeèe a spuste jej znovu pro aktivaci zmìn. Po restartu prohlížeèe použijte funkci AllowClipboard Helper z menu nástrojù pro povolení využívání systémové schránky pro tento web.',
 	),
 	'pl' => Array (
 	),

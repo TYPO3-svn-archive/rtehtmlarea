@@ -54,6 +54,7 @@ $LOCAL_LANG = Array (
 		'Heading 5' => 'Intestazione 5',
 		'Heading 6' => 'Intestazione 6',
 		'Preformatted' => 'Preformattato',
+		'Address' => 'Indirizzo',
 	),
 	'fr' => Array (
 		'Please wait' => 'L\'éditeur est en cours de chargement. Veuillez patienter...',
@@ -92,6 +93,16 @@ $LOCAL_LANG = Array (
 		'Address' => 'Adres',
 	),
 	'cz' => Array (
+		'Please wait' => 'Editor se naèítá, èekejte prosím...',
+		'Normal' => 'Normální text',
+		'Heading 1' => 'Nadpis 1',
+		'Heading 2' => 'Nadpis 2',
+		'Heading 3' => 'Nadpis 3',
+		'Heading 4' => 'Nadpis 4',
+		'Heading 5' => 'Nadpis 5',
+		'Heading 6' => 'Nadpis 6',
+		'Preformatted' => 'Pøedformátovanı',
+		'Address' => 'Adresa',
 	),
 	'pl' => Array (
 	),

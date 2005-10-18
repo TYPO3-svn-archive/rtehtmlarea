@@ -760,7 +760,14 @@ TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
 	cssClasses[0] = "none";
 	var selected = el.className;
 	var cls = selected.split(" ");
-	for(var ia = cls.length; ia > 0;) if(!HTMLArea.reservedClassNames.test(cls[--ia])) selected = cls[ia];
+	var nonReservedClassName = false;
+	for(var ia = cls.length; ia > 0;) {
+		if(!HTMLArea.reservedClassNames.test(cls[--ia])) {
+			selected = cls[ia];
+			nonReservedClassName = true;
+			break;
+		}
+	}
 	var found = false, i = 1, cssClass;
 	if(cssArray[tagName]) {
 		for(cssClass in cssArray[tagName]){
@@ -782,7 +789,7 @@ TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
 			i++;
 		}
 	}
-	if(selected && !found) {
+	if(selected && nonReservedClassName && !found) {
 		cssLabels[i] = i18n["Undefined"];
 		cssClasses[i] = selected;
 	}

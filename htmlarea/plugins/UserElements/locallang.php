@@ -18,6 +18,7 @@ $LOCAL_LANG = Array (
 		'Insert custom element' => 'Sett inn egendefinert element',
 	),
 	'it' => Array (
+		'Insert custom element' => 'Inserisci elemento personalizzato',
 	),
 	'fr' => Array (
 		'Insert custom element' => 'Insérer un élément personalisé',

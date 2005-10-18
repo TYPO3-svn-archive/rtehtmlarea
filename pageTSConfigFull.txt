@@ -144,6 +144,9 @@ RTE.default.FE.hideButtons = chMode
 
 	## tt_content RTE configuration
 RTE.config.tt_content.bodytext.showButtons = *
+RTE.config.tt_content.bodytext.proc.overruleMode = ts_css
+RTE.config.tt_content.bodytext.types.text.proc.overruleMode = ts_css
+RTE.config.tt_content.bodytext.types.textpic.proc.overruleMode = ts_css
 
 	## tt_content TCEFORM configuration
 TCEFORM.tt_content.bodytext.RTEfullScreenWidth= 100%

@@ -238,7 +238,7 @@
 	font-weight: bold; font-size: 1.1em;
 	padding: .3em 0; border-bottom: 1px solid #999;
 }
-.popupwin a:link, a:visited {
+.popupwin a:link, .popupwin a:visited {
 	color: #00f;
 }
 .popupwin a:hover {
@@ -303,7 +303,7 @@
 	float:left;
 	padding:2px 0px;
 }
-.popupwin select, input, button, textarea, table, label {
+.popupwin select, .popupwin input, .popupwin button, .popupwin textarea, .popupwin table, .popupwin label {
 	font:1.0em Tahoma,Verdana,sans-serif;
 }
 .popupwin button {

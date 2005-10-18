@@ -166,6 +166,9 @@ HTMLArea.checkInitialLoad = function() {
 	if (scriptsLoaded) {
 		HTMLArea.is_loaded = true;
 		HTMLArea._appendToLog("[HTMLArea::init]: All scripts successfully loaded.");
+		HTMLArea._appendToLog("[HTMLArea::init]: Editor url set to: " + _editor_url);
+		HTMLArea._appendToLog("[HTMLArea::init]: Editor skin CSS set to: " + _editor_CSS);
+		HTMLArea._appendToLog("[HTMLArea::init]: Editor content skin CSS set to: " + _editor_edited_content_CSS);
 		if (window.ActiveXObject) {
 			for (var i = HTMLArea._scripts.length; --i >= 0;) {
 				HTMLArea._request[i].onreadystatechange = new Function();
@@ -849,12 +852,24 @@ HTMLArea.prototype.generate = function () {
 		// create & append the status bar
 	this._createStatusBar();
 
-		// size the width and height of the iframe according to user's prefs or initial textarea
-	var height = (this.config.height == "auto" ? (textarea.style.height) : this.config.height);
+		// size the iframe
+	this.sizeIframe(2);
+
+	HTMLArea._appendToLog("[HTMLArea::generate]: Editor iframe successfully created.");
+	this.initIframe();
+	return this;
+};
+
+/*
+ * Size the iframe according to user's prefs or initial textarea
+ */
+HTMLArea.prototype.sizeIframe = function(diff) {
+	var height = (this.config.height == "auto" ? (this._textArea.style.height) : this.config.height);
 	var textareaHeight = height;
 	if(height.indexOf("%") == -1) {
-		height = parseInt(height) - 2;		
+		height = parseInt(height) - diff;		
 		if (this.config.sizeIncludesToolbar) {
+			this._initialToolbarOffsetHeight = this._toolbar.offsetHeight;
 			height -= this._toolbar.offsetHeight;
 			height -= this._statusBar.offsetHeight;
 		}
@@ -864,20 +879,16 @@ HTMLArea.prototype.generate = function () {
 		height += "px";
 		textareaHeight += "px";
 	}
-	iframe.style.height = height;
-	textarea.style.height = textareaHeight;
-	var textareaWidth = (this.config.width == "auto" ? (textarea.style.width) : this.config.width);
+	this._iframe.style.height = height;
+	this._textArea.style.height = textareaHeight;
+	var textareaWidth = (this.config.width == "auto" ? (this._textArea.style.width) : this.config.width);
 	if(textareaWidth.indexOf("%") == -1) {
-		textareaWidth = parseInt(textareaWidth) - 2;
+		textareaWidth = parseInt(textareaWidth) - diff;
 		if (textareaWidth < 0) textareaWidth = 0;
 		textareaWidth += "px";
 	}
-	iframe.style.width = "100%";
-	textarea.style.width = textareaWidth;
-
-	HTMLArea._appendToLog("[HTMLArea::generate]: Editor iframe successfully created.");
-	this.initIframe();
-	return this;
+	this._iframe.style.width = "100%";
+	this._textArea.style.width = textareaWidth;
 };
 
 /*
@@ -918,6 +929,7 @@ HTMLArea.prototype.initIframe = function() {
 				base.href = this.config.baseURL;
 				head.appendChild(base);
 			}
+			HTMLArea._appendToLog("[HTMLArea::initIframe]: Iframe baseURL set to: " + this.config.baseURL);
 		}
 		var link0 = doc.getElementsByTagName("link")[0];
 		if (!link0) {
@@ -934,6 +946,7 @@ HTMLArea.prototype.initIframe = function() {
 				link.href = this.config.pageStyle;
 				head.appendChild(link);
 			}
+			HTMLArea._appendToLog("[HTMLArea::initIframe]: Content CSS set to: " + this.config.pageStyle);
 		}
 	} else {
 		var html = this._textArea.value;
@@ -2708,7 +2721,7 @@ HTMLArea.initEditor = function(editorNumber) {
 			config.htmlRemoveTags = RTE["htmlRemoveTags"] ? RTE["htmlRemoveTags"] : null;
 			config.htmlRemoveTagsAndContents = RTE["htmlRemoveTagsAndContents"] ? RTE["htmlRemoveTagsAndContents"] : null;
 			config.htmlRemoveComments = RTE["htmlRemoveComments"] ? true : false;
-
+			
 			editor.onGenerate = HTMLArea.onGenerateHandler(editorNumber);
 			
 			editor.generate();

@@ -62,6 +62,7 @@ $LOCAL_LANG = Array (
 		'Cleaning options' => 'Tipo di formattazione da rimuovere',
 		'Formatting:' => 'Formattazione HTML:',
 		'MS Word Formatting:' => 'Formattazione MS Word:',
+		'Images:' => 'Immagini:',
 		'All HTML:' => 'Tutti i tag HTML:',
 		'Select the type of formatting you wish to remove.' => 'Seleziona il tipo di formattazione da rimuovere.',
 		'OK' => 'OK',

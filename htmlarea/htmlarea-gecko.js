@@ -264,12 +264,15 @@ HTMLArea.DTMDivHandler = function (editor,DTMDiv) {
 		var target = (ev.target) ? ev.target : ev.srcElement;
 		if(target == DTMDiv && editor._editMode == "wysiwyg" && DTMDiv.style.display == "block") {
 			window.setTimeout( function() {
-				try { editor._doc.designMode = "on"; } 
-				catch(e) {
+				try { 
+					editor._doc.designMode = "on";
+					if (editor.config.sizeIncludesToolbar && editor._initialToolbarOffsetHeight != editor._toolbar.offsetHeight) editor.sizeIframe(-2);
+				} catch(e) {
 					editor._doc.open();
 					editor._doc.close();
-					editor.initIframe();}
-				}, 20);
+					editor.initIframe();
+				}
+			}, 20);
 			HTMLArea._stopEvent(ev);
 		}
 	});

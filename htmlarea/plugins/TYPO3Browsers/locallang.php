@@ -65,6 +65,18 @@ $LOCAL_LANG = Array (
 	'si' => Array (
 	),
 	'fi' => Array (
+		'external_link_altText' => 'Avaa ulkoisen linkin nykyisessä ikkunassa',
+		'external_link_titleText' => 'Avaa ulkoisen linkin nykyisessä ikkunassa',
+		'external_link_new_window_altText' => 'Avaa ulkoisen linkin uudessa ikkunassa',
+		'external_link_new_window_titleText' => 'Avaa ulkoisen linkin uudessa ikkunassa',
+		'internal_link_altText' => 'Avaa sisäisen linkin nykyisessä ikkunassa',
+		'internal_link_titleText' => 'Avaa sisäisen linkin nykyisessä ikkunassa',
+		'internal_link_new_window_altText' => 'Avaa sisäisen linkin uudessa ikkunassa',
+		'internal_link_new_window_titleText' => 'Avaa sisäisen linkin uudessa ikkunassa',
+		'download_altText' => 'Valmistelee tiedoston ladattavaksi',
+		'download_titleText' => 'Valmistelee tiedoston ladattavaksi',
+		'mail_altText' => 'Avaa ikkunan sähköpostin lähettämiseksi',
+		'mail_titleText' => 'Avaa ikkunan sähköpostin lähettämiseksi',
 	),
 	'tr' => Array (
 	),

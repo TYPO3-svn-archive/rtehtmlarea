@@ -1,3 +1,13 @@
+2005-10-17  Stanislas Rolland  <stanislas.rolland@fructifor.ca>
+	* Version 0.7.4
+	* Correction for Mozilla/Firefox: when the editor was loaded in a hidden tab, the size of the editing area would be incorrect when the tab becomes visible.
+	* Update to Finnish and Italian translations.
+	* Addition of Czech translation.
+	* Correction to the documentation of the anchor accessibility feature.
+	* Correction: insufficiently qualified CSS selectors in the editor skins resulted in styling problems mainly when the editor is used in the front end. Thanks to Claudio Strizzolo.
+	* Correction: toggleborders button caused inconsistencies in the class selector of the table properties popup window.
+	* Correction to the character set used by the xml parser and Aspell when invoked by the spell checker with iso-8859-1 content.
+
 2005-10-05  Stanislas Rolland  <stanislas.rolland@fructifor.ca>
 	* Version 0.7.2
 	* Correction: incorrect display of the toolbar in some configurations.

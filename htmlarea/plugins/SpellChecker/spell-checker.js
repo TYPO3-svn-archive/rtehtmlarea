@@ -2,7 +2,7 @@
 // Sponsored by www.americanbible.org
 // Implementation by Mihai Bazon, http://dynarch.com/mishoo/
 // (c) dynarch.com 2003.
-// (c) 2004-2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
+// (c) 2004-2005, Stanislas Rolland <stanislas.rolland@fructifor.ca>
 // Modified to use the standard dialog API
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
@@ -24,14 +24,14 @@ SpellChecker = function(editor) {
 SpellChecker.I18N = SpellChecker_langArray;
 
 SpellChecker._pluginInfo = {
-	name 			: "SpellChecker",
-	version 		: "1.9",
-	developer 		: "Mihai Bazon & Stanislas Rolland",
+	name 		: "SpellChecker",
+	version 	: "2.0",
+	developer 	: "Mihai Bazon & Stanislas Rolland",
 	developer_url 	: "http://dynarch.com/mishoo/",
-	c_owner 		: "Mihai Bazon & Stanislas Rolland",
-	sponsor 		: "American Bible Society & Fructifor Inc.",
-	sponsor_url 	: "http://www.americanbible.org",
-	license 		: "htmlArea"
+	c_owner 	: "Mihai Bazon & Stanislas Rolland",
+	sponsor 	: "American Bible Society & Fructifor Inc.",
+	sponsor_url 	: "http://www.fructifor.ca/",
+	license 	: "htmlArea"
 };
 
 SpellChecker.actionHandler = function(instance) {
@@ -51,7 +51,8 @@ SpellChecker.prototype.buttonPress = function(editor, id) {
 		var param = new Object();
 		param.editor = editor;
 		param.HTMLArea = HTMLArea;
-    		editor._popupDialog("plugin://SpellChecker/spell-check-ui", null, param, 670, 500);
+		if (SpellChecker.f_charset.toLowerCase() == 'iso-8859-1') editor._popupDialog("plugin://SpellChecker/spell-check-ui-iso-8859-1", null, param, 670, 500);
+    			else editor._popupDialog("plugin://SpellChecker/spell-check-ui", null, param, 670, 500);
 		break;
 	}
 };

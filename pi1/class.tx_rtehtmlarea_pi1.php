@@ -3,7 +3,7 @@
 	/***************************************************************
 	*  Copyright notice
 	*
-	*  (c) 2003-2004 Stanislas Rolland (stanislas.rolland@fructifor.com)
+	*  (c) 2003-2005 Stanislas Rolland (stanislas.rolland@fructifor.ca)
 	*  All rights reserved
 	*
 	*  This script is part of the Typo3 project. The Typo3 project is
@@ -25,7 +25,7 @@
 	/**
 	*  Spell checking plugin 'tx_rtehtmlarea_pi1' for the htmlArea RTE extension.
 	*
-	*  @author Stanislas Rolland <stanislas.rolland@fructifor.com>
+	*  @author Stanislas Rolland <stanislas.rolland@fructifor.ca>
 	*
 	*  Credits:
 	*
@@ -157,9 +157,9 @@
 			}
 				// Setting the charset
 			if( t3lib_div::_POST('pspell_charset') ) $this->charset = trim(t3lib_div::_POST('pspell_charset'));
-
+			if(strtolower($this->charset) == 'iso-8859-1') $this->parserCharset = strtolower($this->charset);
 			$internal_encoding = mb_internal_encoding(strtoupper($this->parserCharset));
-			$regex_encoding = mb_regex_encoding (strtoupper($this->parserCharset));
+			//$regex_encoding = mb_regex_encoding (strtoupper($this->parserCharset));
 
 				// However, we are going to work only in the parser charset
 			if($this->pspell_is_available && !$this->forceCommandMode) {
@@ -167,14 +167,14 @@
 			}
 
 				// Initialize output
-			$this->result = '<?xml version="1.0" encoding="utf-8"?>
+			$this->result = '<?xml version="1.0" encoding="' . $this->parserCharset . '"?>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="' . substr($this->dictionary, 0, 2) . '" lang="' . substr($this->dictionary, 0, 2) . '">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=' . $this->parserCharset . '" />
 <link rel="stylesheet" type="text/css" media="all" href="spell-check-style.css" />
 <script type="text/javascript">
 /*<![CDATA[*/
@@ -190,7 +190,7 @@
 			if( !xml_set_element_handler( $parser, 'startHandler', 'endHandler')) echo('Bad xml handler setting');
 			if( !xml_set_character_data_handler ( $parser, 'spellCheckHandler')) echo('Bad xml handler setting');
 			if( !xml_set_default_handler( $parser, 'defaultHandler')) echo('Bad xml handler setting');
-			if(! xml_parse($parser,'<SPELLCHECKER> ' . mb_ereg_replace('&nbsp;', ' ', $content) . ' </SPELLCHECKER>')) echo('Bad parsing');
+			if(! xml_parse($parser,'<?xml version="1.0" encoding="' . $this->parserCharset . '"?><SPELLCHECKER> ' . mb_ereg_replace('&nbsp;', ' ', $content) . ' </SPELLCHECKER>')) echo('Bad parsing');
 			if( xml_get_error_code($parser)) {
 				die('Line '.xml_get_current_line_number($parser).': '.xml_error_string(xml_get_error_code($parser)));
 			}

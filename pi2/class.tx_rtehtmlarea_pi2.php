@@ -24,7 +24,6 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-
 /**
  * Front end RTE based on htmlArea
  *
@@ -34,9 +33,8 @@
 require_once(t3lib_extMgm::extPath('rtehtmlarea').'class.tx_rtehtmlarea_base.php');
 
 class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
-		
-		// External:
 
+		// External:
 	var $RTEdivStyle;				// Alternative style for RTE <div> tag.
 	var $extHttpPath;				// full Path to this extension for http (so no Server path). It ends with "/"
 	var $rtePathImageFile;			// Path to the php-file for selection images
@@ -123,7 +121,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 
 			// Special configuration (line) and default extras:
 		$this->specConf = $specConf;
-			
+		
 			// Language
 		$GLOBALS['TSFE']->initLLvars();
 		$this->LOCAL_LANG = $GLOBALS['TSFE']->readLLfile('EXT:' . $this->ID . '/locallang.php');
@@ -134,7 +132,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			// Character set
 		$this->charset = $GLOBALS['TSFE']->labelsCharset;
 		if($this->typoVersion >= 3007000 ) {
-			$this->OutputCharset  = $GLOBALS['TSFE']->renderCharset;
+			$this->OutputCharset  = $GLOBALS['TSFE']->metaCharset ? $GLOBALS['TSFE']->metaCharset : $GLOBALS['TSFE']->renderCharset;
 		} else {
 			$renderCharset = $GLOBALS['TSFE']->csConvObj->parse_charset($GLOBALS['TSFE']->config['config']['renderCharset'] ? $GLOBALS['TSFE']->config['config']['renderCharset'] : ($GLOBALS['TSFE']->TYPO3_CONF_VARS['BE']['forceCharset'] ? $GLOBALS['TSFE']->TYPO3_CONF_VARS['BE']['forceCharset'] : $GLOBALS['TSFE']->defaultCharSet));    // REndering charset of HTML page.
 			$metaCharset = $GLOBALS['TSFE']->csConvObj->parse_charset($GLOBALS['TSFE']->config['config']['metaCharset'] ? $GLOBALS['TSFE']->config['config']['metaCharset'] : $renderCharset);
@@ -212,7 +210,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		$editorWrapHeight = $RTEHeight . 'px';
 		$this->RTEdivStyle = $this->RTEdivStyle ? $this->RTEdivStyle : 'position:relative; left:0px; top:0px; height:' . $RTEHeight . 'px; width:'.$RTEWidth.'px; border: 1px solid black;';
 		$this->toolbar_level_size = $RTEWidth;
-			
+
 		/* =======================================
 		 * LOAD JS, CSS and more
 		 * =======================================
@@ -253,7 +251,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			$skinFilename = $this->siteURL.$skinFilename;
 		} else {
 			$skinDir = substr($this->siteURL,0,-1) . dirname($skinFilename);
-		}	
+		}
 
 		$this->editorCSS = $skinFilename;
 		$this->editedContentCSS = $skinDir . '/htmlarea-edited-content.css';
@@ -286,17 +284,16 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 
 			// Set the save option for the RTE:
 		$pObj->additionalJS_submit[] = $this->setSaveRTE($pObj->RTEcounter, $pObj->formName, htmlspecialchars($PA['itemFormElName']));
-			
+
 			// draw the textarea
 		$item = $this->triggerField($PA['itemFormElName']).'
-			<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL('Please wait',$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '</div>
+			<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL('Please wait',$this->LOCAL_LANG), $this->charset, $GLOBALS['TSFE']->renderCharset) . '</div>
 			<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
 			<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($this->RTEdivStyle).'">'.t3lib_div::formatForTextarea($value).'</textarea>
 			</div>' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableDebugMode'] ? '<div id="HTMLAreaLog"></div>' : '') . '
 			';
 		return $item;
 	}
-
 
 	/**
 	 * Set the toolbar config
@@ -433,6 +430,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			$registerRTEinJSString .= '
 			RTEarea['.$number.']["htmlRemoveTags"] = /' . implode('|', t3lib_div::trimExplode(',', $this->thisConfig['removeTags'])) . '/i;';
 		}
+
 			// Setting the list of tags to be removed with their contents if specified in the RTE config
 		if (trim($this->thisConfig['removeTagsAndContents']))  {
 			$registerRTEinJSString .= '
@@ -467,6 +465,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			RTEarea['.$number.']["disableColorPicker"] = false;';
 			}
 		}
+		
 			// Setting the list of colors if specified in the RTE config
 		if ($this->isPluginEnable('SelectColor') && is_array($this->RTEsetup['properties']['colors.']) )  {
 			$HTMLAreaColorname = array();
@@ -483,8 +482,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			reset($HTMLAreaColors);
 			$HTMLAreaColorsIndex = 0;
 			while( list(,$colorName) = each($HTMLAreaColors)) {
-				if($HTMLAreaColorsIndex && $HTMLAreaColorname[$colorName]) { 
-
+				if($HTMLAreaColorsIndex && $HTMLAreaColorname[$colorName]) {
 					$HTMLAreaJSColors .= ',';
 				}
 				$HTMLAreaJSColors .= $HTMLAreaColorname[$colorName];
@@ -494,8 +492,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			$registerRTEinJSString .= '
 			RTEarea['.$number.']["colors"] = '. $HTMLAreaJSColors;
 		}
-
-
 
 			// Setting the list of fonts if specified in the RTE config
 		if (is_array($this->RTEsetup['properties']['fonts.']) )  {
@@ -544,8 +540,8 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			$registerRTEinJSString .= '
 			RTEarea['.$number.']["fontname"] = '. $HTMLAreaJSFontface;
 		}
-			// Paragraphs
 
+			// Paragraphs
 		$HTMLAreaParagraphs = $this->defaultParagraphs;
 		if ($this->thisConfig['hidePStyleItems'] ) {
 			$hidePStyleItems =  t3lib_div::trimExplode(',', $this->thisConfig['hidePStyleItems'], 1);
@@ -584,9 +580,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			$HTMLAreaFontSizeIndex++;
 		}
 
-
-
-
 		$HTMLAreaJSFontSize .= '};';
 		$registerRTEinJSString .= '
 			RTEarea['.$number.']["fontsize"] = '. $HTMLAreaJSFontSize;
@@ -602,7 +595,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 	/**
 	 * Return the JS-Code for copy the HTML-Code from the editor in the hidden input field.
 	 * This is for submit function from the form.
-
 	 *
 	 * @return string		the JS-Code
 	 */
@@ -619,10 +611,10 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		}
 		';
 	}
-
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/pi2/class.tx_rtehtmlarea_pi2.php'])	{
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/pi2/class.tx_rtehtmlarea_pi2.php']);
 }
+
 ?>

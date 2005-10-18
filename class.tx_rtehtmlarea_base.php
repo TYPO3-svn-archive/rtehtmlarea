@@ -426,6 +426,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			
 			$this->contentCharset = $LANG->csConvObj->charSetArray[$this->contentTypo3Language];
 			$this->contentCharset = $this->contentCharset ? $this->contentCharset : 'iso-8859-1';
+			$this->contentCharset = (trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) ? trim($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset']) : $this->contentCharset);
 
 			/* =======================================
 			 * TOOLBAR CONFIGURATION
@@ -1022,12 +1023,12 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 
 		if ($this->isPluginEnable('Acronym')) {
 			$registerRTEinJSString .= '
-			RTEarea['.$number.']["acronymUrl"] = "' . $this->buildJSFile('acronym', $this->buildJSAcronymArray()) . '";';
+			RTEarea['.$number.']["acronymUrl"] = "' . $this->buildJSFile('acronym_'.$this->contentLanguageUid, $this->buildJSAcronymArray()) . '";';
 		}
 		
 		if ($this->isPluginEnable('TYPO3Browsers') && is_array($this->RTEsetup['properties']['classesAnchor.'])) {
 			$registerRTEinJSString .= '
-			RTEarea['.$number.']["classesAnchorUrl"] = "' . $this->buildJSFile('classesAnchor', $this->buildJSClassesAnchorArray()) . '";';
+			RTEarea['.$number.']["classesAnchorUrl"] = "' . $this->buildJSFile('classesAnchor_'.$this->contentLanguageUid, $this->buildJSClassesAnchorArray()) . '";';
 		}
 
 		$registerRTEinJSString .= '
@@ -1225,7 +1226,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 */
 
 	function buildJSFile($label,$contents) {
-		$relFilename = 'typo3temp/' . $this->ID . '_' . $label . '_' . $this->contentLanguageUid . '_' . md5($contents) . '.js';
+		$relFilename = 'typo3temp/' . $this->ID . '_' . $label . '_' . md5($contents) . '.js';
 		$outputFilename = PATH_site . $relFilename;
 		if(!file_exists($outputFilename)) {
 			$outputHandle = fopen($outputFilename,'wb');
@@ -1249,14 +1250,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 				$contents .= $this->buildJSLangArray($plugin) . chr(10);
 			}
 		}
-		$relFilename = 'typo3temp/' . $this->ID . '_' . $this->language . '_' . md5($contents) . '.js';
-		$outputFilename = PATH_site . $relFilename;
-		if(!file_exists($outputFilename)) {
-			$outputHandle = fopen($outputFilename,'wb');
-			fwrite($outputHandle, $contents);
-			fclose($outputHandle);
-		}
-		return $this->httpTypo3Path . $relFilename;
+		return $this->buildJSFile($this->language.'_'.$this->OutputCharset,$contents);
 	}
 
 	/**

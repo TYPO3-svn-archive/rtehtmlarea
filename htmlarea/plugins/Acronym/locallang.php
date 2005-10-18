@@ -18,6 +18,7 @@ $LOCAL_LANG = Array (
 		'Insert/Modify Acronym' => 'Sett inn/rediger akronym eller forkortelse',
 	),
 	'it' => Array (
+		'Insert/Modify Acronym' => 'Inserisci/Modifica Acronimo o Abbreviazione',
 	),
 	'fr' => Array (
 		'Insert/Modify Acronym' => 'Insérer ou modifier un acronyme ou une abréviation',
