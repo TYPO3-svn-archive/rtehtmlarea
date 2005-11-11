@@ -13,6 +13,10 @@ $LOCAL_LANG = Array (
 		'You have to select some text' => 'You have to select some text',
 	),
 	'dk' => Array (
+		'Default' => 'Standard',
+		'Undefined' => 'Udefineret',
+		'InlineCSSStyleTooltip' => 'Tilknyt stilen til den markede tekst',
+		'You have to select some text' => 'Du skal markere noget tekst',
 	),
 	'de' => Array (
 		'Default' => 'Standard',

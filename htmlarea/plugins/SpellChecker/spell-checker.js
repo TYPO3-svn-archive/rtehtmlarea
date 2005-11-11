@@ -41,6 +41,7 @@ SpellChecker.actionHandler = function(instance) {
 };
 
 SpellChecker.prototype.buttonPress = function(editor, id) {
+	var editorNumber = editor._editorNumber;
 	switch (id) {
 	    case "SpellCheck":
 		SpellChecker.editor = editor;
@@ -48,6 +49,8 @@ SpellChecker.prototype.buttonPress = function(editor, id) {
 		SpellChecker.f_dictionary = _spellChecker_lang;
 		SpellChecker.f_charset = _spellChecker_charset;
 		SpellChecker.f_pspell_mode = _spellChecker_mode;
+		SpellChecker.enablePersonalDicts = RTEarea[editorNumber]["enablePersonalDicts"];
+		SpellChecker.userUid = RTEarea[editorNumber]["userUid"];
 		var param = new Object();
 		param.editor = editor;
 		param.HTMLArea = HTMLArea;

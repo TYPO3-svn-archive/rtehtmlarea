@@ -1,6 +1,8 @@
-// TYPO3 Image & Link Browsers Plugin for TYPO3 htmlArea RTE
-// Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
-// This notice MUST stay intact for use (see license.txt).
+/**
+ * TYPO3 Image & Link Browsers Plugin for TYPO3 htmlArea RTE
+ * Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.ca>
+ * This copyright notice MUST stay intact for use.
+**/
 
 TYPO3Browsers = function(editor,args) {
 	this.editor = editor;
@@ -37,7 +39,7 @@ HTMLArea.prototype.renderPopup_image = function() {
 		this._selectedImage = image;
 	}
 
-	this._popupDialog("../../t3_popup.php" + addParams + "&editorNo=" + editorNumber + "&popupname=image&srcpath="+encodeURI(rtePathImageFile), null, backreturn, 550, 350);	
+	this._popupDialog("../../t3_popup.php" + addParams + "&editorNo=" + editorNumber + "&popupname=image&srcpath="+encodeURIComponent(rtePathImageFile), null, backreturn, 550, 350);	
 	return false;
 };
 
@@ -73,7 +75,7 @@ HTMLArea.prototype.renderPopup_link = function() {
 	var el = HTMLArea.getElementObject(sel,"a");
 	if (el != null && el.tagName && el.tagName.toLowerCase() == "a") sel = el;
 	if (sel != null && sel.tagName && sel.tagName.toLowerCase() == "a") {
-		addUrlParams = "?curUrl[href]=" + encodeURI(sel.getAttribute("href"));
+		addUrlParams = "?curUrl[href]=" + encodeURIComponent(sel.getAttribute("href"));
 		addUrlParams += "&curUrl[typo3ContentLanguage]=" + RTEarea[editorNumber]["typo3ContentLanguage"];
 		addUrlParams += "&curUrl[typo3ContentCharset]=" + RTEarea[editorNumber]["typo3ContentCharset"];
 		if (sel.target) addUrlParams += "&curUrl[target]=" + encodeURIComponent(sel.target);
@@ -93,7 +95,7 @@ HTMLArea.prototype.renderPopup_link = function() {
 			}
 		}
 	}
-	this._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNumber + "&typo3ContentLanguage=" + RTEarea[editorNumber]["typo3ContentLanguage"] + "&typo3ContentCharset=" + encodeURIComponent(RTEarea[editorNumber]["typo3ContentCharset"]) + "&popupname=link&srcpath=" + encodeURI(rtePathLinkFile), null, backreturn, 550, 350);
+	this._popupDialog("../../t3_popup.php" + addUrlParams + "&editorNo=" + editorNumber + "&typo3ContentLanguage=" + RTEarea[editorNumber]["typo3ContentLanguage"] + "&typo3ContentCharset=" + encodeURIComponent(RTEarea[editorNumber]["typo3ContentCharset"]) + "&popupname=link&srcpath=" + encodeURIComponent(rtePathLinkFile), null, backreturn, 550, 350);
 	return false;
 };
 

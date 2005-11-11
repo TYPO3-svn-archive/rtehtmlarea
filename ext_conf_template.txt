@@ -31,3 +31,9 @@ enableCompressedScripts = 1
 
   # cat=basic; type=string; label=Url of AllowClipboard Helper: Full absolute Url of the AllowClipboard Helper extension for Mozilla and Firefox.
 mozAllowClipboardUrl = http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.3.4-fx+mz.xpi
+
+  # cat=basic; type=int+; label=Maximum width of plain images: Maximum width in pixels of plain images inserted with the TYPO3 image browser
+plainImageMaxWidth = 640
+
+  # cat=basic; type=int+; label=Maximum height of plain images: Maximum height in pixels of plain images inserted with the TYPO3 image browser
+plainImageMaxHeight = 680

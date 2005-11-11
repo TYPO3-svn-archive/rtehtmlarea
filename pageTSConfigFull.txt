@@ -79,6 +79,7 @@ RTE.default {
 		mail = mail
 	}
 	showTagFreeClasses = 1
+	enablePersonalDicts = 1
 
 		## Default proc rules
 	proc {

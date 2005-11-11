@@ -4,7 +4,7 @@
 *
 *  (c) 2004 Kasper Skaarhoj (kasper@typo3.com)
 *  (c) 2004 Philipp Borgmann <philipp.borgmann@gmx.de>
-*  (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
+*  (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.ca>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -31,13 +31,12 @@
  * Internal page and image browsers for the htmlArea RTE
  *
  * @author	Philipp Borgmann <philipp.borgmann@gmx.de>
- * @coauthor	Stanislas Rolland <stanislas.rolland@fructifor.com>
+ * @author	Stanislas Rolland <stanislas.rolland@fructifor.ca>
  */
 
 error_reporting (E_ALL ^ E_NOTICE);
-
 unset($MCONF);
-
+define('TYPO3_OS', (stristr(PHP_OS,'win') && !stristr(PHP_OS,'darwin')) ? 'WIN' : '');
 define('MY_PATH_thisScript',str_replace('//','/', str_replace('\\','/', (php_sapi_name()=='cgi'||php_sapi_name()=='xcgi'||php_sapi_name()=='isapi' ||php_sapi_name()=='cgi-fcgi')&&($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED'])? ($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED']):($_SERVER['ORIG_SCRIPT_FILENAME']?$_SERVER['ORIG_SCRIPT_FILENAME']:$_SERVER['SCRIPT_FILENAME']))));
 
 if( strstr(MY_PATH_thisScript, 'typo3conf') ) {
@@ -75,7 +74,7 @@ switch( $popupname ) {
   		__dlg_translate(HTMLArea.I18N.dialogs);
 		__dlg_init();
   		document.body.onkeypress = __dlg_close_on_esc;
-		setTimeout("idPopup.focus();",3000);
+		setTimeout("window.document.getElementById('idPopup').focus();",3000);
 	};
 <?php
 	echo '
@@ -86,6 +85,7 @@ switch( $popupname ) {
 	setTimeout("init_selectedImageRef();",100);
 	function init_selectedImageRef() {
 		if (editor._selectedImage) {
+			var idPopup = window.document.getElementById("idPopup");
 			if (!idPopup.insertImagePropertiesInForm) {
 				setTimeout("init_selectedImageRef();",100);
 				return;
@@ -99,13 +99,12 @@ switch( $popupname ) {
 	/*]]>*/
 </script>
 </head>
-
-<body style="background:ButtonFace; margin:0px; padding:0px; border: none;" onload="Init();">
-<table border="0px" cellspacing="0px" cellpadding="0" width="100%" height="100%">
+<body style="background:ButtonFace; margin:0; padding:0; border-style: none;" onload="Init();">
+<table style="border-style: none; width: 100%; height: 100%;">
 <tr><td>
 <?php
 	echo '
-		<iframe id="idPopup" name="idPopup" target="idPopup" width="100%" height="100%" style="visibility: visible; border: none;" src="' . $src . '?' . $query_string . '"></iframe>
+		<iframe id="idPopup" style="width: 100%; height: 100%; visibility: visible; border-style: none;" src="' . $src . '?' . $query_string . '"></iframe>
 	';
 ?>
 </td></tr></table>

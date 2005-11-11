@@ -10,6 +10,7 @@ $LOCAL_LANG = Array (
 		'tx_srspellcheck_pi1.list_type' => 'Spell Checking for HTMLArea RTE',
 	),
 	'dk' => Array (
+		'tx_srspellcheck_pi1.list_type' => 'Stavekontrol for HTMLArea RTE',
 	),
 	'de' => Array (
 		'tx_srspellcheck_pi1.list_type' => 'Rechtschreibprüfung für HTMLArea RTE',

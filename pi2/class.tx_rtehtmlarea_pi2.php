@@ -148,6 +148,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		$hidePlugins = array('TYPO3Browsers', 'UserElements', 'Acronym');
 		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
 		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
+		$this->pluginEnableArrayMultiple = $this->pluginEnableArray;
 
 			// Toolbar
 		$this->setToolBar();
@@ -261,7 +262,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		<link rel="stylesheet" type="text/css" href="' . $this->editorCSS . '" />';
 
 			// Loading CSS, JavaScript files and code
-		$GLOBALS['TSFE']->additionalHeaderData['htmlArea'] = $additionalCode_loadCSS . $this->loadJSfiles() . '<script type="text/javascript">' . $this->loadJScode() . '</script>'; 
+		$GLOBALS['TSFE']->additionalHeaderData['htmlArea'] = $additionalCode_loadCSS . $this->loadJSfiles($pObj->RTEcounter) . '<script type="text/javascript">' . $this->loadJScode($pObj->RTEcounter) . '</script>'; 
 
 		/* =======================================
 		 * DRAW THE EDITOR
@@ -364,6 +365,14 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		if ($this->client['BROWSER'] == 'safari') {
 			reset($this->conf_toolbar_safari_hide);
 			while(list(, $button) = each($this->conf_toolbar_safari_hide) ) {
+				$hideButtons[] = $button;
+			}
+		}
+		
+					// Hiding buttons not implemented in Opera
+		if ($this->client['BROWSER'] == 'opera') {
+			reset($this->conf_toolbar_opera_hide);
+			while(list(, $button) = each($this->conf_toolbar_opera_hide) ) {
 				$hideButtons[] = $button;
 			}
 		}

@@ -2,8 +2,8 @@
 // Sponsored by www.americanbible.org
 // Implementation by Mihai Bazon, http://dynarch.com/mishoo/
 // (c) dynarch.com 2003.
-// (c) 2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
-// Modified to use the standard dialog API 
+// (c) 2005, Stanislas Rolland <stanislas.rolland@fructifor.ca>
+// Modified to use the standard dialog API
 // Distributed under the same terms as HTMLArea itself.
 // This notice MUST stay intact for use (see license.txt).
 //
@@ -25,6 +25,9 @@ var modified = false;
 var allWords = {};
 var fixedWords = [];
 var suggested_words = {};
+
+var to_p_dict = []; // List of words to add to personal dictionary
+var to_r_list = []; // List of words to add to replacement list
 
 function makeCleanDoc(leaveFixed) {
 	// document.getElementById("status").innerHTML = 'Please wait: rendering valid HTML';
@@ -50,6 +53,23 @@ function recheckClicked() {
 function saveClicked() {
 	if (modified) {
 		editor.setHTML(makeCleanDoc(false));
+	}
+	if ((to_p_dict.length || to_r_list.length) && SpellChecker.enablePersonalDicts) {
+		var data = {};
+		for (var i = 0;i < to_p_dict.length;i++) {
+			data['to_p_dict[' + i + ']'] = to_p_dict[i];
+		}
+		for (var i = 0;i < to_r_list.length;i++) {
+			data['to_r_list[' + i + '][0]'] = to_r_list[i][0];
+			data['to_r_list[' + i + '][1]'] = to_r_list[i][1];
+		}
+		data['cmd'] = 'learn';
+		data['enablePersonalDicts'] = SpellChecker.enablePersonalDicts;
+		data['userUid'] = SpellChecker.userUid;
+		data['dictionary'] = SpellChecker.f_dictionary;
+		data['pspell_charset'] = SpellChecker.f_charset;
+		data['pspell_mode'] = SpellChecker.f_pspell_mode;
+		window.opener.HTMLArea._postback('plugins/SpellChecker/spell-check-logic.php', data);
 	}
 	window.close();
 	return false;
@@ -79,6 +99,7 @@ function replaceWord(el) {
 	if (!this_word_modified) {
 		return false;
 	}
+	to_r_list.push([el.innerHTML, replacement]);
 	el.innerHTML = replacement;
 };
 
@@ -148,8 +169,8 @@ function ignoreAllClicked() {
 };
 
 function learnClicked() {
-	alert("Not [yet] implemented");
-	return false;
+	to_p_dict.push(currentElement.__msh_origWord);
+	return ignoreAllClicked();
 };
 
 function initDocument() {
@@ -168,6 +189,8 @@ function initDocument() {
 	document.getElementById("f_dictionary").value = initial_dictionary;
 	document.getElementById("f_charset").value = pspell_charset;
 	document.getElementById("f_pspell_mode").value = pspell_mode;
+	document.getElementById("f_user_uid").value = SpellChecker.userUid;
+	document.getElementById("f_personal_dicts").value = SpellChecker.enablePersonalDicts;
 	field.form.submit();
 
 		// assign some global event handlers
@@ -176,16 +199,10 @@ function initDocument() {
 		document.getElementById("v_replacement").value = this.value;
 	};
 	HTMLArea._addEvent(select, "dblclick", replaceClicked);
-/*
-	if (HTMLArea.is_ie) {
-		select.attachEvent("ondblclick", replaceClicked);
-	} else {
-		select.addEventListener("dblclick", replaceClicked, true);
-	}
-*/
 
 	document.getElementById("b_replace").onclick = replaceClicked;
-	// document.getElementById("b_learn").onclick = learnClicked;
+	if (SpellChecker.enablePersonalDicts) document.getElementById("b_learn").onclick = learnClicked;
+		else document.getElementById("b_learn").style.display = 'none';
 	document.getElementById("b_replall").onclick = replaceAllClicked;
 	document.getElementById("b_ignore").onclick = ignoreClicked;
 	document.getElementById("b_ignall").onclick = ignoreAllClicked;

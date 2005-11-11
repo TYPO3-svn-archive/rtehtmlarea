@@ -21,6 +21,18 @@ $LOCAL_LANG = Array (
 		'mail_titleText' => 'Opens window for sending email',
 	),
 	'dk' => Array (
+		'external_link_altText' => 'Еbner eksterne links i aktuelt vindue',
+		'external_link_titleText' => 'Еbner eksterne links i aktuelt vindue',
+		'external_link_new_window_altText' => 'Еbner eksterne links i nyt vindue',
+		'external_link_new_window_titleText' => 'Еbner eksterne links i nyt vindue',
+		'internal_link_altText' => 'Еbner interne links i aktuelt vindue',
+		'internal_link_titleText' => 'Еbner interne links i aktuelt vindue',
+		'internal_link_new_window_altText' => 'Еbner interne links i nyt vindue',
+		'internal_link_new_window_titleText' => 'Еbner interne links i nyt vindue',
+		'download_altText' => 'Aktiverer fil-download',
+		'download_titleText' => 'Aktiverer fil-download',
+		'mail_altText' => 'Еbner vinduet med send ny mail',
+		'mail_titleText' => 'Еbner vinduet med send ny mail',
 	),
 	'de' => Array (
 		'external_link_altText' => 'externer Link folgt',
@@ -85,6 +97,18 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'external_link_altText' => 'Откроет внешнюю ссылку в текущем окне',
+		'external_link_titleText' => 'Откроет внешнюю ссылку в текущем окне',
+		'external_link_new_window_altText' => 'Откроет внешнюю ссылку в новом окне',
+		'external_link_new_window_titleText' => 'Откроет внешнюю ссылку в новом окне',
+		'internal_link_altText' => 'Откроет внутреннею ссылку в текущем окне',
+		'internal_link_titleText' => 'Откроет внутреннею ссылку в текущем окне',
+		'internal_link_new_window_altText' => 'Откроет внутреннею ссылку в новом окне',
+		'internal_link_new_window_titleText' => 'Откроет внутреннею ссылку в новом окне',
+		'download_altText' => 'Запустит загрузку файла',
+		'download_titleText' => 'Запустит загрузку файла',
+		'mail_altText' => 'Откроет окно для создания электронного письма',
+		'mail_titleText' => 'Откроет окно для создания электронного письма',
 	),
 	'ro' => Array (
 	),

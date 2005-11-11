@@ -1,7 +1,7 @@
 /**
  * htmlArea v3.0 - Copyright (c) 2003-2005 dynarch.com
  * htmlArea v3.0 - Copyright (c) 2002-2003 interactivetools.com, inc.
- * TYPO3 htmlArea RTE - Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
+ * TYPO3 htmlArea RTE - Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.ca>
  * This copyright notice MUST stay intact for use (see license.txt).
 **/
 
@@ -19,6 +19,8 @@ if (typeof(_editor_url) == "string") {
 	alert("WARNING: _editor_url is not set!");
 	var _editor_url = '';
 }
+var _document_url = document.URL;
+if(_document_url && _document_url.match(/(.*)\/([^\/]+)/)) _document_url = RegExp.$1;
 if (typeof(_editor_skin) == "string") _editor_skin = _editor_skin.replace(/\x2f*$/, '/');
 	else var _editor_skin = _editor_url + "skins/default/";
 if (typeof(_editor_CSS) != "string") var _editor_CSS = _editor_url + "skins/default/htmlarea.css";
@@ -52,7 +54,7 @@ HTMLArea.agt = navigator.userAgent.toLowerCase();
 HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_ie = (HTMLArea.agt.indexOf("msie") != -1) && !HTMLArea.is_opera;
 HTMLArea.is_safari = (HTMLArea.agt.indexOf("webkit") != -1);
-HTMLArea.is_gecko  = (navigator.product == "Gecko");
+HTMLArea.is_gecko  = (navigator.product == "Gecko") || HTMLArea.is_opera;
 HTMLArea.is_wamcom  = (HTMLArea.agt.indexOf("wamcom") != -1) || (HTMLArea.is_gecko && (HTMLArea.agt.indexOf("1.3") != -1));
 
 /*
@@ -96,6 +98,7 @@ HTMLArea._scriptLoaded = [];
 HTMLArea._request = [];
 HTMLArea.loadScript = function(url, plugin) {
 	if (plugin) url = _editor_url + "/plugins/" + plugin + '/' + url;
+	if(HTMLArea.is_opera) url = _document_url + url;
 	if(HTMLArea._compressedScripts) url = url.replace(/\.js$/gi, "-compressed.js");
 	HTMLArea._scripts.push(url);
 };
@@ -843,8 +846,13 @@ HTMLArea.prototype.generate = function () {
 
 		// create and append the IFRAME
 	var iframe = document.createElement("iframe");
-	if(HTMLArea.is_ie || HTMLArea.is_safari || HTMLArea.is_wamcom) iframe.setAttribute("src",_editor_url + "popups/blank.html");
-		else iframe.setAttribute("src","javascript:void(0);");
+	if (HTMLArea.is_ie || HTMLArea.is_safari || HTMLArea.is_wamcom) {
+		iframe.setAttribute("src",_editor_url + "popups/blank.html");
+	} else if (HTMLArea.is_opera) {
+		iframe.setAttribute("src",_document_url + _editor_url + "popups/blank.html");
+	} else {
+		iframe.setAttribute("src","javascript:void(0);");
+	}
 	iframe.className = "editorIframe";
 	htmlarea.appendChild(iframe);
 	this._iframe = iframe;
@@ -922,7 +930,7 @@ HTMLArea.prototype.initIframe = function() {
 			head = doc.createElement("head");
 			doc.documentElement.appendChild(head);
 		}
-		if (this.config.baseURL) {
+		if (this.config.baseURL && !HTMLArea.is_opera) {
 			var base = doc.getElementsByTagName("base")[0];
 			if (!base) {
 				base = doc.createElement("base");
@@ -970,19 +978,21 @@ HTMLArea.prototype.stylesLoaded = function() {
 	var docWellFormed = true;
 
 		// check if the stylesheets have been loaded
-	if (this._stylesLoadedTimer) window.clearTimeout(this._stylesLoadedTimer);
-	var stylesAreLoaded = true;
-	var rules;
-	for (var rule = 0; rule < doc.styleSheets.length; rule++) {
-		if (HTMLArea.is_gecko) try { rules = doc.styleSheets[rule].cssRules; } catch(e) { stylesAreLoaded = false; }
-		if (HTMLArea.is_ie) try { rules = doc.styleSheets[rule].rules; } catch(e) { stylesAreLoaded = false; }
-		if (HTMLArea.is_ie) try { rules = doc.styleSheets[rule].imports; } catch(e) { stylesAreLoaded = false; }
+	if (!HTMLArea.is_opera) {
+		if (this._stylesLoadedTimer) window.clearTimeout(this._stylesLoadedTimer);
+		var stylesAreLoaded = true;
+		var rules;
+		for (var rule = 0; rule < doc.styleSheets.length; rule++) {
+			if (HTMLArea.is_gecko) try { rules = doc.styleSheets[rule].cssRules; } catch(e) { stylesAreLoaded = false; }
+			if (HTMLArea.is_ie) try { rules = doc.styleSheets[rule].rules; } catch(e) { stylesAreLoaded = false; }
+			if (HTMLArea.is_ie) try { rules = doc.styleSheets[rule].imports; } catch(e) { stylesAreLoaded = false; }
+		}
+		if (!stylesAreLoaded && !HTMLArea.is_wamcom) {
+			this._stylesLoadedTimer = window.setTimeout("HTMLArea.stylesLoaded(" + this._editorNumber + ");", 100);
+			return false;
+		}
+		HTMLArea._appendToLog("[HTMLArea::initIframe]: Stylesheets successfully loaded.");
 	}
-	if (!stylesAreLoaded && !HTMLArea.is_wamcom) {
-		this._stylesLoadedTimer = window.setTimeout("HTMLArea.stylesLoaded(" + this._editorNumber + ");", 100);
-		return false;
-	}
-	HTMLArea._appendToLog("[HTMLArea::initIframe]: Stylesheets successfully loaded.");
 
 	if (!this.config.fullPage) {
 		doc.body.style.borderWidth = "0px";
@@ -2191,7 +2201,7 @@ HTMLArea._object = null;
  * Check if the client agent is supported
  */
 HTMLArea.checkSupportedBrowser = function() {
-	if(HTMLArea.is_gecko && !HTMLArea.is_safari) {
+	if(HTMLArea.is_gecko && !HTMLArea.is_safari && !HTMLArea.is_opera) {
 		if(navigator.productSub < 20030210) return false;
 	}
 	return HTMLArea.is_gecko || HTMLArea.is_ie;
@@ -2291,8 +2301,9 @@ HTMLArea._removeClass = function(el, className) {
 	}
 	el.className = ar.join(" ");
 	if(ar.length == 0) {
-		if(HTMLArea.is_gecko) el.removeAttribute('class');
-			else el.removeAttribute('className');
+		if (HTMLArea.is_opera) el.removeAttributeNode(el.attributes['class']);
+			else if (HTMLArea.is_gecko) el.removeAttribute('class');
+				else el.removeAttribute('className');
 	}
 };
 
@@ -2538,6 +2549,48 @@ HTMLArea._colorToRgb = function(v) {
 	return null;
 };
 
+/** Use XML HTTPRequest to post some data back to the server and do something
+ * with the response (asyncronously!), this is used by such things as the spellchecker update personal dict function
+ */
+HTMLArea._postback = function(url, data, handler) {
+	var req = null;
+	if(HTMLArea.is_ie) {
+		var success = false;
+		for (var k = 0; k < HTMLArea.MSXML_XMLHTTP_PROGIDS.length && !success; k++) {
+			try {
+				req = new ActiveXObject(HTMLArea.MSXML_XMLHTTP_PROGIDS[k]);
+				success = true;
+			} catch (e) { }
+		}
+	} else {
+		req = new XMLHttpRequest();
+	}
+	
+	if(req) {
+		var content = '';
+		for (var i in data) content += (content.length ? '&' : '') + i + '=' + encodeURIComponent(data[i]);
+		
+		function callBack() {
+			if(req.readyState == 4) {
+				if (req.status == 200) {
+					if (typeof(handler) == 'function') handler(req.responseText, req);
+					HTMLArea._appendToLog("[HTMLArea::_postback]: Server response: " + req.responseText);
+				} else {
+					HTMLArea._appendToLog("ERROR [HTMLArea::_postback]: Unable to post " + _typo3_host_url + _editor_url + url + " . Server reported " + req.statusText);
+				}
+			}
+		}
+		req.onreadystatechange = callBack;
+		function sendRequest() {
+			req.send(content);
+		}
+		
+		req.open('POST', _typo3_host_url + _editor_url + url, true);
+		req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+		window.setTimeout(sendRequest, 500);
+	}
+};
+
 /***************************************************
  *  MODAL DIALOG
  ***************************************************/
@@ -2713,7 +2766,7 @@ HTMLArea.initEditor = function(editorNumber) {
 			config.useHTTPS = RTE["useHTTPS"] ? RTE["useHTTPS"] : false;
 			config.disableEnterParagraphs = RTE["disableEnterParagraphs"] ? RTE["disableEnterParagraphs"] : false;
 			config.removeTrailingBR = RTE["removeTrailingBR"] ? RTE["removeTrailingBR"] : false;
-			config.keepButtonGroupTogether = (RTE["keepButtonGroupTogether"] && HTMLArea.is_gecko && !HTMLArea.is_wamcom) ? RTE["keepButtonGroupTogether"] : false;
+			config.keepButtonGroupTogether = (RTE["keepButtonGroupTogether"] && HTMLArea.is_gecko && !HTMLArea.is_wamcom && !HTMLArea.is_opera) ? RTE["keepButtonGroupTogether"] : false;
 			config.useCSS = RTE["useCSS"] ? RTE["useCSS"] : false;
 			config.enableMozillaExtension = RTE["enableMozillaExtension"] ? RTE["enableMozillaExtension"] : false;
 			config.statusBar = RTE["statusBar"] ? RTE["statusBar"] : false;

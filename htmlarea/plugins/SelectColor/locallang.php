@@ -15,6 +15,12 @@ $LOCAL_LANG = Array (
 		'no_color' => 'No color',
 	),
 	'dk' => Array (
+		'CO-forecolor' => 'Tekstfarve',
+		'CO-hilitecolor' => 'Baggrundsfarve',
+		'CO-forecolor_title' => 'Sæt tekstfarven',
+		'CO-hilitecolor_title' => 'Sæt baggrundsfarven',
+		'color_title' => 'Vælg en farve',
+		'no_color' => 'Ingen farve',
 	),
 	'de' => Array (
 		'CO-forecolor' => 'Textfarbe',

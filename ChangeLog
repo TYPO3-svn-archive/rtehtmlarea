@@ -1,3 +1,14 @@
+2005-11-10  Stanislas Rolland  <stanislas.rolland@fructifor.ca>
+	* Version 0.7.6:
+	* Two new extension configuration variables allow to specify the maximum resolution of plain images inserted with the TYPO3 image browser.
+	* Correction for TYPO3 3.8 on Windows server: the path to the locallang file of the spell checker was incorrectly set.
+	* Addition of Danish translation.
+	* Update to Russian translation.
+	* Correction: if multiple instances of the editor were loaded on the same page, with different plugins configuration for each, only the scripts of plugins enabled in the last instance were loaded on the page, resulting in JavaScript errors.
+	* New Page TSConfig and User TSConfig property enablePersonalDicts may be used to enable the use of personal dictionaries when using the spell checker.
+	* Correction: some links could not be edited. See http://bugs.typo3.org/view.php?id=1748
+	* Correction: possible incorrect character set conversion of default titleText (set in language file through anchor accessibility feature configuration) when backend is utf-8.
+
 2005-10-17  Stanislas Rolland  <stanislas.rolland@fructifor.ca>
 	* Version 0.7.4
 	* Correction for Mozilla/Firefox: when the editor was loaded in a hidden tab, the size of the editing area would be incorrect when the tab becomes visible.

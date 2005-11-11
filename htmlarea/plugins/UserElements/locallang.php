@@ -10,6 +10,7 @@ $LOCAL_LANG = Array (
 		'Insert custom element' => 'Insert custom element',
 	),
 	'dk' => Array (
+		'Insert custom element' => 'Indsæt egendefineret element',
 	),
 	'de' => Array (
 		'Insert custom element' => 'Benutzerdefiniertes Element einfügen',
@@ -44,6 +45,7 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'Insert custom element' => 'Âñòàâèòü ïîëüçîâàòåëüñêèé ıëåìåíò',
 	),
 	'ro' => Array (
 	),

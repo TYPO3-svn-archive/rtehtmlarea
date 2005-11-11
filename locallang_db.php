@@ -16,6 +16,12 @@ $LOCAL_LANG = Array (
 		'tx_rtehtmlarea_acronym.acronym' => 'Abridged form',
 	),
 	'dk' => Array (
+		'tx_rtehtmlarea_acronym' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type' => 'Type',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Forkortelse',
+		'tx_rtehtmlarea_acronym.term' => 'Udtryk',
+		'tx_rtehtmlarea_acronym.acronym' => 'Forkortet form',
 	),
 	'de' => Array (
 		'tx_rtehtmlarea_acronym' => 'Akronym',
@@ -86,6 +92,12 @@ $LOCAL_LANG = Array (
 	'pt' => Array (
 	),
 	'ru' => Array (
+		'tx_rtehtmlarea_acronym' => 'Акроним',
+		'tx_rtehtmlarea_acronym.type' => 'Тип',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Акроним',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Аббревиатура',
+		'tx_rtehtmlarea_acronym.term' => 'Термин',
+		'tx_rtehtmlarea_acronym.acronym' => 'Сокращённая форма',
 	),
 	'ro' => Array (
 	),

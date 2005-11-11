@@ -21,6 +21,18 @@ $LOCAL_LANG = Array (
 		'Cancel' => 'Cancel',
 	),
 	'dk' => Array (
+		'Quick Tag Editor' => 'Indsæt TAG',
+		'Enter the TAG you want to insert' => 'Indtast det TAG du vil indsætte',
+		'You have to select some text' => 'Du skal markere noget tekst',
+		'There are some unclosed quote' => 'Nogle anførselstegn er ikke afsluttet',
+		'This attribute already exists in the TAG' => 'Denne attribut eksisterer allerede i dette TAG',
+		'No CSS class avaiable' => 'Ingen CSS klasser tilgængelig',
+		'OPTIONS' => 'VALG',
+		'ATTRIBUTES' => 'ATTRIBUTTER',
+		'TAGs' => 'TAGs',
+		'Colors' => 'Farver',
+		'Ok' => 'OK',
+		'Cancel' => 'Annuller',
 	),
 	'de' => Array (
 		'Quick Tag Editor' => 'Quick TAG Editor',

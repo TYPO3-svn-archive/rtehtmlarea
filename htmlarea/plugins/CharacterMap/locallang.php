@@ -13,6 +13,10 @@ $LOCAL_LANG = Array (
 		'Cancel' => 'Cancel',
 	),
 	'dk' => Array (
+		'CharacterMapTooltip' => 'Indsæt specialtegn',
+		'Insert special character' => 'Indsæt specialtegn',
+		'HTML value:' => 'HTML værdi:',
+		'Cancel' => 'Annuller',
 	),
 	'de' => Array (
 		'CharacterMapTooltip' => 'Fügen Sie Sonderzeichen ein',

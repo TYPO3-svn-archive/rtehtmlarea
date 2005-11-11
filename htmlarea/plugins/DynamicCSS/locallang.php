@@ -12,6 +12,9 @@ $LOCAL_LANG = Array (
 		'DynamicCSSStyleTooltip' => 'Apply style to the containing paragraph',
 	),
 	'dk' => Array (
+		'Default' => 'Standard',
+		'Undefined' => 'Udefineret',
+		'DynamicCSSStyleTooltip' => 'Tilknyt stil til afsnittet',
 	),
 	'de' => Array (
 		'Default' => 'Standard',

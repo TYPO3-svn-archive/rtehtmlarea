@@ -19,6 +19,16 @@ $LOCAL_LANG = Array (
 		'Address' => 'Address',
 	),
 	'dk' => Array (
+		'Please wait' => 'Editoren indlжses. Vent venligst...',
+		'Normal' => 'Normal',
+		'Heading 1' => 'Overskrift 1',
+		'Heading 2' => 'Overskrift 2',
+		'Heading 3' => 'Overskrift 3',
+		'Heading 4' => 'Overskrift 4',
+		'Heading 5' => 'Overskrift 5',
+		'Heading 6' => 'Overskrift 6',
+		'Preformatted' => 'Preformateret',
+		'Address' => 'Adresse',
 	),
 	'de' => Array (
 		'Please wait' => 'Der Editor wird geladen. Bitte warten...',
@@ -136,6 +146,7 @@ $LOCAL_LANG = Array (
 		'Heading 5' => 'Заголовок 5',
 		'Heading 6' => 'Заголовок 6',
 		'Preformatted' => 'Пре-форматированый',
+		'Address' => 'Адрес',
 	),
 	'ro' => Array (
 	),
