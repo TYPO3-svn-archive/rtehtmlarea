@@ -19,8 +19,6 @@ if (typeof(_editor_url) == "string") {
 	alert("WARNING: _editor_url is not set!");
 	var _editor_url = '';
 }
-var _document_url = document.URL;
-if(_document_url && _document_url.match(/(.*)\/([^\/]+)/)) _document_url = RegExp.$1;
 if (typeof(_editor_skin) == "string") _editor_skin = _editor_skin.replace(/\x2f*$/, '/');
 	else var _editor_skin = _editor_url + "skins/default/";
 if (typeof(_editor_CSS) != "string") var _editor_CSS = _editor_url + "skins/default/htmlarea.css";
@@ -98,7 +96,7 @@ HTMLArea._scriptLoaded = [];
 HTMLArea._request = [];
 HTMLArea.loadScript = function(url, plugin) {
 	if (plugin) url = _editor_url + "/plugins/" + plugin + '/' + url;
-	if(HTMLArea.is_opera) url = _document_url + url;
+	if(HTMLArea.is_opera) url = _typo3_host_url + url;
 	if(HTMLArea._compressedScripts) url = url.replace(/\.js$/gi, "-compressed.js");
 	HTMLArea._scripts.push(url);
 };
@@ -849,7 +847,7 @@ HTMLArea.prototype.generate = function () {
 	if (HTMLArea.is_ie || HTMLArea.is_safari || HTMLArea.is_wamcom) {
 		iframe.setAttribute("src",_editor_url + "popups/blank.html");
 	} else if (HTMLArea.is_opera) {
-		iframe.setAttribute("src",_document_url + _editor_url + "popups/blank.html");
+		iframe.setAttribute("src",_typo3_host_url + _editor_url + "popups/blank.html");
 	} else {
 		iframe.setAttribute("src","javascript:void(0);");
 	}
@@ -2346,7 +2344,7 @@ HTMLArea.htmlDecode = function(str) {
 	return str;
 };
 HTMLArea.htmlEncode = function(str) {
-	if (typeof(str.replace) == 'undefined') str = str.toString(); // we don't need regexp for that, but.. so be it for now.
+	if (typeof(str) != 'string') str = str.toString(); // we don't need regexp for that, but.. so be it for now.
 		// Let's not do it twice
 	str = HTMLArea.htmlDecode(str);
 	str = str.replace(/&/g, "&amp;");

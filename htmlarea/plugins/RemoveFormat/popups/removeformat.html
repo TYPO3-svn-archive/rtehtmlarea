@@ -13,6 +13,8 @@
 		function Init() {
 			__dlg_translate(i18n);
 			__dlg_init();
+			var editor = window.dialogArguments;
+			if (!editor._selectionEmpty(editor._getSelection())) document.getElementById('clean_selection').checked = true;
 		};
 
 		function onOK() {

@@ -606,9 +606,13 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 			$pObj->additionalJS_submit[] = $this->setSaveRTE($pObj->RTEcounter, $pObj->formName, htmlspecialchars($PA['itemFormElName']));
 
 				// Draw the textarea
+			$visibility = 'hidden';
+			if ($this->client['BROWSER'] == 'opera') {
+				$visibility = 'visible';
+			}
 			$item = $this->triggerField($PA['itemFormElName']).'
 				<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $LANG->getLL('Please wait') . '</div>
-				<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
+				<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:' . $visibility . '; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
 				<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.t3lib_div::deHSCentities(htmlspecialchars($this->RTEdivStyle)).'">'.t3lib_div::formatForTextarea($value).'</textarea>
 				</div>' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableDebugMode'] ? '<div id="HTMLAreaLog"></div>' : '') . '
 				';

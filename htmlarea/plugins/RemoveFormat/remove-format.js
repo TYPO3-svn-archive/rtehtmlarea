@@ -38,7 +38,7 @@ RemoveFormat.actionHandler = function(instance) {
 
 RemoveFormat.prototype.buttonPress = function(editor){
 	var applyRequestFunctRef = RemoveFormat.applyRequest(this, editor);
-	editor._popupDialog("plugin://RemoveFormat/removeformat", applyRequestFunctRef, null, 285, 265);
+	editor._popupDialog("plugin://RemoveFormat/removeformat", applyRequestFunctRef, editor, 285, 265);
 };
 
 RemoveFormat.applyRequest = function(instance,editor){

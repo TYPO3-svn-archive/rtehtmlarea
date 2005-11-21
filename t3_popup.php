@@ -74,27 +74,11 @@ switch( $popupname ) {
   		__dlg_translate(HTMLArea.I18N.dialogs);
 		__dlg_init();
   		document.body.onkeypress = __dlg_close_on_esc;
-		setTimeout("window.document.getElementById('idPopup').focus();",3000);
 	};
 <?php
 	echo '
 	var editor = window.opener.RTEarea[' . $editorNo . ']["editor"];
 ';
-	if ($popupname == "image") {
-		echo '
-	setTimeout("init_selectedImageRef();",100);
-	function init_selectedImageRef() {
-		if (editor._selectedImage) {
-			var idPopup = window.document.getElementById("idPopup");
-			if (!idPopup.insertImagePropertiesInForm) {
-				setTimeout("init_selectedImageRef();",100);
-				return;
-			}
-			idPopup.selectedImageRef = editor._selectedImage;
-			idPopup.insertImagePropertiesInForm();
-		}
-	}';
-	}
 ?>
 	/*]]>*/
 </script>

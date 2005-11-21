@@ -1,5 +1,4 @@
 	## Default anchor classes configuration
-
 RTE.classesAnchor {
 	externalLink {
 		class = external-link
@@ -115,9 +114,6 @@ RTE.default {
 				## TAGS ALLOWED
 			allowTags < RTE.default.proc.allowTags
 
-				## XHTML COMPLIANCE
-			xhtml_cleaning = 1
-
 				## AVOID TO HSC TWICE
 			htmlSpecialChars = 0
 
@@ -135,6 +131,8 @@ RTE.default {
 				## PROTECT CUSTOM TAGS
 			keepNonMatchedTags = protect
 		}
+			## XHTML COMPLIANCE
+		HTMLparser_db.xhtml_cleaning = 1
 	}
 }
 

@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Stanislas Rolland (stanislas.rolland@fructifor.com)
+*  (c) 2005 Stanislas Rolland (stanislas.rolland@fructifor.ca)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -27,7 +27,7 @@
 /**
  * Front end RTE based on htmlArea
  *
- * @author Stanislas Rolland <stanislas.rolland@fructifor.com>
+ * @author Stanislas Rolland <stanislas.rolland@fructifor.ca>
  */
 
 require_once(t3lib_extMgm::extPath('rtehtmlarea').'class.tx_rtehtmlarea_base.php');
@@ -287,9 +287,13 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		$pObj->additionalJS_submit[] = $this->setSaveRTE($pObj->RTEcounter, $pObj->formName, htmlspecialchars($PA['itemFormElName']));
 
 			// draw the textarea
+		$visibility = 'hidden';
+		if ($this->client['BROWSER'] == 'opera') {
+			$visibility = 'visible';
+		}
 		$item = $this->triggerField($PA['itemFormElName']).'
 			<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL('Please wait',$this->LOCAL_LANG), $this->charset, $GLOBALS['TSFE']->renderCharset) . '</div>
-			<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:hidden; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
+			<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:' . $visibility . '; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
 			<textarea id="RTEarea'.$pObj->RTEcounter.'" name="'.htmlspecialchars($PA['itemFormElName']).'" style="'.htmlspecialchars($this->RTEdivStyle).'">'.t3lib_div::formatForTextarea($value).'</textarea>
 			</div>' . ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableDebugMode'] ? '<div id="HTMLAreaLog"></div>' : '') . '
 			';

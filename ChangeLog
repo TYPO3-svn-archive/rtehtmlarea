@@ -1,3 +1,10 @@
+2005-11-20  Stanislas Rolland  <stanislas.rolland@fructifor.ca>
+	* Version 1.0.0
+	* Extension of system class t3lib_parsehtml_proc : move any style attribute of an a-tag to a wrapping span-tag, so that the link may be transformed into a typolink, if no other attribute prevents its transformation. Thanks to Dimitrij Denissenko for this idea and its implementation.
+	* Correction: updating the properties of an image was broken in version 0.7.6.
+	* Correction: in the Remove Format window, when some text is selected, the default cleaning area will be ?Selection? (rather than ?All?). Thanks to Bernhard Kraft for noting this usability issue.
+	* Method HTMLcleaner_db of class t3lib_parsehtml_proc is modified to honor Page TSConfig setting RTE.default.proc.HTMLparser_db.xhtml_cleaning = 1. See section Known problems.
+
 2005-11-10  Stanislas Rolland  <stanislas.rolland@fructifor.ca>
 	* Version 0.7.6:
 	* Two new extension configuration variables allow to specify the maximum resolution of plain images inserted with the TYPO3 image browser.
