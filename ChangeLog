@@ -1,4 +1,4 @@
-2005-11-20  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
+2005-12-20  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
 	* New FAQ about style selector boxes in IE.
 	* Numerous adjustments for eventual Opera support. Waiting for Opera Software to correct reported problems.
 	* Add non-breaking space to the palette of the insertcharacter palette. Add hotkety ctrl+space to insert a non-breaking space.
@@ -18,6 +18,7 @@
 	* Correction: The title and alt attributes produced by the link creation/editing button could undergo incorrect character sets conversions in some configurations of backend and/or frontend character sets.
 	* Add Page TSConfig properties to configure table operations dialogs: disableAlignmentFieldsetInTableOperations, disableSpacingFieldsetInTableOperations, disableColorFieldsetInTableOperations, disableLayoutFieldsetInTableOperations and disableBordersFieldsetInTableOperations
 	* New Page TSConfig property ignoreMainStyleOverride for ease of migration from Classic RTE to htmlArea RTE.
+	* Cleaning Mozilla folder.
 
 2005-11-20  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
 	* Version 1.0.0
