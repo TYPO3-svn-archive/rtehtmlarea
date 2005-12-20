@@ -228,7 +228,8 @@ HTMLArea.statusBarHandler = function (ev) {
 		case "click" :
 			HTMLArea._stopEvent(ev);
 			return false;
-		case "contextmenu" : return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
+		case "contextmenu" :
+			return editor.plugins["ContextMenu"] ? editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el) : false;
 	}
 };
 

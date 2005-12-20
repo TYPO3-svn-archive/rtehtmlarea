@@ -18,7 +18,7 @@ PopupWin = function(editor, _title, handler, initFunction, width, height, _opene
 PopupWin.prototype._parentEvent = function(ev) {
 	if (this.dialogWindow && !this.dialogWindow.closed) {
 		if(!ev) var ev = this.dialogWindow.opener.event;
-		PopupWin._stopEvent(ev);
+		HTMLArea._stopEvent(ev);
 		this.dialogWindow.focus();
 	}
 	return false;
@@ -119,17 +119,17 @@ PopupWin.prototype.captureEvents = function() {
 		if(w.addEventListener) {
 			w.addEventListener("focus", self._parentEvent, false);
 		} else {
-			PopupWin._addEvent(w, "focus", function(ev) {self._parentEvent(ev); });
+			HTMLArea._addEvent(w, "focus", function(ev) {self._parentEvent(ev); });
 		}
 		for (var i = 0; i < w.frames.length; i++) { capwin(w.frames[i]); }
 	};
 	capwin(window);
 
 		// capture unload events
-	PopupWin._addEvent(_opener, "unload", function() { self.releaseEvents(); self.close(); return false; });
-	PopupWin._addEvent(self.dialogWindow, "unload", function() { self.releaseEvents(); self.close(); return false; });
+	HTMLArea._addEvent(_opener, "unload", function() { self.releaseEvents(); self.close(); return false; });
+	HTMLArea._addEvent(self.dialogWindow, "unload", function() { self.releaseEvents(); self.close(); return false; });
 		// capture escape events
-	PopupWin._addEvent(self.doc, "keypress", function(ev) { return self._dlg_close_on_esc((!ev) ? self.dialogWindow.event : ev); });
+	HTMLArea._addEvent(self.doc, "keypress", function(ev) { return self._dlg_close_on_esc((!ev) ? self.dialogWindow.event : ev); });
 };
 
 	// Release the capturing of events
@@ -141,14 +141,14 @@ PopupWin.prototype.releaseEvents = function() {
 			// release the capturing of events
 		function relwin(w) {
 		if(w.removeEventListener) {
-			PopupWin._removeEvent(w, "focus", self._parentEvent);
+			HTMLArea._removeEvent(w, "focus", self._parentEvent);
 		} else {
-			PopupWin._removeEvent(w, "focus", function(ev) {self._parentEvent(ev); });
+			HTMLArea._removeEvent(w, "focus", function(ev) {self._parentEvent(ev); });
 		}
 			try { for (var i = 0; i < w.frames.length; i++) { relwin(w.frames[i]); }; } catch(e) { };
 		};
 		relwin(window);
-		PopupWin._removeEvent(_opener, "unload", function() { self.releaseEvents(); self.close(); return false; });	
+		HTMLArea._removeEvent(_opener, "unload", function() { self.releaseEvents(); self.close(); return false; });	
 	}
 };
 
@@ -201,12 +201,11 @@ PopupWin.prototype.addButtons = function() {
 
 	// Resize the popup and center on screen
 PopupWin.prototype.showAtElement = function() {
-	var HTMLArea = this.HTMLArea;
 	var self = this;
 	var doc = self.doc;
 	var body = doc.body;
 		// resize if allowed
-	if (self.dialogWindow.sizeToContent) {
+	if (!HTMLArea.is_ie) {
 		setTimeout( function() {
 			try {
 				self.dialogWindow.sizeToContent();
@@ -220,12 +219,18 @@ PopupWin.prototype.showAtElement = function() {
 			} catch(e) { };
 		}, 25);
 	} else {
-		var w = body.scrollWidth;
+		/* Something broken in IE ...
+		var w = body.scrollWidth + 12;
 		if (doc.documentElement && doc.documentElement.clientHeight) var h = doc.documentElement.clientHeight;
 			else var h = body.clientHeight;
-		if(h < body.scrollHeight) h = body.scrollHeight;
+		if(h < body.scrollHeight) var h = body.scrollHeight;
 		if(h < body.offsetHeight) h = body.offsetHeight;
-		self.dialogWindow.resizeTo(w + 12, h);
+		*/
+		var h = this.content.offsetHeight + 12;
+		var w = this.content.offsetWidth + 12;
+		
+		self.dialogWindow.resizeTo(w, h);
+		
 		if (doc.documentElement && doc.documentElement.clientHeight) {
 			var ch = doc.documentElement.clientHeight;
 			var cw = doc.documentElement.clientWidth;
@@ -234,42 +239,9 @@ PopupWin.prototype.showAtElement = function() {
 			var cw = body.clientWidth;
 		}
 		self.dialogWindow.resizeBy(w - cw, h - ch);
+		
 			// center on parent if allowed
 		self.dialogWindow.moveTo((screen.availWidth - body.offsetWidth)/2,(screen.availHeight - body.offsetHeight)/2);
 	}
 };
 
-	// Event handling functions
-PopupWin._addEvent = function(el, evname, func) {
-	if (el.attachEvent) {
-		el.attachEvent("on" + evname, func);
-	} else {
-		el.addEventListener(evname, func, true);
-	}
-};
-PopupWin._addEvents = function(el, evs, func) {
-	for (var i = evs.length; --i >= 0;) {
-		PopupWin._addEvent(el, evs[i], func);
-	}
-};
-PopupWin._removeEvent = function(el, evname, func) {
-	if(el.detachEvent) { 
-		el.detachEvent("on" + evname, func);
-	} else {
-		try{ el.removeEventListener(evname, func, true); } catch(e) { };
-	}
-};
-PopupWin._removeEvents = function(el, evs, func) {
-	for (var i = evs.length; --i >= 0;) {
-		PopupWin._removeEvent(el, evs[i], func);
-	}
-};
-PopupWin._stopEvent = function(ev) {
-	ev.cancelBubble = true;
-	if(ev.preventDefault) { 
-		ev.preventDefault();
-		ev.stopPropagation();
-	} else {
-		ev.returnValue = false;
-	}
-};

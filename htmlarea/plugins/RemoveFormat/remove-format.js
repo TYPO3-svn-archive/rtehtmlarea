@@ -1,9 +1,13 @@
-// Remove Format Plugin for HTMLArea-3.0
-// Sponsored by www.fructifor.com
-// Implementation by Stanislas Rolland, http://www.fructifor.com/
-// (c) 2004-2005, Stanislas Rolland.
-// Distributed under the same terms as HTMLArea itself.
-// This notice MUST stay intact for use (see license.txt).
+/*
+ * Remove Format Plugin for TYPO3 htmlArea RTE
+ *
+ * @author	Stanislas Rolland. Sponsored by Fructifor Inc.
+ * Copyright (c) 2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * Distributed under GPL.
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 RemoveFormat = function(editor) {
 	this.editor = editor;
@@ -22,12 +26,12 @@ RemoveFormat.I18N = RemoveFormat_langArray;
 
 RemoveFormat._pluginInfo = {
 	name          : "RemoveFormat",
-	version       : "1.1",
+	version       : "1.2",
 	developer     : "Stanislas Rolland",
-	developer_url : "mailto:stanislas.rolland@fructifor.com",
+	developer_url : "http://www.fructifor.ca/",
 	sponsor       : "Fructifor Inc.",
-	sponsor_url   : "http://www.fructifor.com/",
-	license       : "htmlArea"
+	sponsor_url   : "http://www.fructifor.ca/",
+	license       : "GPL"
 };
 
 RemoveFormat.actionHandler = function(instance) {

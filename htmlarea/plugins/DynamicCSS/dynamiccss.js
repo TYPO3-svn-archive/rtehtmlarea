@@ -1,16 +1,21 @@
-// Dynamic CSS plugin for TYPO3 htmlArea RTE
-// Implementation by Holger Hees, sponsored by http://www.systemconcept.de
-// Rewritten by Stanislas Rolland, sponsored by Fructifor Inc.
-// (c) 2004, systemconcept.de
-// (c) 2004-2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
-// Distributed under the same terms as HTMLArea itself.
-// This notice MUST stay intact for use (see license.txt).
+/*
+ * Dynamic CSS Plugin for TYPO3 htmlArea RTE
+ *
+ * @author	Holger Hees, sponsored by http://www.systemconcept.de
+ * @author	Stanislas Rolland, sponsored by Fructifor Inc.
+ * (c) 2004, systemconcept.de
+ * (c) 2004-2005, Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * Distributed under the same terms as HTMLArea itself
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 DynamicCSS = function(editor,args) {
 	this.editor = editor; 
 	var cfg = editor.config;
 	var toolbar = cfg.toolbar;
-	var editornumber = editor._editorNumber;
+	var editorNumber = editor._editorNumber;
 
 	var obj = {
 		id			: "DynamicCSS-class",
@@ -25,7 +30,9 @@ DynamicCSS = function(editor,args) {
 		timeout			: null,
 		lastTag			: "",
 		lastClass		: "",
-		showTagFreeClasses	: RTEarea[editornumber]["showTagFreeClasses"]
+		showTagFreeClasses	: RTEarea[editorNumber]["showTagFreeClasses"],
+		classesUrl		: RTEarea[editorNumber]["classesUrl"],
+		classesTag		: RTEarea[editorNumber]["classesTag"]
 	};
 	var actionHandlerFunctRef = DynamicCSS.actionHandler(this, obj);
 	obj.action = actionHandlerFunctRef;
@@ -84,15 +91,18 @@ DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 					// split equal Styles e.g. head, body {border:0px}
 				cssElements = cssRules[rule].selectorText.split(",");
 				for (k = 0; k < cssElements.length; k++) {
+					//cssElement = cssElements[k].split(" ");
+					//cssElement = cssElement[0].split(".");
 					cssElement = cssElements[k].split(".");
-					tagName=cssElement[0].toLowerCase().trim();
-					className=cssElement[1];
+					tagName = cssElement[0].toLowerCase().trim();
+					className = cssElement[1];
 					if (!tagName) tagName = "all";
-					if ((tagName != "all" || obj["showTagFreeClasses"] == true) && !HTMLArea.reservedClassNames.test(className)) {
-						if (!newCssArray[tagName]) newCssArray[tagName]=new Array();
+					if (!HTMLArea.reservedClassNames.test(className) && ((tagName == "all" && obj["showTagFreeClasses"] == true) || (tagName != "all" && (!obj["classesTag"] || !obj["classesTag"][tagName])) || (tagName != "all" && obj["classesTag"][tagName].indexOf(className) != -1)) ) {
+						if (!newCssArray[tagName]) newCssArray[tagName] = new Array();
 						if (className) {
-							if (tagName=='all') cssName=className;
-								else cssName='<'+className+'>';
+							cssName = className;
+							if (HTMLArea.classesLabels) cssName = HTMLArea.classesLabels[className] ? HTMLArea.classesLabels[className] : cssName ;
+							if (tagName != 'all') cssName = '<'+cssName+'>';
 						} else {
 							className='none';
 							if (tagName=='all') cssName=i18n["Default"];
@@ -127,7 +137,7 @@ DynamicCSS.applyCSSIEImport = function(editor,i18n,cssIEImport,cssArray){
 
 DynamicCSS._pluginInfo = {
 	name          : "DynamicCSS",
-	version       : "1.6",
+	version       : "1.8",
 	developer     : "Holger Hees & Stanislas Rolland",
 	developer_url : "http://www.fructifor.ca/",
 	c_owner       : "Holger Hees & Stanislas Rolland",
@@ -181,6 +191,11 @@ DynamicCSS.prototype.onUpdateToolbar = function() {
 
 DynamicCSS.prototype.generate = function(editor) {
 	var obj = editor.config.customSelects["DynamicCSS-class"];
+	var classesUrl = obj["classesUrl"];
+	if (classesUrl && typeof(HTMLArea.classesLabels) == "undefined") {
+		var classesData = HTMLArea._getScript(0, false, classesUrl);
+		if (classesData) eval(classesData);
+	}
         // Let us load the style sheets
 	if(obj.loaded) this.updateValue(editor,obj);
 		else this.getCSSArray(editor);
@@ -257,13 +272,18 @@ DynamicCSS.prototype.updateValue = function(editor,obj) {
 			if(tagName != 'body' || editor.config.fullPage){
 				if(cssArray[tagName]){
 					for(cssClass in cssArray[tagName]){
-						if(cssClass == 'none') select.options[0] = new Option(cssArray[tagName][cssClass],cssClass);
-							else select.options[select.options.length] = new Option(cssArray[tagName][cssClass],cssClass);
+						if(cssClass == 'none') {
+							select.options[0] = new Option(cssArray[tagName][cssClass],cssClass);
+						} else {
+							select.options[select.options.length] = new Option(cssArray[tagName][cssClass],cssClass);
+							if (!editor.config.disablePCexamples && HTMLArea.classesValues && HTMLArea.classesValues[cssClass] && !HTMLArea.classesNoShow[cssClass]) select.options[select.options.length-1].setAttribute("style", HTMLArea.classesValues[cssClass]);
+						}
 					}
 				}
 				if(cssArray['all']){
 					for(cssClass in cssArray['all']){
 						select.options[select.options.length] = new Option(cssArray['all'][cssClass],cssClass);
+						if (!editor.config.disablePCexamples && HTMLArea.classesValues && HTMLArea.classesValues[cssClass] && !HTMLArea.classesNoShow[cssClass]) select.options[select.options.length-1].setAttribute("style", HTMLArea.classesValues[cssClass]);
 					}
 				}
 			} else {

@@ -51,10 +51,10 @@ function ValidateColor(string) {                // return valid color code
 .color { width: 10px; height: 10px; cursor: pointer; }
 </style>
 </head>
-<body style="background:ButtonFace; margin:0px; padding:0px;" onload="Init();">
-
+<body style="background:ButtonFace; margin:0; padding:0;" onload="Init();">
+<div id="content">
 <form method="get" style="margin:0px; padding:0px;" onSubmit="Set(document.getElementById('ColorHex').value); return false;">
-<table border="0px" cellspacing="0px" cellpadding="4" style="width: 100%;">
+<table cellspacing="0" cellpadding="4" style="border-style: none; width: 100%;">
  <tr>
   <td style="background:buttonface;" valign=center><div style="background-color: #000000; padding: 1; height: 21px; width: 50px;"><div id="ColorPreview" style="height: 100%; width: 100%;"></div></div></td>
   <td style="background:buttonface;" valign=center><input type="text" name="ColorHex" id="ColorHex" value="" size=15 style="font-size: 12px;" /></td>
@@ -63,7 +63,7 @@ function ValidateColor(string) {                // return valid color code
 </table>
 </form>
 
-<table border="0" cellspacing="1px" cellpadding="0px" width="100%" bgcolor="#000000">
+<table cellspacing="1" cellpadding="0" style="border-style: none; width:100%; background-color: #000000; margin-bottom: 5px;">
 <tr>
 <td class="color" bgcolor="#000000" onMouseOver="View('000000');" onClick="Set('000000');"></td>
 <td class="color" bgcolor="#000000" onMouseOver="View('000000');" onClick="Set('000000');"></td>
@@ -341,7 +341,7 @@ function ValidateColor(string) {                // return valid color code
 <td class="color" bgcolor="#FFFFFF" onMouseOver="View('FFFFFF');" onClick="Set('FFFFFF');"></td>
 </tr>
 </table>
-
+</div>
 </body>
 </html>
 

@@ -1,36 +1,41 @@
-// Character Map plugin for HTMLArea
-// Sponsored by http://www.systemconcept.de
-// Implementation by Holger Hees based on HTMLArea XTD 1.5 (http://mosforge.net/projects/htmlarea3xtd/)
-// Original Author - Bernhard Pfeifer novocaine@gmx.net 
-//
-// (c) systemconcept.de 2004
-// Distributed under the same terms as HTMLArea itself.
-// This notice MUST stay intact for use (see license.txt).
+/*
+ * Character Map Plugin for TYPO3 htmlArea RTE
+ *
+ * @author	Bernhard Pfeifer novocaine@gmx.net
+ * @author	Holger Hees based on HTMLArea XTD 1.5 (http://mosforge.net/projects/htmlarea3xtd/). Sponsored by http://www.systemconcept.de
+ * @author	Stanislas Rolland. Sponsored by Fructifor Inc.
+ * Copyright (c) 2004 systemconcept.de
+ * Copyright (c) 2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * Distributed under the same terms as HTMLArea itself.
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 CharacterMap = function(editor) {
 	this.editor = editor;
 	var cfg = this.editor.config;
 	var actionHandlerFunctRef = CharacterMap.actionHandler(this);
 	cfg.registerButton({
-		id 		: "InsertCharacter",
-		tooltip 	: CharacterMap_langArray["CharacterMapTooltip"],
-		image 	: editor.imgURL("ed_charmap.gif", "CharacterMap"),
-		textMode 	: false,
-		action 	: actionHandlerFunctRef
+		id		: "InsertCharacter",
+		tooltip		: CharacterMap_langArray["CharacterMapTooltip"],
+		image		: editor.imgURL("ed_charmap.gif", "CharacterMap"),
+		textMode	: false,
+		action		: actionHandlerFunctRef
 	});
 };
 
 CharacterMap.I18N = CharacterMap_langArray;
 
 CharacterMap._pluginInfo = {
-	name 			: "CharacterMap",
-	version 		: "1.0",
-	developer 		: "Holger Hees & Bernhard Pfeifer",
-	developer_url 	: "http://www.systemconcept.de/",
-	c_owner 		: "Holger Hees & Bernhard Pfeifer",
-	sponsor 		: "System Concept GmbH & Bernhard Pfeifer",
-	sponsor_url 	: "http://www.systemconcept.de/",
-	license 		: "htmlArea"
+	name		: "CharacterMap",
+	version		: "1.1",
+	developer	: "Holger Hees & Bernhard Pfeifer",
+	developer_url	: "http://www.systemconcept.de/",
+	c_owner		: "Holger Hees & Bernhard Pfeifer",
+	sponsor		: "System Concept GmbH & Bernhard Pfeifer",
+	sponsor_url	: "http://www.systemconcept.de/",
+	license		: "htmlArea"
 };
 
 CharacterMap.actionHandler = function(instance) {

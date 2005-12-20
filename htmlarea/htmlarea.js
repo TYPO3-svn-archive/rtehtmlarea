@@ -1,9 +1,11 @@
-/**
+/*
  * htmlArea v3.0 - Copyright (c) 2003-2005 dynarch.com
  * htmlArea v3.0 - Copyright (c) 2002-2003 interactivetools.com, inc.
- * TYPO3 htmlArea RTE - Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.ca>
- * This copyright notice MUST stay intact for use (see license.txt).
-**/
+ * TYPO3 htmlArea RTE - Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * This copyright notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 /***************************************************
  *  EDITOR INITIALIZATION AND CONFIGURATION
@@ -214,7 +216,7 @@ HTMLArea.RE_body    = /<body>((.|\n)*?)<\/body>/i;
 HTMLArea.Reg_body = new RegExp("<\/?(body)[^>]*>", "gi");
 HTMLArea.Reg_entities = new RegExp("&amp;([0-9]+);", "gi");
 HTMLArea.reservedClassNames = /htmlarea/;
-HTMLArea.RE_email    = /[0-9a-z][a-z0-9_-]*[0-9a-z](\.[0-9a-z][a-z0-9_-]*[0-9a-z])*@([0-9a-z][a-z0-9_-]*[0-9a-z]\.)+[a-z]{2,9}/i;
+HTMLArea.RE_email    = /([0-9a-z]+([a-z0-9_-]*[0-9a-z])*){1}(\.[0-9a-z]+([a-z0-9_-]*[0-9a-z])*)*@([0-9a-z]+([a-z0-9_-]*[0-9a-z])*\.)+[a-z]{2,9}/i;
 HTMLArea.RE_url      = /(https?:\/\/)?(([a-z0-9_]+:[a-z0-9_]+@)?[a-z0-9_-]{2,}(\.[a-z0-9_-]{2,}){2,}(:[0-9]+)?(\/\S+)*)/i;
 
 /*
@@ -239,6 +241,8 @@ HTMLArea.Config = function () {
 	this.useHTTPS = false;
 		// for Mozilla
 	this.useCSS = false;
+	this.styleWithCSS = false;
+	if (HTMLArea.is_gecko && !HTMLArea.is_safari && !HTMLArea.is_opera && navigator.productSub >= 20051107) this.styleWithCSS = true;
 	this.enableMozillaExtension = true;
 	this.disableEnterParagraphs = false;
 	this.removeTrailingBR = false;
@@ -312,6 +316,7 @@ HTMLArea.Config = function () {
 		InsertTable:		["Insert Table", "insert_table.gif", false, function(editor) {editor.execCommand("InsertTable");}],
 		HtmlMode:		["Toggle HTML Source", "ed_html.gif", true, function(editor) {editor.execCommand("HtmlMode");}],
 		SelectAll:		["SelectAll", "", true, function(editor) {editor.execCommand("SelectAll");}, null, true, false],
+		SplitBlock:		["Toggle Container Block", "ed_splitblock.gif", false, function(editor) {editor.execCommand("SplitBlock");}],
 		About:			["About this editor", "ed_about.gif", true, function(editor) {editor.execCommand("About");}],
 		ShowHelp:		["Help using editor", "ed_help.gif", true, function(editor) {editor.execCommand("ShowHelp");}],
 		Undo:			["Undoes your last action", "ed_undo.gif", false, function(editor) {editor.execCommand("Undo");}],
@@ -544,6 +549,10 @@ HTMLArea.prototype.createSelect = function(txt,tb_line,first_cell_on_line,labelO
 			var op = document.createElement("option");
 			op.innerHTML = i;
 			op.value = options[i];
+			if (txt == "FontName" && !this.config.disablePCexamples) {
+				if (HTMLArea.is_gecko) op.setAttribute("style", "font-family:" + op.value + ";");
+					else op.style.cssText = "font-family:" + op.value + ";";
+			}
 			newObj["el"].appendChild(op);
 		}
 
@@ -604,6 +613,7 @@ HTMLArea.prototype.createButton = function (txt,tb_line,first_cell_on_line,label
 	}
 	if(!newObj["created"] && btn) {
 		newObj["el"] = document.createElement("button");
+		if (HTMLArea.is_opera) newObj["el"].outerHTML = '<button type="button"></button>';
 		newObj["el"].title = btn[0];
 		newObj["el"].className = "button";
 		newObj["el"].id = this._editorNumber + "-" + txt;
@@ -628,6 +638,7 @@ HTMLArea.prototype.createButton = function (txt,tb_line,first_cell_on_line,label
 			newObj["labelUsed"] = true;
 		}
 		HTMLArea._addEvents(newObj["el"],["mouseover", "mouseout", "mousedown", "click"], HTMLArea.toolBarButtonHandler);
+		
 		if (typeof(btn[1]) != "string" && HTMLArea.is_ie) {
 			var btnImgContainer = document.createElement("div");
 			btnImgContainer.className = "buttonImgContainer";
@@ -755,10 +766,12 @@ HTMLArea.toolBarButtonHandler = function(ev) {
 				}
 				break;
 			case "mousedown":
+				if(!HTMLArea.is_opera) {
 				HTMLArea._addClass(target, "buttonActive");
 				HTMLArea._addClass(target.parentNode, "buttonActive");
 				HTMLArea._removeClass(target, "buttonPressed");
 				HTMLArea._removeClass(target.parentNode, "buttonPressed");
+				}
 				HTMLArea._stopEvent(ev);
 				break;
 			case "click":
@@ -852,6 +865,7 @@ HTMLArea.prototype.generate = function () {
 		iframe.setAttribute("src","javascript:void(0);");
 	}
 	iframe.className = "editorIframe";
+	if (!this.config.statusBar) iframe.className += " noStatusBar";
 	htmlarea.appendChild(iframe);
 	this._iframe = iframe;
 
@@ -943,9 +957,20 @@ HTMLArea.prototype.initIframe = function() {
 			link0.rel = "stylesheet";
 			link0.href = this.config.editedContentStyle;
 			head.appendChild(link0);
+			HTMLArea._appendToLog("[HTMLArea::initIframe]: Skin CSS set to: " + this.config.editedContentStyle);
+		}
+		if (this.config.defaultPageStyle) {
+			var link = doc.getElementsByTagName("link")[1];
+			if (!link) {
+ 				link = doc.createElement("link");
+				link.rel = "stylesheet";
+				link.href = this.config.defaultPageStyle;
+				head.appendChild(link);
+			}
+			HTMLArea._appendToLog("[HTMLArea::initIframe]: Override CSS set to: " + this.config.defaultPageStyle);
 		}
 		if (this.config.pageStyle) {
-			var link = doc.getElementsByTagName("link")[1];
+			var link = doc.getElementsByTagName("link")[2];
 			if (!link) {
  				link = doc.createElement("link");
 				link.rel = "stylesheet";
@@ -1004,11 +1029,12 @@ HTMLArea.prototype.stylesLoaded = function() {
 		}
 	}
 		// Start undo snapshots
-	this._timerUndo = window.setInterval("HTMLArea.undoTakeSnapshot(" + this._editorNumber + ");", this.config.undoTimeout);
+	if (this._customUndo) this._timerUndo = window.setInterval("HTMLArea.undoTakeSnapshot(" + this._editorNumber + ");", this.config.undoTimeout);
 
 		// Set contents editable
 	if (docWellFormed) {
-		if (HTMLArea.is_gecko && !HTMLArea.is_safari && !this._initEditMode()) return false;	
+		if (HTMLArea.is_gecko && !HTMLArea.is_safari && !HTMLArea.is_opera && !this._initEditMode()) return false;
+		if (HTMLArea.is_opera) doc.designMode = "on";
 		if (HTMLArea.is_ie || HTMLArea.is_safari) doc.body.contentEditable = true;
 		this._editMode = "wysiwyg";
 		if (doc.body.contentEditable || doc.designMode == "on") HTMLArea._appendToLog("[HTMLArea::initIframe]: Design mode successfully set.");
@@ -1023,13 +1049,13 @@ HTMLArea.prototype.stylesLoaded = function() {
 	if (HTMLArea.is_ie) doc.documentElement._editorNo = this._editorNumber;
 
 		// intercept events for updating the toolbar & for keyboard handlers
-	HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["keydown","keypress","mousedown","mouseup","drag"], HTMLArea._editorEvent);
-
+	HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["keydown","keypress","mousedown","mouseup","drag"], HTMLArea._editorEvent, true);
+	
 		// add unload handler
 	HTMLArea._addEvent((this._iframe.contentWindow ? this._iframe.contentWindow : this._iframe.contentDocument), "unload", HTMLArea.removeEditorEvents);
 
 		// set cleanWordOnPaste and intercept paste, dragdrop and drop events for wordClean
-	if (this.config.cleanWordOnPaste) HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["paste","dragdrop","drop"], HTMLArea.cleanWordOnPaste);
+	if (this.config.cleanWordOnPaste) HTMLArea._addEvents((HTMLArea.is_ie ? doc.body : doc), ["paste","dragdrop","drop"], HTMLArea.cleanWordOnPaste, true);
 
 	window.setTimeout("HTMLArea.generatePlugins(" + this._editorNumber + ");", 100);
 };
@@ -1090,8 +1116,8 @@ HTMLArea.removeEditorEvents = function(ev) {
 			window.clearInterval(editor._timerUndo);
 			editor._undoQueue = null;
 				// release events
-			if (HTMLArea._eventCache) HTMLArea._eventCache.flush();
-			if (HTMLArea.is_ie) HTMLArea._cleanup(editor);			
+			if (HTMLArea._eventCache && !HTMLArea.is_opera) HTMLArea._eventCache.flush();
+			if (HTMLArea.is_ie) HTMLArea._cleanup(editor);
 		}
 	}
 };
@@ -1284,7 +1310,7 @@ HTMLArea.getInnerText = function(el) {
 	return txt;
 };
 
-HTMLArea._wordClean = function(html) {
+HTMLArea._wordClean = function(editor,html) {
 	function clearClass(node) {
 		var newc = node.className.replace(/(^|\s)mso.*?(\s|$)/ig,' ');
 		if(newc != node.className) {
@@ -1293,11 +1319,12 @@ HTMLArea._wordClean = function(html) {
 		}
 	}
 	function clearStyle(node) {
- 		var declarations = node.style.cssText.split(/\s*;\s*/);
+		if (HTMLArea.is_ie) var declarations = node.style.cssText.split(/\s*;\s*/);
+			else var declarations = node.getAttribute("style").split(/\s*;\s*/);
 		for (var i = declarations.length; --i >= 0;) {
 			if(/^mso|^tab-stops/i.test(declarations[i]) || /^margin\s*:\s*0..\s+0..\s+0../i.test(declarations[i])) declarations.splice(i,1);
 		}
-		node.style.cssText = declarations.join("; ");
+		node.setAttribute("style", declarations.join("; "));
 	}
 	function stripTag(el) {
 		if(HTMLArea.is_ie) {
@@ -1331,7 +1358,7 @@ HTMLArea._wordClean = function(html) {
 
 HTMLArea.wordCleanLater = function(editorNumber,doUpdateToolbar) {
 	var editor = RTEarea[editorNumber]["editor"];
-	HTMLArea._wordClean(editor._doc.body);
+	HTMLArea._wordClean(editor, editor._doc.body);
 	if (doUpdateToolbar) editor.updateToolbar();
 };
 
@@ -1413,11 +1440,21 @@ HTMLArea.prototype._undoTakeSnapshot = function() {
  	}
 };
 
+HTMLArea.setUndoQueueLater = function(editorNumber,op) {
+	var editor = RTEarea[editorNumber]["editor"];
+	if (op == "undo") {
+		editor.setHTML(editor._undoQueue[--editor._undoPos].text);
+	} else if (op == "redo") {
+		if(editor._undoPos < editor._undoQueue.length - 1) editor.setHTML(editor._undoQueue[++editor._undoPos].text);	
+	}
+};
+
 HTMLArea.prototype.undo = function() {
 	if(this._undoPos > 0){
 			// Make sure we would not loose any changes
 		this._undoTakeSnapshot();
-		this.setHTML(this._undoQueue[--this._undoPos].text);
+		if (!HTMLArea.is_opera) this.setHTML(this._undoQueue[--this._undoPos].text);
+			else window.setTimeout("HTMLArea.setUndoQueueLater(" + this._editorNumber + ", 'undo');", 10);
 	}
 };
 
@@ -1426,7 +1463,11 @@ HTMLArea.prototype.redo = function() {
 			// Make sure we would not loose any changes
 		this._undoTakeSnapshot();
 			// Previous call could make undo queue shorter
-		if(this._undoPos < this._undoQueue.length - 1) this.setHTML(this._undoQueue[++this._undoPos].text);
+		if (!HTMLArea.is_opera) {
+			if(this._undoPos < this._undoQueue.length - 1) this.setHTML(this._undoQueue[++this._undoPos].text);
+		} else {
+			window.setTimeout("HTMLArea.setUndoQueueLater(" + this._editorNumber + ", 'redo');", 10);
+		}
 	}
 };
 
@@ -1444,7 +1485,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 		text = (this._editMode == "textmode"),
 		selection = this.hasSelectedText(),
 		ancestors = null, cls = new Array(),
-		txt, txtClass, i, ia, cmd, inContext, match, k, ka, j, n, commandState;	
+		txt, txtClass, i, cmd, inContext, match, matchAny, k, j, n, commandState;
 	if(!text) {
 		ancestors = this.getAllAncestors();
 		if(this.config.statusBar && !noStatus) {
@@ -1452,7 +1493,7 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 			if(this._statusBarTree.hasChildNodes()) {
 				for (i = this._statusBarTree.firstChild; i; i = i.nextSibling) {
 					if(i.nodeName.toLowerCase() == "a") {
-						HTMLArea._removeEvents(i,["click", "contextmenu"],HTMLArea.statusBarHandler);
+						HTMLArea._removeEvents(i,["click", "contextmenu, mousedown"], HTMLArea.statusBarHandler);
 						i.el = null;
 						i.editor = null;
 					}
@@ -1467,15 +1508,19 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 				a.href = "#";
 				a.el = el;
 				a.editor = this;
-				HTMLArea._addEvents(a, ["click", "contextmenu"], HTMLArea.statusBarHandler);
+				if (!HTMLArea.is_opera) {
+					HTMLArea._addEvents(a, ["click", "contextmenu"], HTMLArea.statusBarHandler);
+				} else {
+					HTMLArea._addEvents(a, ["click", "mousedown"], HTMLArea.statusBarHandler);
+				}
 				txt = el.tagName.toLowerCase();
-				a.title = el.style.cssText;
+				if (!HTMLArea.is_opera) a.title = el.style.cssText;
 				if (el.id) { txt += "#" + el.id; }
 				if (el.className) {
 					txtClass = "";
 					cls = el.className.trim().split(" ");
-					for(ia = cls.length; ia > 0;) {
-						if(!HTMLArea.reservedClassNames.test(cls[--ia])) { txtClass = "." + cls[ia]; }
+					for(j = cls.length; j > 0;) {
+						if(!HTMLArea.reservedClassNames.test(cls[--j])) { txtClass = "." + cls[j]; }
 					}
 					txt += txtClass;
 				}
@@ -1488,32 +1533,39 @@ HTMLArea.prototype.updateToolbar = function(noStatus) {
 	for (i in this._toolbarObjects) {
 		var btn = this._toolbarObjects[i];
 		cmd = i;
+		
+			// Determine if the button should be enabled
 		inContext = true;
 		if (btn.context && !text) {
 			inContext = false;
-			var context = btn.context;
 			var attrs = [];
-			if(/(.*)\[(.*?)\]/.test(context)) {
-				context = RegExp.$1;
+			var contexts = [];
+			if (/(.*)\[(.*?)\]/.test(btn.context)) {
+				contexts = RegExp.$1.split(",");
 				attrs = RegExp.$2.split(",");
+			} else {
+				contexts = btn.context.split(",");
 			}
-			context = context.toLowerCase();
-			match = (context == "*");
+			for (j = contexts.length; --j >= 0;) contexts[j] = contexts[j].toLowerCase();
+			matchAny = (contexts[0] == "*");
 			for (k = 0; k < ancestors.length; ++k) {
-				if (!ancestors[k]) {continue;};
-				if (match || (ancestors[k].tagName.toLowerCase() == context)) {
+				if (!ancestors[k]) continue;
+				match = false;
+				for (j = contexts.length; --j >= 0;) match = match || (ancestors[k].tagName.toLowerCase() == contexts[j]);
+				if (matchAny || match) {
 					inContext = true;
-					for (ka=0;ka < attrs.length;++ka) {
-						if (!eval("ancestors[k]." + attrs[ka])) {
+					for (j = attrs.length; --j >= 0;) {
+						if (!eval("ancestors[k]." + attrs[j])) {
 							inContext = false;
 							break;
 						}
 					}
-					if (inContext) { break; }
+					if (inContext) break;
 				}
 			}
 		}
 		btn.state("enabled", (!text || btn.text) && inContext && (selection || !btn.selection));
+		
 		if (typeof(cmd) == "function") { continue; };
 			// look-it-up in the custom dropdown boxes
 		var dropdown = this.config.customSelects[cmd];
@@ -1805,7 +1857,7 @@ HTMLArea.prototype._createLink = function(link) {
 		};
 	}
 	var createLinkDialogFunctRef = HTMLArea.createLinkDialog(this, link);
-	this._popupDialog("link.html", createLinkDialogFunctRef, outparam, 400, 145);
+	this._popupDialog("link.html", createLinkDialogFunctRef, outparam, 450, 145);
 };
 
 /*
@@ -1832,9 +1884,9 @@ HTMLArea.insertImageDialog = function(editor,image) {
 		for (var field in param) {
 			var value = param[field];
 			switch (field) {
-				case "f_alt"    : img.alt	 = value; break;
+				case "f_alt"    : img.alt = value; break;
 				case "f_border" : img.border = parseInt(value || "0"); break;
-				case "f_align"  : img.align	 = value; break;
+				case "f_align"  : img.align = value; break;
 				case "f_vert"   : img.vspace = parseInt(value || "0"); break;
 				case "f_horiz"  : img.hspace = parseInt(value || "0"); break;
 				case "f_float"  : if (HTMLArea.is_ie) { img.style.styleFloat = value; }  else { img.style.cssFloat = value;}; break; 
@@ -1932,7 +1984,7 @@ HTMLArea.prototype._insertTable = function() {
 	var range = this._createRange(sel);
 	this.focusEditor();
 	var insertTableDialogFunctRef = HTMLArea.insertTableDialog(this, sel, range);
-	this._popupDialog("insert_table.html", insertTableDialogFunctRef, null, 520, 230);
+	this._popupDialog("insert_table.html", insertTableDialogFunctRef, this, 520, 230);
 };
 
 /***************************************************
@@ -1949,9 +2001,13 @@ HTMLArea.selectColorDialog = function(editor,cmdID) {
  */
 HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	this.focusEditor();
-	if(HTMLArea.is_gecko && !this.config.useCSS && !HTMLArea.is_safari) try { this._doc.execCommand('useCSS', false, true); } catch (e) {};
+	if (HTMLArea.is_gecko && !this.config.useCSS && !HTMLArea.is_safari && !HTMLArea.is_opera) {
+		try { this._doc.execCommand((this.config.styleWithCSS ? "styleWithCSS" : "useCSS"), false, (this.config.styleWithCSS ? false : true)); }
+			catch (e) {};
+	}
 	switch (cmdID) {
 	    case "HtmlMode"	: this.setMode(); break;
+	    case "SplitBlock"	: this._doc.execCommand('FormatBlock',false,((HTMLArea.is_ie || HTMLArea.is_safari) ? "<div>" : "div")); break;
 	    case "HiliteColor"	: (HTMLArea.is_ie || HTMLArea.is_safari) && (cmdID = "BackColor");
 	    case "ForeColor"	:
 		var colorDialogFunctRef = HTMLArea.selectColorDialog(this, cmdID);
@@ -1967,15 +2023,15 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 	    case "InsertImage"	: this._insertImage(); break;
 	    case "About"	: this._popupDialog("about.html", null, this, 475, 350); break;
 	    case "ShowHelp"	: window.open(_editor_url + "reference.html","ha_help"); break;
-	    case "CleanWord"	: HTMLArea._wordClean(this._doc.body); break;
+	    case "CleanWord"	: HTMLArea._wordClean(this, this._doc.body); break;
 	    case "Cut"		:
 	    case "Copy"		:
 	    case "Paste"	:
 		try {
 			this._doc.execCommand(cmdID,false,null);
-			if (cmdID == "Paste" && this.config.cleanWordOnPaste) HTMLArea._wordClean(this._doc.body);
+			if (cmdID == "Paste" && this.config.cleanWordOnPaste) HTMLArea._wordClean(this, this._doc.body);
 		} catch (e) {
-			if (HTMLArea.is_gecko && !HTMLArea.is_safari) this._mozillaPasteException(cmdID, UI, param);
+			if (HTMLArea.is_gecko && !HTMLArea.is_safari && !HTMLArea.is_opera) this._mozillaPasteException(cmdID, UI, param);
 		}
 		break;
 	    case "LeftToRight"	:
@@ -2032,7 +2088,8 @@ HTMLArea._editorEvent = function(ev) {
 		if(ev.ctrlKey) {
 			if(!ev.altKey) {
 					// execute hotkey command
-				var key = String.fromCharCode((HTMLArea.is_ie || HTMLArea.is_safari) ? ev.keyCode : ev.charCode).toLowerCase();
+				var key = String.fromCharCode((HTMLArea.is_ie || HTMLArea.is_safari || HTMLArea.is_opera) ? ev.keyCode : ev.charCode).toLowerCase();
+				if (HTMLArea.is_gecko && ev.keyCode == 32) key = String.fromCharCode(ev.keyCode).toLowerCase();
 				var cmd = null;
 				var value = null;
 				switch (key) {
@@ -2049,6 +2106,11 @@ HTMLArea._editorEvent = function(ev) {
 							if(HTMLArea.is_ie || HTMLArea.is_safari) value = "<" + value + ">";
 						}
 						break;
+					case ' ':
+						editor.insertHTML("&nbsp;");
+						editor.updateToolbar();
+						HTMLArea._stopEvent(ev);
+						return false;
 						// other hotkeys
 					default:
 						if (editor.config.hotKeyList[key]) {
@@ -2058,14 +2120,14 @@ HTMLArea._editorEvent = function(ev) {
 									cmd = editor.config.hotKeyList[key];
 									break;
 								case "Paste":
-									if(HTMLArea.is_ie || HTMLArea.is_safari) {
+									if (HTMLArea.is_ie || HTMLArea.is_safari) {
 										cmd = editor.config.hotKeyList[key];
-									} else if(editor.config.cleanWordOnPaste) {
+									} else if (editor.config.cleanWordOnPaste) {
 										window.setTimeout("HTMLArea.wordCleanLater(" + owner._editorNo + ", false);", 50);
 									}
 									break;
 								default:
-									if(editor._toolbarObjects[editor.config.hotKeyList[key]]) {
+									if (editor._toolbarObjects[editor.config.hotKeyList[key]]) {
 										cmd = editor.config.hotKeyList[key];
 										if(cmd == "FormatBlock") value = (HTMLArea.is_ie || HTMLArea.is_safari) ? "<p>" : "p";
 									}
@@ -2121,6 +2183,12 @@ HTMLArea._editorEvent = function(ev) {
 						return false;
 					}
 					break;
+				case 37: // LEFT arrow key
+				case 39: // RIGHT arrow key
+					if (HTMLArea.is_ie) {
+						editor._timerToolbar = window.setTimeout("HTMLArea.updateToolbar(" + editor._editorNumber + ");", 10);
+						break;
+					}
 			}
 		}
 	} else {
@@ -2241,27 +2309,32 @@ HTMLArea._eventCacheConstructor = function() {
 /*
  * Register an event
  */
-HTMLArea._addEvent = function(el,evname,func) {
-	if (el.addEventListener) el.addEventListener(evname,func,true);
-		else el.attachEvent("on" + evname, func);
+HTMLArea._addEvent = function(el,evname,func,useCapture) {
+	if (typeof(useCapture) == "undefined") var useCapture = false;
+	if (HTMLArea.is_gecko) {
+		el.addEventListener(evname, func, !HTMLArea.is_opera || useCapture);
+	} else {
+		el.attachEvent("on" + evname, func);
+	}
 	HTMLArea._eventCache.add(el, evname, func);
 };
 
 /*
  * Register a list of events
  */
-HTMLArea._addEvents = function(el,evs,func) {
+HTMLArea._addEvents = function(el,evs,func,useCapture) {
+	if (typeof(useCapture) == "undefined") var useCapture = false;
 	for (var i = evs.length; --i >= 0;) {
-		HTMLArea._addEvent(el,evs[i],func);
+		HTMLArea._addEvent(el,evs[i], func, useCapture);
 	}
 };
 
 /*
- * Remove an event
+ * Remove an event listener
  */
-HTMLArea._removeEvent = function(el, evname, func) {
-	if(el.removeEventListener) {
-		try { el.removeEventListener(evname, func, true); } catch(e) { }
+HTMLArea._removeEvent = function(el,evname,func) {
+	if(HTMLArea.is_gecko) {
+		try { el.removeEventListener(evname, func, true); el.removeEventListener(evname, func, false); } catch(e) { }
 	} else {
 		try { el.detachEvent("on" + evname, func); } catch(e) { }
 	}
@@ -2278,7 +2351,7 @@ HTMLArea._removeEvents = function(el,evs,func) {
  * Stop event propagation
  */
 HTMLArea._stopEvent = function(ev) {
-	if(ev.stopPropagation) {
+	if(HTMLArea.is_gecko) {
 		ev.stopPropagation();
 		ev.preventDefault();
 	} else {
@@ -2290,27 +2363,27 @@ HTMLArea._stopEvent = function(ev) {
 /*
  * Remove a class name from the class attribute
  */
-HTMLArea._removeClass = function(el, className) {
+HTMLArea._removeClass = function(el, removeClassName) {
 	if(!(el && el.className)) return;
 	var cls = el.className.trim().split(" ");
 	var ar = new Array();
-	for(var i = cls.length; i > 0;) {
-		if(cls[--i] != className) { ar[ar.length] = cls[i]; }
+	for (var i = cls.length; i > 0;) {
+		if (cls[--i] != removeClassName) ar[ar.length] = cls[i];
 	}
-	el.className = ar.join(" ");
-	if(ar.length == 0) {
-		if (HTMLArea.is_opera) el.removeAttributeNode(el.attributes['class']);
-			else if (HTMLArea.is_gecko) el.removeAttribute('class');
-				else el.removeAttribute('className');
-	}
+	if (ar.length == 0) {
+		if (!HTMLArea.is_opera) el.removeAttribute(HTMLArea.is_gecko ? "class" : "className");
+			else el.className = '';
+		
+	} else el.className = ar.join(" ");
 };
 
 /*
  * Add a class name to the class attribute
  */
-HTMLArea._addClass = function(el, className) {
-	HTMLArea._removeClass(el, className);
-	el.className += (el.className ? (" " + className) : className);
+HTMLArea._addClass = function(el, addClassName) {
+	HTMLArea._removeClass(el, addClassName);
+	if (el.className) el.className += " " + addClassName;
+		else el.className = addClassName;
 };
 
 /*
@@ -2327,7 +2400,7 @@ HTMLArea._hasClass = function(el, className) {
 
 HTMLArea.RE_blockTags = /^(body|p|h1|h2|h3|h4|h5|h6|ul|ol|pre|dl|div|noscript|blockquote|form|hr|table|fieldset|address|td|tr|th|li|tbody|thead|tfoot|iframe|object)$/;
 HTMLArea.isBlockElement = function(el) { return el && el.nodeType == 1 && HTMLArea.RE_blockTags.test(el.nodeName.toLowerCase()); };
-HTMLArea.RE_closingTags = /^(p|span|a|li|ol|ul|td|tr|tbody|thead|tfoot|table|div|em|i|strong|b|code|cite|blockquote|q|dfn|abbr|acronym|font|center|object|tt|style|script|title|head)$/;
+HTMLArea.RE_closingTags = /^(p|span|a|li|ol|ul|dl|dt|td|th|tr|tbody|thead|tfoot|caption|table|div|em|i|strong|b|code|cite|blockquote|q|dfn|abbr|acronym|font|center|object|tt|style|script|title|head)$/;
 HTMLArea.RE_noClosingTag = /^(img|br|hr|input|area|base|link|meta|param)$/;
 HTMLArea.needsClosingTag = function(el) { return el && el.nodeType == 1 && !HTMLArea.RE_noClosingTag.test(el.tagName.toLowerCase()); };
 
@@ -2405,10 +2478,10 @@ HTMLArea.getHTMLWrapper = function(root, outputRoot, editor) {
 				a = attrs.item(i);
 				name = a.nodeName.toLowerCase();
 				if ((!a.specified && name != 'value') || /_moz|contenteditable|_msh/.test(name)) continue;
-				if (name != "style") {
+				if (!HTMLArea.is_ie || name != "style") {
 						// IE5.5 reports wrong values. For this reason we extract the values directly from the root node.
 						// Using Gecko the values of href and src are converted to absolute links unless we get them using nodeValue()
-					if (typeof(root[a.nodeName]) != "undefined" && name != "href" && name != "src" && !/^on/.test(name)) {
+					if (typeof(root[a.nodeName]) != "undefined" && name != "href" && name != "src" && name != "style" && !/^on/.test(name)) {
 						value = root[a.nodeName];
 					} else {
 						value = a.nodeValue;
@@ -2550,7 +2623,7 @@ HTMLArea._colorToRgb = function(v) {
 /** Use XML HTTPRequest to post some data back to the server and do something
  * with the response (asyncronously!), this is used by such things as the spellchecker update personal dict function
  */
-HTMLArea._postback = function(url, data, handler) {
+HTMLArea._postback = function(url, data, handler, addParams) {
 	var req = null;
 	if(HTMLArea.is_ie) {
 		var success = false;
@@ -2567,6 +2640,7 @@ HTMLArea._postback = function(url, data, handler) {
 	if(req) {
 		var content = '';
 		for (var i in data) content += (content.length ? '&' : '') + i + '=' + encodeURIComponent(data[i]);
+		if (typeof(addParams) != "undefined") content += addParams;
 		
 		function callBack() {
 			if(req.readyState == 4) {
@@ -2603,7 +2677,9 @@ Dialog = function(url, action, init, width, height, opener, editor) {
  * Open modal popup window
  */
 Dialog._open = function(url, action, init, width, height, _opener, editor) {
-
+	
+	if (Dialog._modal) Dialog._modal.close();
+	
 	var dlg = window.open(url, 'hadialog', "toolbar=no,location=no,directories=no,menubar=no,width=" + width + ",height=" + height + ",scrollbars=no,resizable=yes,modal=yes,dependent=yes");
 	if (Dialog._modal && !Dialog._modal.closed) {
 		var obj = new Object();
@@ -2613,14 +2689,27 @@ Dialog._open = function(url, action, init, width, height, _opener, editor) {
 	Dialog._modal = dlg;
 	Dialog._arguments = null;
 	if (typeof(init) != "undefined") { Dialog._arguments = init; }
-
-		// Capture focus events
+	
+				// Capture focus events
 	function capwin(w) {
-		if (w.addEventListener) { w.addEventListener("focus", function(ev) { Dialog._parentEvent(ev); }, false); }
+		if (HTMLArea.is_gecko) { w.addEventListener("focus", function(ev) { Dialog._parentEvent(ev); }, false); }
 			else { HTMLArea._addEvent(w, "focus", function(ev) { Dialog._parentEvent(ev); }); }
 		for (var i=0;i < w.frames.length;i++) { capwin(w.frames[i]); }
 	}
 	capwin(window);
+	
+		// Close dialog window
+	function closeDialog() {
+		if (Dialog._dialog && Dialog._dialog.dialogWindow) {
+			Dialog._dialog.dialogWindow.close();
+			Dialog._dialog = null;
+		}
+		if (dlg && !dlg.closed) {
+			dlg.close();
+			dlg = null;
+		}
+		return false;
+	}
 
 		// make up a function to be called when the Dialog ends.
 	Dialog._return = function (val) {
@@ -2633,13 +2722,13 @@ Dialog._open = function(url, action, init, width, height, _opener, editor) {
 		}
 		relwin(window);
 
-		HTMLArea._removeEvent(window, "unload", function() { if(Dialog._dialog && Dialog._dialog.dialogWindow) { Dialog._dialog.dialogWindow.close(); Dialog._dialog = null; };  dlg.close(); return false; });
+		HTMLArea._removeEvent(window, "unload", closeDialog);
 		Dialog._dialog = null;
 	};
 
 		// capture unload events
 	HTMLArea._addEvent(dlg, "unload", function() { if (typeof(Dialog) != "undefined") Dialog._return(null); return false; });
-	HTMLArea._addEvent(window, "unload", function() { if(Dialog._dialog && Dialog._dialog.dialogWindow) { Dialog._dialog.dialogWindow.close(); Dialog._dialog = null; };  dlg.close(); return false; });
+	HTMLArea._addEvent(window, "unload", closeDialog);
 };
 
 Dialog._parentEvent = function(ev) {
@@ -2704,13 +2793,9 @@ var setRTEsizeByJS = function(divId, height, width) {
 var lorem_ipsum = function(element,text) {
 	if (element.tagName.toLowerCase() == "textarea" && element.id && element.id.substr(0,7) == "RTEarea") {
 		var editor = RTEarea[element.id.substr(7,8)]["editor"];
-		var doc = editor._doc;
-		var p = doc.createElement("p");
-		p.appendChild(doc.createTextNode(text));
-		doc.body.appendChild(p);
+		editor.insertHTML(text);
 		editor.updateToolbar();
 	}
-	
 };
 
 /*
@@ -2734,23 +2819,33 @@ HTMLArea.initEditor = function(editorNumber) {
 		} else {
 			var RTE = RTEarea[editorNumber];
 			var config = new HTMLArea.Config();
-
+			
 				// Get the toolbar config
 			config.toolbar = RTE["toolbar"];
-
+			
 				// create an editor for the textarea
 			RTE["editor"] = new HTMLArea(RTE["id"], config);
 			var editor = RTE["editor"];
-
+			
 				// Save the editornumber in the object
 			editor._typo3EditerNumber = editorNumber;
 			editor._editorNumber = editorNumber;
-
+			config = editor.config;
+			
+			config.hideTableOperationsInToolbar = RTE["hideTableOperationsInToolbar"] ? RTE["hideTableOperationsInToolbar"] : false;
+			config.keepToggleBordersInToolbar = RTE["keepToggleBordersInToolbar"] ? RTE["keepToggleBordersInToolbar"] : false;
+			config.disableLayoutFieldsetInTableOperations = RTE["disableLayoutFieldsetInTableOperations"] ? RTE["disableLayoutFieldsetInTableOperations"] : false;
+			config.disableAlignmentFieldsetInTableOperations = RTE["disableAlignmentFieldsetInTableOperations"] ? RTE["disableAlignmentFieldsetInTableOperations"] : false;
+			config.disableSpacingFieldsetInTableOperations = RTE["disableSpacingFieldsetInTableOperations"] ? RTE["disableSpacingFieldsetInTableOperations"] : false;
+			config.disableBordersFieldsetInTableOperations = RTE["disableBordersFieldsetInTableOperations"] ? RTE["disableBordersFieldsetInTableOperations"] : false;
+			config.disableColorFieldsetInTableOperations = RTE["disableColorFieldsetInTableOperations"] ? RTE["disableColorFieldsetInTableOperations"] : false;
+			config.disablePCexamples = RTE["disablePCexamples"] ? RTE["disablePCexamples"] : false;
+			
 			for (var plugin in RTE["plugin"]) {
 				if(RTE["plugin"][plugin]) { editor.registerPlugin(plugin); }
 			}
 			
-			config = editor.config;
+			if(RTE["defaultPageStyle"]) config.defaultPageStyle = RTE["defaultPageStyle"];
 			if(RTE["pageStyle"]) config.pageStyle = RTE["pageStyle"];
 			if(RTE["fontname"]) config.FontName = RTE["fontname"];
 			if(RTE["fontsize"]) config.FontSize = RTE["fontsize"];

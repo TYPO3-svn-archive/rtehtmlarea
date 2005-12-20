@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Stanislas Rolland (stanislas.rolland@fructifor.ca)
+*  (c) 2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -27,7 +27,9 @@
 /**
  * Front end RTE based on htmlArea
  *
- * @author Stanislas Rolland <stanislas.rolland@fructifor.ca>
+ * @author Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ *
+ * $Id$  *
  */
 
 require_once(t3lib_extMgm::extPath('rtehtmlarea').'class.tx_rtehtmlarea_base.php');
@@ -37,8 +39,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		// External:
 	var $RTEdivStyle;				// Alternative style for RTE <div> tag.
 	var $extHttpPath;				// full Path to this extension for http (so no Server path). It ends with "/"
-	var $rtePathImageFile;			// Path to the php-file for selection images
-	var $rtePathLinkFile;			// Path to the php-file for create a link
 
 		// For the editor
 	var $elementId;
@@ -92,12 +92,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		}
 			// Get the path to this extension:
 		$this->extHttpPath = $this->httpTypo3Path.t3lib_extMgm::siteRelPath($this->ID);
-			// Get the Path to the script for selecting an image
-		$this->rtePathImageFile = $this->extHttpPath . 'rtehtmlarea_select_image.php';
-			// Get the Path to the script for create a link
-		$this->rtePathLinkFile = $this->extHttpPath . 'rtehtmlarea_browse_links.php';
-			// Get the Path to the script for inserting a user element
-		$this->rtePathUserFile = $this->extHttpPath . 'rtehtmlarea_user.php';
 			// Get the site URL
 		$this->siteURL = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
 			// Get the host URL
@@ -146,6 +140,10 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			// htmlArea plugins list
 		$this->pluginEnableArray = array_intersect(t3lib_div::trimExplode(',', $this->pluginList , 1), t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['HTMLAreaPluginList'], 1));
 		$hidePlugins = array('TYPO3Browsers', 'UserElements', 'Acronym');
+		if ($this->client['BROWSER'] == 'opera') {
+			$hidePlugins[] = 'ContextMenu';
+			$this->thisConfig['hideTableOperationsInToolbar'] = 0;
+		}
 		if(!t3lib_extMgm::isLoaded('sr_static_info') || in_array($this->language, t3lib_div::trimExplode(',', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['noSpellCheckLanguages']))) $hidePlugins[] = 'SpellChecker';
 		$this->pluginEnableArray = array_diff($this->pluginEnableArray, $hidePlugins);
 		$this->pluginEnableArrayMultiple = $this->pluginEnableArray;
@@ -217,23 +215,9 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 		 * =======================================
 		 */
 			// Preloading the pageStyle
-		if(trim($this->thisConfig['contentCSS'])) {
-			$filename = trim($this->thisConfig['contentCSS']);
-			if (substr($filename,0,4)=='EXT:')      {       // extension
-				list($extKey,$local) = explode('/',substr($filename,4),2);
-				$filename='';
-				if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
-					$filename = $this->httpTypo3Path . t3lib_extMgm::siteRelPath($extKey).$local;
-				}
-			} elseif (substr($filename,0,1) != '/') {
-				$filename = $this->siteURL.$filename;
-			}
-			$additionalCode_loadCSS = '
-		<link rel="alternate stylesheet" type="text/css" href="' . $filename . '" />';
-		} else {
-			$additionalCode_loadCSS = '
-		<link rel="alternate stylesheet" type="text/css" href="' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css" />';
-		}
+		$filename = trim($this->thisConfig['contentCSS']) ? trim($this->thisConfig['contentCSS']) : 'EXT:' . $this->ID . '/htmlarea/plugins/DynamicCSS/dynamiccss.css';
+		$additionalCode_loadCSS = '
+		<link rel="alternate stylesheet" type="text/css" href="' . $this->getFullFileName($filename) . '" />';
 
 			// Loading the editor skin
 		$skinFilename = trim($this->thisConfig['skin']) ? trim($this->thisConfig['skin']) : 'EXT:' . $this->ID . '/htmlarea/skins/default/htmlarea.css';
@@ -288,9 +272,6 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 
 			// draw the textarea
 		$visibility = 'hidden';
-		if ($this->client['BROWSER'] == 'opera') {
-			$visibility = 'visible';
-		}
 		$item = $this->triggerField($PA['itemFormElName']).'
 			<div id="pleasewait' . $pObj->RTEcounter . '" class="pleasewait">' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL('Please wait',$this->LOCAL_LANG), $this->charset, $GLOBALS['TSFE']->renderCharset) . '</div>
 			<div id="editorWrap' . $pObj->RTEcounter . '" class="editorWrap" style="visibility:' . $visibility . '; width:' . $editorWrapWidth . '; height:' . $editorWrapHeight . ';">
@@ -299,312 +280,7 @@ class tx_rtehtmlarea_pi2 extends tx_rtehtmlarea_base {
 			';
 		return $item;
 	}
-
-	/**
-	 * Set the toolbar config
-	 *
-	 */
-	function setToolBar() {
-		if($this->client['BROWSER'] == 'gecko' && $this->client['VERSION'] == '1.3')  {
-			$this->defaultToolbarOrder = $this->TCEform->docLarge ? 'bar, blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
-				bar, fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, strikethrough, 
-				subscript, superscript, lefttoright, righttoleft, bar, left, center, right, justifyfull, linebreak, 
-				bar, orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
-				insertcharacter, line, link, image, table, bar, findreplace, spellcheck, bar, chMode, inserttag, 
-				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
-				bar, toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
-				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
-				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge'
-				: 'bar, blockstylelabel, blockstyle, space, textstylelabel, textstyle, linebreak, 
-				bar, fontstyle, space, fontsize, space, formatblock, bar, bold, italic, underline, bar, strikethrough, 
-				subscript, superscript, linebreak, bar, lefttoright, righttoleft, bar, left, center, right, justifyfull, 
-				orderedlist, unorderedlist, outdent, indent, bar, textcolor, bgcolor, textindicator, bar, emoticon, 
-				insertcharacter, line, link, image, table, linebreak, bar, findreplace, spellcheck, bar, chMode, inserttag, 
-				removeformat, bar, copy, cut, paste, bar, undo, redo, bar, showhelp, about, linebreak,
-				bar, toggleborders, bar, tableproperties, bar, rowproperties, rowinsertabove, rowinsertunder, rowdelete, rowsplit, bar,
-				columninsertbefore, columninsertafter, columndelete, columnsplit, bar,
-				cellproperties, cellinsertbefore, cellinsertafter, celldelete, cellsplit, cellmerge';
-		}
-		$toolbarOrder = $this->thisConfig['toolbarOrder'] ? $this->thisConfig['toolbarOrder'] : $this->defaultToolbarOrder;
-
-			// Getting rid of undefined buttons
-		$this->toolbarOrderArray = array_intersect(t3lib_div::trimExplode(',', $toolbarOrder, 1), t3lib_div::trimExplode(',', $this->defaultToolbarOrder, 1));
-		$toolbarOrder = array_unique(array_values($this->toolbarOrderArray));
-
-			// Fetching specConf for field from backend
-		$pList = is_array($this->specConf['richtext']['parameters']) ? implode(',',$this->specConf['richtext']['parameters']) : '*';
-		if ($pList != '*') {	// If not all
-			$show = $this->specConf['richtext']['parameters'];
-			if ($this->thisConfig['showButtons'])	{
-				if($this->thisConfig['showButtons'] != '*') {
-					$show = array_unique(array_merge($show,t3lib_div::trimExplode(',',$this->thisConfig['showButtons'],1)));
-				} else {
-					$show = array_unique(array_merge($show,$toolbarOrder));
-				}
-			}
-		} else {
-			$show = $toolbarOrder;
-		}
-
-			// Hiding buttons of disabled plugins
-		$hideButtons = array('space', 'bar', 'linebreak');
-		reset($this->pluginButton);
-		while(list($plugin, $buttonList) = each($this->pluginButton) ) {
-			if(!$this->isPluginEnable($plugin)) {
-				$buttonArray = t3lib_div::trimExplode(',',$buttonList,1);
-				foreach($buttonArray as $button) {
-					$hideButtons[] = $button;
-				}
-			}
-		}
-
-
-			// Hiding labels of disabled plugins
-		reset($this->pluginLabel);
-		while(list($plugin, $label) = each($this->pluginLabel) ) {
-			if(!$this->isPluginEnable($plugin)) $hideButtons[] = $label;
-		}
-
-			// Hiding buttons not implemented in Safari
-		if ($this->client['BROWSER'] == 'safari') {
-			reset($this->conf_toolbar_safari_hide);
-			while(list(, $button) = each($this->conf_toolbar_safari_hide) ) {
-				$hideButtons[] = $button;
-			}
-		}
-		
-					// Hiding buttons not implemented in Opera
-		if ($this->client['BROWSER'] == 'opera') {
-			reset($this->conf_toolbar_opera_hide);
-			while(list(, $button) = each($this->conf_toolbar_opera_hide) ) {
-				$hideButtons[] = $button;
-			}
-		}
-
-			// Hiding the buttons
-		$show = array_diff($show, $this->conf_toolbar_hide, $hideButtons, t3lib_div::trimExplode(',',$this->thisConfig['hideButtons'],1));
-
-			// Adding the always show buttons
-		$show = array_unique(array_merge($show, $this->conf_toolbar_show));
-		$toolbarOrder = array_unique(array_merge($toolbarOrder, $this->conf_toolbar_show));
-		reset($this->conf_toolbar_show);
-		while(list(,$button) = each($this->conf_toolbar_show)) {
-			if(!in_array($button, $this->toolbarOrderArray)) $this->toolbarOrderArray[] = $button;
-		}
-
-			// Getting rid of the buttons for which we have no position
-		$show = array_intersect($show, $toolbarOrder);
-
-		$this->toolBar = $show;
-	}
-
-	/**
-	 * Return the JS-Code for Register the RTE in JS
-	 *
-	 * @return string		the JS-Code for Register the RTE in JS
-	 */
-	function registerRTEinJS($number) {
-
-		$registerRTEinJSString = '		/*<![CDATA[*/
-			RTEarea['.$number.'] = new Array();
-			RTEarea['.$number.']["number"] = '.$number.';
-			RTEarea['.$number.']["id"] = "RTEarea'.$number.'";
-			RTEarea['.$number.']["enableWordClean"] = ' . (trim($this->thisConfig['enableWordClean'])?'true':'false') . ';
-			RTEarea['.$number.']["htmlRemoveComments"] = ' . (trim($this->thisConfig['removeComments'])?'true':'false') . ';
-			RTEarea['.$number.']["disableEnterParagraphs"] = ' . (trim($this->thisConfig['disableEnterParagraphs'])?'true':'false') . ';
-			RTEarea['.$number.']["removeTrailingBR"] = ' . (trim($this->thisConfig['removeTrailingBR'])?'true':'false') . ';
-			RTEarea['.$number.']["useCSS"] = ' . (trim($this->thisConfig['useCSS'])?'true':'false') . ';
-			RTEarea['.$number.']["keepButtonGroupTogether"] = ' . (trim($this->thisConfig['keepButtonGroupTogether'])?'true':'false') . ';
-			RTEarea['.$number.']["statusBar"] = ' . (trim($this->thisConfig['showStatusBar'])?'true':'false') . ';
-			RTEarea['.$number.']["showTagFreeClasses"] = ' . (trim($this->thisConfig['showTagFreeClasses'])?'true':'false') . ';
-			RTEarea['.$number.']["useHTTPS"] = ' . (trim(stristr($this->siteURL, 'https'))?'true':'false') . ';
-			RTEarea['.$number.']["enableMozillaExtension"] = ' . (($this->client['BROWSER'] == 'gecko' && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->ID]['enableMozillaExtension'])?'true':'false') . ';
-			RTEarea['.$number.']["plugin"] = new Array();';
-		$pluginArray = t3lib_div::trimExplode(',', $this->pluginList , 1);
-		while( list(,$plugin) = each($pluginArray) ) {
-			if ($this->isPluginEnable($plugin)) {
-				$registerRTEinJSString .= '
-			RTEarea['.$number.']["plugin"]["'.$plugin.'"] = true;';
-			}
-		}
-			// Setting the list of classes if specified in the RTE config
-		if (is_array($this->RTEsetup['properties']['classes.']) )  {
-			$HTMLAreaClassname = array();
-			reset($this->RTEsetup['properties']['classes.']);
-			while(list($className,$conf)=each($this->RTEsetup['properties']['classes.']))      {
-				$className=substr($className,0,-1);
-				$HTMLAreaClassname[$className] = '
-				["' . $conf['name'] . '" , "' . $conf['value'] . '"]';
-			}
-		}
-
-			// Setting the list of tags to be removed if specified in the RTE config
-		if (trim($this->thisConfig['removeTags']))  {
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["htmlRemoveTags"] = /' . implode('|', t3lib_div::trimExplode(',', $this->thisConfig['removeTags'])) . '/i;';
-		}
-
-			// Setting the list of tags to be removed with their contents if specified in the RTE config
-		if (trim($this->thisConfig['removeTagsAndContents']))  {
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["htmlRemoveTagsAndContents"] = /' . implode('|', t3lib_div::trimExplode(',', $this->thisConfig['removeTagsAndContents'])) . '/i;';
-		}
-
-			// Setting the pageStyle
-		if(trim($this->thisConfig['contentCSS'])) {
-			$filename = trim($this->thisConfig['contentCSS']);
-			if (substr($filename,0,4)=='EXT:')      {       // extension
-				list($extKey,$local) = explode('/',substr($filename,4),2);
-				$filename='';
-				if (strcmp($extKey,'') &&  t3lib_extMgm::isLoaded($extKey) && strcmp($local,'')) {
-					$filename = $this->siteURL . t3lib_extMgm::siteRelPath($extKey).$local;
-				}
-			} elseif (substr($filename,0,1) != '/') {
-                              $filename = $this->siteURL.$filename;
-			} 
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["pageStyle"] = "' . $filename .'";';
-		} else {
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["pageStyle"] = "' . $this->extHttpPath . 'htmlarea/plugins/DynamicCSS/dynamiccss.css";';
-		}
-
-		if ( $this->isPluginEnable('SelectColor') ) {
-			if(trim($this->thisConfig['disableColorPicker'])) {
-				$registerRTEinJSString .= '
-			RTEarea['.$number.']["disableColorPicker"] = true;';
-			} else {
-				$registerRTEinJSString .= '
-			RTEarea['.$number.']["disableColorPicker"] = false;';
-			}
-		}
-		
-			// Setting the list of colors if specified in the RTE config
-		if ($this->isPluginEnable('SelectColor') && is_array($this->RTEsetup['properties']['colors.']) )  {
-			$HTMLAreaColorname = array();
-			reset($this->RTEsetup['properties']['colors.']);
-			while(list($colorName,$conf)=each($this->RTEsetup['properties']['colors.']))      {
-				$colorName=substr($colorName,0,-1);
-				$HTMLAreaColorname[$colorName] = '
-				["' . $conf['name'] . '" , "' . $conf['value'] . '"]';
-			}
-		}
-		if ($this->isPluginEnable('SelectColor') && $this->thisConfig['colors'] ) {
-			$HTMLAreaJSColors = '[';
-			$HTMLAreaColors = t3lib_div::trimExplode(',' , $this->cleanList($this->thisConfig['colors']));
-			reset($HTMLAreaColors);
-			$HTMLAreaColorsIndex = 0;
-			while( list(,$colorName) = each($HTMLAreaColors)) {
-				if($HTMLAreaColorsIndex && $HTMLAreaColorname[$colorName]) {
-					$HTMLAreaJSColors .= ',';
-				}
-				$HTMLAreaJSColors .= $HTMLAreaColorname[$colorName];
-				$HTMLAreaColorsIndex++;
-			}
-			$HTMLAreaJSColors .= '];';
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["colors"] = '. $HTMLAreaJSColors;
-		}
-
-			// Setting the list of fonts if specified in the RTE config
-		if (is_array($this->RTEsetup['properties']['fonts.']) )  {
-			$HTMLAreaFontname = array();
-			reset($this->RTEsetup['properties']['fonts.']);
-			while(list($fontName,$conf)=each($this->RTEsetup['properties']['fonts.']))      {
-				$fontName=substr($fontName,0,-1);
-				$HTMLAreaFontname[$fontName] = '
-				"' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL($conf['name'],$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '" : "' . $conf['value'] . '"';
-			}
-		}
-
-		if ($this->isPluginEnable('InlineCSS') ) {
-			$HTMLAreaJSClassesCharacter = ($this->thisConfig['classesCharacter'])?('"' . $this->thisConfig['classesCharacter'] . '";'):'null;';
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["classesCharacter"] = '. $HTMLAreaJSClassesCharacter;
-		}
-
-		if ($this->thisConfig['fontFace'] ) {
-			$HTMLAreaJSFontface = '{';
-			$HTMLAreaFontface = t3lib_div::trimExplode(',' , $this->cleanList($this->thisConfig['fontFace']));
-			reset($HTMLAreaFontface);
-			$HTMLAreaFontfaceIndex = 0;
-
-			while( list(,$fontName) = each($HTMLAreaFontface)) {
-				if($HTMLAreaFontfaceIndex) { 
-					$HTMLAreaJSFontface .= ',';
-				}
-				$HTMLAreaJSFontface .= $HTMLAreaFontname[$fontName];
-				$HTMLAreaFontfaceIndex++;
-			}
-			$HTMLAreaJSFontface .= '};';
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["fontname"] = '. $HTMLAreaJSFontface;
-		} else {  // else we use the typo3 defaults
-			$HTMLAreaJSFontface = '{
-				"Arial" : "Arial,sans-serif",
-				"Arial Black" : "Arial Black,sans-serif",
-				"Verdana" : "Verdana,Arial,sans-serif",
-				"Times New Roman" : "Times New Roman,Times,serif",
-				"Garamond" : "Garamond",
-				"Lucida Handwriting" : "Lucida Handwriting",
-				"Courier" : "Courier",
-				"Webdings" : "Webdings",
-				"Wingdings" : "Wingdings" };';
-			$registerRTEinJSString .= '
-			RTEarea['.$number.']["fontname"] = '. $HTMLAreaJSFontface;
-		}
-
-			// Paragraphs
-		$HTMLAreaParagraphs = $this->defaultParagraphs;
-		if ($this->thisConfig['hidePStyleItems'] ) {
-			$hidePStyleItems =  t3lib_div::trimExplode(',', $this->thisConfig['hidePStyleItems'], 1);
-			foreach($hidePStyleItems as $item)  unset($HTMLAreaParagraphs[strtolower($item)]);
-		}
-		$HTMLAreaJSParagraph = '{';
-		reset($HTMLAreaParagraphs);
-		$HTMLAreaParagraphIndex = 0;
-		while( list($PStyleItem,$PStyleLabel) = each($HTMLAreaParagraphs)) {
-			if($HTMLAreaParagraphIndex) { 
-				$HTMLAreaJSParagraph .= ',';
-			}
-			$HTMLAreaJSParagraph .= '
-				"' . $GLOBALS['TSFE']->csConvObj->conv($GLOBALS['TSFE']->getLLL($PStyleLabel,$this->LOCAL_LANG), $this->charset, $this->OutputCharset) . '" : "' . $PStyleItem . '"';
-			$HTMLAreaParagraphIndex++;
-		}
-		$HTMLAreaJSParagraph .= '};';
-		$registerRTEinJSString .= '
-			RTEarea['.$number.']["paragraphs"] = '. $HTMLAreaJSParagraph;
-
-			// Font sizes
-		$HTMLAreaFontSizes = $this->defaultFontSizes;
-		if ($this->thisConfig['hideFontSizes'] ) {
-			$hideFontSizes =  t3lib_div::trimExplode(',', $this->thisConfig['hideFontSizes'], 1);
-			foreach($hideFontSizes as $item)  unset($HTMLAreaFontSizes[strtolower($item)]);
-		}
-		$HTMLAreaJSFontSize = '{';
-		reset($HTMLAreaFontSizes);
-		$HTMLAreaParagraphIndex = 0;
-		while( list($FontSizeItem,$FontSizeLabel) = each($HTMLAreaFontSizes)) {
-			if($HTMLAreaFontSizeIndex) { 
-				$HTMLAreaJSFontSize .= ',';
-			}
-			$HTMLAreaJSFontSize .= '
-				"' . $FontSizeLabel . '" : "' . $FontSizeItem . '"';
-			$HTMLAreaFontSizeIndex++;
-		}
-
-		$HTMLAreaJSFontSize .= '};';
-		$registerRTEinJSString .= '
-			RTEarea['.$number.']["fontsize"] = '. $HTMLAreaJSFontSize;
-
-		$registerRTEinJSString .= '
-			RTEarea['.$number.']["toolbar"] = '.$this->getJSToolbarArray().';
-			HTMLArea.initEditor('.$number.');
-		/*]]>*/';
-
-		return $registerRTEinJSString;
-	}
-
+	
 	/**
 	 * Return the JS-Code for copy the HTML-Code from the editor in the hidden input field.
 	 * This is for submit function from the form.

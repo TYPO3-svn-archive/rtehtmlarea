@@ -1,8 +1,12 @@
-/**
+/*
  * TYPO3 Image & Link Browsers Plugin for TYPO3 htmlArea RTE
- * Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.ca>
- * This copyright notice MUST stay intact for use.
-**/
+ *
+ * @author	Stanislas Rolland. Sponsored by Fructifor Inc.
+ * Copyright (c) 2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 TYPO3Browsers = function(editor,args) {
 	this.editor = editor;
@@ -15,7 +19,7 @@ TYPO3Browsers.I18N = TYPO3Browsers_langArray;
 
 TYPO3Browsers._pluginInfo = {
 	name		: "TYPO3Browsers",
-	version		: "1.3",
+	version		: "1.4",
 	developer	: "Stanislas Rolland",
 	developer_url 	: "http://www.fructifor.ca",
 	c_owner		: "Stanislas Rolland",
@@ -193,10 +197,12 @@ HTMLArea.prototype.cleanClassesAnchorImages = function(node) {
 		if (childNode.tagName && childNode.tagName.toLowerCase() == "img") {
 			splitArray1 = childNode.src.split("/");
 			for (var i = this.classesAnchorSetup.length; --i >= 0;) {
-				splitArray2 = this.classesAnchorSetup[i]["image"].split("/");
-				if (splitArray1[splitArray1.length-1] == splitArray2[splitArray2.length-1]) {
-					nodeArray.push(childNode);
-					break;
+				if (this.classesAnchorSetup[i]["image"]) {
+					splitArray2 = this.classesAnchorSetup[i]["image"].split("/");
+					if (splitArray1[splitArray1.length-1] == splitArray2[splitArray2.length-1]) {
+						nodeArray.push(childNode);
+						break;
+					}
 				}
 			}
 		}

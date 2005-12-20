@@ -1,9 +1,15 @@
-// Context Menu Plugin for TYPO3 htmlArea RTE
-// Implementation by Mihai Bazon, http://dynarch.com/mishoo/. Sponsored by www.americanbible.org
-// Substantially rewritten by Stanislas Rolland <stanislas.rolland(arobas)fructifor.com>. Sponsored by Fructifor Inc.
-// Copyright (c) 2003 dynarch.com
-// Copyright (c) 2004-2005 Stanislas Rolland
-// This notice MUST stay intact for use (see license.txt).
+/*
+ * Context Menu Plugin for TYPO3 htmlArea RTE
+ *
+ * @author	Mihai Bazon, http://dynarch.com/mishoo/. Sponsored by www.americanbible.org
+ * @author	Stanislas Rolland. Sponsored by Fructifor Inc.
+ * Copyright (c) 2003 dynarch.com
+ * Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * Distributed under the same terms as HTMLArea itself.
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 ContextMenu = function(editor) {
 	this.editor = editor;
@@ -16,23 +22,29 @@ ContextMenu.I18N = ContextMenu_langArray;
 
 ContextMenu._pluginInfo = {
 	name          : "ContextMenu",
-	version       : "1.5",
+	version       : "1.7",
 	developer     : "Mihai Bazon & Stanislas Rolland",
-	developer_url : "http://dynarch.com/mishoo/",
-	c_owner       : "dynarch.com",
+	developer_url : "http://www.fructifor.ca/",
+	c_owner       : "dynarch.com & Stanislas Rolland",
 	sponsor       : "American Bible Society & Fructifor Inc.",
-	sponsor_url   : "http://www.americanbible.org",
+	sponsor_url   : "http://www.fructifor.ca/",
 	license       : "htmlArea"
 };
 
 ContextMenu.prototype.onGenerate = function() {
-	this.editor.eventHandlers["contextMenu"] = ContextMenu.contextMenuHandler(this);
-	HTMLArea._addEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "contextmenu", this.editor.eventHandlers["contextMenu"]);
+	if (!HTMLArea.is_opera) {
+		this.editor.eventHandlers["contextMenu"] = ContextMenu.contextMenuHandler(this);
+		HTMLArea._addEvent((HTMLArea.is_ie ? this.editor._doc.body : this.editor._doc), "contextmenu", this.editor.eventHandlers["contextMenu"]);
+	} else {
+		this.editor.eventHandlers["mousedown"] = ContextMenu.contextMenuHandler(this);
+		HTMLArea._addEvent(this.editor._doc, "mousedown", this.editor.eventHandlers["mousedown"]);
+	}
 };
 
 ContextMenu.contextMenuHandler = function(instance) {
 	return (function(ev) {
-		instance.popupMenu(ev);
+		if (!HTMLArea.is_opera || (HTMLArea.is_opera && ev.button >= 2)) instance.popupMenu(ev);
+			else return false;
 	});
 };
 
@@ -140,7 +152,7 @@ ContextMenu.prototype.pushOperations = function(opcodes,elmenus,tbo) {
 		opEnabled[opcode] = toolbarObjects[opcode]  && toolbarObjects[opcode].enabled;
 		enabled = enabled || opEnabled[opcode];
 	}
-	if (enabled) elmenus.push(null);
+	if (enabled && elmenus.length) elmenus.push(null);
 	for (i = opcodes.length; i > 0;) {
 		opcode = opcodes[--i];
 		if(opEnabled[opcode]) elmenus.push([i18n[opcode + "-title"],
@@ -177,8 +189,8 @@ ContextMenu.prototype.getContextMenu = function(target) {
 	}
 	
 	var currentTarget = target,
-		elmenus = [], tmp, tag, link = false,
-		table = null, tr = null, td = null, img = null, list = null;
+		tmp, tag, link = false,
+		table = null, tr = null, td = null, img = null, list = null, div = null;
 	
 	for(; target; target = target.parentNode) {
 		tag = target.tagName;
@@ -188,18 +200,20 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		    case "img":
 			img = target;
 			if (toolbarObjects["InsertImage"] && toolbarObjects["InsertImage"].enabled)  {
-				elmenus.push(null,
-				     [i18n["Image Properties"],
-				       ContextMenu.imageHandler(editor, img),
-				       i18n["Show the image properties dialog"],
-				       btnList["InsertImage"][1],"InsertImage"]
+				if (menu.length) menu.push(null);
+				menu.push(
+					[i18n["Image Properties"],
+						ContextMenu.imageHandler(editor, img),
+						i18n["Show the image properties dialog"],
+						btnList["InsertImage"][1], "InsertImage"]
 				);
 			}
 			break;
 		    case "a":
 			link = target;
 			if (toolbarObjects["CreateLink"] && toolbarObjects["CreateLink"].enabled)  {
-				elmenus.push(null,
+				if (menu.length) menu.push(null);
+				menu.push(
 					[i18n["Modify Link"],
 						ContextMenu.linkHandler(editor, link, "ModifyLink"),
 						i18n["Current URL is"] + ': ' + link.href,
@@ -216,45 +230,51 @@ ContextMenu.prototype.getContextMenu = function(target) {
 			}
 			break;
 		    case "td":
+		    case "th":
 			td = target;
 			if(!tbo) break;
-			this.pushOperations(["TO-cell-split", "TO-cell-delete", "TO-cell-insert-after", "TO-cell-insert-before", "TO-cell-prop"], elmenus, tbo);
+			this.pushOperations(["TO-cell-split", "TO-cell-delete", "TO-cell-insert-after", "TO-cell-insert-before", "TO-cell-prop"], menu, tbo);
 			break;
 		    case "tr":
 			tr = target;
 			if(!tbo) break;
 			opcode = "TO-cell-merge";
 			if(toolbarObjects[opcode]  && toolbarObjects[opcode].enabled)
-				elmenus.push([i18n[opcode + "-title"],
+				menu.push([i18n[opcode + "-title"],
 				ContextMenu.tableOperationsHandler(editor,tbo,opcode),
 				i18n[opcode + "-tooltip"],
 				btnList[opcode][1], opcode]);
-			this.pushOperations(["TO-row-split", "TO-row-delete", "TO-row-insert-under", "TO-row-insert-above", "TO-row-prop"], elmenus, tbo);
+			this.pushOperations(["TO-row-split", "TO-row-delete", "TO-row-insert-under", "TO-row-insert-above", "TO-row-prop"], menu, tbo);
 			break;
 		    case "table":
 			table = target;
 			if(!tbo) break;
-			this.pushOperations(["TO-toggle-borders", "TO-table-prop", "TO-col-split", "TO-col-delete", "TO-col-insert-after", "TO-col-insert-before"], elmenus, tbo);
+			this.pushOperations(["TO-toggle-borders", "TO-table-prop", "TO-col-split", "TO-col-delete", "TO-col-insert-after", "TO-col-insert-before"], menu, tbo);
 			break;
 		    case "ol":
 		    case "ul":
 		    case "dl":
 			list = target;
 			break;
+		    case "div":
+			div = target;
+			break;
 		    case "body":
-		    	this.pushOperations(["JustifyFull", "JustifyRight", "JustifyCenter", "JustifyLeft"], elmenus, null);
+		    	this.pushOperations(["JustifyFull", "JustifyRight", "JustifyCenter", "JustifyLeft"], menu, null);
 			break;
 		}
 	}
 	
-	if (selection && !link) menu.push(null,[i18n["Make link"],
-					ContextMenu.linkHandler(editor, link, "MakeLink"),
-					i18n["Create a link"], btnList["CreateLink"][1],"CreateLink"]);
-
-	for (var i = 0; i < elmenus.length; ++i) menu.push(elmenus[i]);
-
+	if (selection && !link) {
+		if (menu.length) menu.push(null);
+		menu.push([i18n["Make link"],
+			ContextMenu.linkHandler(editor, link, "MakeLink"),
+			i18n["Create a link"],
+			btnList["CreateLink"][1],"CreateLink"]);
+	}
+	
 	if (!/html|body/i.test(currentTarget.tagName)) {
-		if(table) {
+		if (/table|thead|tbody|tr|td|th|tfoot/i.test(currentTarget.tagName)) {
 			tmp = table;
 			table = null;
 		} else if(list) {
@@ -263,7 +283,8 @@ ContextMenu.prototype.getContextMenu = function(target) {
 		} else {
 			tmp = currentTarget;
 		}
-		menu.push(null,
+		if (menu.length) menu.push(null);
+		menu.push(
 		  [i18n["Remove the"] + " &lt;" + tmp.tagName.toLowerCase() + "&gt; " + i18n["Element"],
 			ContextMenu.deleteElementHandler(editor, tmp, table), i18n["Remove this node from the document"]],
 		  [i18n["Insert paragraph before"],
@@ -480,32 +501,34 @@ ContextMenu.prototype.popupMenu = function(ev,target) {
 			HTMLArea._addEvent(item, "mouseup", item.__msh.mouseup);
 		}
 	}
-	if(!HTMLArea.is_ie) {
-		var dx = x + list.offsetWidth - window.innerWidth - window.pageXOffset + 4;
-		var dy = y + list.offsetHeight - window.innerHeight - window.pageYOffset + 4;
-		if(dx > 0) x -= dx;
-		if(dy > 0) y -= dy;
-		list.style.left = x + "px";
-		list.style.top = y + "px";
-	} else {
-			// determine the size
-		list.style.left = "0px";
-		list.style.top = "0px";
-		var foobar = document.createElement("ul");
-		foobar.className = "htmlarea-context-menu";
-		foobar.innerHTML = list.innerHTML;
-		editor._iframe.contentWindow.parent.document.body.appendChild(foobar);
-		this.iePopup.show(ev.screenX, ev.screenY, foobar.clientWidth+2, foobar.clientHeight+2);
-		editor._iframe.contentWindow.parent.document.body.removeChild(foobar);
-	}
-	this.currentMenu = list;
-	this.timeStamp = (new Date()).getTime();
-	this.eventHandlers["documentClick"] = ContextMenu.documentClickHandler(this);
-	HTMLArea._addEvent((HTMLArea.is_ie ? document.body : document), "mousedown", this.eventHandlers["documentClick"]);
-	HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "mousedown", this.eventHandlers["documentClick"]);
-	if (this.keys.length > 0) {
-		this.eventHandlers["keyPress"] = ContextMenu.keyPressHandler(this);
-		HTMLArea._addEvents((HTMLArea.is_ie ? editor._doc.body : editor._doc), ["keypress", "keydown"], this.eventHandlers["keyPress"]);
+	if (n) {
+		if(!HTMLArea.is_ie) {
+			var dx = x + list.offsetWidth - window.innerWidth - window.pageXOffset + 4;
+			var dy = y + list.offsetHeight - window.innerHeight - window.pageYOffset + 4;
+			if(dx > 0) x -= dx;
+			if(dy > 0) y -= dy;
+			list.style.left = x + "px";
+			list.style.top = y + "px";
+		} else {
+				// determine the size
+			list.style.left = "0px";
+			list.style.top = "0px";
+			var foobar = document.createElement("ul");
+			foobar.className = "htmlarea-context-menu";
+			foobar.innerHTML = list.innerHTML;
+			editor._iframe.contentWindow.parent.document.body.appendChild(foobar);
+			this.iePopup.show(ev.screenX, ev.screenY, foobar.clientWidth+2, foobar.clientHeight+2);
+			editor._iframe.contentWindow.parent.document.body.removeChild(foobar);
+		}
+		this.currentMenu = list;
+		this.timeStamp = (new Date()).getTime();
+		this.eventHandlers["documentClick"] = ContextMenu.documentClickHandler(this);
+		HTMLArea._addEvent((HTMLArea.is_ie ? document.body : document), "mousedown", this.eventHandlers["documentClick"]);
+		HTMLArea._addEvent((HTMLArea.is_ie ? editor._doc.body : editor._doc), "mousedown", this.eventHandlers["documentClick"]);
+		if (this.keys.length > 0) {
+			this.eventHandlers["keyPress"] = ContextMenu.keyPressHandler(this);
+			HTMLArea._addEvents((HTMLArea.is_ie ? editor._doc.body : editor._doc), ["keypress", "keydown"], this.eventHandlers["keyPress"]);
+		}
 	}
 	HTMLArea._stopEvent(ev);
 	return false;

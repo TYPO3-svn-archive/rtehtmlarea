@@ -17,10 +17,22 @@
 				document.getElementById("f_url").value = param["f_url"];
 				document.getElementById("f_alt").value = param["f_alt"];
 				document.getElementById("f_border").value = param["f_border"];
-				document.getElementById("f_align").value = param["f_align"];
+				var select = document.getElementById("f_align");
+				for (var i = select.options.length; --i >= 0;) {
+					if (param["f_align"] == select.options[i].value) {
+						select.selectedIndex = i;
+						break;
+					}
+				}
 				document.getElementById("f_vert").value = param["f_vert"];
 				document.getElementById("f_horiz").value = param["f_horiz"];
-				document.getElementById("f_float").value = param["f_float"];
+				var select = document.getElementById("f_float");
+				for (var i = select.options.length; --i >= 0;) {
+					if (param["f_float"] == select.options[i].value) {
+						select.selectedIndex = i;
+						break;
+					}
+				}
 				window.ipreview.location.replace(param.f_url);
 			}
 			document.getElementById("f_url").focus();
@@ -78,33 +90,41 @@
 	<div class="space"></div>
 	<fieldset class="floating">
 		<legend>Layout</legend>
-			<div class="space"></div>
-			<label for="f_align" class="fl">Image alignment:</label>
-			<select class="alignment" size="1" name="align" id="f_align" title="Positioning of this image">
-				<option value="bottom"                       >Bottom</option>
-				<option value="middle" selected="1"		   >Middle</option>
-				<option value="top"                          >Top</option>
-			</select>
-			<div class="space"></div>
-			<label for="f_border" class="fl">Border thickness:</label>
-			<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" />
-			<div class="space"></div>
-			<label for="f_float" class="fl">Float:</label>   
-			<select class="float" size="1" name="style" id="f_float" title="Where the image should float">   
-				<option value="none"                         >Non-floating</option>   
-				<option value="left"                         >Left</option>   
-				<option value="right"                        >Right</option>   
-			</select>
+		<ul>
+			<li>
+				<label for="f_align" class="fl">Image alignment:</label>
+				<select class="alignment" size="1" name="align" id="f_align" title="Positioning of this image">
+					<option value="bottom">Bottom</option>
+					<option value="middle" selected="selected">Middle</option>
+					<option value="top">Top</option>
+				</select>
+			</li>
+			<li>
+				<label for="f_border" class="fl">Border thickness:</label>
+				<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" />
+			</li>
+			<li>
+				<label for="f_float" class="fl">Float:</label>   
+				<select class="float" size="1" name="style" id="f_float" title="Where the image should float">   
+					<option value="none">Non-floating</option>
+					<option value="left">Left</option>
+					<option value="right">Right</option>
+				</select>
+			</li>
+		</ul>
 	</fieldset>
 	<fieldset>
 		<legend>Spacing and padding</legend>
-			<div class="space"></div>
-			<label for="f_horiz" class="fl">Horizontal:</label>
-			<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" />
-			<div class="space"></div>
-			<label for="f_vert" class="fl">Vertical:</label>
-			<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" />
-			<div class="space"></div>
+		<ul>
+			<li>
+				<label for="f_horiz" class="fl">Horizontal:</label>
+				<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" />
+			</li>
+			<li>
+				<label for="f_vert" class="fl">Vertical:</label>
+				<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" />
+			</li>
+		</ul>
 	</fieldset>
 	<div class="space"></div>
 	<fieldset>

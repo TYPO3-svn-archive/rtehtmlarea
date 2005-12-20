@@ -1,28 +1,34 @@
-// Inline CSS plugin for HTMLArea
-// Sponsored by http://www.fructifor.com
-// (c) 2004-2005, Stanislas Rolland <stanislas.rolland@fructifor.com>
-// Distributed under the same terms as HTMLArea itself.
-// This notice MUST stay intact for use (see license.txt).
+/*
+ * Inline CSS Plugin for TYPO3 htmlArea RTE
+ *
+ * @author	Stanislas Rolland, sponsored by Fructifor Inc.
+ * (c) 2004-2005, Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * Distributed under the same terms as HTMLArea itself
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 InlineCSS = function(editor,args) {
-      this.editor = editor;     
-      var cfg = editor.config;
+	this.editor = editor;     
+	var cfg = editor.config;
 	var toolbar = cfg.toolbar;
-	var editornumber = editor._typo3EditerNumber;
+	var editorNumber = editor._editorNumber;
 	var obj = {
 		id		: "InlineCSS-class",
-		tooltip	: InlineCSS_langArray["InlineCSSStyleTooltip"],
-		options	: {"":""},
-		action	: null,
-		refresh	: null,
-		context	: "*",
+		tooltip		:	InlineCSS_langArray["InlineCSSStyleTooltip"],
+		options		:	{"":""},
+		action		:	null,
+		refresh		:	null,
+		context		:	"*",
 		cssArray	: new Array(),
 		parseCount	: 1,
-		loaded	: false,
-		timeout	: null,
-		lastTag	: "",
+		loaded		: false,
+		timeout		: null,
+		lastTag		: "",
 		lastClass	: "",
-		classesCharacter : RTEarea[editornumber]["classesCharacter"]
+		classesUrl	: RTEarea[editorNumber]["classesUrl"],
+		classesCharacter : RTEarea[editorNumber]["classesTag"]["span"]
 	};
 
 	var actionHandlerFunctRef = InlineCSS.actionHandler(this, obj);
@@ -89,17 +95,18 @@ InlineCSS.applyCSSRule = function(editor,i18n,cssRules,cssArray){
 				for(k=0;k<cssElements.length;k++){
 					cssElement = cssElements[k].split(".");
 					tagName = cssElement[0].toLowerCase().trim();
+					if(!tagName) tagName = 'all';
 					className = cssElement[1];
-					if( (!obj["classesCharacter"] && (tagName == 'span')) || (obj["classesCharacter"] && obj["classesCharacter"].indexOf(className) != -1)) {
-						if(!tagName) tagName = 'all';
+					if( (!obj["classesCharacter"] && (tagName == 'span')) || ((tagName != "all" || obj["showTagFreeClasses"] == true) && obj["classesCharacter"] && obj["classesCharacter"].indexOf(className) != -1)) {
 						if(!newCssArray[tagName]) newCssArray[tagName] = new Array();
 						if(className){
-							if(tagName == 'all') cssName = className;
-							else cssName = '<'+className+'>';
+							cssName = className;
+							if (HTMLArea.classesLabels) cssName = HTMLArea.classesLabels[className] ? HTMLArea.classesLabels[className] : cssName ;
+							if (tagName != 'all') cssName = '<'+cssName+'>';
 						} else {
 							className = 'none';
 							if(tagName == 'all') cssName = i18n["Default"];
-							else cssName = '<'+i18n["Default"]+'>';
+								else cssName = '<'+i18n["Default"]+'>';
 						}
 						newCssArray[tagName][className] = cssName;
 					}
@@ -131,12 +138,12 @@ InlineCSS.applyCSSIEImport=function(editor,i18n,cssIEImport,cssArray){
 
 InlineCSS._pluginInfo = {
 	name          : "InlineCSS",
-	version       : "1.0.0",
+	version       : "1.2",
 	developer     : "Stanislas Rolland",
-	developer_url : "http://www.fructifor.com/",
+	developer_url : "http://www.fructifor.ca/",
 	c_owner       : "Stanislas Rolland",
 	sponsor       : "Fructifor Inc.",
-	sponsor_url   : "http://www.fructifor.com/",
+	sponsor_url   : "http://www.fructifor.ca/",
 	license       : "htmlArea"
 };
 
@@ -224,6 +231,11 @@ InlineCSS.prototype.onUpdateToolbar = function() {
 
 InlineCSS.prototype.generate = function(editor) {
 	var obj = editor.config.customSelects["InlineCSS-class"];
+	var classesUrl = obj["classesUrl"];
+	if (classesUrl && typeof(HTMLArea.classesLabels) == "undefined") {
+		var classesData = HTMLArea._getScript(0, false, classesUrl);
+		if (classesData) eval(classesData);
+	}
         // Let us load the style sheets
 	if(obj.loaded) this.updateValue(editor,obj);
 		else this.getCSSArray(editor);
@@ -332,30 +344,39 @@ InlineCSS.prototype.updateValue = function(editor,obj) {
 					select.options[0] = new Option(cssArray['span'][cssClass],cssClass);
 				} else {
 					select.options[select.options.length] = new Option(cssArray['span'][cssClass],cssClass);
+					if (!editor.config.disablePCexamples && HTMLArea.classesValues && HTMLArea.classesValues[cssClass] && !HTMLArea.classesNoShow[cssClass]) select.options[select.options.length-1].setAttribute("style", HTMLArea.classesValues[cssClass]);
 				}
 			}
 		}
 		if(cssArray['all']){
 			for(cssClass in cssArray['all']){
 				select.options[select.options.length] = new Option(cssArray['all'][cssClass],cssClass);
+				if (!editor.config.disablePCexamples && HTMLArea.classesValues && HTMLArea.classesValues[cssClass] && !HTMLArea.classesNoShow[cssClass]) select.options[select.options.length-1].setAttribute("style", HTMLArea.classesValues[cssClass]);
 			}
 		}
 	}
 	select.selectedIndex = 0;
+	//var selected = false;
+	//select.multiple = true;
+	//select.size = 2;
 	if (typeof className != "undefined" && /\S/.test(className) && !HTMLArea.reservedClassNames.test(className)) {
 		for (i = select.options.length; --i >= 0;) {
 			var option = select.options[i];
 			if (className == option.value) {
+				option.selected = true;
+				//selected = true;
 				select.selectedIndex = i;
 				break;
 			}
 		}
-		if(select.selectedIndex == 0){
-			select.options[select.options.length]=new Option(InlineCSS.I18N["Undefined"],className);
-			select.selectedIndex=select.options.length-1;
+		if (select.selectedIndex == 0){
+		//if(!selected){
+			select.options[select.options.length] = new Option(InlineCSS.I18N["Undefined"],className);
+			select.selectedIndex = select.options.length-1;
+			//select.options[select.options.length-1].selected = true;
 		}
 	}
 	select.disabled = !(select.options.length>1) || !endPointsInSameBlock || !((HTMLArea.is_gecko && /\w/.test(selTrimmed) == true) || (HTMLArea.is_ie && /\S/.test(selTrimmed) == true)) ;
 	select.className = "";
-	if(select.disabled) select.className = "buttonDisabled";
+	if (select.disabled) select.className = "buttonDisabled";
 };

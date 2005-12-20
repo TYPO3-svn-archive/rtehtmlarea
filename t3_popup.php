@@ -72,7 +72,7 @@ switch( $popupname ) {
 	var _editor_CSS = window.opener._editor_CSS;
 	function Init() {
   		__dlg_translate(HTMLArea.I18N.dialogs);
-		__dlg_init();
+		__dlg_init(null, true);
   		document.body.onkeypress = __dlg_close_on_esc;
 	};
 <?php
@@ -82,14 +82,24 @@ switch( $popupname ) {
 ?>
 	/*]]>*/
 </script>
+<style type="text/css">
+	/*<![CDATA[*/
+	<!--
+	/* Opera 9 TP1 does not recognize the changing size of iframe contents and does not add scrollbars when required */
+iframe { width: 100%; height: 2000px; border-style: none; border-width: 0; margin: 0; padding: 0; }
+div#htmlarea-popup-div { width: 100%; height: 100%; margin: 0; padding: 0; overflow: scroll; }
+* html iframe, :root iframe { height: 100%; overflow: visible; }
+* html div#htmlarea-popup-div, :root div#htmlarea-popup-div { overflow: hidden; }
+	-->
+	/*]]>*/
+</style>
 </head>
-<body style="background:ButtonFace; margin:0; padding:0; border-style: none;" onload="Init();">
-<table style="border-style: none; width: 100%; height: 100%;">
-<tr><td>
+<body style="background:ButtonFace; margin: 0; padding: 0; border-style: none;" onload="Init();">
+<div id="htmlarea-popup-div">
 <?php
 	echo '
-		<iframe id="idPopup" style="width: 100%; height: 100%; visibility: visible; border-style: none;" src="' . $src . '?' . $query_string . '"></iframe>
+		<iframe id="idPopup" src="' . $src . '?' . $query_string . '"></iframe>
 	';
 ?>
-</td></tr></table>
+</div>
 </body></html>

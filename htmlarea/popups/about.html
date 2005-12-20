@@ -1,13 +1,18 @@
-<!--
-(c) dynarch.com, 2003-2005
-Author: Mihai Bazon, http://dynarch.com/mishoo
-Distributed as part of HTMLArea 3.0
-(c) Stanislas Rolland, 2004-2005
-Author: Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca
-Distributed as part of TYPO3 htmlArea RTE
--->
-
 <html class="popupwin" style="height: 100%">
+<!--
+/*
+ * About window for TYPO3 htmlArea RTE
+ *
+ * @author	Mihai Bazon (http://dynarch.com/mishoo)
+ * @author	Stanislas Rolland. Sponsored by Fructifor Inc.
+ * Copyright (c) 2003-2004 dynarch.com
+ * Copyright (c) 2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * Distributed under the same terms as HTMLArea itself.
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
+ -->
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>About HTMLArea</title>
@@ -73,7 +78,7 @@ Distributed as part of TYPO3 htmlArea RTE
 			
 			plugins.innerHTML += "<p><span>User agent reports:</span><br/>" + navigator.userAgent + "</p>";
 			
-			var content = document.getElementById("content");
+			var content = document.getElementById("tab-areas-content");
 			if (window.innerHeight) {
 				CONTENT_HEIGHT_DIFF = window.innerHeight - 250;
 				CONTENT_WIDTH_DIFF = window.innerWidth - content.offsetWidth;
@@ -100,11 +105,11 @@ Distributed as part of TYPO3 htmlArea RTE
 					++j;
 				}
 			}
-			if (document.cookie.match(/HTMLAREA-ABOUT-TAB=([0-2]+)/)) selectTab(RegExp.$1);
+			if (document.cookie.match(/HTMLAREA-ABOUT-TAB=([0-1]+)/)) selectTab(RegExp.$1);
 		}
 		
 		window.onresize = function() {
-			var content = document.getElementById("content");
+			var content = document.getElementById("tab-areas-content");
 			if (window.innerHeight) {
 				content.style.height = (window.innerHeight - CONTENT_HEIGHT_DIFF) + "px";
 				content.style.width = (window.innerWidth - CONTENT_WIDTH_DIFF) + "px";
@@ -116,87 +121,35 @@ Distributed as part of TYPO3 htmlArea RTE
 	</script>
 </head>
 <body class="popupwin" onload="Init();">
-
-<div class="title" style="cursor: pointer;" onclick="window.open('http://typo3.org/extensions/repository/search/rtehtmlarea/');">About HTMLArea</div>
-
-<div style="overflow: auto; height: 250px;" id="content">
-<div id="tab-areas">
-
-<div id="tab-area-0">
-	<h1>htmlArea RTE v 0.7.1</h1>
-	<p><span>free_editor</span></p>
-	<p><span>Mozilla_or_IE</span></p>
-	<p><span>product_documentation</span>&nbsp;<a href="http://typo3.org/extensions/repository/search/rtehtmlarea/" target="_blank">typo3.org</a></p>
-	<p style="text-align: center;">
-		<br />
-		&copy; 2002-2004 <a href="http://interactivetools.com" target="_blank">interactivetools.com, inc.</a><br />
-		&copy; 2003-2004 <a href="http://dynarch.com" target="_blank">dynarch.com LLC.</a><br />
-		&copy; 2004-2005 <a href="http://www.fructifor.ca" target="_blank">Stanislas Rolland</a><br />
-		<span>All rights reserved.</span>
-	</p>
-</div>
-
-<div id="tab-area-1">
-	<h1>htmlArea License (based on BSD license)</h1>
-
-	<p style="text-align: center">© 2002-2004, interactivetools.com, inc.<br />
-		© 2003-2005 dynarch.com LLC<br />
-		© 2004-2005 Stanislas Rolland<br />
-		<span>All rights reserved.</span>
-	</p>
-
-<p>
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-</p>
-
-<ol>
-<li>
-Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer.
-</li>
-
-<li>
-Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
-</li>
-
-<li>
-Neither the name of interactivetools.com, inc. nor the names of its
-contributors may be used to endorse or promote products derived from this
-software without specific prior written permission.
-</li>
-</ol>
-
-<p>
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-</p>
-</div>
-
-<div id="tab-area-2">
-	<h1>Plugins</h1>
-	<div id="plugins"></div>
-</div>
-
-</div></div>
-
-<div class="buttons">
-	<div id="tabbar">
-		<div class="tab tab-current">About</div>
-		<div class="tab">License</div>
-		<div class="tab">Plugins</div>
+<div id="content">
+	<div class="title" style="cursor: pointer;" onclick="window.open('http://typo3.org/extensions/repository/search/rtehtmlarea/');">About HTMLArea</div>
+	<div style="overflow: auto; height: 250px;" id="tab-areas-content">
+		<div id="tab-areas">
+			<div id="tab-area-0">
+				<h1>htmlArea RTE v 1.1.0</h1>
+				<p><span>free_editor</span></p>
+				<p><span>Mozilla_or_IE</span></p>
+				<p><span>product_documentation</span>&nbsp;<a href="http://typo3.org/extensions/repository/search/rtehtmlarea/" target="_blank">typo3.org</a></p>
+				<p style="text-align: center;">
+					<br />
+					&copy; 2002-2004 <a href="http://interactivetools.com" target="_blank">interactivetools.com, inc.</a><br />
+					&copy; 2003-2004 <a href="http://dynarch.com" target="_blank">dynarch.com LLC.</a><br />
+					&copy; 2004-2005 <a href="http://www.fructifor.ca" target="_blank">Stanislas Rolland</a><br />
+					<span>All rights reserved.</span>
+				</p>
+			</div>
+			<div id="tab-area-1">
+				<h1>Plugins</h1>
+				<div id="plugins"></div>
+			</div>
+		</div>
 	</div>
-	<button type="button" onclick="__dlg_close(null);">Close</button>
+	<div class="buttons">
+		<div id="tabbar">
+			<div class="tab tab-current">About</div>
+			<div class="tab">Plugins</div>
+		</div>
+		<button type="button" onclick="__dlg_close(null);">Close</button>
+	</div>
 </div>
 </body></html>

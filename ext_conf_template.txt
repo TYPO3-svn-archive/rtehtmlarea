@@ -1,3 +1,8 @@
+# ***************************************************************************************
+# Extension configuration variables for htmlArea RTE
+#
+# TYPO3 CVS ID: $Id$
+# ***************************************************************************************
 
   # cat=basic; type=string; label=No spell checking languages: The list of languages for which Aspell does not provide spell checking (see http://aspell.net/man-html/Unsupported.html#Unsupported) and for which the htmlArea SpellChecker plugin will therefore be disabled.
 noSpellCheckLanguages = ja,km,ko,lo,th,zh,b5,gb
@@ -11,11 +16,14 @@ defaultDictionary = en
   # cat=basic; type=string; label=List of Aspell dictionaries: The list of dictionaries available to the htmlArea SpellChecker plugin. This list is used only if safe_mode is enabled. If safe_mode is not enabled, the list is automatically obtained from Aspell.
 dictionaryList  = en
 
-  # cat=basic; type=string; label=List of htmlArea plugins: The list of htmlArea plugins that may be enabled.
-HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements, Acronym
+  # cat=basic; type=string; label=List of htmlArea RTE plugins: The list of htmlArea RTE plugins that may be enabled.
+HTMLAreaPluginList = TableOperations, SpellChecker, ContextMenu, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements, Acronym, TYPO3HtmlParser
 
-  # cat=basic/enable; type=boolean; label=Enable all editor options: If set, all optional features will be enabled in the default User and Page TSConfig. If not set, only minimal features will be enabled.
-enableAllOptions = 0
+  # cat=basic/enable; type=options[Typical,Advanced,Demo]; label=Default configuration settings: Select Typical for the most common situation. Select Advanced for minimal settings. Select Demo to enable all available features.
+defaultConfiguration = Typical
+
+  # cat=basic/enable; type=boolean; label=Enable images in the RTE: If set, the use of images in the "Typical" default configuration of the RTE will be enabled. WARNING: this option will not work for Classic RTE (ext: rte).
+enableImages = 0
 
   # cat=basic/enable; type=boolean; label=Enable Mozilla/Firefox extension: If set, enables the triggering of installation of a Mozilla/Firefox extension to allow the RTE to access the clipboard.
 enableMozillaExtension = 0
@@ -30,7 +38,7 @@ enableDebugMode = 0
 enableCompressedScripts = 1
 
   # cat=basic; type=string; label=Url of AllowClipboard Helper: Full absolute Url of the AllowClipboard Helper extension for Mozilla and Firefox.
-mozAllowClipboardUrl = http://ftp.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.3.4-fx+mz.xpi
+mozAllowClipboardUrl = http://releases.mozilla.org/pub/mozilla.org/extensions/allowclipboard_helper/allowclipboard_helper-0.5.3-fx+mz.xpi
 
   # cat=basic; type=int+; label=Maximum width of plain images: Maximum width in pixels of plain images inserted with the TYPO3 image browser
 plainImageMaxWidth = 640

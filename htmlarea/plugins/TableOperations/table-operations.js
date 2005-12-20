@@ -1,10 +1,17 @@
-// Table Operations Plugin for HTMLArea-3.0
-// Implementation by Mihai Bazon.  Sponsored by http://www.bloki.com
-// Substantially rewritten by Stanislas Rolland <stanislas.rolland@fructifor.com>. Sponsored by Fructifor Inc.
-// Copyright (c) 2002 interactivetools.com, inc.
-// Copyright (c) 2004-2005 Stanislas Rolland
-// Copyright (c) 2005 Xinha, http://xinha.gogo.co.nz/ for the original toggle borders function
-// This notice MUST stay intact for use (see license.txt).
+/*
+ * Table Operations Plugin for TYPO3 htmlArea RTE
+ *
+ * @author	Mihai Bazon.  Sponsored by http://www.bloki.com
+ * @author	Stanislas Rolland. Sponsored by Fructifor Inc.
+ * Copyright (c) 2002 interactivetools.com, inc.
+ * Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * Copyright (c) 2005 Xinha, http://xinha.gogo.co.nz/ for the original toggle borders function.
+ * Distributed under the same terms as HTMLArea itself
+ * This notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
+
 /*
  * Initialize the plugin and register its buttons
  */
@@ -13,12 +20,13 @@ TableOperations = function(editor) {
 	var cfg = editor.config;
 	var bl = TableOperations.btnList;
 	var actionHandlerFunctRef = TableOperations.actionHandler(this);
-	var hideInToolbar = _tableOperations_hideInToolbar;
+	var hideInToolbar = cfg.hideTableOperationsInToolbar;
+	var hideToggleBorders = hideInToolbar && !cfg.keepToggleBordersInToolbar;
 	for(var i=0;i < bl.length;++i) {
 		var btn = bl[i];
 		var id = "TO-" + btn[0];
 		cfg.registerButton(id, TableOperations_langArray[id], editor.imgURL(btn[0] + ".gif", "TableOperations"), false,
-			actionHandlerFunctRef, btn[1], hideInToolbar);
+			actionHandlerFunctRef, btn[1], ((id == "TO-toggle-borders") ? hideToggleBorders : hideInToolbar));
 	}
 };
 
@@ -38,12 +46,12 @@ TableOperations.I18N = TableOperations_langArray;
  */
 TableOperations._pluginInfo = {
 	name		: "TableOperations",
-	version 	: "3.2",
+	version 	: "3.4",
 	developer 	: "Mihai Bazon & Stanislas Rolland",
-	developer_url 	: "http://www.fructifor.ca",
+	developer_url 	: "http://www.fructifor.ca/",
 	c_owner 	: "Mihai Bazon & Stanislas Rolland",
 	sponsor 	: "Zapatec Inc. & Fructifor Inc.",
-	sponsor_url 	: "http://www.fructifor.ca",
+	sponsor_url 	: "http://www.fructifor.ca/",
 	license 	: "htmlArea"
 };
 
@@ -51,23 +59,23 @@ TableOperations._pluginInfo = {
  * The list of buttons added by this plugin
  */
 TableOperations.btnList = [
-	["toggle-borders",       null],
-	["table-prop",       "table"],
-	["row-prop",         "tr"],
-	["row-insert-above", "tr"],
-	["row-insert-under", "tr"],
-	["row-delete",       "tr"],
-	["row-split",        "td[rowSpan!=1]"],
-	["col-insert-before", "td"],
-	["col-insert-after",  "td"],
-	["col-delete",        "td"],
-	["col-split",         "td[colSpan!=1]"],
-	["cell-prop",          "td"],
-	["cell-insert-before", "td"],
-	["cell-insert-after",  "td"],
-	["cell-delete",        "td"],
-	["cell-merge",         "tr"],
-	["cell-split",         "td[colSpan!=1,rowSpan!=1]"]
+	["toggle-borders",	null],
+	["table-prop",		"table"],
+	["row-prop",		"tr"],
+	["row-insert-above",	"tr"],
+	["row-insert-under",	"tr"],
+	["row-delete",		"tr"],
+	["row-split",		"td,th[rowSpan!=1]"],
+	["col-insert-before",	"td,th"],
+	["col-insert-after",	"td,th"],
+	["col-delete",		"td,th"],
+	["col-split",		"td,th[colSpan!=1]"],
+	["cell-prop",		"td,th"],
+	["cell-insert-before",	"td,th"],
+	["cell-insert-after",	"td,th"],
+	["cell-delete",		"td,th"],
+	["cell-merge",		"tr"],
+	["cell-split",		"td,th[colSpan!=1,rowSpan!=1]"]
 	];
 
 /************************
@@ -116,11 +124,11 @@ TableOperations.tablePropertiesInit = function(table) {
 		TableOperations.buildDescriptionFieldset(doc, table, i18n, content);
 		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
 		if (obj && obj.loaded) TableOperations.buildStylingFieldset(doc, table, i18n, content, obj.cssArray);
-		TableOperations.buildLayoutFieldset(doc, table, i18n, content);
-		TableOperations.buildAlignmentFieldset(doc, table, i18n, content, "floating");
-		TableOperations.buildSpacingFieldset(doc, table, i18n, content);
-		TableOperations.buildBordersFieldset(dialog.dialogWindow, doc, dialog.editor, table, i18n, content);
-		TableOperations.buildColorsFieldset(dialog.dialogWindow, doc, dialog.editor, table, i18n, content);
+		if (!dialog.editor.config.disableLayoutFieldsetInTableOperations) TableOperations.buildLayoutFieldset(doc, table, i18n, content);
+		if (!dialog.editor.config.disableAlignmentFieldsetInTableOperations) TableOperations.buildAlignmentFieldset(doc, table, i18n, content, (HTMLArea.is_opera?"":"floating"));
+		if (!dialog.editor.config.disableSpacingFieldsetInTableOperations) TableOperations.buildSpacingFieldset(doc, table, i18n, content);
+		if (!dialog.editor.config.disableBordersFieldsetInTableOperations) TableOperations.buildBordersFieldset(dialog.dialogWindow, doc, dialog.editor, table, i18n, content);
+		if (!dialog.editor.config.disableColorFieldsetInTableOperations) TableOperations.buildColorsFieldset(dialog.dialogWindow, doc, dialog.editor, table, i18n, content);
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement();
@@ -176,8 +184,8 @@ TableOperations.tablePropertiesUpdate = function(table) {
 				break;
 			    case "f_class":
 				var cls = table.className.trim().split(" ");
-				for (var i = cls.length;i > 0;) {
-					if (!HTMLArea.reservedClassNames.test(cls[--i])) HTMLArea._removeClass(table,cls[i]);
+				for (var j = cls.length;j > 0;) {
+					if (!HTMLArea.reservedClassNames.test(cls[--j])) HTMLArea._removeClass(table,cls[j]);
 				}
 				if (val != 'none') HTMLArea._addClass(table,val);
 				break;
@@ -202,13 +210,16 @@ TableOperations.tablePropertiesUpdate = function(table) {
  */
 TableOperations.prototype.dialogRowCellProperties = function(cell) {
 		// retrieve existing values
-	var element = this.getClosest(cell ? "td" : "tr");
-	if(!element) element = this.getClosest("thead");
-	if(!element) element = this.getClosest("tfoot");
+	if (cell) {
+		var element = this.getClosest("td");
+		if (!element) var element = this.getClosest("th");
+	} else {
+		var element = this.getClosest("tr");
+	}
 	if(element) {
 		var rowCellPropertiesInitFunctRef = TableOperations.rowCellPropertiesInit(element, cell);
 		var rowCellPropertiesUpdateFunctRef = TableOperations.rowCellPropertiesUpdate(element);
-		var dialog = new PopupWin(this.editor, TableOperations.I18N[cell ? "Cell Properties" : "Row Properties"], rowCellPropertiesUpdateFunctRef, rowCellPropertiesInitFunctRef, 570, 400);
+		var dialog = new PopupWin(this.editor, TableOperations.I18N[cell ? "Cell Properties" : "Row Properties"], rowCellPropertiesUpdateFunctRef, rowCellPropertiesInitFunctRef, 700, 400);
 	}
 };
 
@@ -221,13 +232,14 @@ TableOperations.rowCellPropertiesInit = function(element,cell) {
 		var content = dialog.content;
 		var i18n = TableOperations.I18N;
 		TableOperations.buildTitle(doc, i18n, content, (cell ? "Cell Properties" : "Row Properties"));
+		if (cell) TableOperations.buildCellTypeFieldset(dialog.dialogWindow, doc, dialog.editor, element, i18n, content);
 		var obj = dialog.editor.config.customSelects["DynamicCSS-class"];
 		if (obj && obj.loaded) TableOperations.buildStylingFieldset(doc, element, i18n, content, obj.cssArray);
 			else TableOperations.insertSpace(doc, content);
-		TableOperations.buildLayoutFieldset(doc, element, i18n, content, "floating");
-		TableOperations.buildAlignmentFieldset(doc, element, i18n, content);
-		TableOperations.buildBordersFieldset(dialog.dialogWindow, doc, dialog.editor, element, i18n, content);
-		TableOperations.buildColorsFieldset(dialog.dialogWindow, doc, dialog.editor, element, i18n, content);
+		if (!dialog.editor.config.disableLayoutFieldsetInTableOperations) TableOperations.buildLayoutFieldset(doc, element, i18n, content, "floating");
+		if (!dialog.editor.config.disableAlignmentFieldsetInTableOperations) TableOperations.buildAlignmentFieldset(doc, element, i18n, content);
+		if (!dialog.editor.config.disableBordersFieldsetInTableOperations) TableOperations.buildBordersFieldset(dialog.dialogWindow, doc, dialog.editor, element, i18n, content);
+		if (!dialog.editor.config.disableColorFieldsetInTableOperations) TableOperations.buildColorsFieldset(dialog.dialogWindow, doc, dialog.editor, element, i18n, content);
 		dialog.modal = true;
 		dialog.addButtons("ok", "cancel");
 		dialog.showAtElement();
@@ -240,39 +252,64 @@ TableOperations.rowCellPropertiesInit = function(element,cell) {
 TableOperations.rowCellPropertiesUpdate = function(element) {
 	return (function (dialog,params) {
 		dialog.editor.focusEditor();
-		TableOperations.processStyle(params, element);
+		//TableOperations.processStyle(params, element);
+		var convertCellType = false;
 		for (var i in params) {
 			var val = params[i];
 			switch (i) {
-			    case "f_align":
-				element.align = val;
+			    case "f_scope":
+			    	if (val != "not set") element.scope = val;
+			    		else element.removeAttribute('scope');
+				break;
+			    case "f_cell_type":
+			    		// Set all cell attributes before cloning it with a new tag
+			    	if (val != element.tagName.toLowerCase()) {
+					var newCellType = val;
+					convertCellType = true;
+				}
 				break;
 			    case "f_char":
 				element.ch = val;
 				break;
-			    case "f_valign":
-				element.vAlign = val;
-				break;
 			    case "f_class":
-				if (val != 'none'){
-					element.className = val;
-				} else if(element.className) {
-					if (HTMLArea.is_gecko) element.removeAttribute('class');
-						else element.removeAttribute('className');
+				var cls = element.className.trim().split(" ");
+				for (var j = cls.length;j > 0;) {
+					if (!HTMLArea.reservedClassNames.test(cls[--j])) HTMLArea._removeClass(element,cls[j]);
 				}
+				if (val != 'none') HTMLArea._addClass(element,val);
 				break;
 			}
 		}
-		dialog.editor.forceRedraw();
-		dialog.editor.focusEditor();
-		dialog.editor.updateToolbar();
-			// Apparently required to force Mozilla to redraw borders
-		if(HTMLArea.is_gecko) {
-			var save_collapse = table.style.borderCollapse;
-			table.style.borderCollapse = "collapse";
-			table.style.borderCollapse = "separate";
-			table.style.borderCollapse = save_collapse;
+		if (convertCellType) {
+			var newCell = dialog.editor._doc.createElement(newCellType), p = element.parentNode, a, attrName, name;
+			var attrs = element.attributes;
+			for (var i = attrs.length; --i >= 0 ;) {
+				a = attrs.item(i);
+				attrName = a.nodeName;
+				name = attrName.toLowerCase();
+					// IE5.5 reports wrong values. For this reason we extract the values directly from the root node.
+				if (typeof(element[attrName]) != "undefined" && name != "style" && !/^on/.test(name)) {
+					if (element[attrName]) newCell.setAttribute(attrName, element[attrName]);
+				} else {
+					if (a.nodeValue) newCell.setAttribute(attrName, a.nodeValue);
+				}
+			}
+				// In IE, the above fails to update the classname and style attributes.
+			if (HTMLArea.is_ie) {
+				if (element.style.cssText) newCell.style.cssText = element.style.cssText;
+				if (element.className) {
+					newCell.setAttribute("className", element.className);
+				} else { 
+					newCell.className = element.className;
+					newCell.removeAttribute("className");
+				}
+			}
+			while (element.firstChild) newCell.appendChild(element.firstChild);
+			p.insertBefore(newCell, element);
+			p.removeChild(element);
+			dialog.editor.selectNodeContents(newCell, false);
 		}
+		dialog.editor.updateToolbar();
 	});
 };
 
@@ -291,6 +328,12 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 			td.rowSpan = 1;
 			td.innerHTML = mozbr;
 		}
+		var tds = tr.getElementsByTagName("th");
+		for (var i = tds.length; --i >= 0;) {
+			var td = tds[i];
+			td.rowSpan = 1;
+			td.innerHTML = mozbr;
+		}
 	};
 
 	function splitRow(td) {
@@ -303,7 +346,7 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 		var index = td.cellIndex;
 		while (--n > 0) {
 			tr = trs[++itr];
-			var otd = editor._doc.createElement("td");
+			var otd = editor._doc.createElement(td.tagName.toLowerCase());
 			otd.colSpan = td.colSpan;
 			otd.innerHTML = mozbr;
 			tr.insertBefore(otd, tr.cells[index]);
@@ -318,7 +361,7 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 		tr = td.parentNode;
 		var ref = td.nextSibling;
 		while (--nc > 0) {
-			var otd = editor._doc.createElement("td");
+			var otd = editor._doc.createElement(td.tagName.toLowerCase());
 			otd.rowSpan = td.rowSpan;
 			otd.innerHTML = mozbr;
 			tr.insertBefore(otd, ref);
@@ -386,35 +429,44 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 		editor.updateToolbar();
 		break;
 	    case "TO-row-split":
-		var td = this.getClosest("td");
-		if (!td) break;
-		splitRow(td);
+		var cell = this.getClosest("td");
+		if (!cell) var cell = this.getClosest("th");
+		if (!cell) break;
+		splitRow(cell);
 		break;
 
 		// COLUMNS
 	    case "TO-col-insert-before":
 	    case "TO-col-insert-after":
-		var td = this.getClosest("td");
-		if (!td) break;
-		var rows = td.parentNode.parentNode.rows;
-		var index = td.cellIndex;
+		var cell = this.getClosest("td");
+		if (!cell) var cell = this.getClosest("th");
+		if (!cell) break;
+		var rows = cell.parentNode.parentNode.rows;
+		var index = cell.cellIndex;
 		for (var i = rows.length; --i >= 0;) {
 			var tr = rows[i];
 			var ref = tr.cells[index + (/after/.test(button_id) ? 1 : 0)];
-			var otd = editor._doc.createElement("td");
-			otd.innerHTML = mozbr;
-			if(!ref) tr.appendChild(otd);
-				else tr.insertBefore(otd, ref);
+			if (!ref) {
+				var otd = editor._doc.createElement(tr.lastChild.tagName.toLowerCase());
+				otd.innerHTML = mozbr;
+				tr.appendChild(otd);
+			} else {
+				var otd = editor._doc.createElement(ref.tagName.toLowerCase());
+				otd.innerHTML = mozbr;
+				tr.insertBefore(otd, ref);
+			}
 		}
 		editor.focusEditor();
 		break;
 	    case "TO-col-split":
-		var td = this.getClosest("td");
-		if (!td) break;
-		splitCol(td);
+		var cell = this.getClosest("td");
+		if (!cell) var cell = this.getClosest("th");
+		if (!cell) break;
+		splitCol(cell);
 		break;
 	    case "TO-col-delete":
 		var cell = this.getClosest("td");
+		if (!cell) var cell = this.getClosest("th");
 		if (!cell) break;
 		var index = cell.cellIndex;
 		var rows = cell.parentNode.parentNode.rows;
@@ -448,25 +500,28 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 		// CELLS
 	    case "TO-cell-split":
 		var cell = this.getClosest("td");
+		if (!cell) var cell = this.getClosest("th");
 		if (!cell) break;
 		splitCell(cell);
 		break;
 	    case "TO-cell-insert-before":
 	    case "TO-cell-insert-after":
-		var td = this.getClosest("td");
-		if (!td) break;
-		var tr = td.parentNode;
-		var otd = editor._doc.createElement("td");
+		var cell = this.getClosest("td");
+		if (!cell) var cell = this.getClosest("th");
+		if (!cell) break;
+		var tr = cell.parentNode;
+		var otd = editor._doc.createElement(cell.tagName.toLowerCase());
 		otd.innerHTML = mozbr;
-		tr.insertBefore(otd, (/after/.test(button_id) ? td.nextSibling : td));
+		tr.insertBefore(otd, (/after/.test(button_id) ? cell.nextSibling : cell));
 		editor.forceRedraw();
 		editor.focusEditor();
 		break;
 	    case "TO-cell-delete":
 		var cell = this.getClosest("td");
+		if (!cell) var cell = this.getClosest("th");
 		if (!cell) break;
 		var row = cell.parentNode;
-		if(row.cells.length == 1) {  // this is the cell in the row, delete the row
+		if(row.cells.length == 1) {  // this is the only cell in the row, delete the row
 			var rowParent = row.parentNode;
 			var tableParent = rowParent.parentNode;
 			if(rowParent.rows.length == 1) {  // this the last row, delete the whole table
@@ -495,7 +550,7 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 		var rows = [];
 		var row = null;
 		var cells = null;
-		if(HTMLArea.is_gecko && !HTMLArea.is_safari) {
+		if(HTMLArea.is_gecko && !HTMLArea.is_safari && !HTMLArea.is_opera) {
 			try {
 				while (range = sel.getRangeAt(i++)) {
 					var td = range.startContainer.childNodes[range.startOffset];
@@ -511,18 +566,19 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 			}
 			rows.push(cells);
 		} else {
-			// Internet Explorer and Safari
-			var td = this.getClosest("td");
-			if (!td) {
+			// Internet Explorer, Safari and Opera
+			var cell = this.getClosest("td");
+			if (!cell) var cell = this.getClosest("th");
+			if (!cell) {
 				alert(TableOperations.I18N["Please click into some cell"]);
 				break;
 			}
-			var tr = td.parentElement;
+			var tr = cell.parentElement;
 			var no_cols = prompt(TableOperations.I18N["How many columns would you like to merge?"], 2);
 			if (!no_cols) break;
 			var no_rows = prompt(TableOperations.I18N["How many rows would you like to merge?"], 2);
 			if (!no_rows) break;
-			var cell_index = td.cellIndex;
+			var cell_index = cell.cellIndex;
 			while (no_rows-- > 0) {
 				td = tr.cells[cell_index];
 				cells = [td];
@@ -537,7 +593,7 @@ TableOperations.prototype.buttonPress = function(editor,button_id) {
 			}
 		}
 		var cellHTML = "";
-		for(i=0; i < rows.length; ++i) {
+		for (i = 0; i < rows.length; ++i) {
 			// i && (cellHTML += "<br />");
 			var cells = rows[i];
 			if(!cells) continue;
@@ -599,7 +655,7 @@ TableOperations.getLength = function(value) {
 };
 
 // Applies the style found in "params" to the given element.
-TableOperations.processStyle = function(params, element) {
+TableOperations.processStyle = function(params,element) {
 	var style = element.style;
 	for (var i in params) {
 		var val = params[i];
@@ -614,11 +670,11 @@ TableOperations.processStyle = function(params, element) {
 			if (/\S/.test(val)) {
 				style.backgroundImage = "url(" + val + ")";
 			} else {
-				style.backgroundImage = "none";
+				style.backgroundImage = "";
 			}
 			break;
 		    case "f_st_borderWidth":
-			style.borderWidth = val;
+			style.borderWidth = val + "px";
 			if(params["f_st_borderStyle"] == "none") style.borderWidth = '0px';
 			break;
 		    case "f_st_borderStyle":
@@ -660,12 +716,12 @@ TableOperations.processStyle = function(params, element) {
 			style.verticalAlign = (val != "not set") ? val : "";
 			break;
 		    case "f_st_float":
-				if (HTMLArea.is_ie) { 
-					style.styleFloat = (val != "not set") ? val : "";
-				} else { 
-					style.cssFloat = (val != "not set") ? val : "";
-				}
-				break;
+			if (HTMLArea.is_ie) { 
+				style.styleFloat = (val != "not set") ? val : "";
+			} else { 
+				style.cssFloat = (val != "not set") ? val : "";
+			}
+			break;
 // 		    case "f_st_margin":
 // 			style.margin = val + "px";
 // 			break;
@@ -752,16 +808,27 @@ TableOperations.buildDescriptionFieldset = function(doc,el,i18n,content) {
 	TableOperations.insertSpace(doc, fieldset);
 	content.appendChild(fieldset);
 };
-TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
-	var tagName = el.tagName.toLowerCase();
+TableOperations.buildCellTypeFieldset = function(w,doc,editor,el,i18n,content) {
+	var fieldset = doc.createElement("fieldset");
+	TableOperations.insertLegend(doc, i18n, fieldset, "Cell Type and Scope");
+	TableOperations.insertSpace(doc, fieldset);
+	var selectType = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_cell_type", "Type of cell", "", "", "Specifies the type of cell", ["Normal", "Header"], ["td", "th"], new RegExp(el.tagName.toLowerCase(), "i"));
+	selectType.onchange = function() { TableOperations.setStyleOptions(doc, editor, el, i18n, this); };
+	selected = el.scope;
+	(selected.match(/([^\s]*)\s/)) && (selected = RegExp.$1);
+	var selectScope = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_scope", "Scope", "", "", "Scope of header cell", ["Not set", "scope_row", "scope_column"], ["not set", "row", "col"], new RegExp((selected ? selected : "not set"), "i"));
+	TableOperations.insertSpace(doc, fieldset);
+	content.appendChild(fieldset);
+};
+TableOperations.getCssLabelsClasses = function(cssArray,i18n,tagName,selectedIn) {
 	var cssLabels = new Array();
 	var cssClasses = new Array();
 	cssLabels[0] = i18n["Default"];
 	cssClasses[0] = "none";
-	var selected = el.className;
+	var selected = selectedIn;
 	var cls = selected.split(" ");
 	var nonReservedClassName = false;
-	for(var ia = cls.length; ia > 0;) {
+	for (var ia = cls.length; ia > 0;) {
 		if(!HTMLArea.reservedClassNames.test(cls[--ia])) {
 			selected = cls[ia];
 			nonReservedClassName = true;
@@ -793,6 +860,39 @@ TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
 		cssLabels[i] = i18n["Undefined"];
 		cssClasses[i] = selected;
 	}
+	return [cssLabels, cssClasses, selected];
+};
+TableOperations.setStyleOptions = function(doc,editor,el,i18n,typeSelect) {
+	var tagName = typeSelect.value;
+	var select = doc.getElementById("f_class");
+	if (!select) return false;
+	var obj = editor.config.customSelects["DynamicCSS-class"];
+	if (obj && obj.loaded) var cssArray = obj.cssArray;
+		else return false;
+	var cssLabelsClasses = TableOperations.getCssLabelsClasses(cssArray,i18n,tagName,el.className);
+	var options = cssLabelsClasses[0];
+	var values = cssLabelsClasses[1];
+	var selected = cssLabelsClasses[2];
+	var selectedReg = new RegExp((selected ? selected : "none"), "i");
+	while(select.options.length>0) select.options[select.length-1] = null;
+	select.selectedIndex = 0;
+	var option;
+	for (var i = 0; i < options.length; ++i) {
+		option = doc.createElement("option");
+		select.appendChild(option);
+		option.value = values[i];
+		option.appendChild(doc.createTextNode(options[i]));
+		option.selected = selectedReg.test(values[i]);
+	}
+	if(select.options.length>1) select.disabled = false;
+		else select.disabled = true;
+};
+TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
+	var tagName = el.tagName.toLowerCase();
+	var cssLabelsClasses = TableOperations.getCssLabelsClasses(cssArray,i18n,tagName,el.className);
+	var cssLabels = cssLabelsClasses[0];
+	var cssClasses = cssLabelsClasses[1];
+	var selected = cssLabelsClasses[2];
 	var fieldset = doc.createElement("fieldset");
 	TableOperations.insertLegend(doc, i18n, fieldset, "CSS Style");
 	TableOperations.insertSpace(doc, fieldset);
@@ -801,42 +901,51 @@ TableOperations.buildStylingFieldset = function(doc,el,i18n,content,cssArray) {
 	content.appendChild(fieldset);
 };
 TableOperations.buildLayoutFieldset = function(doc,el,i18n,content,fieldsetClass) {
-	var select;
-	var selected;
+	var select, selected;
 	var fieldset = doc.createElement("fieldset");
 	if(fieldsetClass) fieldset.className = fieldsetClass;
 	TableOperations.insertLegend(doc, i18n, fieldset, "Layout");
-	TableOperations.insertSpace(doc, fieldset);
 	var f_st_width = TableOperations.getLength(el.style.width);
 	var f_st_height = TableOperations.getLength(el.style.height);
-	var selectedWidthUnit = /%/.test(el.style.width) ? '%' : (/px/.test(el.style.width) ? 'px' : 'em');
+	var selectedWidthUnit = /%/.test(el.style.width) ? '%' : (/px/.test(el.style.width) ? 'px' : 'em');	
 	var selectedHeightUnit = /%/.test(el.style.height) ? '%' : (/px/.test(el.style.height) ? 'px' : 'em');
 	var tag = el.tagName.toLowerCase();
+	var ul = doc.createElement("ul");
+	fieldset.appendChild(ul);
 	switch(tag) {
 		case "table" :
-			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_width", "Width:", "Table width", "", "5", f_st_width, "fr", "floating", "");
-			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_widthUnit", "", "", "floating", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
-			TableOperations.insertSpace(doc, fieldset);
-			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_height", "Height:", "Table height", "", "5", f_st_height, "fr", "floating", "");
-			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_heightUnit", "", "", "floating", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));
+			var li = doc.createElement("li");
+			ul.appendChild(li);
+			TableOperations.buildInput(doc, el, i18n, li, "f_st_width", "Width:", "Table width", "", "5", f_st_width, "fr");
+			select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_widthUnit", "", "", "", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
+			var li = doc.createElement("li");
+			ul.appendChild(li);
+			TableOperations.buildInput(doc, el, i18n, li, "f_st_height", "Height:", "Table height", "", "5", f_st_height, "fr");
+			select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_heightUnit", "", "", "", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));
 			selected = (HTMLArea._is_ie) ? el.style.styleFloat : el.style.cssFloat;
-			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_float", "Float:", "fr", "floating", "Specifies where the table should float",["Not set", "Non-floating", "Left", "Right"], ["not set", "none", "left", "right"], new RegExp((selected ? selected : "not set"), "i"));
+			select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_float", "Float:", "", "", "Specifies where the table should float", ["Not set", "Non-floating", "Left", "Right"], ["not set", "none", "left", "right"], new RegExp((selected ? selected : "not set"), "i"));
 			break;
 		case "tr" :
-			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_width", "Width:", "Row width", "", "5", f_st_width, "fr", "floating", "");
-			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_widthUnit", "", "", "floating", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
-			TableOperations.insertSpace(doc, fieldset);
-			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_height", "Height:", "Row height", "", "5", f_st_height, "fr", "floating", "");
-			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_heightUnit", "", "", "floating", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));
+			var li = doc.createElement("li");
+			ul.appendChild(li);
+			TableOperations.buildInput(doc, el, i18n, li, "f_st_width", "Width:", "Row width", "", "5", f_st_width, "fr");
+			select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_widthUnit", "", "", "", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
+			var li = doc.createElement("li");
+			ul.appendChild(li);
+			TableOperations.buildInput(doc, el, i18n, li, "f_st_height", "Height:", "Row height", "", "5", f_st_height, "fr");
+			select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_heightUnit", "", "", "", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));
 			break;
 		case "td" :
-			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_width", "Width:", "Cell width", "", "5", f_st_width, "fr", "floating", "");
-			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_widthUnit", "", "", "floating", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
-			TableOperations.insertSpace(doc, fieldset);
-			TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_height", "Height:", "Cell height", "", "5", f_st_height, "fr", "floating", "");
-			select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_heightUnit", "", "", "floating", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));		
+		case "th" :
+			var li = doc.createElement("li");
+			ul.appendChild(li);
+			TableOperations.buildInput(doc, el, i18n, li, "f_st_width", "Width:", "Cell width", "", "5", f_st_width, "fr");
+			select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_widthUnit", "", "", "", "Width unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_width ? selectedWidthUnit : "%"), "i"));
+			var li = doc.createElement("li");
+			ul.appendChild(li);
+			TableOperations.buildInput(doc, el, i18n, li, "f_st_height", "Height:", "Cell height", "", "5", f_st_height, "fr");
+			select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_heightUnit", "", "", "", "Height unit", ["percent", "pixels", "em"], ["%", "px", "em"], new RegExp((f_st_height ? selectedHeightUnit : "%"), "i"));		
 	}
-	TableOperations.insertSpace(doc, fieldset);
 	content.appendChild(fieldset);
 };
 TableOperations.buildAlignmentFieldset = function(doc,el,i18n,content,fieldsetClass) {
@@ -845,12 +954,10 @@ TableOperations.buildAlignmentFieldset = function(doc,el,i18n,content,fieldsetCl
 	var fieldset = doc.createElement("fieldset");
 	if(fieldsetClass) fieldset.className = fieldsetClass;
 	TableOperations.insertLegend(doc, i18n, fieldset, "Alignment");
-	TableOperations.insertSpace(doc, fieldset);
 	var options = ["Not set", "Left", "Center", "Right", "Justify"];
 	var values = ["not set", "left", "center", "right", "justify"];
 	var selected = el.style.textAlign;
 	(selected.match(/([^\s]*)\s/)) && (selected = RegExp.$1);
-	//var f_st_textAlign = el.style.textAlign;
 /*
 	if (tag == "td") {
 		options.push("Character");
@@ -862,7 +969,11 @@ TableOperations.buildAlignmentFieldset = function(doc,el,i18n,content,fieldsetCl
 		}
 	}
 */
-	select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_textAlign", "Text alignment:","fl", "floating", "Horizontal alignment of text within cell", options, values, new RegExp((selected ? selected : "not set"), "i"));
+	var ul = doc.createElement("ul");
+	fieldset.appendChild(ul);
+	var li = doc.createElement("li");
+	ul.appendChild(li);
+	select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_textAlign", "Text alignment:", "fl", "", "Horizontal alignment of text within cell", options, values, new RegExp((selected ? selected : "not set"), "i"));
 /*
 	if (tag == "td") {
 		var characterFields = [];
@@ -881,21 +992,24 @@ TableOperations.buildAlignmentFieldset = function(doc,el,i18n,content,fieldsetCl
 		setCharVisibility(select.value == "character");
 	}
 */
-	TableOperations.insertSpace(doc, fieldset);
+	var li = doc.createElement("li");
+	ul.appendChild(li);
 	selected = el.style.verticalAlign;
 	(selected.match(/([^\s]*)\s/)) && (selected = RegExp.$1);
-	select = TableOperations.buildSelectField(doc, el, i18n, fieldset, "f_st_vertAlign", "Vertical alignment:", "fl", "floating", "Vertical alignment of content within cell", ["Not set", "Top", "Middle", "Bottom", "Baseline"], ["not set", "top", "middle", "bottom", "baseline"], new RegExp((selected ? selected : "not set"), "i"));
-	TableOperations.insertSpace(doc, fieldset);
+	select = TableOperations.buildSelectField(doc, el, i18n, li, "f_st_vertAlign", "Vertical alignment:", "fl", "", "Vertical alignment of content within cell", ["Not set", "Top", "Middle", "Bottom", "Baseline"], ["not set", "top", "middle", "bottom", "baseline"], new RegExp((selected ? selected : "not set"), "i"));
 	content.appendChild(fieldset);
 };
 TableOperations.buildSpacingFieldset = function(doc,el,i18n,content) {
 	var fieldset = doc.createElement("fieldset");
 	TableOperations.insertLegend(doc, i18n, fieldset, "Spacing and padding");
-	TableOperations.insertSpace(doc, fieldset);
-	TableOperations.buildInput(doc, el, i18n, fieldset, "f_spacing", "Cell spacing:", "Space between adjacent cells", "pixels", "5", el.cellSpacing, "fr", "floating", "postlabel");
-	TableOperations.insertSpace(doc, fieldset);
-	TableOperations.buildInput(doc, el, i18n, fieldset, "f_padding", "Cell padding:", "Space between content and border in cell", "pixels", "5", el.cellPadding, "fr", "floating", "postlabel");
-	TableOperations.insertSpace(doc, fieldset);
+	var ul = doc.createElement("ul");
+	fieldset.appendChild(ul);
+	var li = doc.createElement("li");
+	ul.appendChild(li);
+	TableOperations.buildInput(doc, el, i18n, li, "f_spacing", "Cell spacing:", "Space between adjacent cells", "pixels", "5", el.cellSpacing, "fr", "", "postlabel");
+	var li = doc.createElement("li");
+	ul.appendChild(li);
+	TableOperations.buildInput(doc, el, i18n, li, "f_padding", "Cell padding:", "Space between content and border in cell", "pixels", "5", el.cellPadding, "fr", "", "postlabel");
 	content.appendChild(fieldset);
 };
 TableOperations.buildBordersFieldset = function(w,doc,editor,el,i18n,content,fieldsetClass) {
@@ -957,15 +1071,17 @@ TableOperations.buildBordersFieldset = function(w,doc,editor,el,i18n,content,fie
 TableOperations.buildColorsFieldset = function(w,doc,editor,el,i18n,content) {
 	var fieldset = doc.createElement("fieldset");
 	TableOperations.insertLegend(doc, i18n, fieldset, "Background and colors");
-	TableOperations.insertSpace(doc, fieldset);
-	TableOperations.buildColorField(w, doc, editor, el, i18n, fieldset, "", "FG Color:", "fr", "colorButton", el.style.color, "color");
-	TableOperations.insertSpace(doc, fieldset);
-	TableOperations.insertSpace(doc, fieldset);
-	TableOperations.buildColorField(w, doc, editor, el, i18n, fieldset, "", "Background:", "fr", "colorButton", el.style.backgroundColor, "backgroundColor");
+	var ul = doc.createElement("ul");
+	fieldset.appendChild(ul);
+	var li = doc.createElement("li");
+	ul.appendChild(li);
+	TableOperations.buildColorField(w, doc, editor, el, i18n, li, "", "FG Color:", "fr", "colorButtonNoFloat", el.style.color, "color");
+	var li = doc.createElement("li");
+	ul.appendChild(li);
+	TableOperations.buildColorField(w, doc, editor, el, i18n, li, "", "Background:", "fr", "colorButtonNoFloat", el.style.backgroundColor, "backgroundColor");
 	var url;
 	if (el.style.backgroundImage.match(/url\(\s*(.*?)\s*\)/)) url = RegExp.$1;
-	TableOperations.buildInput(doc, el, i18n, fieldset, "f_st_backgroundImage", "Image URL:", "URL of the background image", "", "", url, "field", "shorter-value", "");
-	TableOperations.insertSpace(doc, fieldset);
+	TableOperations.buildInput(doc, el, i18n, li, "f_st_backgroundImage", "Image URL:", "URL of the background image", "", "", url, "", "shorter-value");
 	content.appendChild(fieldset);
 };
 TableOperations.insertLegend = function(doc,i18n, fieldset,legend) {
@@ -1023,21 +1139,22 @@ TableOperations.buildSelectField = function(doc,el,i18n,fieldset,fieldName,field
 	}
 		// Text Alignment Select Box
 	var select = doc.createElement("select");
-	if(selectClass) select.className = selectClass;
+	if (selectClass) select.className = selectClass;
 	select.id = fieldName;
 	select.name =  fieldName;
 	select.title= i18n[fieldTitle];
+	select.selectedIndex = 0;
 	var option;
 	for (var i = 0; i < options.length; ++i) {
 		option = doc.createElement("option");
+		select.appendChild(option);
 		option.value = values[i];
 		if(translateOptions) option.appendChild(doc.createTextNode(i18n[options[i]]));
 			else option.appendChild(doc.createTextNode(options[i]));
 		option.selected = selected.test(option.value);
-		select.appendChild(option);
 	}
-	if(select.options.length>1) select.disabled = false;
-	else select.disabled = true;
+	if (select.options.length>1) select.disabled = false;
+		else select.disabled = true;
 	fieldset.appendChild(select);
 	if(fields) fields.push(select);
 	return select;

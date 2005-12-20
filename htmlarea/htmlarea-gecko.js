@@ -1,9 +1,11 @@
-/**
+/*
  * htmlArea v3.0 - Copyright (c) 2003-2005 dynarch.com
  * htmlArea v3.0 - Copyright (c) 2002-2003 interactivetools.com, inc.
- * TYPO3 htmlArea RTE - Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland@fructifor.com>
- * This copyright notice MUST stay intact for use (see license.txt).
-**/
+ * TYPO3 htmlArea RTE - Copyright (c) 2004-2005 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
+ * This copyright notice MUST stay intact for use.
+ *
+ * TYPO3 CVS ID: $Id$
+ */
 
 /***************************************************
  *  GECKO-SPECIFIC FUNCTIONS
@@ -94,13 +96,14 @@ HTMLArea.prototype._createRange = function(sel) {
 /*
  * Select a node AND the contents inside the node
  */
-HTMLArea.prototype.selectNode = function(node) {
+HTMLArea.prototype.selectNode = function(node,pos) {
 	this.focusEditor();
 	this.forceRedraw();
 	var sel = this._getSelection();
 	var range = this._doc.createRange();
 	if(node.nodeType == 1 && node.tagName.toLowerCase() == "body") range.selectNodeContents(node);
 		else range.selectNode(node);
+	if ((typeof(pos) != "undefined")) range.collapse(pos);
 	if(HTMLArea.is_safari) {
 		sel.empty();
 		sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
@@ -116,12 +119,11 @@ HTMLArea.prototype.selectNode = function(node) {
 HTMLArea.prototype.selectNodeContents = function(node,pos) {
 	this.focusEditor();
 	this.forceRedraw();
-	var collapsed = (typeof(pos) != "undefined");
 	var sel = this._getSelection();
 	var range = this._doc.createRange();
 	range.selectNodeContents(node);
-	(collapsed) && range.collapse(pos);
-	if(HTMLArea.is_safari) {
+	if ((typeof(pos) != "undefined")) range.collapse(pos);
+	if (HTMLArea.is_safari) {
 		sel.empty();
 		sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
 	} else {
@@ -209,7 +211,7 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 		node = range.startContainer,
 		pos = range.startOffset,
 		selnode = toBeInserted;
-	if(HTMLArea.is_safari) sel.empty();
+	if (HTMLArea.is_safari) sel.empty();
 		else sel.removeAllRanges();
 	range.deleteContents();
 	switch (node.nodeType) {
@@ -219,20 +221,20 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 			range = this._createRange();
 			range.setEnd(node, pos + toBeInserted.length);
 			range.setStart(node, pos + toBeInserted.length);
-			if(HTMLArea.is_safari) sel.setBaseAndExtent(range.startContainer,range.startOffset,range.endContainer,range.endOffset);
+			if (HTMLArea.is_safari) sel.setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset);
 				else sel.addRange(range);
 		} else {
 			node = node.splitText(pos);
-			if(toBeInserted.nodeType == 11) selnode = selnode.firstChild;
-			node = node.parentNode.insertBefore(toBeInserted,node);
-			this.selectNodeContents(selnode);
+			if (toBeInserted.nodeType == 11) selnode = selnode.lastChild;
+			node = node.parentNode.insertBefore(toBeInserted, node);
+			this.selectNode(selnode, false);
 			this.updateToolbar();
 		}
 		break;
 	    case 1:
-		if(toBeInserted.nodeType == 11) selnode = selnode.firstChild;
-		node = node.insertBefore(toBeInserted,node.childNodes[pos]);
-		this.selectNodeContents(selnode);
+		if (toBeInserted.nodeType == 11) selnode = selnode.lastChild;
+		node = node.insertBefore(toBeInserted, node.childNodes[pos]);
+		this.selectNode(selnode, false);
 		this.updateToolbar();
 		break;
 	}
@@ -289,11 +291,13 @@ HTMLArea.statusBarHandler = function (ev) {
 	editor.selectNode(target.el);
 	editor.updateToolbar(true);
 	switch (ev.type) {
-		case "click" : 
+		case "click" :
 			HTMLArea._stopEvent(ev);
 			return false;
-		case "contextmenu" : 
-			return editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el);
+		case "mousedown" :
+			if (!HTMLArea.is_opera || ev.button < 2) return false;
+		case "contextmenu" :
+			return editor.plugins["ContextMenu"] ? editor.plugins["ContextMenu"].instance.popupMenu(ev,target.el) : false;
 	}
 };
 
@@ -404,23 +408,31 @@ HTMLArea.prototype._checkInsertP = function() {
 	if(HTMLArea.is_safari) sel.empty();
 		else sel.removeAllRanges();
 	SC = r.startContainer;
-	if(!block || /^td$/i.test(block.tagName)) {
+	if(!block || /^(td|div)$/i.test(block.tagName)) {
 		left = SC;
-		for (i = SC; i && !HTMLArea.isBlockElement(i); i = HTMLArea.getPrevNode(i)) left = i;
+		for (i = SC; i && !HTMLArea.isBlockElement(i); i = HTMLArea.getPrevNode(i)) { left = i; }
 		right = SC;
-		for (i = SC; i && !HTMLArea.isBlockElement(i); i = HTMLArea.getNextNode(i)) right = i;
+		for (i = SC; i && !HTMLArea.isBlockElement(i); i = HTMLArea.getNextNode(i)) { right = i; }
 		if(left != body && right != body && !(block && left == block ) && !(block && right == block )) {
 			r2 = r.cloneRange();
-			r2.setStartBefore(left);
+			if (HTMLArea.is_opera) r2.setStart(left,0);
+				else r2.setStartBefore(left);
 			r2.surroundContents(block = doc.createElement('p'));
 			if (!/\S/.test(HTMLArea.getInnerText(block))) {
 					// Remove any anchor created empty
 				a = block.lastChild;
 				if (a && /^a$/i.test(a.tagName) && !/\S/.test(a.innerHTML)) HTMLArea.removeFromParent(a);
-				block.appendChild(this._doc.createElement('br'));
+				block.appendChild(doc.createElement('br'));
 			}
 			block.normalize();
-			r.setEndAfter(right);
+			if (HTMLArea.is_opera) {
+				SC = HTMLArea.getNextNode(block);
+				for (i = SC; i && !HTMLArea.isBlockElement(i); i = HTMLArea.getNextNode(i)) { right = i; }
+				r.setStart(SC, 0);
+				r.setEnd(right, right.length);
+			} else {
+				r.setEndAfter(right);
+			}
 			r.surroundContents(block = doc.createElement('p'));
 					// Remove any anchor created empty
 			a = block.previousSibling;
@@ -429,10 +441,10 @@ HTMLArea.prototype._checkInsertP = function() {
 					// Remove any anchor created empty
 				a = block.lastChild;
 				if (a && /^a$/i.test(a.tagName) && !/\S/.test(a.innerHTML)) HTMLArea.removeFromParent(a);
-				block.appendChild(this._doc.createElement('br'));
+				block.appendChild(doc.createElement('br'));
 			}
 			block.normalize();
-		} else { 
+		} else {
 			if(!block) {
 				r = doc.createRange();
 				r.setStart(body, 0);
@@ -444,7 +456,7 @@ HTMLArea.prototype._checkInsertP = function() {
 				r.setStart(block, 0);
 				r.setEnd(block, 0);
 				r.insertNode(block = doc.createElement('p'));
-				block.appendChild(this._doc.createElement('br'));
+				block.appendChild(doc.createElement('br'));
 			}
 		}
 		r.selectNodeContents(block);
@@ -476,7 +488,7 @@ HTMLArea.prototype._checkInsertP = function() {
 		}
 	}
 	r.collapse(true);
-	if(HTMLArea.is_safari) sel.setBaseAndExtent(r.startContainer,r.startOffset,r.endContainer,r.endOffset);
+	if (HTMLArea.is_safari) sel.setBaseAndExtent(r.startContainer,r.startOffset,r.endContainer,r.endOffset);
 		else sel.addRange(r);
 	this.scrollToCaret();
 };
@@ -518,7 +530,7 @@ HTMLArea.prototype._detectURL = function(ev) {
 				//Space
 		case 32:
 			if(s && s.isCollapsed && s.anchorNode.nodeType == 3 && s.anchorNode.data.length > 3 && s.anchorNode.data.indexOf('.') >= 0) {
-				var midStart = s.anchorNode.data.substring(0,s.anchorOffset).search(/\S{4,}$/);
+				var midStart = s.anchorNode.data.substring(0,s.anchorOffset).search(/[a-zA-Z0-9]+\S{3,}$/);
 				if(midStart == -1) break;
 				if(this._getFirstAncestor(s, 'a')) break; // already in an anchor
 				var matchData = s.anchorNode.data.substring(0,s.anchorOffset).replace(/^.*?(\S*)$/, '$1');

@@ -99,6 +99,7 @@
 .htmlarea .toolbar .InsertTag {background-image:url("images/QuickTag/ed_quicktag.gif"); }
 .htmlarea .toolbar .Acronym {background-image:url("images/Acronym/ed_acronym.gif"); }
 .htmlarea .toolbar .RemoveFormat {background-image:url("images/RemoveFormat/ed_clean.gif"); }
+.htmlarea .toolbar .SplitBlock {background-image:url("images/ed_splitblock.gif"); }
 .htmlarea .toolbar .HtmlMode {background-image:url("images/ed_html.gif"); }
 .htmlarea .toolbar .Copy, .htmlarea-context-menu .Copy  {background-image:url("images/ed_copy.gif");}
 .htmlarea .toolbar .Cut, .htmlarea-context-menu .Cut  {background-image:url("images/ed_cut.gif");}
@@ -172,6 +173,9 @@
 	clear:both;
 	width:100%;
 	border:1px solid #316ac5;border-bottom:1px solid #e4e0db;margin:0;padding:0;
+}
+.htmlarea .noStatusBar {
+	border-bottom:1px solid #316ac5;
 }
 .htmlarea .statusBar {
 	clear:both;
@@ -262,6 +266,16 @@
 .popupwin .content {
 	border-style:none;margin:0;padding:0;
 }
+.popupwin ul {
+	list-style-type:none;
+	border-style:none;margin:0;padding:0;
+}
+.popupwin li {
+	margin:4px 0;
+}
+.popupwin select {
+	display:inline;
+}
 .popupwin table {
 	border-collapse:collapse;border-style:none;margin:0;padding:0;
 }
@@ -279,16 +293,25 @@
 	margin-top:5px;margin-bottom:5px;
 }
 .popupwin fieldset {
-	margin-top:5px;margin-bottom:0px;padding:5px 5px 5px 5px;
-}
-.popupwin legend {
-	font-weight:normal;
+	display:inline;
+	margin:5px 5px 0 5px;padding:5px;
 }
 .popupwin .floating {
 	float:left;
 }
+/* fieldset is inline only for Opera */
+* html .popupwin fieldset, :root .popupwin fieldset {
+	display:block;
+}
+.popupwin legend {
+	font-weight:bold;padding:0 3px;
+}
 .popupwin .field {
 	float:left;text-align:left;
+	margin-left:5px;padding:2px 5px;
+}
+.popupwin label {
+	text-align:left;
 	margin-left:5px;padding:2px 5px;
 }
 .popupwin fieldset table {
@@ -310,6 +333,12 @@
 	background-color:#f7f8fd;background-image:url(button-background.png);
 	width:8em;
 	padding:0px;
+}
+.popupwin dl, .popupwin dt, .popupwin dd {
+	display: block;
+}
+.popupwin dt, .popupwin dd {
+	margin:3px 0;
 }
 .popupwin button.long-button {
 	width:10em;

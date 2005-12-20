@@ -3,7 +3,7 @@
 	font-family:Verdana, sans-serif;
 	font-size:12px;
 	margin:0;
-	padding:3px 0 3px 3px;
+	padding:3px;
 	background-color:#ffffff;
 }
 
@@ -23,3 +23,6 @@ abbr, acronym, span.abbr {
 	border-bottom:1px dashed #000;
 	padding-left:19px;
 }
+
+/* Make sure we can click in cells of newly created tables without too much difficulty */
+td { padding: 3px; }

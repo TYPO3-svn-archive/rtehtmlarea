@@ -1,15 +1,9 @@
 // htmlArea v3.0 - Copyright (c) 2002, 2003 interactivetools.com, inc.
 // This copyright notice MUST stay intact for use (see license.txt).
-//
 // Portions (c) dynarch.com, 2003
 //
-// A free WYSIWYG editor replacement for <textarea> fields.
-// For full source code and docs, visit http://www.htmlarea.com/
+// (c) 2004-2005, Stanislas Rolland <stanislas.rolland@fructifor.ca> for the TYPO3 htmlArea RTE version
 //
-// Version 3.0 developed by Mihai Bazon.
-//   http://dynarch.com/mishoo
-//
-// $Id$
 
 getAbsolutePos = function(el) {
 	var r = { x: el.offsetLeft, y: el.offsetTop };
@@ -40,30 +34,35 @@ __dlg_loadStyle = function(url) {
 
 __dlg_init = function(bottom,noResize) {
 	var body = document.body;
-	//window.focus();
 	window.dialogArguments = window.opener.Dialog._arguments;
 		// resize if allowed
-	if (!document.all) {
-		if(!noResize) {
-			setTimeout( function() {
-				try {
-					window.sizeToContent();
-				} catch(e) { };
-					// center on parent if allowed
-				var x = window.opener.screenX + (window.opener.outerWidth - window.outerWidth) / 2;
-				var y = window.opener.screenY + (window.opener.outerHeight - window.outerHeight) / 2;
-				try {
-					window.moveTo(x, y);
-				} catch(e) { };
-			}, 25);
-		}
+	if (!HTMLArea.is_ie) {
+		setTimeout( function() {
+			try {
+				if (!noResize) window.sizeToContent();
+			} catch(e) { };
+				// center on parent if allowed
+			var x = window.opener.screenX + (window.opener.outerWidth - window.outerWidth) / 2;
+			var y = window.opener.screenY + (window.opener.outerHeight - window.outerHeight) / 2;
+			try {
+				window.moveTo(x, y);
+			} catch(e) { };
+		}, 25);
 	} else {
-		var w = body.scrollWidth;
+		var w = body.scrollWidth +12;
 		if (document.documentElement && document.documentElement.clientHeight) var h = document.documentElement.clientHeight;
 			else var h = document.body.clientHeight;
 		if(h < body.scrollHeight) h = body.scrollHeight;
 		if(h < body.offsetHeight) h = body.offsetHeight;
-		window.resizeTo(w + 12, h);
+		
+			// Sometimes IE is broken here, in those cases we wrap the inside of the body into a div with id = "content"
+			// Then it seems that while the size of the body is wrong, the size of the div is right
+		var content = document.getElementById("content");
+		if(content) {
+			var h = content.offsetHeight + 12;
+			var w = content.offsetWidth + 12;
+		}
+		window.resizeTo(w, h);
 		if (document.documentElement && document.documentElement.clientHeight) {
 			var ch = document.documentElement.clientHeight;
 			var cw = document.documentElement.clientWidth;

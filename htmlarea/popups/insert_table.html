@@ -8,6 +8,7 @@
 		_editor_CSS = window.opener._editor_CSS;
 		__dlg_loadStyle(_editor_CSS);
 		var i18n = window.opener.HTMLArea.I18N.dialogs;
+		var editor = window.opener.Dialog._arguments;
 
 		function Init() {
 			var content = document.getElementById("content");
@@ -16,8 +17,8 @@
 			form.action = "";
 			form.method = "get";
 			buildDimensionFieldset(i18n,form);
-			buildLayoutFieldset(i18n, form);
-			buildSpacingFieldset(i18n, form);
+			if (!editor.config.disableBordersFieldsetInTableOperations) buildBordersFieldset(i18n, form);
+			if (!editor.config.disableSpacingFieldsetInTableOperations) buildSpacingFieldset(i18n, form);
 			addButtons(i18n, form, ["ok","cancel"], ["OK","Cancel"]);
 			content.appendChild(form);
 			__dlg_init();
@@ -59,32 +60,36 @@
 		function buildDimensionFieldset(i18n,content) {
 			var fieldset = document.createElement("fieldset");
 			insertLegend(i18n, fieldset, "Dimension");
-			insertSpace(fieldset);
-			buildInput(i18n, fieldset, "f_rows", ["Rows:"], ["Number of rows"], "5", "2", "field", "floating");
-			buildInput(i18n, fieldset, "f_cols", ["Cols:"], ["Number of columns"], "5", "4", "field", "floating");
-			buildInput(i18n, fieldset, "f_width", ["Width:"], ["Width of the table"], "5", "100", "field", "floating");
-			buildUnitField(i18n, fieldset);
+			buildInput(i18n, fieldset, "f_rows", ["Rows:"], ["Number of rows"], "5", "2");
+			buildInput(i18n, fieldset, "f_cols", ["Cols:"], ["Number of columns"], "5", "4");
+			if (!editor.config.disableLayoutFieldsetInTableOperations) {
+				buildInput(i18n, fieldset, "f_width", ["Width:"], ["Width of the table"], "5", "100");
+				buildUnitField(i18n, fieldset);
+			}
 			content.appendChild(fieldset);
 		};
-		function buildLayoutFieldset(i18n,content) {
+		function buildBordersFieldset(i18n,content) {
 			var fieldset = document.createElement("fieldset");
 			fieldset.className = "floating";
-			insertLegend(i18n, fieldset, "Layout");
-			insertSpace(fieldset);
-			buildTableFloatField(i18n, fieldset);
-			insertSpace(fieldset);
-			buildInput(i18n, fieldset, "f_border", ["Border thickness:"], ["Leave empty for no border"], "5", "1", "fl", "");
-			insertSpace(fieldset);
+			insertLegend(i18n, fieldset, "Border");
+			var ul = document.createElement("ul");
+			fieldset.appendChild(ul);
+			var li = document.createElement("li");
+			ul.appendChild(li);
+			buildInput(i18n, li, "f_border", ["Border thickness:"], ["Leave empty for no border"], "5", "1", "fl", "");
 			content.appendChild(fieldset);
 		};
 		function buildSpacingFieldset(i18n,content) {
 			var fieldset = document.createElement("fieldset");
 			insertLegend(i18n, fieldset, "Spacing and padding");
-			insertSpace(fieldset);
-			buildInput(i18n, fieldset, "f_spacing", ["Cell spacing:"], ["Space between adjacent cells"], "5", "1", "fr", "");
-			insertSpace(fieldset);
-			buildInput(i18n, fieldset, "f_padding", ["Cell padding:"], ["Space between content and border in cell"], "5", "1", "fr", "");
-			insertSpace(fieldset);
+			var ul = document.createElement("ul");
+			fieldset.appendChild(ul);
+			var li = document.createElement("li");
+			ul.appendChild(li);
+			buildInput(i18n, li, "f_spacing", ["Cell spacing:"], ["Space between adjacent cells"], "5", "1", "fr", "");
+			var li = document.createElement("li");
+			ul.appendChild(li);
+			buildInput(i18n, li, "f_padding", ["Cell padding:"], ["Space between content and border in cell"], "5", "1", "fr", "");
 			content.appendChild(fieldset);
 		};
 		function buildUnitField(i18n, fieldset) {
@@ -116,11 +121,6 @@
 			legendNode.innerHTML = i18n[legend];
 			fieldset.appendChild(legendNode);
 		};
-		function insertSpace(fieldset) {
-			var space = document.createElement("div");
-			space.className = "space";
-			fieldset.appendChild(space);
-		};
 		function buildInput(i18n, fieldset,fieldName,fieldLabel,fieldTitle, fieldSize, fieldValue, labelClass, inputClass) {
 				// Field label
 			var label = document.createElement("label");
@@ -150,7 +150,11 @@
 			}
 		};
 		function addButtons(i18n,content,buttons,labels) {
+			var space = document.createElement("div");
+			space.className = "space";
+			content.appendChild(space);
 			var div = document.createElement("div");
+			content.appendChild(div);
 			div.className = "buttons";
 			for (var i = 0; i < buttons.length; ++i) {
 				var button = document.createElement("button");
@@ -165,7 +169,6 @@
 				}
 				div.appendChild(button);
 			}
-			content.appendChild(div);
 		};
 </script>
 </head>
