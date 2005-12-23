@@ -76,6 +76,9 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'CharacterMapTooltip' => 'Vloi špeciálny znak',
+		'Insert special character' => 'Vloi špeciálny znak',
+		'HTML value:' => 'HTML hodnota:',
 	),
 	'lt' => Array (
 	),

@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for tooltips of RTE HtmalArea (extension: rte_pb_htmlarea)
+ * Language labels for tooltips of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -457,6 +457,44 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'bold' => 'Tuèné',
+		'italic' => 'Kurzíva',
+		'underline' => 'Podèiarknuté',
+		'strikethrough' => 'Preèiarknuté',
+		'subscript' => 'Dolnı index',
+		'superscript' => 'Hornı index',
+		'justifyleft' => 'Zarovnanie v¾avo',
+		'justifycenter' => 'Zarovnanie do stredu',
+		'justifyright' => 'Zarovnanie vpravo',
+		'justifyfull' => 'Zarovnanie do bloku',
+		'insertorderedlist' => 'Èíslovanı zoznam',
+		'insertunorderedlist' => 'Neèíslovanı zoznam (odráky)',
+		'outdent' => 'Zväèši odsadenie',
+		'indent' => 'Zmenši odsadenie',
+		'forecolor' => 'Farba písma',
+		'hilitecolor' => 'Farba podkladu',
+		'inserthorizontalrule' => 'Horizontálna èiara',
+		'createlink' => 'Vloi webovı odkaz',
+		'insertimage' => 'Vloi/Zmeni obrázok',
+		'inserttable' => 'Vloi tabu¾ku',
+		'htmlmode' => 'Prepnú do HTML kódu',
+		'popupeditor' => 'Rozšíri editor',
+		'about' => 'O tomto editore',
+		'showhelp' => 'Ukáza nápovedu',
+		'textindicator' => 'Aktuálny štıl',
+		'undo' => 'O krok spä',
+		'redo' => 'O krok dopredu',
+		'cut' => 'Vystrihnú vybrané',
+		'copy' => 'Kopírova vybrané',
+		'paste' => 'Vloi zo schránky',
+		'lefttoright' => 'Smer z¾ava doprava',
+		'righttoleft' => 'Smer zprava do¾ava',
+		'removeformat' => 'Odstráni formátovanie',
+		'print' => 'Vytlaèi dokument',
+		'killword' => 'Vyèisti MS Office tagy',
+		'fontname' => 'Typ písma',
+		'fontsize' => 'Ve¾kos písma',
+		'formatblock' => 'Typ odstavca',
 	),
 	'lt' => Array (
 	),

@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for messages of RTE HtmalArea (extension: rte_pb_htmlarea)
+ * Language labels for messages of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -158,6 +158,18 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Path' => 'Cesta',
+		'TEXT_MODE' => 'Ste v textovom móde. Použite [<>] tlaèítko na prepnutie do WYSIWYG.',
+		'ActiveX-required' => 'Naèítanie editora do Internet Explorer-a vyžaduje povolenie prvkov ActiveX.',
+		'HTML-document-not-well-formed' => 'HTML dokument nie je správne vytvorený.',
+		'Moz-Clipboard' => 'Skripty bez privilégií nemôžu pristupova k Vystrihnú/Kopírova/Vloži kvôli bezpeènostným dôvodom. Kliknite OK pre zobrazenie technických podrobností na mozilla.org, ktoré Vám ukážu, ako povoli prístup skriptov k obsahu schránky.',
+		'Moz-Extension' => 'Z bezpeènostných dôvodov, skripty bez privilégií nemôžu pristupova k obsahu schránky. Kliknite OK pre doinštalovanie komponenty, ktorá povolí aplikáciám z tejto stránky pristupova k obsahu schránky a vykonáva operácie Vystrihnú/Kopírova/Vloži.',
+		'Moz-Extension-Success' => 'Inštalácia prebehla úspešne. Je potrebné zatvori a znova otvori Váš prehliadaè, aby sa prejavili zmeny.',
+		'Moz-Extension-Failure' => '¼ututjeme, inštalácia zlyhala.',
+		'Moz-Extension-Install-Not-Enabled' => 'Inštalácia nemohla by vykonaná. Prosím, zmeòte nastavenia Vášho prehliadaèa, aby mohol by inštalovaný software z tejto stránky.',
+		'Allow-Clipboard-Helper-Extension' => 'Z bezpeènostných dôvodov, skripty bez privilégií nemôžu pristupova k obsahu schránky. Kliknite OK pre doinštalovanie komponenty, ktorá povolí aplikáciám z tejto stránky pristupova k obsahu schránky a vykonáva operácie Vystrihnú/Kopírova/Vloži.',
+		'Mozilla-Org-Install-Not-Enabled' => 'Inštalácia nemohla by vykonaná.  Prosím, zmeòte nastavenia Vášho prehliadaèa, aby mohol by inštalovaný software z http://ftp.mozilla.org.',
+		'Allow-Clipboard-Helper-Extension-Success' => 'Inštalácia prebehla úspešne. Je potrebné zatvori a znova otvori Váš prehliadaè, aby sa prejavili zmeny. Následne použite AllowClipboard Helper z menu Nástroje, aby ste povolili používanie schránky z urèitých stránok.',
 	),
 	'lt' => Array (
 	),

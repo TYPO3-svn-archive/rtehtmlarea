@@ -52,6 +52,7 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Insert custom element' => 'Vloi vlastnı element',
 	),
 	'lt' => Array (
 	),

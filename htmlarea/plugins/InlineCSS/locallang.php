@@ -81,6 +81,10 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Default' => 'Vıchodzie',
+		'Undefined' => 'Nedefinované',
+		'InlineCSSStyleTooltip' => 'Poui štıl na oznaèenı text',
+		'You have to select some text' => 'Musíte oznaèi urèitı text',
 	),
 	'lt' => Array (
 	),

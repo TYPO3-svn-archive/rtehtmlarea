@@ -193,6 +193,21 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Type_of_abridged_form' => 'Akronym alebo skratka?',
+		'Term_to_abridge' => 'Termín pre skrátenie',
+		'Defined_term' => 'Preddefinové akronymy a skratky',
+		'Term' => 'Termín:',
+		'Unabridged_term' => 'Neskrátenı termín:',
+		'Select_a_term' => 'Zvoli termín',
+		'Abridged_term' => 'Skráti termín:',
+		'Acronym' => 'Akronym',
+		'Abbreviation' => 'Skratka',
+		'Select_an_acronym' => 'Zvoli akronym alebo skratku',
+		'Use_this_term' => 'Poui tento termín:',
+		'Use_this_term_explain' => 'Pripradi tento termín k aktuálne oznaèenému',
+		'OK' => 'OK',
+		'Delete' => 'Zmaza',
+		'Cancel' => 'Zruši',
 	),
 	'lt' => Array (
 	),

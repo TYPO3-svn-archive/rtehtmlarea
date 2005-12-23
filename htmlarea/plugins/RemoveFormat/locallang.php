@@ -160,6 +160,19 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'RemoveFormatTooltip' => 'Odstráni formátovanie',
+		'Cleaning Area' => 'Ohranièenie vyèistenia',
+		'Selection' => 'Oznaèené',
+		'All' => 'Všetko',
+		'Remove formatting' => 'Odstráni formátovanie',
+		'Cleaning options' => 'Typ formátovania pre odstránenie',
+		'Formatting:' => 'HTML formátovanie:',
+		'MS Word Formatting:' => 'MS Word formátovanie:',
+		'Images:' => 'Obrázky:',
+		'All HTML:' => 'Všetky HTML tag-y:',
+		'Select the type of formatting you wish to remove.' => 'Vyberte typ formátovania, ktoré sa má odstráni.',
+		'OK' => 'OK',
+		'Cancel' => 'Zruši',
 	),
 	'lt' => Array (
 	),

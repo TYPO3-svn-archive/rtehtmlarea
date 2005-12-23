@@ -1,3 +1,6 @@
+2005-12-23  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
+	* Update to language files.
+
 2005-12-22  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
 	* Update to Proc, Demo and Typical Page TSConfig.
 	* Correction for No font and No size elements if font and size selectors.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for the main module of htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for the main module of htmlArea RTE (extension: rtehtmlarea)
  *
  * This file is detected by the translation tool.
  */
@@ -157,6 +157,16 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Please wait' => 'Èakajte prosím, editor sa nahráva ...',
+		'Normal' => 'Normálny',
+		'Heading 1' => 'Nadpis 1',
+		'Heading 2' => 'Nadpis 2',
+		'Heading 3' => 'Nadpis 3',
+		'Heading 4' => 'Nadpis 4',
+		'Heading 5' => 'Nadpis 5',
+		'Heading 6' => 'Nadpis 6',
+		'Preformatted' => 'Predformátovanı',
+		'Address' => 'Adresa',
 	),
 	'lt' => Array (
 	),

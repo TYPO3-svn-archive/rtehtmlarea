@@ -151,6 +151,18 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Quick Tag Editor' => 'Vloi TAG',
+		'Enter the TAG you want to insert' => 'Uveïte TAG, ktorı chcete vloi',
+		'You have to select some text' => 'Musíte oznaèi urèitı text',
+		'There are some unclosed quote' => 'Nájdené neuzavreté úvodzovky',
+		'This attribute already exists in the TAG' => 'Tento atribút sa u v TAG-u nachádza',
+		'No CSS class avaiable' => 'Nie je k dispozícii iadna CSS trieda',
+		'OPTIONS' => 'MONOSTI',
+		'ATTRIBUTES' => 'ATRIBÚTY',
+		'TAGs' => 'TAGy',
+		'Colors' => 'Farby',
+		'Ok' => 'OK',
+		'Cancel' => 'Zruši',
 	),
 	'lt' => Array (
 	),

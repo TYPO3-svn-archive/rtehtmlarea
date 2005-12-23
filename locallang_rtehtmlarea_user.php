@@ -119,9 +119,9 @@ $LOCAL_LANG = Array (
 	),
 	'sk' => Array (
 		'noTitle' => 'Bez nadpisu',
-		'expand' => 'Rozšir kategóriu',
-		'noTextSelection' => 'Chyba: Nebol vybratı iadny text pre \'wrap\'.',
-		'pixels' => 'Body (pixely)',
+		'expand' => 'Rozšíri kategóriu',
+		'noTextSelection' => 'Chyba: Nebol vybranı iaden text pre \'wrap\'.',
+		'pixels' => 'Pixely',
 		'filesize' => 'Ve¾kos súboru',
 	),
 	'lt' => Array (

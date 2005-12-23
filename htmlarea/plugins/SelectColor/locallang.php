@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for plugin SelectColor of RTE htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for plugin SelectColor of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -103,6 +103,12 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'CO-forecolor' => 'Farba textu',
+		'CO-hilitecolor' => 'Farba pozadia',
+		'CO-forecolor_title' => 'Nastavi farbu textu',
+		'CO-hilitecolor_title' => 'Nastavi farbu pozadia',
+		'color_title' => 'Vybra farbu',
+		'no_color' => 'iadna farba',
 	),
 	'lt' => Array (
 	),

@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for database tables/fields belonging to extension "rtehtmlarea"
+ * Language labels for database tables/fields belonging to extension htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  *
@@ -104,6 +104,12 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'tx_rtehtmlarea_acronym' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type' => 'Typ',
+		'tx_rtehtmlarea_acronym.type.I.0' => 'Akronym',
+		'tx_rtehtmlarea_acronym.type.I.1' => 'Skratka',
+		'tx_rtehtmlarea_acronym.term' => 'Termín',
+		'tx_rtehtmlarea_acronym.acronym' => 'Skrátená forma',
 	),
 	'lt' => Array (
 	),

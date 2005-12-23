@@ -115,6 +115,18 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'external_link_altText' => 'Otvorí externı link v aktuálnom okne',
+		'external_link_titleText' => 'Otvorí externı link v aktuálnom okne',
+		'external_link_new_window_altText' => 'Otvorí externı link v novom okne',
+		'external_link_new_window_titleText' => 'Otvorí externı link v novom okne',
+		'internal_link_altText' => 'Otvorí internı link v aktuálnom okne',
+		'internal_link_titleText' => 'Otvorí internı link v aktuálnom okne',
+		'internal_link_new_window_altText' => 'Otvorí internı link v novom okne',
+		'internal_link_new_window_titleText' => 'Otvorí internı link v novom okne',
+		'download_altText' => 'Inicializuje download súboru',
+		'download_titleText' => 'Inicializuje download súboru',
+		'mail_altText' => 'Otvorí okno pre zaslanie e-mailu',
+		'mail_titleText' => 'Otvorí okno pre zaslanie e-mailu',
 	),
 	'lt' => Array (
 	),

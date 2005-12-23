@@ -52,6 +52,7 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Insert/Modify Acronym' => 'Vloi / Zmeni akronym alebo skratku',
 	),
 	'lt' => Array (
 	),

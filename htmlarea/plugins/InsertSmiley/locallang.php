@@ -1,6 +1,6 @@
 <?php
 /**
- * Language labels for plugin InsertSmiley of htmlArea RTE (extension: sr_htmlarea)
+ * Language labels for plugin InsertSmiley of htmlArea RTE (extension: rtehtmlarea)
  * 
  * This file is detected by the translation tool.
  */
@@ -73,6 +73,9 @@ $LOCAL_LANG = Array (
 	'ch' => Array (
 	),
 	'sk' => Array (
+		'Insert Smiley' => 'Vloi smajlíka',
+		'Smiley' => 'Smajlík',
+		'Cancel' => 'Zruši',
 	),
 	'lt' => Array (
 	),
