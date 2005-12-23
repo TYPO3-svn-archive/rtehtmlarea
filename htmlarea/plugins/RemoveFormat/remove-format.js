@@ -66,10 +66,10 @@ RemoveFormat.applyRequest = function(instance,editor){
 				if (param["formatting"] == true) {
 						// remove font, b, strong, i, em, u, strike, span and other tags
 					var regF1 = new RegExp("<\/?(abbr|acronym|b[^r]|big|cite|code|em|font|i|q|s|samp|small|span|strike|strong|sub|sup|u|var)[^>]*>", "gi"); 
-					html = html.replace(regF1, ""); 
+					html = html.replace(regF1, "");
 						// keep tags, strip attributes
-					var regF2 = new RegExp(" style=\"[^>]*\"", "gi");
-					var regF3 = new RegExp(" (class|align)=\[^\s|>]*", "gi");
+					var regF2 = new RegExp(" style=\"[^>\"]*\"", "gi");
+					var regF3 = new RegExp(" (class|align|cellpadding|cellspacing|frame|bgcolor)=(([^>\s\"]+)|(\"[^>]*\"))", "gi");
 					html = html.replace(regF2, "").replace(regF3, "");
 				}
 
@@ -86,8 +86,8 @@ RemoveFormat.applyRequest = function(instance,editor){
 					var regMS2 = new RegExp("<(b[^r]|strong|i|em|p|li|ul) [^>]*>", "gi");
 					html = html.replace(regMS2, "<$1>");
 						// keep tags, strip attributes
-					var regMS3 = new RegExp(" style=\"[^>]*\"", "gi");
-					var regMS4 = new RegExp(" (class|align)=\[^\s|>]*", "gi");
+					var regMS3 = new RegExp(" style=\"[^>\"]*\"", "gi");
+					var regMS4 = new RegExp(" (class|align)=(([^>\s\"]+)|(\"[^>]*\"))", "gi");
 					html = html.replace(regMS3, "").replace(regMS4, "");
 						// mozilla doesn't like <em> tags
 					html = html.replace(/<em>/gi, "<i>").replace(/<\/em>/gi, "</i>");

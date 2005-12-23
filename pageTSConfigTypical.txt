@@ -199,11 +199,12 @@ RTE.default {
 	}
 	
 		## Configuration specific to the TableOperations feature (htmlArea RTE only)
-		## Remove the following fieldsets from the properties popups
+		## Remove the following fieldsets from the table operations dialogs
 	disableAlignmentFieldsetInTableOperations = 1
 	disableSpacingFieldsetInTableOperations = 1
 	disableColorFieldsetInTableOperations = 1
 	disableLayoutFieldsetInTableOperations = 1
+	disableBordersFieldsetInTableOperations = 1
 }
 
 	## front end RTE configuration for the general public (htmlArea RTE only)

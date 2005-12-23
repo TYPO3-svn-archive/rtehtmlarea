@@ -18,6 +18,7 @@ $LOCAL_LANG = Array (
 		'Preformatted' => 'Preformatted',
 		'Address' => 'Address',
 		'No font' => 'No font',
+		'No size' => 'No size',
 	),
 	'dk' => Array (
 		'Please wait' => 'Editoren indlæses. Vent venligst...',
@@ -79,6 +80,7 @@ $LOCAL_LANG = Array (
 		'Preformatted' => 'Préformaté',
 		'Address' => 'Adresse',
 		'No font' => 'Aucune police',
+		'No size' => 'Aucune taille',
 	),
 	'es' => Array (
 		'Please wait' => 'El editor se está cargando. Espere por favor...',

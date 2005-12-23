@@ -10,49 +10,44 @@ $LOCAL_LANG = Array (
 		'CharacterMapTooltip' => 'Insert special character',
 		'Insert special character' => 'Insert special character',
 		'HTML value:' => 'HTML value:',
-		'Cancel' => 'Cancel',
+		'Close' => 'Close',
 	),
 	'dk' => Array (
 		'CharacterMapTooltip' => 'Indsæt specialtegn',
 		'Insert special character' => 'Indsæt specialtegn',
 		'HTML value:' => 'HTML værdi:',
-		'Cancel' => 'Annuller',
 	),
 	'de' => Array (
 		'CharacterMapTooltip' => 'Fügen Sie Sonderzeichen ein',
 		'Insert special character' => 'Fügen Sie Sonderzeichen ein',
 		'HTML value:' => 'HTML-Wert:',
-		'Cancel' => 'Abbrechen',
 	),
 	'no' => Array (
 		'CharacterMapTooltip' => 'Sett inn spesialtegn',
 		'Insert special character' => 'Sett inn spesialtegn',
 		'HTML value:' => 'HTML-verdi:',
-		'Cancel' => 'Avbryt',
 	),
 	'it' => Array (
 		'CharacterMapTooltip' => 'Inserisci carattere speciale',
 		'Insert special character' => 'Inserisci carattere speciale',
 		'HTML value:' => 'Valore HTML:',
-		'Cancel' => 'Annulla',
 	),
 	'fr' => Array (
 		'CharacterMapTooltip' => 'Insérer un caractère spécial',
 		'Insert special character' => 'Insérer un caractère spécial',
 		'HTML value:' => 'Valeur HTML:',
-		'Cancel' => 'Annuler',
+		'Close' => 'Fermer',
 	),
 	'es' => Array (
 		'CharacterMapTooltip' => 'Insertar carácter especial',
 		'Insert special character' => 'Insertar carácter especial',
 		'HTML value:' => 'Valor HTML:',
-		'Cancel' => 'Anular',
+		'Close' => 'Cerrar',
 	),
 	'nl' => Array (
 		'CharacterMapTooltip' => 'Voeg speciaal karakter in',
 		'Insert special character' => 'Voeg speciaal karakter in',
 		'HTML value:' => 'HTML waarde:',
-		'Cancel' => 'Annuleer',
 	),
 	'cz' => Array (
 	),
@@ -64,7 +59,6 @@ $LOCAL_LANG = Array (
 		'CharacterMapTooltip' => 'Lisää erikoismerkki',
 		'Insert special character' => 'Lisää erikoismerkki',
 		'HTML value:' => 'HTML arvo:',
-		'Cancel' => 'Peruuta',
 	),
 	'tr' => Array (
 	),
@@ -76,7 +70,6 @@ $LOCAL_LANG = Array (
 		'CharacterMapTooltip' => 'Âñòàâèòü ñïåöèàëüíûé ñèìâîë',
 		'Insert special character' => 'Âñòàâèòü ñïåöèàëüíûé ñèìâîë',
 		'HTML value:' => 'Çíà÷åíèå HTML:',
-		'Cancel' => 'Îòìåíà',
 	),
 	'ro' => Array (
 	),
@@ -108,7 +101,6 @@ $LOCAL_LANG = Array (
 		'CharacterMapTooltip' => 'Inserir caractere especial',
 		'Insert special character' => 'Inserir caractere especial',
 		'HTML value:' => 'Valor HTML:',
-		'Cancel' => 'Cancelar',
 	),
 	'et' => Array (
 	),

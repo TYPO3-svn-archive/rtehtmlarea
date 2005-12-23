@@ -2054,6 +2054,34 @@ HTMLArea.prototype.execCommand = function(cmdID, UI, param) {
 			this.selectNodeContents(el);
 			break;
 		}
+	    case "FontSize"	:
+	    case "FontName"	:
+		if (!param) {
+			var sel = this._getSelection();
+				// Find font and select it
+			if (HTMLArea.is_gecko && sel.isCollapsed) {
+				var fontNode = this._getFirstAncestor(sel, "font");
+				if (fontNode != null) this.selectNode(fontNode);
+			}
+				// Remove format
+			this._doc.execCommand("RemoveFormat", UI, null);
+				// Collapse range if font was found
+			if (HTMLArea.is_gecko && fontNode != null) {
+				sel = this._getSelection();
+				var r = this._createRange(sel).cloneRange();
+				r.collapse(false);
+				if(HTMLArea.is_safari) {
+					sel.empty();
+					sel.setBaseAndExtent(r.startContainer,r.startOffset,r.endContainer,r.endOffset);
+				} else {
+					sel.removeAllRanges();
+					sel.addRange(r);
+				}
+			}
+		} else {
+			this._doc.execCommand(cmdID, UI, param);
+		}
+		break;
 	    default		:
 	    	try { this._doc.execCommand(cmdID, UI, param); }
 			catch(e) { if(this.config.debug) alert(e + "\n\nby execCommand(" + cmdID + ");"); }

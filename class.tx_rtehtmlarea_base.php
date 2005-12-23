@@ -205,13 +205,13 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 		);
 				
 	var $defaultFontSizes = array(
-		'1' =>	'8 pt',
-		'2' =>	'10 pt',
-		'3' =>	'12 pt',
-		'4' =>	'14 pt',
-		'5' =>	'18 pt',
-		'6' =>	'24 pt',
-		'7' =>	'36 pt',
+		'1' =>	'1 (8 pt)',
+		'2' =>	'2 (10 pt)',
+		'3' =>	'3 (12 pt)',
+		'4' =>	'4 (14 pt)',
+		'5' =>	'5 (18 pt)',
+		'6' =>	'6 (24 pt)',
+		'7' =>	'7 (36 pt)',
 		);
 
 	var $pluginList = 'TableOperations, ContextMenu, SpellChecker, SelectColor, TYPO3Browsers, InsertSmiley, FindReplace, RemoveFormat, CharacterMap, QuickTag, InlineCSS, DynamicCSS, UserElements, Acronym, TYPO3HtmlParser';
@@ -989,9 +989,22 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 	 * @return string		JS font sizes configuration
 	 */
 	function buildJSFontSizesConfig($number) {
+		global $LANG, $TSFE;
 		$registerRTEinJSString = '';
 		
-		$HTMLAreaFontSizes = $this->defaultFontSizes;
+			// Builing JS array of default font sizes
+		$HTMLAreaFontSizes = array();
+		if (is_object($TSFE)) {
+			$HTMLAreaFontSizes[0] = $TSFE->csConvObj->conv($TSFE->getLLL('No size',$this->LOCAL_LANG), $TSFE->labelsCharset, $TSFE->renderCharset);
+		} else {
+			$HTMLAreaFontSizes[0] = $LANG->getLL('No size');
+		}
+		
+		//$HTMLAreaFontSizes = $this->defaultFontSizes;
+		reset($this->defaultFontSizes);
+		while( list($FontSizeItem,$FontSizeLabel) = each($this->defaultFontSizes)) {
+			$HTMLAreaFontSizes[$FontSizeItem] = $FontSizeLabel;
+		}
 		if ($this->thisConfig['hideFontSizes'] ) {
 			$hideFontSizes =  t3lib_div::trimExplode(',', $this->cleanList($this->thisConfig['hideFontSizes']), 1);
 			foreach($hideFontSizes as $item)  unset($HTMLAreaFontSizes[strtolower($item)]);
@@ -1006,7 +1019,7 @@ class tx_rtehtmlarea_base extends t3lib_rteapi {
 					$HTMLAreaJSFontSize .= ',';
 				}
 				$HTMLAreaJSFontSize .= '
-				"' . $FontSizeLabel . '" : "' . $FontSizeItem . '"';
+				"' . $FontSizeLabel . '" : "' . ($FontSizeItem?$FontSizeItem:'') . '"';
 				$HTMLAreaFontSizeIndex++;
 			}
 		}

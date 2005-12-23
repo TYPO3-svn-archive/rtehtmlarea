@@ -81,6 +81,7 @@ DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 	var cssElements = new Array(),
 		cssElement = new Array(),
 		newCssArray = new Array(),
+		classParts = new Array(),
 		tagName, className, rule, k,
 		obj = editor.config.customSelects["DynamicCSS-class"];
 	newCssArray = cssArray;
@@ -91,12 +92,14 @@ DynamicCSS.applyCSSRule=function(editor,i18n,cssRules,cssArray){
 					// split equal Styles e.g. head, body {border:0px}
 				cssElements = cssRules[rule].selectorText.split(",");
 				for (k = 0; k < cssElements.length; k++) {
-					//cssElement = cssElements[k].split(" ");
-					//cssElement = cssElement[0].split(".");
 					cssElement = cssElements[k].split(".");
 					tagName = cssElement[0].toLowerCase().trim();
-					className = cssElement[1];
 					if (!tagName) tagName = "all";
+					className = cssElement[1];
+					if (className) {
+						classParts = className.trim().split(" ");
+						className = classParts[0];
+					}
 					if (!HTMLArea.reservedClassNames.test(className) && ((tagName == "all" && obj["showTagFreeClasses"] == true) || (tagName != "all" && (!obj["classesTag"] || !obj["classesTag"][tagName])) || (tagName != "all" && obj["classesTag"][tagName].indexOf(className) != -1)) ) {
 						if (!newCssArray[tagName]) newCssArray[tagName] = new Array();
 						if (className) {
@@ -146,19 +149,43 @@ DynamicCSS._pluginInfo = {
 	license       : "htmlArea"
 };
 
+DynamicCSS.prototype.getSelectedBlocks = function(editor) {
+	var block, range, i = 0, blocks = [];
+	if (HTMLArea.is_gecko && !HTMLArea.is_safari && !HTMLArea.is_opera) {
+		var sel = editor._getSelection();
+		try {
+			while (range = sel.getRangeAt(i++)) {
+				block = editor.getParentElement(sel, range);
+				blocks.push(block);
+			}
+		} catch(e) {
+			/* finished walking through selection */
+		}
+	} else {
+		blocks.push(editor.getParentElement());
+	}
+	return blocks;
+};
+
 DynamicCSS.prototype.onSelect = function(editor, obj) {
 	var tbobj = editor._toolbarObjects[obj.id];
 	var index = document.getElementById(tbobj.elementId).selectedIndex;
 	var className = document.getElementById(tbobj.elementId).value;
 
 	editor.focusEditor();
-    	var parent = editor.getParentElement();
-	while(typeof(parent) != "undefined" && !HTMLArea.isBlockElement(parent) && parent.nodeName.toLowerCase() != "img") parent = parent.parentNode;
-	var cls = parent.className.trim().split(" ");
-	for(var i = cls.length; i > 0;) if(!HTMLArea.reservedClassNames.test(cls[--i])) HTMLArea._removeClass(parent,cls[i]);
-	if(className != 'none'){
-		HTMLArea._addClass(parent,className);
-		obj.lastClass = className;
+	var blocks = this.getSelectedBlocks(editor);
+	for (var k = 0; k < blocks.length; ++k) {
+		var parent = blocks[k];
+		while (typeof(parent) != "undefined" && !HTMLArea.isBlockElement(parent) && parent.nodeName.toLowerCase() != "img") parent = parent.parentNode;
+		if (!k) var tagName = parent.tagName.toLowerCase();
+		if (parent.tagName.toLowerCase() == tagName) {
+			var cls = parent.className.trim().split(" ");
+			for (var i = cls.length; i > 0;) if(!HTMLArea.reservedClassNames.test(cls[--i])) HTMLArea._removeClass(parent,cls[i]);
+			if(className != 'none'){
+				HTMLArea._addClass(parent,className);
+				obj.lastClass = className;
+			}
+		}
 	}
 	editor.updateToolbar();
 };

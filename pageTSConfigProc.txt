@@ -43,7 +43,7 @@ RTE.default.proc {
 	allowTags (
 		a, abbr, acronym, address, blockquote, b, br, caption, cite, code, div, em,
 		h1, h2, h3, h4, h5, h6, hr, i, img, li, link, ol, p, pre, q, sdfield,
-		span, strong, sub, sup, table, tbody, td, th, tr, tt, ul
+		span, strong, sub, sup, table, thead, tbody, tfoot, td, th, tr, tt, ul
 		)
 	
 		## TAGS DENIED

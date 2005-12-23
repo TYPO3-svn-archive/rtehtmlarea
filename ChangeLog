@@ -1,3 +1,13 @@
+2005-12-22  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
+	* Update to Proc, Demo and Typical Page TSConfig.
+	* Correction for No font and No size elements if font and size selectors.
+	* Add support for thead and tfoot in TableOperations plugin.
+	* Update to skins for th tags
+	* Correction to some cleaning regular expressions in RemoveFormat plugin. Thanks to Ernesto Baschny.
+	* Keep character map window open until explicitly closed.
+	* Feature for Mozilla/Firefox: apply style to multiple selected cells of a table.
+	* Correction to the extraction of class selectors from some css rules.
+
 2005-12-20  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
 	* New FAQ about style selector boxes in IE.
 	* Numerous adjustments for eventual Opera support. Waiting for Opera Software to correct reported problems.

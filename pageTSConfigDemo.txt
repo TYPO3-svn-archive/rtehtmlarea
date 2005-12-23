@@ -112,7 +112,7 @@ RTE.default {
 	enableWordClean = 1
 	removeTrailingBR = 1
 	removeComments = 1
-	removeTags = center, font, sdfield, strike,u
+	removeTags = center, sdfield
 	removeTagsAndContents = style,script
 		
 		## Allow img tags
@@ -158,6 +158,9 @@ RTE.default {
 	
 		## Use stylesheet file rather than the above mainStyleOverride and inlineStyle properties to style the contents (htmlArea RTE only)
 	ignoreMainStyleOverride = 1
+	
+		## For this demo, do not remove font, strike and u tags
+	proc.entryHTMLparser_db.removeTags = center, sdfield
 	
 		## List all class selectors that are allowed on the way to the database
 	proc.allowedClasses (
@@ -207,6 +210,9 @@ RTE.default {
 		## Enable the use of personal dictionaries
 	enablePersonalDicts = 1
 }
+
+	## Use same processing as on entry to database to clean content pasted into the editor
+RTE.default.enableWordClean.HTMLparser < RTE.default.proc.entryHTMLparser_db
 
 	## front end RTE configuration (htmlArea RTE only)
 RTE.default.FE < RTE.default

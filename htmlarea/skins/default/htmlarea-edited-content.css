@@ -7,8 +7,11 @@
 	background-color:#ffffff;
 }
 
+/* Selectors for the Table Operations plugin */
+/* Make borders visible */
+/* Make sure we can click in empty cells without too much difficulty */
 .htmlarea-showtableborders, .htmlarea-showtableborders td, .htmlarea-showtableborders th {
-	border:1px dashed #316ac5 ! important;
+	padding: 3px; border:1px dashed #316ac5 ! important;
 }
 
 /* Selectors for the Abbreviation plugin */
@@ -23,6 +26,3 @@ abbr, acronym, span.abbr {
 	border-bottom:1px dashed #000;
 	padding-left:19px;
 }
-
-/* Make sure we can click in cells of newly created tables without too much difficulty */
-td { padding: 3px; }

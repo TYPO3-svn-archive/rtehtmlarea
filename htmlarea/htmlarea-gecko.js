@@ -153,9 +153,9 @@ HTMLArea.prototype.getSelectedHTMLContents = function() {
 /*
  * Get the deepest node that contains both endpoints of the current selection.
  */
-HTMLArea.prototype.getParentElement = function(sel) {
+HTMLArea.prototype.getParentElement = function(sel,range) {
 	if(!sel) var sel = this._getSelection();
-	var range = this._createRange(sel);
+	if (typeof(range) == "undefined") var range = this._createRange(sel);
 	try {
 		var p = range.commonAncestorContainer;
 		if(!range.collapsed && range.startContainer == range.endContainer &&
