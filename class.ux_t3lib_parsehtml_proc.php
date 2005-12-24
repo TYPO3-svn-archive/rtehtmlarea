@@ -35,7 +35,8 @@
  * @author	Kasper Skaarhoj <kasper@typo3.com>
  * @internal
  */
-
+if (t3lib_div::int_from_ver(TYPO3_VERSION) < 4000000 ) {
+	
 require_once (PATH_t3lib.'class.t3lib_parsehtml_proc.php');
 
 /**
@@ -349,5 +350,6 @@ class ux_t3lib_parsehtml_proc extends t3lib_parsehtml_proc {
 // </Stanislas Rolland 2005-11-18 Honor setting RTE.default.proc.HTMLparser_db.xhtml_cleaning=1>
 	 }
 
+}
 }
 ?>
