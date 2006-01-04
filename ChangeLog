@@ -1,6 +1,7 @@
 2006-01-03  Stanislas Rolland  <stanislas.rolland(arobas)fructifor.ca>
 	* Modify conf.php and module scripts so that the extension may be run as system, global or local extension.
 	* Convert some files to UNIX linebreaks.
+	* Recompress some JS scripts.
 
 2005-12-29  Michael Stucki  <michael@typo3.org>
 	* Solved problems with wrong backPath when installed as system extension in TYPO3 4.0 beta1.
