@@ -118,6 +118,10 @@ RTE.default {
 		## Allow img tags
 	proc.entryHTMLparser_db.tags.img >
 	
+		## Allow align attribute
+	proc.entryHTMLparser_db.tags.p.fixAttrib.align.unset >
+	proc.entryHTMLparser_db.tags.div.fixAttrib.align.unset >
+	
 		## Toolbar options
 	showButtons = *
 	
