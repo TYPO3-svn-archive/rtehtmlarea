@@ -10,9 +10,6 @@ if (strstr(MY_PATH_thisScript, 'typo3conf')) {
 }
 
 $BACK_PATH = '../../../typo3/';
-//define('TYPO3_MOD_PATH', 'sysext/rtehtmlarea/');
-//$BACK_PATH='../../';
-
 $MCONF['name']='xMOD_rtehtmlarea';	// xMOD_[modulename][optional: '_something']
 
 ?>
