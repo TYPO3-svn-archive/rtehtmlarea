@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Stanislas Rolland (stanislas.rolland@fructifor.ca)
+*  (c) 2005-2006 Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is 
@@ -27,26 +27,17 @@
 /** 
  * Acronym content for htmlArea RTE
  *
- * @author	Stanislas Rolland <stanislas.rolland@fructifor.ca>
+ * @author	Stanislas Rolland <stanislas.rolland(arobas)fructifor.ca>
  *
+ * $Id$  *
  */
 
 error_reporting (E_ALL ^ E_NOTICE);
 unset($MCONF);
-define('MY_PATH_thisScript',str_replace('//','/', str_replace('\\','/', (php_sapi_name()=='cgi'||php_sapi_name()=='xcgi'||php_sapi_name()=='isapi' ||php_sapi_name()=='cgi-fcgi')&&($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED'])? ($_SERVER['ORIG_PATH_TRANSLATED']?$_SERVER['ORIG_PATH_TRANSLATED']:$_SERVER['PATH_TRANSLATED']):($_SERVER['ORIG_SCRIPT_FILENAME']?$_SERVER['ORIG_SCRIPT_FILENAME']:$_SERVER['SCRIPT_FILENAME']))));
-
-if( strstr(MY_PATH_thisScript, 'typo3conf') ) {
-	define('TYPO3_MOD_PATH', "../typo3conf/ext/rtehtmlarea/");
-} else {
-	define('TYPO3_MOD_PATH', "ext/rtehtmlarea/");
-}
-
-$BACK_PATH = '../../../typo3/';
 require ('conf.php');
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 $LANG->includeLLFile('EXT:rtehtmlarea/locallang_rtehtmlarea_acronym.php');
-
 
 class tx_rtehtmlarea_acronym {
 	var $content;
